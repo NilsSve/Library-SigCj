@@ -1,6 +1,0 @@
-#REPLACE FILE9 Cal_Res
-#REPLACE Cal_Res.Recnum |FN9,0
-#REPLACE Cal_Res.ID |FN9,1
-#REPLACE Cal_Res.Title |FS9,2
-#REPLACE Cal_Res.DataType |FN9,3
-#REPLACE Cal_Res.DataSource |FS9,4

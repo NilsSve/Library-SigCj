@@ -1,5 +1,0 @@
-#REPLACE FILE18 Checkbox
-#REPLACE Checkbox.Recnum |FN18,0
-#REPLACE Checkbox.ID |FN18,1
-#REPLACE Checkbox.String_Field |FS18,2
-#REPLACE Checkbox.Check_Box_Field |FS18,3

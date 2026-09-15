@@ -1,9 +1,0 @@
-#REPLACE FILE58 c_Props
-#REPLACE c_Props.Recnum |FN58,0
-#REPLACE c_Props.WkDayStartTime |FS58,1
-#REPLACE c_Props.WkDayEndTime |FS58,2
-#REPLACE c_Props.ShadeLunchTime |FS58,3
-#REPLACE c_Props.LunchStartTime |FS58,4
-#REPLACE c_Props.LunchEndTime |FS58,5
-#REPLACE c_Props.ShorterLastDay |FS58,6
-#REPLACE c_Props.LastWkDayEndTim |FS58,7

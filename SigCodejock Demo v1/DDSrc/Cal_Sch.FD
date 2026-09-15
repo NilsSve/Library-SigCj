@@ -1,4 +1,0 @@
-#REPLACE FILE10 Cal_Sch
-#REPLACE Cal_Sch.Recnum |FN10,0
-#REPLACE Cal_Sch.ID |FN10,1
-#REPLACE Cal_Sch.Title |FS10,2

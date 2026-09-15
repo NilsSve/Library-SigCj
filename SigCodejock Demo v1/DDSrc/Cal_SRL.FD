@@ -1,6 +1,0 @@
-#REPLACE FILE7 Cal_SRL
-#REPLACE Cal_SRL.Recnum |FN7,0
-#REPLACE Cal_SRL.Layout |FN7,1
-#REPLACE Cal_SRL.Order |FN7,2
-#REPLACE Cal_SRL.Resource |FN7,3
-#REPLACE Cal_SRL.Schedule |FN7,4
