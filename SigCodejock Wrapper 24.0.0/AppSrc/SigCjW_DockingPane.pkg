@@ -1,0 +1,2408 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : SigCjW_DockingPane.pkg
+// From         : Codejock.DockingPane.v24.0.0.ocx
+// Description  : DF COM Wrapper Class for Codejock controls
+//
+// Created by   : Ian Smith
+// Revision     : $Rev$
+//                $Date$
+//                $Author$
+//
+// Requirements : Visual DataFlex 24.0
+//                Codejock SuitePro - Version 24.0.0
+//
+// Copyright    : Copyright c 2008-2025 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+//CompilerWarnings Suspend
+
+Use FlexCom20.pkg
+
+Use SigCjLicense.pkg
+Use SigCjC_AmbientProperty.pkg
+Use SigCjC_ColorManager.pkg
+Use SigCjC_ImageManager.pkg
+Use SigCjC_PropExchange.pkg
+Use SigCjC_ResourceImages.pkg
+Use SigCjC_ScaleMode.pkg
+Use SigCjC_TabManager.pkg
+Use SigCjC_ToolTip.pkg
+
+// Visual Theme  Constants
+Define OLEVisualTheme for Integer
+    // ThemeDefault
+    Define OLEThemeDefault for 0
+    // ThemeOffice
+    Define OLEThemeOffice for 1
+    // ThemeOffice2003
+    Define OLEThemeOffice2003 for 2
+    // ThemeNativeWinXP
+    Define OLEThemeNativeWinXP for 3
+    // ThemeGrippered
+    Define OLEThemeGrippered for 4
+    // ThemeVisio
+    Define OLEThemeVisio for 5
+    // ThemeWhidbey
+    Define OLEThemeWhidbey for 6
+    // ThemeShortcutBar2003
+    Define OLEThemeShortcutBar2003 for 7
+    // ThemeExplorer
+    Define OLEThemeExplorer for 8
+    // ThemeVisualStudio2005
+    Define OLEThemeVisualStudio2005 for 9
+    // ThemeResource
+    Define OLEThemeResource for 10
+    // ThemeWord2007
+    Define OLEThemeWord2007 for 11
+    // ThemeOutlook2007
+    Define OLEThemeOutlook2007 for 12
+    // ThemeVisualStudio6
+    Define OLEThemeVisualStudio6 for 13
+    // ThemeVisualStudio2005Beta2
+    Define OLEThemeVisualStudio2005Beta2 for 14
+    // ThemeVisualStudio2005Beta2
+    Define OLEThemeVisualStudio2008 for 15
+    // ThemeVisualStudio2010
+    Define OLEThemeVisualStudio2010 for 16
+    // ThemeOffice2003Visio
+    Define OLEThemeOffice2003Visio for 17
+    // ThemeOffice2007Visio
+    Define OLEThemeOffice2007Visio for 18
+    // ThemeOffice2013
+    Define OLEThemeOffice2013 for 19
+    // ThemeOffice2016
+    Define OLEThemeOffice2016 for 19
+    // ThemeVisualStudio2012
+    Define OLEThemeVisualStudio2012 for 20
+    // ThemeVisualStudio2015
+    Define OLEThemeVisualStudio2015 for 21
+    // ThemeNativeWindows10
+    Define OLEThemeNativeWindows10 for 22
+    // ThemeVisualStudio2017
+    Define OLEThemeVisualStudio2017 for 23
+    // ThemeVisualStudio2019
+    Define OLEThemeVisualStudio2019 for 24
+    // ThemeVisualStudio2022
+    Define OLEThemeVisualStudio2022 for 25
+    // ThemeNativeWindows11
+    Define OLEThemeNativeWindows11 for 26
+
+// Visual Theme  Constants
+Define OLEDockingDirection for Integer
+    // To dock Pane left of another one
+    Define OLEDockLeftOf for 0
+    // To dock Pane right of another one
+    Define OLEDockRightOf for 1
+    // To dock Pane top of another one
+    Define OLEDockTopOf for 2
+    // To dock Pane bottom of another one
+    Define OLEDockBottomOf for 3
+
+// Pane Options
+Define OLEPaneOptions for Integer
+    // The Pane can not be closed
+    Define OLEPaneNoCloseable for 1
+    // The Pane can not be hidden
+    Define OLEPaneNoHideable for 2
+    // The Pane can not be floated
+    Define OLEPaneNoFloatable for 4
+    // The Pane hasn't caption
+    Define OLEPaneNoCaption for 8
+    // The Pane has menu button in caption
+    Define OLEPaneHasMenuButton for 16
+    // The Pane can't be docked
+    Define OLEPaneNoDockable for 32
+
+// Sticker Styles
+Define OLEDockingContextStickerStyle for Integer
+    Define OLEStickerStyleWhidbey for 0
+    Define OLEStickerStyleVisualStudio2005 for 1
+    Define OLEStickerStyleVisualStudio2008 for 2
+    Define OLEStickerStyleVisualStudio2010 for 3
+    Define OLEStickerStyleVisualStudio2012Light for 4
+    Define OLEStickerStyleVisualStudio2012Dark for 5
+    Define OLEStickerStyleVisualStudio2015Blue for 6
+    Define OLEStickerStyleVisualStudio2015Light for 7
+    Define OLEStickerStyleVisualStudio2015Dark for 8
+    Define OLEStickerStyleVisualStudio2017Blue for 9
+    Define OLEStickerStyleVisualStudio2017BlueExtra for 10
+    Define OLEStickerStyleVisualStudio2017Light for 11
+    Define OLEStickerStyleVisualStudio2017Dark for 12
+    Define OLEStickerStyleVisualStudio2019Blue for 13
+    Define OLEStickerStyleVisualStudio2019BlueExtra for 14
+    Define OLEStickerStyleVisualStudio2019Light for 15
+    Define OLEStickerStyleVisualStudio2019Dark for 16
+    Define OLEStickerStyleVisualStudio2022Blue for 17
+    Define OLEStickerStyleVisualStudio2022BlueExtra for 18
+    Define OLEStickerStyleVisualStudio2022Light for 19
+    Define OLEStickerStyleVisualStudio2022Dark for 20
+
+// Splitter Style
+Define OLEDockingPaneSplitterStyle for Integer
+    Define OLEPaneSplitterFlat for 0
+    Define OLEPaneSplitter3D for 1
+    Define OLEPaneSplitterSoft3D for 2
+    Define OLEPaneSplitterGradient for 4
+    Define OLEPaneSplitterGripperOfficeXP for 256
+    Define OLEPaneSplitterGripperOffice2003 for 512
+
+// Caption Button Style
+Define OLEDockingPaneCaptionButtonStyle for Integer
+    Define OLEPaneCaptionButtonDefault for 0
+    Define OLEPaneCaptionButtonOffice for 1
+    Define OLEPaneCaptionButtonOffice2003 for 2
+    Define OLEPaneCaptionButtonThemedExplorerBar for 3
+    Define OLEPaneCaptionButtonThemedButton for 4
+    Define OLEPaneCaptionButtonThemedToolBar for 5
+    Define OLEPaneCaptionButtonThemedToolWindow for 6
+
+// Tab Button Flags
+Define OLEDockingPaneTabButtonFlags for Integer
+    Define OLEPaneTabButtonNone for 0
+    Define OLEPaneTabButtonSelected for 1
+    Define OLEPaneTabButtonAlways for 2
+
+// Caption Direction
+Define OLEDockingPaneCaptionDirection for Integer
+    Define OLEPaneCaptionHorizontal for 0
+    Define OLEPaneCaptionVertical for 1
+    Define OLEPaneCaptionAutoByPosition for 2
+    Define OLEPaneCaptionAutoBySize for 3
+
+// Enable options
+Define OLEDockingPaneEnableOptions for Integer
+    Define OLEPaneDisabled for 0
+    Define OLEPaneEnableClient for 1
+    Define OLEPaneEnableActions for 2
+    Define OLEPaneEnabled for 3
+
+// Keyboard Navigate options
+Define OLEDockingPaneKeyboardNavigate for Integer
+    Define OLEPaneKeyboardUnused for 0
+    Define OLEPaneKeyboardUseAltMinus for 1
+    Define OLEPaneKeyboardUseAltF6 for 2
+    Define OLEPaneKeyboardUseAltF7 for 4
+    Define OLEPaneKeyboardUseCtrlTab for 8
+    Define OLEPaneKeyboardUseAll for 15
+
+// Docking pane type
+Define OLEDockingPaneType for Integer
+    Define OLEPaneTypeDockingPane for 0
+    Define OLEPaneTypeTabbedContainer for 1
+    Define OLEPaneTypeSplitterContainer for 2
+    Define OLEPaneTypeMiniWnd for 3
+    Define OLEPaneTypeClient for 4
+    Define OLEPaneTypeAutoHidePanel for 5
+    Define OLEPaneTypeSidePanel for 6
+
+// Pane Actions
+Define OLEDockingPaneAction for Integer
+    // Docking pane is currently floating.  This occurs when the user clicks on the title bar of a docking pane and drags the pane to another location.  When this occurs, the pane is said to be 'floating.'
+    Define OLEPaneActionFloating for 0
+    // Docking pane has been docked, and is currently floating.
+    Define OLEPaneActionFloated for 1
+    // Docking pane is currently closing.  This occurs when the close button of the pane is clicked.
+    Define OLEPaneActionClosing for 2
+    // Docking pane has been closed.  This occurs when the docking pane has finished closing.
+    Define OLEPaneActionClosed for 3
+    // Docking pane is in the process of docking.
+    Define OLEPaneActionDocking for 4
+    // Docking pane has been docked.  This occurs when the docking pane has finished docking. 
+    Define OLEPaneActionDocked for 5
+    // Docking pane is in the process of attaching to another pane.
+    Define OLEPaneActionAttaching for 6
+    // Docking pane has been attached.  This occurs when the docking pane has finished attaching to another pane.
+    Define OLEPaneActionAttached for 7
+    // Docking pane is currently pinning (hiding).  This occurs when the 'pin' button is clicked.
+    Define OLEPaneActionPinning for 8
+    // Docking pane has been pinned.  This occurs when the docking pane has finished pinning.
+    Define OLEPaneActionPinned for 9
+    // Docking pane is currently collapsing 'hiding'. 
+    Define OLEPaneActionCollapsing for 10
+    // Docking Pane has been collapsed.   This occurs when the docking pane has finished collapsing.
+    Define OLEPaneActionCollapsed for 11
+    // Docking pane is currently expanding. 
+    Define OLEPaneActionExpanding for 12
+    // Docking pane is expanded, this is when the pane is fully shown from the autohide position.
+    Define OLEPaneActionExpanded for 13
+    // Docking pane become active.
+    Define OLEPaneActionActivated for 14
+    // Docking pane deactivated.
+    Define OLEPaneActionDeactivated for 15
+    // Docking pane detaching.
+    Define OLEPaneActionDetaching for 16
+    // Docking pane dragging.
+    Define OLEPaneActionDragging for 17
+    // Docking pane unpinning.
+    Define OLEPaneActionUnpinning for 18
+    // Docking pane unpinned.
+    Define OLEPaneActionUnpinned for 19
+    // Docking pane resizing.
+    Define OLEPaneActionSplitterResizing for 20
+    // Docking pane resized.
+    Define OLEPaneActionSplitterResized for 21
+
+Class cSigCjComIDockingPaneLayout is a Mixin
+
+    Procedure ComDoPropExchange Variant llpPX
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llpPX
+        Send InvokeComMethod to hDispatchDriver 1 OLE_VT_VOID
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComPanesCount Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 2 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComPane Integer llIndex Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llIndex
+        Get InvokeComMethod of hDispatchDriver 0 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function Com_NewEnum Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver -4 OLE_VT_UNKNOWN to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComContainersCount Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 3 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComContainer Integer llIndex Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llIndex
+        Get InvokeComMethod of hDispatchDriver 4 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComTopContainer Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 5 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComClientContainer Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 6 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+End_Class
+
+Class cSigCjComDockingPaneLayout is a cComAutomationObject
+    Import_Class_Protocol cSigCjComIDockingPaneLayout
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set peAutoCreate to acNoAutoCreate
+    End_Procedure
+End_Class
+
+Class cSigCjComIDockingPaneTrackSize is a Mixin
+
+    { MethodType=Property DesignTime=False }
+    Function ComWidth Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComWidth Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComHeight Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComHeight Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_I4 to value
+    End_Procedure
+
+    Procedure ComSetSize Integer llWidth Integer llHeight
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llWidth
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llHeight
+        Send InvokeComMethod to hDispatchDriver 3 OLE_VT_VOID
+    End_Procedure
+End_Class
+
+Class cSigCjComDockingPaneTrackSize is a cComAutomationObject
+    Import_Class_Protocol cSigCjComIDockingPaneTrackSize
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set peAutoCreate to acNoAutoCreate
+    End_Procedure
+End_Class
+
+Class cSigCjComIPaneContainer is a Mixin
+
+    { MethodType=Property DesignTime=False }
+    Function Com_NewEnum Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver -4 OLE_VT_UNKNOWN to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComCount Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 1 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComPane Integer llIndex Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llIndex
+        Get InvokeComMethod of hDispatchDriver 0 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComParentContainer Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 20 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComType Returns OLEDockingPaneType
+        Handle hDispatchDriver
+        OLEDockingPaneType retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 21 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComHWnd Returns OLE_HANDLE
+        Handle hDispatchDriver
+        OLE_HANDLE retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver -515 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComIsEmpty Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 22 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComPosition Returns OLEDockingDirection
+        Handle hDispatchDriver
+        OLEDockingDirection retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 23 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+End_Class
+
+Class cSigCjComPaneContainer is a cComAutomationObject
+    Import_Class_Protocol cSigCjComIPaneContainer
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set peAutoCreate to acNoAutoCreate
+    End_Procedure
+End_Class
+
+Class cSigCjComIPane is a Mixin
+
+    { MethodType=Property DesignTime=False }
+    Function ComHandle Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 0 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComHandle Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 0 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTitle Returns String
+        String retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTitle String value
+        Set ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_BSTR to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComId Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComId Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComIconId Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComIconId Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComHidden Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComHidden Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComClosed Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 5 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComClosed Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 5 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComSelected Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 6 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComSelected Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 6 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComOptions Returns OLEPaneOptions
+        OLEPaneOptions retVal
+        Get ComProperty of (phDispatchDriver(Self)) 7 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComOptions OLEPaneOptions value
+        Set ComProperty of (phDispatchDriver(Self)) 7 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComFloating Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 8 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComFloating Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 8 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTag Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 14 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTag Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 14 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabColor Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 18 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabColor OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 18 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComEnabled Returns OLEDockingPaneEnableOptions
+        OLEDockingPaneEnableOptions retVal
+        Get ComProperty of (phDispatchDriver(Self)) 19 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComEnabled OLEDockingPaneEnableOptions value
+        Set ComProperty of (phDispatchDriver(Self)) 19 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabCaption Returns String
+        String retVal
+        Get ComProperty of (phDispatchDriver(Self)) 26 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabCaption String value
+        Set ComProperty of (phDispatchDriver(Self)) 26 OLE_VT_BSTR to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTitleToolTip Returns String
+        String retVal
+        Get ComProperty of (phDispatchDriver(Self)) 27 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTitleToolTip String value
+        Set ComProperty of (phDispatchDriver(Self)) 27 OLE_VT_BSTR to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComMaximized Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 24 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComMaximized Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 24 OLE_VT_BOOL to value
+    End_Procedure
+
+    Procedure ComHide
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 10 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComClose
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 11 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComSelect
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 12 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComAttachTo Variant llNeighbour
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llNeighbour
+        Send InvokeComMethod to hDispatchDriver 13 OLE_VT_VOID
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComMinTrackSize Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 15 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComMaxTrackSize Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 16 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComSetHandle OLE_HANDLE llhWnd
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llhWnd
+        Send InvokeComMethod to hDispatchDriver 17 OLE_VT_VOID
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComParentContainer Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 20 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComType Returns OLEDockingPaneType
+        Handle hDispatchDriver
+        OLEDockingPaneType retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 21 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComPosition Returns OLEDockingDirection
+        Handle hDispatchDriver
+        OLEDockingDirection retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 23 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComGetClientRect Integer ByRef llLeft Integer ByRef llTop Integer ByRef llRight Integer ByRef llBottom
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 4
+        Send DefineParam to hDispatchDriver (OLE_VT_BYREF ior OLE_VT_I4) llLeft
+        Send DefineParam to hDispatchDriver (OLE_VT_BYREF ior OLE_VT_I4) llTop
+        Send DefineParam to hDispatchDriver (OLE_VT_BYREF ior OLE_VT_I4) llRight
+        Send DefineParam to hDispatchDriver (OLE_VT_BYREF ior OLE_VT_I4) llBottom
+        Send InvokeComMethod to hDispatchDriver 25 OLE_VT_VOID
+    End_Procedure
+End_Class
+
+Class cSigCjComPane is a cComAutomationObject
+    Import_Class_Protocol cSigCjComIPane
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set peAutoCreate to acNoAutoCreate
+    End_Procedure
+End_Class
+
+Class cSigCjComIDockingPanePaintManager is a Mixin
+
+    { MethodType=Property DesignTime=False }
+    Function ComShowCaption Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComShowCaption Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComCaptionFont Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) -512 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComCaptionFont Variant value
+        Set ComProperty of (phDispatchDriver(Self)) -512 OLE_VT_DISPATCH to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComHighlightActiveCaption Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComHighlightActiveCaption Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComDrawSingleTab Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComDrawSingleTab Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComSplitterSize Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComSplitterSize Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComSplitterStyle Returns OLEDockingPaneSplitterStyle
+        OLEDockingPaneSplitterStyle retVal
+        Get ComProperty of (phDispatchDriver(Self)) 5 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComSplitterStyle OLEDockingPaneSplitterStyle value
+        Set ComProperty of (phDispatchDriver(Self)) 5 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComSplitterColor Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 6 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComSplitterColor OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 6 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComCaptionButtonStyle Returns OLEDockingPaneCaptionButtonStyle
+        OLEDockingPaneCaptionButtonStyle retVal
+        Get ComProperty of (phDispatchDriver(Self)) 7 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComCaptionButtonStyle OLEDockingPaneCaptionButtonStyle value
+        Set ComProperty of (phDispatchDriver(Self)) 7 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComCaptionMargin Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 8 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComCaptionMargin Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 8 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComDrawCaptionIcon Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 9 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComDrawCaptionIcon Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 9 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComUseCustomTitleColors Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 10 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComUseCustomTitleColors Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 10 OLE_VT_BOOL to value
+    End_Procedure
+
+    Procedure ComSetCustomTitleColors OLE_COLOR llclrActiveHorz OLE_COLOR llclrInactiveHorz OLE_COLOR llclrActiveVert OLE_COLOR llclrInactiveVert
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 4
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llclrActiveHorz
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llclrInactiveHorz
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llclrActiveVert
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llclrInactiveVert
+        Send InvokeComMethod to hDispatchDriver 11 OLE_VT_VOID
+    End_Procedure
+
+    Function ComGetCustomTitleColor Boolean llfActive Boolean llfVert Returns OLE_COLOR
+        Handle hDispatchDriver
+        OLE_COLOR retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_BOOL llfActive
+        Send DefineParam to hDispatchDriver OLE_VT_BOOL llfVert
+        Get InvokeComMethod of hDispatchDriver 12 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+End_Class
+
+Class cSigCjComDockingPanePaintManager is a cComAutomationObject
+    Import_Class_Protocol cSigCjComIDockingPanePaintManager
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set peAutoCreate to acNoAutoCreate
+    End_Procedure
+End_Class
+
+Class cSigCjComIDockingPaneOptions is a Mixin
+
+    { MethodType=Property DesignTime=False }
+    Function ComLunaColors Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComLunaColors Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComAnimationDelay Returns Real
+        Real retVal
+        Get ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_R8 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComAnimationDelay Real value
+        Set ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_R8 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComHideClient Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComHideClient Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComUseSplitterTracker Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComUseSplitterTracker Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComLockSplitters Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 5 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComLockSplitters Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 5 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComThemedFloatingFrames Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 6 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComThemedFloatingFrames Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 6 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComFloatingFrameCaption Returns String
+        String retVal
+        Get ComProperty of (phDispatchDriver(Self)) 7 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComFloatingFrameCaption String value
+        Set ComProperty of (phDispatchDriver(Self)) 7 OLE_VT_BSTR to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComAlphaDockingContext Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 9 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComAlphaDockingContext Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 9 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComShowDockingContextStickers Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 10 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComShowDockingContextStickers Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 10 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComDefaultPaneOptions Returns OLEPaneOptions
+        OLEPaneOptions retVal
+        Get ComProperty of (phDispatchDriver(Self)) 11 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComDefaultPaneOptions OLEPaneOptions value
+        Set ComProperty of (phDispatchDriver(Self)) 11 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComCloseGroupOnButtonClick Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 12 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComCloseGroupOnButtonClick Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 12 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComHideGroupOnButtonClick Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 13 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComHideGroupOnButtonClick Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 13 OLE_VT_BOOL to value
+    End_Procedure
+
+    // Synchronizes the activation of the mini-frame windows to the activation of its parent window
+    { MethodType=Property DesignTime=False }
+    Function ComSyncActiveFloatingFrames Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 14 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    // Synchronizes the activation of the mini-frame windows to the activation of its parent window
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComSyncActiveFloatingFrames Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 14 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComShowCaptionMaximizeButton Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 15 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComShowCaptionMaximizeButton Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 15 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComStickerStyle Returns OLEDockingContextStickerStyle
+        OLEDockingContextStickerStyle retVal
+        Get ComProperty of (phDispatchDriver(Self)) 16 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComStickerStyle OLEDockingContextStickerStyle value
+        Set ComProperty of (phDispatchDriver(Self)) 16 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComCaptionDirection Returns OLEDockingPaneCaptionDirection
+        OLEDockingPaneCaptionDirection retVal
+        Get ComProperty of (phDispatchDriver(Self)) 17 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComCaptionDirection OLEDockingPaneCaptionDirection value
+        Set ComProperty of (phDispatchDriver(Self)) 17 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComAutoHideAnimationInterval Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 18 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComAutoHideAnimationInterval Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 18 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComAutoHideAnimationDuration Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 19 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComAutoHideAnimationDuration Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 19 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComAutoHideMouseHoverDelay Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 20 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComAutoHideMouseHoverDelay Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 20 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComAutoHideInactiveCollapseDelay Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 21 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComAutoHideInactiveCollapseDelay Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 21 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComShowFloatingFramePinButton Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 22 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComShowFloatingFramePinButton Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 22 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComShowContentsWhileDragging Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 23 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComShowContentsWhileDragging Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 23 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComShowSizeCursorWhileDragging Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 24 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComShowSizeCursorWhileDragging Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 24 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComClientMargin Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 25 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComClientMargin Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 25 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComStickyFloatingFrames Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 26 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComStickyFloatingFrames Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 26 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComFloatingFramesOpacity Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 27 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComFloatingFramesOpacity Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 27 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComSideDocking Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 28 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComSideDocking Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 28 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComShowPanelScrollButtons Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 30 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComShowPanelScrollButtons Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 30 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComShowCloseTabButton Returns OLEDockingPaneTabButtonFlags
+        OLEDockingPaneTabButtonFlags retVal
+        Get ComProperty of (phDispatchDriver(Self)) 31 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComShowCloseTabButton OLEDockingPaneTabButtonFlags value
+        Set ComProperty of (phDispatchDriver(Self)) 31 OLE_VT_I4 to value
+    End_Procedure
+
+    Procedure ComSetSideDockingMargin Integer llLeft Integer llTop Integer llRight Integer llBottom
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 4
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llLeft
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llTop
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llRight
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llBottom
+        Send InvokeComMethod to hDispatchDriver 29 OLE_VT_VOID
+    End_Procedure
+End_Class
+
+Class cSigCjComDockingPaneOptions is a cComAutomationObject
+    Import_Class_Protocol cSigCjComIDockingPaneOptions
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set peAutoCreate to acNoAutoCreate
+    End_Procedure
+End_Class
+
+Class cSigCjComIPaneActionContainer is a Mixin
+
+    { MethodType=Property DesignTime=False }
+    Function ComContainer Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 0 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComDirection Returns OLEDockingDirection
+        Handle hDispatchDriver
+        OLEDockingDirection retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 2 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+End_Class
+
+Class cSigCjComPaneActionContainer is a cComAutomationObject
+    Import_Class_Protocol cSigCjComIPaneActionContainer
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set peAutoCreate to acNoAutoCreate
+    End_Procedure
+End_Class
+
+// Dispatch interface for DockingPane Control
+Class cSigCjCom_DDockingPane is a Mixin
+
+    { MethodType=Property DesignTime=False }
+    Function ComVisualTheme Returns OLEVisualTheme
+        OLEVisualTheme retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComVisualTheme OLEVisualTheme value
+        Set ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComImageList Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComImageList Variant value
+        Set ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_DISPATCH to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComScaleMode Returns OLEXTPScaleMode
+        OLEXTPScaleMode retVal
+        Get ComProperty of (phDispatchDriver(Self)) 24 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComScaleMode OLEXTPScaleMode value
+        Set ComProperty of (phDispatchDriver(Self)) 24 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComIcons Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) 25 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComIcons Variant value
+        Set ComProperty of (phDispatchDriver(Self)) 25 OLE_VT_DISPATCH to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComReCreateReparented Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 10002000 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComReCreateReparented Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 10002000 OLE_VT_BOOL to value
+    End_Procedure
+
+    Function ComCreatePane Integer llId Integer llcx Integer llcy OLEDockingDirection llDirection Variant llNeighbour Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 5
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llId
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llcx
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llcy
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llDirection
+        Send DefineParam to hDispatchDriver OLE_VT_VARIANT llNeighbour
+        Get InvokeComMethod of hDispatchDriver 3 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComAttachPane Variant llPane Variant llNeighbour
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llPane
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llNeighbour
+        Send InvokeComMethod to hDispatchDriver 4 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComHidePane Variant llPane
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llPane
+        Send InvokeComMethod to hDispatchDriver 5 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComShowPane Integer llId
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llId
+        Send InvokeComMethod to hDispatchDriver 6 OLE_VT_VOID
+    End_Procedure
+
+    Function ComFindPane Integer llId Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llId
+        Get InvokeComMethod of hDispatchDriver 7 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComGetClientRect Integer ByRef llLeft Integer ByRef llTop Integer ByRef llRight Integer ByRef llBottom
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 4
+        Send DefineParam to hDispatchDriver (OLE_VT_BYREF ior OLE_VT_I4) llLeft
+        Send DefineParam to hDispatchDriver (OLE_VT_BYREF ior OLE_VT_I4) llTop
+        Send DefineParam to hDispatchDriver (OLE_VT_BYREF ior OLE_VT_I4) llRight
+        Send DefineParam to hDispatchDriver (OLE_VT_BYREF ior OLE_VT_I4) llBottom
+        Send InvokeComMethod to hDispatchDriver 8 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComRecalcLayout
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 9 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComSaveState String llRegistryKey String llAppName String llSection
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 3
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llRegistryKey
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llAppName
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llSection
+        Send InvokeComMethod to hDispatchDriver 10 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComLoadState String llRegistryKey String llAppName String llSection
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 3
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llRegistryKey
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llAppName
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llSection
+        Send InvokeComMethod to hDispatchDriver 11 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComSetCommandBars Variant llCommandBars
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llCommandBars
+        Send InvokeComMethod to hDispatchDriver 12 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComAddIconHandle Integer llIcon Integer llId
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llIcon
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llId
+        Send InvokeComMethod to hDispatchDriver 13 OLE_VT_VOID
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComOptions Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 14 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComLoadStateFromString String llNode
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llNode
+        Send InvokeComMethod to hDispatchDriver 15 OLE_VT_VOID
+    End_Procedure
+
+    Function ComSaveStateToString Returns String
+        Handle hDispatchDriver
+        String retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 16 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComRedrawPanes
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 17 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComDestroyPane Variant llPane
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llPane
+        Send InvokeComMethod to hDispatchDriver 18 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComDestroyAll
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 19 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComCloseAll
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 20 OLE_VT_VOID
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComPanesCount Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 21 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabPaintManager Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 22 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComPanelPaintManager Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 23 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComPanes Integer llnIndex Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llnIndex
+        Get InvokeComMethod of hDispatchDriver 0 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function Com_NewEnum Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver -4 OLE_VT_UNKNOWN to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComFloatPane Variant llPane Integer llLeft Integer llTop Integer llRight Integer llBottom
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 5
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llPane
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llLeft
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llTop
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llRight
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llBottom
+        Send InvokeComMethod to hDispatchDriver 26 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComNormalizeSplitters
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 27 OLE_VT_VOID
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComPaintManager Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 28 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComActivePane Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 29 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComToolTipContext Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 30 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Function ComCreateLayout Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 31 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComGetLayout Variant llLayout
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llLayout
+        Send InvokeComMethod to hDispatchDriver 32 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComSetLayout Variant llLayout
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llLayout
+        Send InvokeComMethod to hDispatchDriver 33 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComSetMDIClient OLE_HANDLE llhWnd
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llhWnd
+        Send InvokeComMethod to hDispatchDriver 34 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComUpdatePanes
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 35 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComAttachToWindow OLE_HANDLE llhWnd
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llhWnd
+        Send InvokeComMethod to hDispatchDriver 50 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComDockPane Variant llPane Integer llcx Integer llcy OLEDockingDirection llDirection Variant llNeighbour
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 5
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llPane
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llcx
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llcy
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llDirection
+        Send DefineParam to hDispatchDriver OLE_VT_VARIANT llNeighbour
+        Send InvokeComMethod to hDispatchDriver 51 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComEnableKeyboardNavigate OLEDockingPaneKeyboardNavigate llOptions
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llOptions
+        Send InvokeComMethod to hDispatchDriver 52 OLE_VT_VOID
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComLayout Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 53 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComDockSidePane Variant llPane Integer llOffset OLEDockingDirection llDirection
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 3
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llPane
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llOffset
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llDirection
+        Send InvokeComMethod to hDispatchDriver 54 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComAboutBox
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver -552 OLE_VT_VOID
+    End_Procedure
+End_Class
+
+// Event interface for DockingPane Control
+Class cSigCjCom_DDockingPaneEvents is a Mixin
+
+    { MethodType=Event }
+    Procedure OnComAttachPane Variant llItem
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComGetClientBordersWidth Integer ByRef llLeft Integer ByRef llTop Integer ByRef llRight Integer ByRef llBottom
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComResize
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComAction OLEDockingPaneAction llAction Variant llPane Variant llContainer Boolean ByRef llCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComResizeClient Integer llLeft Integer llTop Integer llRight Integer llBottom
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComRClick Variant llPane
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComPanePopupMenu Variant llPane Integer llx Integer lly Boolean ByRef llHandled
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComReCreated
+    End_Procedure
+
+    { Visibility=Private }
+    Procedure RegisterComEvents
+        Send RegisterComEvent 1 msg_OnComAttachPane
+        Send RegisterComEvent 2 msg_OnComGetClientBordersWidth
+        Send RegisterComEvent 3 msg_OnComResize
+        Send RegisterComEvent 4 msg_OnComAction
+        Send RegisterComEvent 7 msg_OnComResizeClient
+        Send RegisterComEvent 8 msg_OnComRClick
+        Send RegisterComEvent 9 msg_OnComPanePopupMenu
+        Send RegisterComEvent 10001000 msg_OnComReCreated
+    End_Procedure
+End_Class
+
+// Xtreme DockingPane Control
+{ CLSID=L_cSigCjComDockingPane }
+Class cSigCjComDockingPane is a cComActiveXControl
+    Import_Class_Protocol cSigCjCom_DDockingPane
+    Import_Class_Protocol cSigCjCom_DDockingPaneEvents
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set psProgID to L_cSigCjComDockingPane
+        Set psEventId to "{C0DE2400-D406-4B24-8B76-A048A231F2B1}"
+        Set psLicenseKey to L_cSigCjKeyDockingPane
+        Set peAutoCreate to acAutoCreate
+    End_Procedure
+End_Class
+
+// Dispatch interface for DockingPane Control
+Class cSigCjCom_DDockingPaneFrame is a Mixin
+
+    { MethodType=Property DesignTime=False }
+    Function ComVisualTheme Returns OLEVisualTheme
+        OLEVisualTheme retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComVisualTheme OLEVisualTheme value
+        Set ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComImageList Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComImageList Variant value
+        Set ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_DISPATCH to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComScaleMode Returns OLEXTPScaleMode
+        OLEXTPScaleMode retVal
+        Get ComProperty of (phDispatchDriver(Self)) 24 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComScaleMode OLEXTPScaleMode value
+        Set ComProperty of (phDispatchDriver(Self)) 24 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComIcons Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) 25 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComIcons Variant value
+        Set ComProperty of (phDispatchDriver(Self)) 25 OLE_VT_DISPATCH to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComReCreateReparented Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 10002000 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComReCreateReparented Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 10002000 OLE_VT_BOOL to value
+    End_Procedure
+
+    Function ComCreatePane Integer llId Integer llcx Integer llcy OLEDockingDirection llDirection Variant llNeighbour Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 5
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llId
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llcx
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llcy
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llDirection
+        Send DefineParam to hDispatchDriver OLE_VT_VARIANT llNeighbour
+        Get InvokeComMethod of hDispatchDriver 3 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComAttachPane Variant llPane Variant llNeighbour
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llPane
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llNeighbour
+        Send InvokeComMethod to hDispatchDriver 4 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComHidePane Variant llPane
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llPane
+        Send InvokeComMethod to hDispatchDriver 5 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComShowPane Integer llId
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llId
+        Send InvokeComMethod to hDispatchDriver 6 OLE_VT_VOID
+    End_Procedure
+
+    Function ComFindPane Integer llId Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llId
+        Get InvokeComMethod of hDispatchDriver 7 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComGetClientRect Integer ByRef llLeft Integer ByRef llTop Integer ByRef llRight Integer ByRef llBottom
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 4
+        Send DefineParam to hDispatchDriver (OLE_VT_BYREF ior OLE_VT_I4) llLeft
+        Send DefineParam to hDispatchDriver (OLE_VT_BYREF ior OLE_VT_I4) llTop
+        Send DefineParam to hDispatchDriver (OLE_VT_BYREF ior OLE_VT_I4) llRight
+        Send DefineParam to hDispatchDriver (OLE_VT_BYREF ior OLE_VT_I4) llBottom
+        Send InvokeComMethod to hDispatchDriver 8 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComRecalcLayout
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 9 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComSaveState String llRegistryKey String llAppName String llSection
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 3
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llRegistryKey
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llAppName
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llSection
+        Send InvokeComMethod to hDispatchDriver 10 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComLoadState String llRegistryKey String llAppName String llSection
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 3
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llRegistryKey
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llAppName
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llSection
+        Send InvokeComMethod to hDispatchDriver 11 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComSetCommandBars Variant llCommandBars
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llCommandBars
+        Send InvokeComMethod to hDispatchDriver 12 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComAddIconHandle Integer llIcon Integer llId
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llIcon
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llId
+        Send InvokeComMethod to hDispatchDriver 13 OLE_VT_VOID
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComOptions Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 14 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComLoadStateFromString String llNode
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llNode
+        Send InvokeComMethod to hDispatchDriver 15 OLE_VT_VOID
+    End_Procedure
+
+    Function ComSaveStateToString Returns String
+        Handle hDispatchDriver
+        String retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 16 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComRedrawPanes
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 17 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComDestroyPane Variant llPane
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llPane
+        Send InvokeComMethod to hDispatchDriver 18 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComDestroyAll
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 19 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComCloseAll
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 20 OLE_VT_VOID
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComPanesCount Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 21 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabPaintManager Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 22 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComPanelPaintManager Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 23 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComPanes Integer llnIndex Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llnIndex
+        Get InvokeComMethod of hDispatchDriver 0 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function Com_NewEnum Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver -4 OLE_VT_UNKNOWN to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComFloatPane Variant llPane Integer llLeft Integer llTop Integer llRight Integer llBottom
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 5
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llPane
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llLeft
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llTop
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llRight
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llBottom
+        Send InvokeComMethod to hDispatchDriver 26 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComNormalizeSplitters
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 27 OLE_VT_VOID
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComPaintManager Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 28 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComActivePane Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 29 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComToolTipContext Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 30 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Function ComCreateLayout Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 31 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComGetLayout Variant llLayout
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llLayout
+        Send InvokeComMethod to hDispatchDriver 32 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComSetLayout Variant llLayout
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llLayout
+        Send InvokeComMethod to hDispatchDriver 33 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComSetMDIClient OLE_HANDLE llhWnd
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llhWnd
+        Send InvokeComMethod to hDispatchDriver 34 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComUpdatePanes
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 35 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComAttachToWindow OLE_HANDLE llhWnd
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llhWnd
+        Send InvokeComMethod to hDispatchDriver 50 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComDockPane Variant llPane Integer llcx Integer llcy OLEDockingDirection llDirection Variant llNeighbour
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 5
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llPane
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llcx
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llcy
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llDirection
+        Send DefineParam to hDispatchDriver OLE_VT_VARIANT llNeighbour
+        Send InvokeComMethod to hDispatchDriver 51 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComEnableKeyboardNavigate OLEDockingPaneKeyboardNavigate llOptions
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llOptions
+        Send InvokeComMethod to hDispatchDriver 52 OLE_VT_VOID
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComLayout Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 53 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComDockSidePane Variant llPane Integer llOffset OLEDockingDirection llDirection
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 3
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llPane
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llOffset
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llDirection
+        Send InvokeComMethod to hDispatchDriver 54 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComAboutBox
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver -552 OLE_VT_VOID
+    End_Procedure
+End_Class
+
+// Event interface for DockingPane Control
+Class cSigCjCom_DDockingPaneFrameEvents is a Mixin
+
+    { MethodType=Event }
+    Procedure OnComAttachPane Variant llItem
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComGetClientBordersWidth Integer ByRef llLeft Integer ByRef llTop Integer ByRef llRight Integer ByRef llBottom
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComResize
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComAction OLEDockingPaneAction llAction Variant llPane Variant llContainer Boolean ByRef llCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComResizeClient Integer llLeft Integer llTop Integer llRight Integer llBottom
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComRClick Variant llPane
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComPanePopupMenu Variant llPane Integer llx Integer lly Boolean ByRef llHandled
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComReCreated
+    End_Procedure
+
+    { Visibility=Private }
+    Procedure RegisterComEvents
+        Send RegisterComEvent 1 msg_OnComAttachPane
+        Send RegisterComEvent 2 msg_OnComGetClientBordersWidth
+        Send RegisterComEvent 3 msg_OnComResize
+        Send RegisterComEvent 4 msg_OnComAction
+        Send RegisterComEvent 7 msg_OnComResizeClient
+        Send RegisterComEvent 8 msg_OnComRClick
+        Send RegisterComEvent 9 msg_OnComPanePopupMenu
+        Send RegisterComEvent 10001000 msg_OnComReCreated
+    End_Procedure
+End_Class
+
+// Xtreme DockingPane Frame Control
+{ CLSID=L_cSigCjComDockingPaneFrame }
+Class cSigCjComDockingPaneFrame is a cComActiveXControl
+    Import_Class_Protocol cSigCjCom_DDockingPaneFrame
+    Import_Class_Protocol cSigCjCom_DDockingPaneFrameEvents
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set psProgID to L_cSigCjComDockingPaneFrame
+        Set psEventId to "{C0DE2400-B0A3-4DB3-A951-8E52DDE888A7}"
+        Set psLicenseKey to L_cSigCjKeyDockingPane
+        Set peAutoCreate to acDeferredAutoCreate
+    End_Procedure
+End_Class
+
+// Global Settings
+Class cSigCjComIDockingPaneGlobalSettings is a Mixin
+
+    { MethodType=Property DesignTime=False }
+    Function ComResourceFile Returns String
+        String retVal
+        Get ComProperty of (phDispatchDriver(Self)) 100 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComResourceFile String value
+        Set ComProperty of (phDispatchDriver(Self)) 100 OLE_VT_BSTR to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComLicense Returns String
+        String retVal
+        Get ComProperty of (phDispatchDriver(Self)) 101 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComLicense String value
+        Set ComProperty of (phDispatchDriver(Self)) 101 OLE_VT_BSTR to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTitle Returns String
+        String retVal
+        Get ComProperty of (phDispatchDriver(Self)) 102 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTitle String value
+        Set ComProperty of (phDispatchDriver(Self)) 102 OLE_VT_BSTR to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComReCreateReparentedControls Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 109 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComReCreateReparentedControls Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 109 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComColorManager Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 103 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComVersion Returns String
+        Handle hDispatchDriver
+        String retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 104 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComUnicode Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 105 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComOcxPath Returns String
+        Handle hDispatchDriver
+        String retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 106 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    Function ComGetAmbientProperty OLEXTPApplicationAmbientProperty llproperty Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llproperty
+        Get InvokeComMethod of hDispatchDriver 111 OLE_VT_VARIANT to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComSetAmbientProperty OLEXTPApplicationAmbientProperty llproperty Variant llValue
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llproperty
+        Send DefineParam to hDispatchDriver OLE_VT_VARIANT llValue
+        Send InvokeComMethod to hDispatchDriver 112 OLE_VT_VOID
+    End_Procedure
+
+    Function ComCreatePropExchange Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 107 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComIcons Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 108 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComResourceImages Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 6 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+End_Class
+
+// DockignPane Global Settings
+Class cSigCjComDockingPaneGlobalSettings is a cComAutomationObject
+    Import_Class_Protocol cSigCjComIDockingPaneGlobalSettings
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set psProgID to L_cSigCjComDockingPaneGlobalSettings
+        Set peAutoCreate to acNoAutoCreate
+    End_Procedure
+End_Class
+
+//==============================================================================
+//End of package - SigCjW_DockingPane.pkg
+//==============================================================================
+

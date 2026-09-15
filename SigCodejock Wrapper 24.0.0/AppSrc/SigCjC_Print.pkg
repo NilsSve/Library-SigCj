@@ -1,0 +1,237 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : SigCjC_Print.pkg
+// Description  : Common Define / Class for Codejock controls
+//
+// Created by   : Ian Smith
+// Revision     : $Rev$
+//                $Date$
+//                $Author$
+//
+// Requirements : Visual DataFlex 24.0
+//                Codejock SuitePro - Version 24.0.0
+//
+// Copyright    : Copyright c 2008-2025 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+//CompilerWarnings Suspend
+
+Use FlexCom20.pkg
+
+Class cSigCjComXtremePrinterInfo is a cComAutomationObject
+
+    { MethodType=Property DesignTime=False }
+    Function ComDeviceName Returns String
+        Handle hDispatchDriver
+        String retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 1 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComDriverName Returns String
+        Handle hDispatchDriver
+        String retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 2 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComPortName Returns String
+        Handle hDispatchDriver
+        String retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 3 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+End_Class
+
+Class cSigCjComXtremePrintPreviewOptions is a cComAutomationObject
+
+    { MethodType=Property DesignTime=False }
+    Function ComTitle Returns String
+        String retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTitle String value
+        Set ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_BSTR to value
+    End_Procedure
+End_Class
+
+Class cSigCjComPrintPageHeaderFooter is a cComAutomationObject
+
+    { MethodType=Property DesignTime=False }
+    Function ComFont Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) -512 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComFont Variant value
+        Set ComProperty of (phDispatchDriver(Self)) -512 OLE_VT_DISPATCH to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComFormatString Returns String
+        String retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComFormatString String value
+        Set ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_BSTR to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTextLeft Returns String
+        String retVal
+        Get ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTextLeft String value
+        Set ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_BSTR to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTextCenter Returns String
+        String retVal
+        Get ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTextCenter String value
+        Set ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_BSTR to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTextRight Returns String
+        String retVal
+        Get ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTextRight String value
+        Set ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_BSTR to value
+    End_Procedure
+
+    Procedure ComClear
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 50 OLE_VT_VOID
+    End_Procedure
+End_Class
+
+Class cSigCjComPrintInfo is a cComAutomationObject
+
+    { MethodType=Property DesignTime=False }
+    Function ComContinuePrinting Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComContinuePrinting Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComMaxPage Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComMaxPage Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComPreviewMode Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 3 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComCurrentPage Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 4 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComPrintRectLeft Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 5 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComPrintRectTop Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 6 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComPrintRectRight Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 7 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComPrintRectBottom Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 8 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+End_Class
+
+//==============================================================================
+//End of package - SigCjC_Print.pkg
+//==============================================================================
+

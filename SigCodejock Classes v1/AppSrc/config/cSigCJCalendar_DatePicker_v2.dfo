@@ -1,0 +1,8 @@
+Object
+
+    Set Size      to 104 135
+    Set Location  to 2 306
+    Set peAnchors to anTopRight
+
+    Set phoCalendar to oSigCJCalendar_Control_v21
+End_Object

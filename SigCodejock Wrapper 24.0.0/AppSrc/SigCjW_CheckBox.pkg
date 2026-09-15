@@ -1,0 +1,469 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : SigCjW_CheckBox.pkg
+// From         : Codejock.Controls.v24.0.0.ocx
+// Description  : DF COM Wrapper lass for Codejock controlS
+//
+// Created by   : Ian Smith
+// Revision     : $Rev$
+//                $Date$
+//                $Author$
+//
+// Requirements : Visual DataFlex 20.0
+//                Codejock SuitePro - Version 24.0.0
+//
+// Copyright    : Copyright © 2008-2021 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+CompilerWarnings Suspend
+
+//==============================================================================
+// NOTE
+// ====
+// This control has been moved from the SigCjW_Controls.pkg package as we need a
+// data aware version as well.
+//==============================================================================
+
+Use FlexCom20.pkg
+Use cComDbActiveXControl.pkg
+Use SigCjLicense.pkg
+Use SigCjC_AlignmentStyle.pkg
+Use SigCjC_Drag_Drop.pkg
+
+Define OLEAppearanceStyle for Integer
+    Define OLExtpAppearanceStandard for 0
+    Define OLExtpAppearanceFlat for 1
+    Define OLExtpAppearanceUltraFlat for 2
+    Define OLExtpAppearanceOffice2000 for 3
+    Define OLExtpAppearanceOfficeXP for 4
+    Define OLExtpAppearanceOffice2003 for 5
+    Define OLExtpAppearanceResource for 6
+    Define OLExtpAppearanceOffice2007 for 7
+    Define OLExtpAppearanceNativeWinXP for 8
+    Define OLExtpAppearanceVisualStudio2005 for 9
+    Define OLExtpAppearanceVisualStudio2008 for 10
+    Define OLExtpAppearanceVisualStudio2010 for 11
+    Define OLExtpAppearanceOffice2013 for 12
+    Define OLExtpAppearanceOffice2016 for 12
+    Define OLExtpAppearanceVisualStudio2012 for 13
+    Define OLExtpAppearanceVisualStudio2012Light for 14
+    Define OLExtpAppearanceVisualStudio2012Dark for 15
+    Define OLExtpAppearanceVisualStudio2015 for 16
+    Define OLExtpAppearanceNativeWindows10 for 17
+    Define OLExtpAppearanceVisualStudio2017 for 18
+    Define OLExtpAppearanceVisualStudio2019 for 19
+    Define OLExtpAppearanceVisualStudio2022 for 20
+    Define OLExtpAppearanceNativeWindows11 for 21
+
+Define OLECheckAlignment for Integer
+    Define OLExtpCheckAlignLeft for 0
+    Define OLExtpCheckAlignRight for 1
+
+Define OLECheckBoxValue for Integer
+    Define OLExtpUnchecked for 0
+    Define OLExtpChecked for 1
+    Define OLExtpGrayed for 2
+
+// Dispatch interface for CheckBox Control
+Class cSigCjCom_DCheckBox is a Mixin
+
+    { MethodType=Property DesignTime=False }
+    Function ComCaption Returns String
+        String retVal
+        Get ComProperty of (phDispatchDriver(Self)) -518 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComCaption String value
+        Set ComProperty of (phDispatchDriver(Self)) -518 OLE_VT_BSTR to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComFont Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) -512 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComFont Variant value
+        Set ComProperty of (phDispatchDriver(Self)) -512 OLE_VT_DISPATCH to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComBackColor Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) -501 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComBackColor OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) -501 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComForeColor Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) -513 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComForeColor OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) -513 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComHWnd Returns OLE_HANDLE
+        OLE_HANDLE retVal
+        Get ComProperty of (phDispatchDriver(Self)) -515 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComHWnd OLE_HANDLE value
+        Set ComProperty of (phDispatchDriver(Self)) -515 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComEnabled Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) -514 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComEnabled Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) -514 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTransparent Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTransparent Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComUseVisualStyle Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 5 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComUseVisualStyle Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 5 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComAppearance Returns OLEAppearanceStyle
+        OLEAppearanceStyle retVal
+        Get ComProperty of (phDispatchDriver(Self)) 6 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComAppearance OLEAppearanceStyle value
+        Set ComProperty of (phDispatchDriver(Self)) 6 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTextAlignment Returns OLEAlignmentStyle
+        OLEAlignmentStyle retVal
+        Get ComProperty of (phDispatchDriver(Self)) 7 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTextAlignment OLEAlignmentStyle value
+        Set ComProperty of (phDispatchDriver(Self)) 7 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComMultiLine Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 8 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComMultiLine Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 8 OLE_VT_BOOL to value
+    End_Procedure
+
+    // (Member is Bindable)
+    // (Member is DefaultBind)
+    { MethodType=Property DesignTime=False }
+    Function ComValue Returns OLECheckBoxValue
+        OLECheckBoxValue retVal
+        Get ComProperty of (phDispatchDriver(Self)) 0 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    // (Member is Bindable)
+    // (Member is DefaultBind)
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComValue OLECheckBoxValue value
+        Set ComProperty of (phDispatchDriver(Self)) 0 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComRightToLeft Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) -611 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComRightToLeft Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) -611 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComEnableMarkup Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 30 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComEnableMarkup Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 30 OLE_VT_BOOL to value
+    End_Procedure
+
+    // Returns/Sets whether this control can act as an OLE drop target.
+    { MethodType=Property DesignTime=False }
+    Function ComOLEDropMode Returns OLEOLEDropConstants
+        OLEOLEDropConstants retVal
+        Get ComProperty of (phDispatchDriver(Self)) 52 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    // Returns/Sets whether this control can act as an OLE drop target.
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComOLEDropMode OLEOLEDropConstants value
+        Set ComProperty of (phDispatchDriver(Self)) 52 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComDrawFocusRect Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 32 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComDrawFocusRect Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 32 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComAlignment Returns OLECheckAlignment
+        OLECheckAlignment retVal
+        Get ComProperty of (phDispatchDriver(Self)) 37 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComAlignment OLECheckAlignment value
+        Set ComProperty of (phDispatchDriver(Self)) 37 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComControlToolTip Returns String
+        String retVal
+        Get ComProperty of (phDispatchDriver(Self)) 70 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComControlToolTip String value
+        Set ComProperty of (phDispatchDriver(Self)) 70 OLE_VT_BSTR to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComReCreateReparented Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 10002000 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComReCreateReparented Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 10002000 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComMarkupContext Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 40 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComToolTipContext Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 71 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComAboutBox
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver -552 OLE_VT_VOID
+    End_Procedure
+End_Class
+
+// Event interface for CheckBox Control
+Class cSigCjCom_DCheckBoxEvents is a Mixin
+
+    { MethodType=Event }
+    Procedure OnComClick
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComMouseDown Short llButton Short llShift OLE_XPOS_PIXELS llx OLE_YPOS_PIXELS lly
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComMouseMove Short llButton Short llShift OLE_XPOS_PIXELS llx OLE_YPOS_PIXELS lly
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComMouseUp Short llButton Short llShift OLE_XPOS_PIXELS llx OLE_YPOS_PIXELS lly
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComKeyDown Short ByRef llKeyCode Short llShift
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComKeyPress Short ByRef llKeyAscii
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComKeyUp Short ByRef llKeyCode Short llShift
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComOLEDragOver Variant llData Integer ByRef llEffect Short llButton Short llShift OLE_XPOS_PIXELS llx OLE_YPOS_PIXELS lly Short llstate
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComOLEDragDrop Variant llData Integer ByRef llEffect Short llButton Short llShift OLE_XPOS_PIXELS llx OLE_YPOS_PIXELS lly
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComReCreated
+    End_Procedure
+
+    { Visibility=Private }
+    Procedure RegisterComEvents
+        Send RegisterComEvent -600 msg_OnComClick
+        Send RegisterComEvent -605 msg_OnComMouseDown
+        Send RegisterComEvent -606 msg_OnComMouseMove
+        Send RegisterComEvent -607 msg_OnComMouseUp
+        Send RegisterComEvent -602 msg_OnComKeyDown
+        Send RegisterComEvent -603 msg_OnComKeyPress
+        Send RegisterComEvent -604 msg_OnComKeyUp
+        Send RegisterComEvent 300 msg_OnComOLEDragOver
+        Send RegisterComEvent 301 msg_OnComOLEDragDrop
+        Send RegisterComEvent 10001000 msg_OnComReCreated
+    End_Procedure
+End_Class
+
+//==============================================================================
+
+// CheckBox Control
+{ CLSID=L_cSigCjComCheckBox }
+Class cSigCjComCheckBox is a cComActiveXControl
+    Import_Class_Protocol cSigCjCom_DCheckBox
+    Import_Class_Protocol cSigCjCom_DCheckBoxEvents
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set psProgID to L_cSigCjComCheckBox
+        Set psEventId to "{C0DE2400-08CC-4B3D-82EA-3B7BE0CF1117}"
+        Set psLicenseKey to L_cSigCjKeyControls
+        Set peAutoCreate to acDeferredAutoCreate
+        //Connect the default bindable property
+        Send RegisterPropertyChangeEvent 0 msg_OnControlValueChanged
+    End_Procedure
+
+    Function ControlValue Returns String
+        //Associate the default bindable property with Get Value
+        String retVal
+        Get ComValue to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure Set ControlValue String sVal
+        //Associate the default bindable property with Set Value
+        Set ComValue to sVal
+    End_Procedure
+End_Class
+
+//==============================================================================
+
+// CheckBox Control
+{ CLSID=L_cSigCjComCheckBox }
+Class cSigCjComDbCheckBox is a cComDbActiveXControl
+    Import_Class_Protocol cSigCjCom_DCheckBox
+    Import_Class_Protocol cSigCjCom_DCheckBoxEvents
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set psProgID to L_cSigCjComCheckBox
+        Set psEventId to "{C0DE2010-08CC-4B3D-82EA-3B7BE0CF1117}"
+        Set psLicenseKey to L_cSigCjKeyControls
+        Set peAutoCreate to acDeferredAutoCreate
+        //Connect the default bindable property
+        Send RegisterPropertyChangeEvent 0 msg_OnControlValueChanged
+    End_Procedure
+
+    Function ControlValue Returns String
+        //Associate the default bindable property with Get Value
+        String retVal
+        Get ComValue to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure Set ControlValue String sVal
+        //Associate the default bindable property with Set Value
+        Set ComValue to sVal
+    End_Procedure
+End_Class
+
+//==============================================================================
+//End of package - SigCjW_CheckBox.pkg
+//==============================================================================

@@ -1,0 +1,149 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJMethods_Mixin.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$ Martin Pincott
+// 
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//==============================================================================
+
+Use VDFBase.pkg
+
+Class cSigCJMethods_Mixin is a Mixin
+
+//=============================================================================
+//Property support    
+//=============================================================================
+
+    //-------------------------------------------------------------------------
+    //Main object based properties
+    
+    { Visibility=Private }
+    Procedure Set SigCJProperty Overloaded Handle hmPrivateProperty Handle hmCOMProperty Variant vValue
+        Set hmPrivateProperty to vValue
+        If (IsComObjectCreated(Self)) Begin
+            Set hmCOMProperty to vValue
+        End
+    End_Procedure
+    
+    { Visibility=Private }
+    Function SigCJProperty Overloaded Handle hmPrivateProperty Handle hmCOMProperty Returns Variant
+        Variant vValue
+        If (IsComObjectCreated(Self)) Begin
+            Get hmCOMProperty to vValue
+        End
+        Else Begin
+            Get hmPrivateProperty to vValue
+        End
+        Function_Return vValue
+    End_Function
+    
+    //-------------------------------------------------------------------------
+    //Sub object based properties
+    
+    { Visibility=Private }
+    Procedure Set SigCJProperty Overloaded Handle hmPrivateProperty Handle hmCOMProperty Handle hObject Variant vValue
+        Set hmPrivateProperty to vValue
+        If (IsComObjectCreated(Self)) Begin
+            Set hmCOMProperty of hObject to vValue
+        End
+    End_Procedure
+    
+    { Visibility=Private }
+    Function SigCJProperty Overloaded Handle hmPrivateProperty Handle hmCOMProperty Handle hObject Returns Variant
+        Variant vValue
+        If (IsComObjectCreated(Self)) Begin
+            Get hmCOMProperty of hObject to vValue
+        End
+        Else Begin
+            Get hmPrivateProperty to vValue
+        End
+        Function_Return vValue
+    End_Function
+    
+//=============================================================================
+//Time support    
+//=============================================================================
+
+    Function SigCj_GetHours String sTime Returns Integer
+        Integer iHours
+        String  sDigit1 sDigit2 
+
+        //If there are any data errors we will return zero
+
+        Move (Mid(sTime,1,1)) to sDigit1
+        Move (Mid(sTime,1,2)) to sDigit2
+        If (((Ascii(sDigit1) > 47) and (Ascii(sDigit1) < 58)) and ((Ascii(sDigit2) > 47) and (Ascii(sDigit2) < 58))) Begin 
+            Move (Left(sTime,2)) to iHours      //both characters are digits so convert to integer
+            If (iHours > 23) Move 23 to iHours  //if more than 23 return 23
+        End
+
+        Function_Return iHours
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Function SigCj_GetMinutes String sTime Returns Integer
+        Integer iMins iLen
+        String  sDigit1 sDigit2 sMins
+
+        //If there are any data errors we will return zero
+
+        Move (Length(sTime)) to iLen
+        If ((iLen = 4) or (iLen = 5) or (iLen = 6) or (iLen = 8)) Begin
+            If ((iLen = 5) or (iLen = 8)) Move (Mid(sTime,2,4)) to sMins //formatted with :'s
+            Else                          Move (Mid(sTime,2,3)) to sMins //no :'s
+
+            Move (Mid(sMins,1,1)) to sDigit1
+            Move (Mid(sMins,1,2)) to sDigit2
+            If (((Ascii(sDigit1) > 47) and (Ascii(sDigit1) < 58)) and ((Ascii(sDigit2) > 47) and (Ascii(sDigit2) < 58))) Begin 
+                Move sMins to iMins                 //both characters are digits so convert to integer
+                If (iMins > 59) Move 59 to iMins    //if more than 59 return 59
+            End
+        End
+
+        Function_Return iMins
+    End_Function
+
+//=============================================================================
+//Reg Key support    
+//=============================================================================
+
+    Function SigCj_RegKey Returns String 
+        String sRegKey
+        
+        Get RegistryKeyString of ghoApplication to sRegKey        
+        
+        Function_Return (Replace("SOFTWARE\", sRegKey, ""))
+    End_Function
+End_Class 
+
+//==============================================================================
+//End of Package - cSigCJMethods_Mixin.pkg
+//==============================================================================

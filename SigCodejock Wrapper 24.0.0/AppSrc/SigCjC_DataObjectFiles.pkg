@@ -1,0 +1,121 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : SigCjC_DataObjectFiles.pkg
+// Description  : Common Define / Class for Codejock controls
+//
+// Created by   : Ian Smith
+// Revision     : $Rev$
+//                $Date$
+//                $Author$
+//
+// Requirements : Visual DataFlex 24.0
+//                Codejock SuitePro - Version 24.0.0
+//
+// Copyright    : Copyright c 2008-2025 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+//CompilerWarnings Suspend
+
+Use FlexCom20.pkg
+
+Class cSigCjComDataObjectFiles is a cComAutomationObject
+
+    { MethodType=Property DesignTime=False }
+    Function ComItem Integer llIndex Returns String
+        Handle hDispatchDriver
+        String retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llIndex
+        Get InvokeComMethod of hDispatchDriver 0 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComCount Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 1 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function Com_NewEnum Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver -4 OLE_VT_UNKNOWN to retVal
+        Function_Return retVal
+    End_Function
+End_Class
+
+Class cSigCjComDataObject is a cComAutomationObject
+
+    Function ComGetFormat Integer llFormat Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llFormat
+        Get InvokeComMethod of hDispatchDriver 2 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComFiles Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 1 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Function ComGetData Integer llFormat Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llFormat
+        Get InvokeComMethod of hDispatchDriver 3 OLE_VT_VARIANT to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComSetData Variant llvValue Variant llFormat
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_VARIANT llvValue
+        Send DefineParam to hDispatchDriver OLE_VT_VARIANT llFormat
+        Send InvokeComMethod to hDispatchDriver 4 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComClear
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 5 OLE_VT_VOID
+    End_Procedure
+End_Class
+
+//==============================================================================
+//End of package - SigCjC_DataObjectFiles.pkg
+//==============================================================================
+

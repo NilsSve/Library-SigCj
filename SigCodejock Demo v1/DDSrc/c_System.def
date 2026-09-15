@@ -1,0 +1,31 @@
+-----------------------------------------------------------------------------
+  DATE: 27/02/2012      TIME: 09:51                                  PAGE:  1
+  FILE DEFINITION FOR FILE: c_System (# 51)
+-----------------------------------------------------------------------------
+  DRIVER NAME               : DATAFLEX
+  FILE ROOT NAME            : c_System
+  USER DISPLAY NAME         : Calendar v2 system 
+  DATAFLEX FILE NAME        : c_System
+-----------------------------------------------------------------------------
+  RECORD LENGTH             : 16        ( USED: 16 )
+  MAX NUMBER OF RECORDS     : 1         ( USED: 1 )
+  FILE COMPRESSION          : NONE
+  RE-USE DELETED SPACE      : YES
+  LOCKING TYPE              : FILE
+  HEADER INTEGRITY CHECKING : YES
+  TRANSACTION TYPE          : CLIENT ATOMIC
+  RECORD IDENTITY INDEX     : 0 ( 0 , 0 )
+  FILE LOGIN PARAMETER      : 
+  SYSTEM FILE               : YES
+-----------------------------------------------------------------------------
+
+NUM  FIELD NAME       TYPE SIZE  OFFST IX   RELATES TO FILE.FIELD
+---  ---------------  ---- ----- ----- --   ---------------------------------
+  1  L_URN_Events     NUM    8.0     1      
+  2  L_URN_RecPat     NUM    8.0     5      
+  3  L_URN_Categ      NUM    4.0     9      
+  4  L_URN_Sched      NUM    4.0    11      
+  5  L_URN_Layout     NUM    4.0    13      
+  6  Refresh_Data     NUM    2.0    15      
+  7  Clear_sp_Cache   NUM    2.0    16      
+

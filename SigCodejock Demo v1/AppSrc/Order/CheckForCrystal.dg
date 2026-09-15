@@ -1,0 +1,528 @@
+Register_Object oCrystalReportTest
+
+Use cCrystal.pkg
+Use cRegistry.pkg
+Use StatPnl.pkg
+
+#IFDEF GET_SHELLEXECUTE
+#ELSE
+External_Function ShellExecute "ShellExecuteA" Shell32.Dll ;
+   Handle hwnd ;
+   String sOperation ;
+   String sFile ;
+   String sParameters ;
+   String sDirectory ;
+   Integer nShowCmd ;
+   Returns VOID_TYPE
+#ENDIF
+
+Use Windows.pkg
+Use cRichEdit.pkg
+Use cCrystal.pkg
+Use cCJGrid.pkg
+
+Struct tDLLVersion
+    String sDLLName
+    String sVersion
+End_Struct
+
+Object oCheckForCrystal is a ModalPanel
+
+    // Messages for the Status_Panel object
+    Procedure SetStatusMsg String sMsg
+        Send Initialize_StatusPanel of Status_Panel "Crystal Reports" "" sMsg
+    End_Procedure
+    
+    Procedure PopupStatusPanel
+        Send Start_StatusPanel of Status_Panel
+    End_Procedure
+    
+    Procedure DeactivateStatusPanel
+        Send Stop_StatusPanel of Status_Panel
+    End_Procedure
+
+    // Property to hold if Crystal Reports RDC components are loaded
+    Property Boolean pbCrystalLoaded False
+
+    // Property to hold if Crystal Reports XI CDO can be loaded
+    Property Boolean pbCrystalCDOLoaded False
+
+    // Property to hold if Crystal Reports Connectivity Kit DLLs are present
+    Property Boolean pbCrystalCKPresent False
+    
+    // Property to hold the version information of several parts of the Crystal connection
+    Property tDLLVersion[] pVersionInfo
+    
+    Procedure AddVersionInfo String sDLLName
+        tDLLVersion[] VersionInfo
+        Integer iElements iElement iArrayElement
+        Integer iVersionMajor iVersionMinor iVersionRelease iVersionBuild
+        Handle hoVersionInfo
+        Boolean bIncluded
+        
+        Get pVersionInfo To VersionInfo
+
+        Move (SizeOfArray (VersionInfo)) To iElements
+        Move iElements To iArrayElement
+        Decrement iElements
+        For iElement From 0 To iElements
+            If (VersionInfo[iElement].sDLLName = sDLLName) Begin
+                Move iElement To iArrayElement
+            End
+        Loop
+        
+        Get Create U_cVersionInfo To hoVersionInfo
+        If (hoVersionInfo > 0) Begin
+            Send DoCreate Of hoVersionInfo sDLLName
+            Get pbIncluded Of hoVersionInfo To bIncluded
+            If (bIncluded) Begin
+                Get piVersionMajor Of hoVersionInfo To iVersionMajor
+                Get piVersionMinor Of hoVersionInfo To iVersionMinor
+                Get piVersionRelease Of hoVersionInfo To iVersionRelease
+                Get piVersionBuild Of hoVersionInfo To iVersionBuild
+            End
+            Move sDLLName To VersionInfo[iArrayElement].sDLLName
+            Move (SFormat ("%1.%2.%3.%4", iVersionMajor, iVersionMinor, iVersionRelease, iVersionBuild)) To VersionInfo[iArrayElement].sVersion
+            Send Destroy Of hoVersionInfo
+        End
+        
+        Set pVersionInfo To VersionInfo
+    End_Procedure
+
+    // Check if Crystal Reports RDC components can be loaded
+    Function CheckForCrystal Handle hoCrystalReport Returns Boolean
+        Boolean bCrystalLoaded
+        Handle  hoApplicationObject
+        String  sError
+    
+        Get pbCrystalLoaded to bCrystalLoaded
+        If (not (bCrystalLoaded)) Begin
+            Send SetStatusMsg "Loading Crystal RDC Components. Please wait..."
+            Send PopupStatusPanel
+            Get ApplicationObject of hoCrystalReport to hoApplicationObject
+            Send DeactivateStatusPanel
+            If (not (hoApplicationObject)) Begin
+                Move "Could not connect to the Crystal RDC Application Object." to sError
+                Error DFERR_CRYSTAL_REPORT sError
+            End
+            Else Begin
+                Move True to bCrystalLoaded
+            End
+        End
+    
+        Set pbCrystalLoaded to bCrystalLoaded
+    
+        Function_Return bCrystalLoaded
+    End_Function
+
+    // Check if Crystal Reports CDO component can be created
+    Function CheckForCDO Handle hoCRReport Returns Boolean
+        Boolean bCDOFunctional
+        Boolean bErrorState
+        String sError
+        Handle hoCDO
+    
+        // Try to create CDO object
+        Get Create U_cCrystalCrystalComObject to hoCDO
+        Send CreateComObject of hoCDO
+        Get IsComObjectCreated of hoCDO to bCDOFunctional
+        If (not (bCDOFunctional)) Begin
+            Move "Error creating Crystal Reports CDO object." to sError
+            Move (sError * "Make sure Crystal Data Object is installed and properly registered on your machine.") to sError
+            Error DFERR_CRYSTAL_REPORT sError
+        End
+    
+        Set pbCrystalCDOLoaded to bCDOFunctional
+        Send Destroy of hoCDO
+    
+        Function_Return bCDOFunctional
+    End_Function
+    
+    // Check if Crystal Reports Connectivity Kit files are in the expected location
+    Function CheckCKFiles Handle hoRegistry Returns Boolean
+        Boolean bCrystalCKFound bValueExists
+        Boolean bDriverDLLExists bCrdbDLLExists
+        String sCommonDir sDriverDLL sCrdbDLL
+        Handle hDriverLib hCrdbLib
+        Integer iVoid
+
+        Get ValueExists Of hoRegistry "CommonFiles" To bValueExists
+        If (bValueExists) Begin
+            Get ReadString of hoRegistry "CommonFiles" to sCommonDir
+
+            If (Right(sCommonDir, 1) <> "\") Begin
+                Move (sCommonDir - "\") to sCommonDir
+            End
+
+            Move (sCommonDir - "p2bdfapi.dll") to sDriverDLL
+            Move (sCommonDir - "crdb_p2bdfapi.dll") to sCrdbDLL
+            
+            Move (LoadLibrary (sDriverDLL)) To hDriverLib
+            Move (LoadLibrary (sCRDbDLL)) To hCrdbLib
+
+            If (hCrdbLib <> 0) Begin
+                Move (FreeLibrary (hCrdbLib)) To iVoid
+            End
+
+            If (hDriverLib <> 0) Begin
+                Move (FreeLibrary (hDriverLib)) To iVoid
+            End
+
+            File_Exist sDriverDLL bDriverDLLExists
+            File_Exist sCrdbDLL bCrdbDLLExists
+            
+            If (bDriverDLLExists) Begin
+                Send AddVersionInfo sDriverDLL
+            End
+            
+            If (bCrdbDLLExists) Begin
+                Send AddVersionInfo sCrdbDLL
+            End
+
+            Move (bDriverDLLExists And bCrdbDLLExists And hDriverLib <> 0 And hCrDbLib <> 0) to bCrystalCKFound
+        End
+   
+        Function_Return bCrystalCKFound
+    End_Function
+    
+    // Check if Crystal Reports Connectivity Kit is present in the development environment
+    Function CheckForCrystalCK Returns Boolean
+        Boolean bOpen bCrystalCKFound
+        Handle  hoRegistry
+        String sError
+    
+        Move False to bCrystalCKFound
+    
+        Get create U_cRegistry to hoRegistry
+        Set pfAccessRights of hoRegistry to KEY_READ
+        
+        Set phRootKey of hoRegistry to HKEY_LOCAL_MACHINE
+        Get OpenKey of hoRegistry "SOFTWARE\Business Objects\Suite 11.0\Crystal Reports" to bOpen
+        If (bOpen) Begin
+            Get CheckCKFiles hoRegistry to bCrystalCKFound
+            Send CloseKey of hoRegistry
+        End
+    
+        If (not (bCrystalCKFound)) Begin
+            Move "Crystal Reports Connectivity Kit could not be found in the Crystal Reports XI CommonFiles directory." to sError
+            Error DFERR_CRYSTAL_REPORT sError
+        End
+    
+        Set pbCrystalCKPresent to bCrystalCKFound
+        Send Destroy of hoRegistry
+    
+        Function_Return bCrystalCKFound
+    End_Function
+
+    // Check if all Crystal Reports pieces necessary for the report to run can be used
+    Function CheckCrystalEnvironment Returns Boolean
+        Boolean bCR bCDO bCK
+    
+        Get pbCrystalLoaded to bCR
+        Get pbCrystalCDOLoaded to bCDO
+        Get pbCrystalCKPresent to bCK
+    
+        If (not(bCR)) Begin
+            Get CheckForCrystal oCrystalReportTest  to bCR
+            Send UpdateCRStatus of oCheckEnvironmentGroup bCR
+        End
+    
+        If (not(bCDO)) Begin
+            Get CheckForCDO oCrystalReportTest      to bCDO
+            Send UpdateCDOStatus of oCheckEnvironmentGroup bCDO
+        End
+    
+        If (not(bCK)) Begin
+            Get CheckForCrystalCK to bCK
+            Send UpdateCKStatus of oCheckEnvironmentGroup bCK
+        End
+    
+        Function_Return (bCR and bCDO and bCK)
+    End_Function
+
+    // Display the dialog with information on tests performed
+    Procedure DisplayDialog
+        Send Popup_Modal
+    End_Procedure
+
+    Set Label to "Crystal Reports Test Information"
+    Set Location to 8 67
+    Set Size to 344 290
+    Set piMinSize to 333 286
+    Set Border_Style to Border_Thick
+    Set piMaxSize to 500 500
+   
+    Procedure Page_Object Boolean bPage
+        Forward Send Page_Object bPage
+        
+        If (bPage) Begin
+            Set Icon To "Default.Ico"
+        End
+    End_Procedure
+
+    Object oCloseBtn is a Button
+        Set Label to "&Close"
+        Set Location to 328 233
+        Set peAnchors to anBottomRight
+
+        Procedure OnClick
+            Send Close_Panel
+        End_Procedure // OnClick
+
+    End_Object    // oCloseBtn
+
+    Object oIntroduction is a cRichEdit
+        Set Size to 207 277
+        Set Location to 5 7
+        Set Color to clWhite
+        Set TextColor to clBlue
+        Set Read_Only_State to True
+        Set peAnchors to anTopLeftRight
+
+        Procedure Page Boolean bPageObject
+        
+            Forward Send Page bPageObject
+        
+            If (bPageObject) Begin
+                Send Delete_Data
+        
+                Send AppendText "This sample uses reports built with Crystal Reports. In order to run such reports "
+                Send AppendText "you need to have  "
+        
+                Set pbBold to True
+                Send AppendText "Crystal Reports for DataFlex installed. "
+                Set pbBold to False
+        
+                Send AppendText "Also, for the reports using Crystal Data Objects (CDO), "
+                Send AppendTextLn "CDO needs to be installed and properly registered on this machine."
+                Send AppendTextLn ""
+        
+                Set pbBold to True
+                Send AppendText "Note that the reports in this sample will only work if all the above items are available and can be used on your machine. "
+                Send AppendTextLn "This dialog is being displayed because at least one of the tests for Crystal failed."
+                Set pbBold to False
+                Send AppendTextLn ""
+        
+                Send AppendTextLn "The following links will help you correcting your environment: "
+                Send AppendTextLn ""
+                Send AppendTextLn "ERROR: Could not connect to the Crystal RDC Application Object   http://www.dataaccess.com/kbasepublic/kbprint.asp?ArticleID=2169"
+                Send AppendTextLn ""
+                Send AppendTextLn "ERROR: 'Unable to instantiate COM Object.' when running a report   http://www.dataaccess.com/kbasepublic/kbprint.asp?ArticleID=2183"
+                Send AppendTextLn ""
+                Send AppendTextLn "INFO: Running Reports from Crystal XI from Visual DataFlex Application   http://www.dataaccess.com/kbasepublic/kbprint.asp?ArticleId=2161"
+                Send AppendTextLn ""
+                Send AppendTextLn "Data Access Worldwide Knowledge Base -- http://www.dataaccess.com/KBase"
+        
+                Send AppendTextLn ""
+                Send AppendText "If you need to buy Crystal Reports for DataFlex or need more information on the product, visit "
+                Set pbBold to True
+                Send AppendTextLn "http://www.dataaccess.com/Crystal"
+                Set pbBold to False
+        
+                Send Beginning_of_Data
+            End
+        
+        End_Procedure  // Page
+
+        Procedure OnLinkClicked Integer iPositionStart Integer iPositionEnd
+            Handle hInstance hWnd
+            String sLinkText
+        
+            Get TextRange iPositionStart iPositionEnd to sLinkText
+        
+            If (sLinkText <> "") Begin
+                Get Window_Handle to hWnd
+                Move (ShellExecute (hWnd, "open", (Trim (sLinkText)), '', '', 1)) to hInstance
+            End
+        End_Procedure  // OnLinkClicked
+
+    End_Object    // oIntroduction
+
+    Object oCheckEnvironmentGroup is a Group
+        Set Size to 106 276
+        Set Location to 219 7
+        Set Label to "Results of Tests Performed"
+        Set peAnchors to anAll
+        
+        Object oCR is a Form
+            Set Size to 14 187
+            Set Location to 11 83
+            Set Color to clBtnFace
+            Set Enabled_State to FALSE
+            Set Form_Justification_Mode 0 to Form_DisplayCenter
+            Set peAnchors to anTopLeftRight
+            
+            Procedure Activating
+                Set Value to "Crystal Reports RDC Components"
+                Set Entry_State to False
+            End_Procedure
+
+        End_Object    // oCR
+
+        Object oCDO is a Form
+            Set Size to 14 187
+            Set Location to 27 83
+            Set Color to clBtnFace
+            Set Enabled_State to False
+            Set Form_Justification_Mode 0 to Form_DisplayCenter
+            Set peAnchors to anTopLeftRight
+            
+            Procedure Activating
+                Set Value to "Crystal Reports CDO"
+                Set Entry_State to False
+            End_Procedure
+
+        End_Object    // oCDO
+
+        Object oCK is a Form
+            Set Size to 14 187
+            Set Location to 43 83
+            Set Color to clBtnFace
+            Set Enabled_State to False
+            Set Form_Justification_Mode 0 to FORM_DISPLAYCENTER
+            Set peAnchors to anTopLeftRight
+
+            Procedure Activating
+                Set Value to "Crystal Reports Connectivity Kit"
+                
+                Set Entry_State to False
+            End_Procedure
+
+        End_Object    // oCK
+
+        Object oCRComponentStatus is a Textbox
+            Set Label to "Untested"
+            Set Auto_Size_State to False
+            Set TextColor to clMaroon
+            Set Location to 11 5
+            Set Size to 13 73
+            Set TypeFace to "MS Sans Serif"
+        End_Object    // oCRComponentStatus
+
+        Object oCDOStatus is a Textbox
+            Set Label to "Untested"
+            Set Auto_Size_State to False
+            Set TextColor to clMaroon
+            Set Location to 26 5
+            Set Size to 13 73
+            Set TypeFace to "MS Sans Serif"
+        End_Object    // oCDOStatus
+
+        Object oCKStatus is a Textbox
+            Set Label to "Untested"
+            Set Auto_Size_State to False
+            Set TextColor to clMaroon
+            Set Location to 41 5
+            Set Size to 13 73
+            Set TypeFace to "MS Sans Serif"
+        End_Object    // oCKStatus
+
+        Object oVersionInfoGrid is a cCJGrid
+            Set Size to 39 263
+            Set Location to 63 7
+            Set pbFocusSubItems to False
+            Set peVerticalGridStyle to xtpGridNoLines
+            Set piCaptionForeColor to clBlue
+            Set pbReadOnly to True
+
+            Object oCKModuleColumn is a cCJGridColumn
+                Set piWidth to 307
+                Set psCaption to "Connectivity Kit Module Name"
+            End_Object
+
+            Object oVersionColumn is a cCJGridColumn
+                Set piWidth to 87
+                Set psCaption to "Version"
+            End_Object
+            
+            Procedure Activating 
+                Integer iRetval iElements iElement iItems iItem
+                tDLLVersion[] VersionInfo  
+                tDataSourceRow[] DataSource
+    
+                Forward Send OnCreateGridControl
+
+                Get pVersionInfo to VersionInfo
+                Move (SizeOfArray (VersionInfo)) to iElements
+                For iElement from 0 to (iElements - 1)
+                    Move VersionInfo[iElement].sDLLName to DataSource[iElement].sValue[0]
+                    Move VersionInfo[iElement].sVersion to DataSource[iElement].sValue[1]
+                Loop
+                    
+                Send InitializeData DataSource                   
+              
+            End_Procedure
+            
+        End_Object
+
+
+        // Reset status text to Untested
+        Procedure ResetStatus Handle hoStatusObject
+            Set TextColor of hoStatusObject to clMaroon
+            Set Value of hoStatusObject to "Untested"
+        End_Procedure
+
+        // Set the status text of the passed object according to result passed as parameter
+        Procedure UpdateStatus Handle hoStatusObject Boolean bOK
+            String sStatus
+        
+            If (bOK) Begin
+                Set TextColor of hoStatusObject to clBlue
+                Move "Passed" to sStatus
+            End
+            Else Begin
+                Set TextColor of hoStatusObject to clRed
+                Move "Failed" to sStatus
+            End
+        
+            Set Value of hoStatusObject to sStatus
+        End_Procedure
+        
+        
+        // Reset Crystal Reports status text to Untested
+        Procedure ResetCRStatus
+            Send ResetStatus oCRComponentStatus
+        End_Procedure
+
+        // Set the status text of Crystal Reports according to result passed as parameter
+        Procedure UpdateCRStatus Boolean bOK
+            Send UpdateStatus oCRComponentStatus bOK
+        End_Procedure
+
+
+        // Reset CDO status text to Untested
+        Procedure ResetCDOStatus
+            Send ResetStatus oCDOStatus
+        End_Procedure
+
+        // Set the status text of CDO according to result passed as parameter
+        Procedure UpdateCDOStatus Boolean bOK
+            Send UpdateStatus oCDOStatus bOK
+        End_Procedure
+
+
+        // Reset Conectivity Kit status text to Untested
+        Procedure ResetCKStatus
+            Send ResetStatus oCKStatus 
+        End_Procedure
+
+        // Set the status text of Connectivity Kit according to result passed as parameter
+        Procedure UpdateCKStatus Boolean bOK
+            Send UpdateStatus oCKStatus bOK
+        End_Procedure
+
+
+        // Reset all status texts to Untested
+        Procedure ResetStatuses
+            Send ResetCRStatus
+            Send ResetCDOStatus
+            Send ResetCKStatus
+        End_Procedure
+
+    End_Object    // oCheckEnvironmentGroup
+
+    Object oCrystalReportTest is a cCrystal
+        // This object is to be used when checking for Crystal from the buttons on this dialog
+    End_Object    // oCrystalReportTest
+
+End_Object    // oCheckForCrystal

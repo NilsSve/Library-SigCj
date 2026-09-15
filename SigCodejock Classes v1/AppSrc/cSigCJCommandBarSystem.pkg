@@ -1,0 +1,251 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJCommandBarSystem.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$ Martin Pincott
+// 
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//==============================================================================
+
+Use cCJStandardCommandBarSystem.pkg
+Use cSigCJMethods_Mixin.pkg
+Use cSigCJGlobalSettings.pkg
+Use cSigCJTabWorkspace.pkg
+Use cSigCJMessageBar.pkg 
+Use cSigCJMenuItem.pkg
+
+Class cSigCJCommandBarSystem is a cCJCommandBarSystem
+    Import_Class_Protocol cSigCJMethods_Mixin
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        {Category="Appearance"}
+        Property Boolean pbTabWorkspace True
+        {Category="Behavior"}
+        Property Boolean pbRecalcLayout True
+
+        {Category="SigCj"}
+        Property String psPX_Tag "Main Menu"    //default for main menu bar
+
+        {Visibility=Private}
+        Property Handle phoMessageBar       (Create(Self, U_cSigCJMessageBar))
+        {Visibility=Private}
+        Property Handle phoTabWorkspace     (Create(Self, U_cSigCJTabWorkspace))
+        {Visibility=Private} 
+        Property Handle phoTabPaintManager  (Create(Self, U_cCJTabPaintManager))
+    End_Procedure
+
+    Procedure Deactivating Returns Integer
+        Integer iRetVal
+        
+        Forward Get msg_Deactivating to iRetVal
+
+        Send Save_Custom_Bars
+
+        Procedure_Return iRetVal
+    End_Procedure
+
+    Procedure Load_Custom_Bars
+        Send ComLoadCommandBars (SigCj_RegKey(Self)) "SigCJCommandBarsControl" (psPX_Tag(Self))
+    End_Procedure
+
+    Procedure Save_Custom_Bars
+        Send ComSaveCommandBars (SigCj_RegKey(Self)) "SigCJCommandBarsControl" (psPX_Tag(Self))
+    End_Procedure
+
+    Procedure OnCreateCommandBars
+        Forward Send OnCreateCommandBars
+        Set ComVisualTheme to xtpThemeOffice2003 
+        Send Initialise_Tab_Control
+        Send Initialise_MessageBar     
+    End_Procedure
+
+    Procedure OnComCustomizationAddToolBar Variant llToolBar
+        Handle hoCommandBar hoBars
+        Variant vCommandBar
+        Integer iLoop iCount iBarID iLastBarID            
+        
+        Get Create U_cCJCommandBar  to hoCommandBar
+            Get ComCount of ghoCommandBars to iCount
+            For iLoop from 1 to iCount
+                Get ComItem of ghoCommandBars iLoop to vCommandBar
+                Set pvComObject of hoCommandBar to vCommandBar
+                Get ComBarID of hoCommandBar to iBarID
+                If ((iBarID > iLastBarID) and (iBarID < 10000)) Move iBarID to iLastBarID
+            Loop
+    
+            If (iLastBarID < 6000) Move 6000 to iLastBarID
+            Increment iLastBarID
+    
+            Set pvComObject of hoCommandBar to llToolBar
+            Set ComBarID of hoCommandBar to iLastBarID
+        Send Destroy of hoCommandBar
+    End_Procedure
+
+    {Visibility=Private}
+    Procedure ShowTabWorkspace Boolean bShow
+        Variant vTabWorkspace
+        Handle  hoTabWorkspace
+        
+        If (IsComObjectCreated(Self)) Begin
+            Get ComShowTabWorkspace bShow to vTabWorkspace
+            Get phoTabWorkspace to hoTabWorkspace 
+            If (hoTabWorkspace<>0) Begin
+                Set pvComObject of hoTabWorkspace to vTabWorkspace
+                If (IsComObjectCreated(hoTabWorkspace)) Begin
+                    Set pvComObject of (phoTabPaintManager(Self)) to (ComPaintManager(hoTabWorkspace))
+                    Send OnTabWorkspaceCreated hoTabWorkspace 
+                    If (pbRecalcLayout(Self)) Begin
+                        Send ComRecalcLayout 
+                    End
+                    Send OnSetTabPaintManagerProperties (phoTabPaintManager(Self)) 
+                End
+            End
+        End
+    End_Procedure
+    
+    Procedure Initialise_MessageBar 
+        Handle hoMessageBar 
+        Variant vMessageBar 
+
+        Get phoMessageBar to hoMessageBar
+
+        Get ComMessageBar to vMessageBar
+        Set pvComObject   of hoMessageBar to vMessageBar
+        Set pbCloseButton of hoMessageBar to True 
+    End_Procedure
+    
+    Procedure Initialise_Tab_Control
+        Boolean bTabWorkspace
+        
+        If (IsComObjectCreated(Self)) Begin
+            Get pbTabWorkspace to bTabWorkspace    
+            Send ShowTabWorkspace bTabWorkspace    
+        End
+    End_Procedure
+  
+    { MethodType=Method }
+    Procedure ShowMessageBar String sMessage String sMessageTitle String sImage
+        If (num_arguments=3) Begin
+            Send DoShowMessageBar of (phoMessageBar(Self)) sMessage sMessageTitle sImage
+        End
+        Else Begin
+            Send DoShowMessageBar of (phoMessageBar(Self)) sMessage sMessageTitle    
+        End
+        Set pbVisible of (phoMessageBar(Self)) to True
+    End_Procedure
+   
+    { MethodType=Method }
+    Procedure HideMessageBar
+        Set pbVisible of (phoMessageBar(Self)) to False
+    End_Procedure
+
+    {MethodType=Event}
+    Procedure OnNewWorkspaceTabItem Variant vTabItem
+    End_Procedure
+   
+    {MethodType=Event}
+    Procedure OnTabWorkspaceCreated Handle hoTabWorkspace
+        // defaults but can be overwritten in the object if preferred.
+        Set ComThemedBackColor of hoTabWorkspace to False
+        Set ComFlags           of hoTabWorkspace to xtpWorkspaceShowCloseTab
+    End_Procedure 
+    
+    {MethodType=Event}
+    Procedure OnSetTabPaintManagerProperties Handle hoTabPaintManager
+    End_Procedure
+    
+    
+//    { DesignTime=False }
+//    Procedure Add_MenuItem String sCaption String sMessage Boolean bBeginGroup String sImage 
+//        Integer    iArraySize
+//        Handle     hoMenuItem
+//        String[][] saMenuItem
+//        
+//        Get psaMenuItem to saMenuItem
+//        Move (SizeOfArray(saMenuItem)) to iArraySize
+//
+//        Get Create U_cSigCJMenuItem to hoMenuItem
+//        If (Trim(sImage)   <> "") Set psImage   of hoMenuItem to (Trim(sImage))
+//        If (Trim(sCaption) <> "") Set psCaption of hoMenuItem to (Trim(sCaption))
+//        If (Trim(sMessage) <> "") Set psMessage of hoMenuItem to (Trim(sMessage))
+//        If (bBeginGroup)          Set pbControlBeginGroup of hoMenuItem to True
+//        
+//        Move (Trim(sCaption)) to saMenuItem[iArraySize][0]
+//        Move hoMenuItem       to saMenuItem[iArraySize][1]
+//        
+//        Set psaMenuItem to saMenuItem
+//        Send Destroy of hoMenuItem
+//    End_Procedure
+   
+//    { DesignTime=False }
+//    Procedure Set Enabled String sCaption Boolean bState
+//        Integer    iArraySize iCount iIndex
+//        Handle     hoMenuItem
+//        String[][] saMenuItem
+//        String     sMenuItem
+//        
+//        Get psaMenuItem to saMenuItem
+//        Move (SizeOfArray(saMenuItem)) to iArraySize
+//        
+//        For iCount from 0 to (iArraySize-1)
+//            Move saMenuItem[iCount][0] to sMenuItem
+//            Move saMenuItem[iCount][1] to hoMenuItem
+//            If (sMenuItem = sCaption) Begin
+//                // Showln hoMenuItem " ... " sMenuItem
+//                Set pbEnabled of hoMenuItem to bState
+//            End    
+//        Loop
+//    End_Procedure
+//    
+//    { DesignTime=False }
+//    Procedure Set Visible String sCaption Boolean bState
+//        Integer    iArraySize iCount iIndex
+//        Handle     hoMenuItem
+//        String[][] saMenuItem
+//        String     sMenuItem
+//        
+//        Get psaMenuItem to saMenuItem
+//        Move (SizeOfArray(saMenuItem)) to iArraySize
+//        
+//        For iCount from 0 to (iArraySize-1)
+//            Move saMenuItem[iCount][0] to sMenuItem
+//            Move saMenuItem[iCount][1] to hoMenuItem
+//            If (sMenuItem = sCaption) Begin
+//                // Showln hoMenuItem " ... " sMenuItem
+//                Set pbVisible of hoMenuItem to bState
+//            End    
+//        Loop
+//    End_Procedure
+   
+End_Class
+
+//==============================================================================
+//End of Package - cSigCJCommandBarSystem.pkg
+//==============================================================================

@@ -1,0 +1,93 @@
+//=============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : SigCJLibrary.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$ 
+// 
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//=============================================================================
+// Load All Sig Codejock Libraries
+Use DFAllEnt.pkg
+Use cCJStandardCommandBarSystem.pkg
+
+//-----------------------------------------------------------------------------
+//Modifies Command Bars 
+Use cSigCJCommandBarSystem.pkg
+
+//-----------------------------------------------------------------------------
+//Codejock Controls - The commented out packages are just stub classes for the 
+//                    controls that we have not done..Yet)
+Use cSigCJGlobalSettings.pkg
+//Use cSigCJCalendarControl.pkg
+Use cSigCJCheckBox.pkg
+//Use cSigCJColorPicker.pkg
+//Use cSigCJComboBox.pkg
+//Use cSigCJCommonDialog.pkg
+Use cSigCJContextMenu.pkg
+//Use cSigCJDatePicker.pkg
+//Use cSigCJDateTimePicker.pkg
+Use cSigCJDockingPane.pkg
+Use cSigCJDockingPane_Container.pkg
+//Use cSigCJFieldChooser.pkg
+//Use cSigCJFlatEdit.pkg
+//Use cSigCJGroupBox.pkg
+//Use cSigCJHexEdit.pkg
+//Use cSigCJLabel.pkg
+//Use cSigCJListBox.pkg
+Use cSigCJListView.pkg
+//Use cSigCJMenuBar.pkg
+Use cSigCJMenuItem.pkg
+Use cSigCJMonthCalendar.pkg
+Use cSigCJPopupControl.pkg
+//Use cSigCJProgressBar.pkg
+Use cSigCJPropertyGrid.pkg
+Use cSigCJPushButton.pkg
+//Use cSigCJRadioButton.pkg
+Use cSigCJReportControl.pkg
+//Use cSigCJResizer.pkg
+Use cSigCJRibbonBar.pkg
+//Use cSigCJScrollBar.pkg
+//Use cSigCJShortcutBar.pkg
+//Use cSigCJShortcutCaption.pkg
+//Use cSigCJSlider.pkg
+//Use cSigCJStatusbar.pkg
+//Use cSigCJStatusbarPane.pkg
+//Use cSigCJSyntaxEdit.pkg
+//Use cSigCJTabControl.pkg
+//Use cSigCJTabControlPage.pkg
+Use cSigCJTaskDialog.pkg
+Use cSigCJTaskPanel.pkg
+Use cSigCJToolBar.pkg
+//Use cSigCJTrayIcon.pkg
+//Use cSigCJTreeView.pkg
+//Use cSigCJWebBrowser.pkg
+
+//==============================================================================
+//End of Package - SigCJLibrary.pkg
+//==============================================================================

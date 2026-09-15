@@ -1,0 +1,4 @@
+# SigCj sources are DataFlex files imported byte-for-byte from the VDF SIG UK
+# Subversion repository. They are OEM/ANSI-encoded with CRLF line endings.
+# Git must not convert line endings or guess at encodings for any of them.
+* -text

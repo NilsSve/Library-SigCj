@@ -1,0 +1,116 @@
+// Project      : SigCj - VDF Classes for Codejock
+// File         : oSigCJTaskDialog.dg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$ Martin Pincott
+// 
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//==============================================================================
+
+Use DfAllEnt.pkg
+Use cSigCJTaskDialog.pkg
+
+Object oSigCJTaskDialog is a cSigCJTaskDialog
+    
+    Property Integer piProcessCounter
+    
+    Procedure OnConstructed
+        Set pbRadioOptionEnabledState 102 to False
+    End_Procedure
+    
+    Procedure OnTimer Integer iMilliSeconds Boolean ByRef bResetCounter
+        Integer iCounter
+        
+        Move True to bResetCounter
+        Get piProcessCounter to iCounter
+        Increment iCounter
+        Set piProcessCounter to iCounter
+        Set piProgressBarPos to iCounter
+        Set psMainInstructionText to (sFormat("Processing... %1%",String(iCounter)))  
+        If (iCounter=101) Begin
+            Set psMainInstructionText to "Download Complete 100%" 
+            Sleep 2
+            Send ClickButton eBtn_Cancel
+        End
+    End_Procedure
+    
+    Procedure OnComHyperlinkClicked String llURL
+        Runprogram Background (String("Start" * String(llURL))) 
+        // (String("Start iexplore.exe" * \String(llURL))) 
+    End_Procedure
+    
+End_Object
+
+//Define eBtn_OK                  for OLExtpTaskButtonOk
+//Define eBtn_Yes                 for OLExtpTaskButtonYes
+//Define eBtn_No                  for OLExtpTaskButtonNo
+//Define eBtn_Cancel              for OLExtpTaskButtonCancel
+//Define eBtn_Retry               for OLExtpTaskButtonRetry
+//Define eBtn_Close               for OLExtpTaskButtonClose 
+
+//#Replace MBR_Ok     1
+//#Replace MBR_Cancel 2
+//#Replace MBR_Abort  3
+//#Replace MBR_Retry  4
+//#Replace MBR_Ignore 5
+//#Replace MBR_Yes    6
+//#Replace MBR_No     7
+
+Procedure sigInfo_Box Global String sMessage String sTitle
+    Integer iRetval
+    If (num_arguments = 1) Send sigCJInfo_Box of oSigCJTaskDialog sMessage "Information"
+    Else Send sigCJInfo_Box of oSigCJTaskDialog sMessage sTitle
+End_Procedure
+
+Procedure sigWarning_Box Global String sMessage String sTitle
+    Integer iRetval
+    If (num_arguments = 1) Send sigCJWarning_Box of oSigCJTaskDialog sMessage "Warning"
+    Else Send sigCJWarning_Box of oSigCJTaskDialog sMessage sTitle
+End_Procedure
+
+Procedure sigStop_Box Global String sMessage String sTitle
+    Integer iRetval
+    If (num_arguments = 1) Send sigCJStop_Box of oSigCJTaskDialog sMessage "Stop"
+    Else Send sigCJStop_Box of oSigCJTaskDialog sMessage sTitle
+End_Procedure
+
+Function sigYesNo_Box Global String sMessage String sTitle Integer eBtn Returns Integer
+    Integer iRetval
+    If (num_arguments = 1) Get sigCJYesNo_Box of oSigCJTaskDialog sMessage to iRetval
+    Else If (num_arguments = 2) Get sigCJYesNo_Box of oSigCJTaskDialog sMessage sTitle to iRetval
+    Else Get sigCJYesNo_Box of oSigCJTaskDialog sMessage sTitle eBtn to iRetval
+    Function_Return iRetval
+End_Function
+
+Function sigYesNoCancel_Box Global String sMessage String sTitle Integer eBtn Returns Integer
+    Integer iRetval
+    If (num_arguments = 1) Get sigCJYesNoCancel_Box of oSigCJTaskDialog sMessage to iRetval
+    Else If (num_arguments = 2) Get sigCJYesNoCancel_Box of oSigCJTaskDialog sMessage sTitle to iRetval
+    Else Get sigCJYesNoCancel_Box of oSigCJTaskDialog sMessage sTitle eBtn to iRetval
+    Function_Return iRetval
+End_Function

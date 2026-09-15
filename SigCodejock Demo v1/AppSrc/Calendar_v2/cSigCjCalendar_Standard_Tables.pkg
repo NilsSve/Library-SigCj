@@ -1,0 +1,691 @@
+//=============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJCalendar_Standard_Tables.pkg
+// Description  : Standard example data file methods for the Calendar class
+//
+// Revision     : $Rev: $
+//                $Date: $
+//                $Author: $
+//
+// Requirements : Visual DataFlex 14.1+
+//                Codejock SuitePro - Version 13.4.0+
+//
+// Copyright    : Copyright © 2009-2012 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//=============================================================================
+
+Use cC_SystemDataDictionary.dd
+Open C_Events
+Open C_RecPat
+Open c_spDate
+
+//=============================================================================
+//Data Dictionary Objects
+//=============================================================================
+
+Object oCal_C_System_DD is a cC_SystemDataDictionary
+End_Object
+
+//=============================================================================
+//Support Methods
+//=============================================================================
+
+Procedure Populate_C_Events tdSigCjCal_Event tEvent
+    Move tEvent.iID               to C_Events.URN
+    Move tEvent.bAllDayEvent      to C_Events.AllDayEvent
+    Move tEvent.sBody             to C_Events.Body
+    Move tEvent.eBusyStatus       to C_Events.BusyStatus
+    Move tEvent.sCategories       to C_Events.Categories
+    Move tEvent.dCreationDate     to C_Events.CreationDate
+    Move tEvent.tmCreationTime    to C_Events.CreationTime
+    Move tEvent.sCustomIcons      to C_Events.CustomIcons
+    Move tEvent.sCustomProperties to C_Events.CustomProp
+    Move tEvent.bDB_Link          to C_Events.DB_Link
+    Move tEvent.sDB_Key           to C_Events.DB_Key
+    Move tEvent.sDB_Table         to C_Events.DB_Table
+    Move tEvent.dEndDate          to C_Events.EndDate
+    Move tEvent.tmEndTime         to C_Events.EndTime
+    Move tEvent.eImportance       to C_Events.Importance
+    Move tEvent.sLabel            to C_Events.Label
+    Move tEvent.dLastMod_Date     to C_Events.LastMod_Date
+    Move tEvent.tmLastMod_Time    to C_Events.LastMod_Time
+    Move tEvent.sLocation         to C_Events.Location
+    Move tEvent.bMeetingFlag      to C_Events.MeetingFlag
+    Move tEvent.bPrivateFlag      to C_Events.PrivateFlag
+    Move tEvent.eRecurr_State     to C_Events.Recurr_State
+    Move tEvent.bReminder         to C_Events.Reminder
+    Move tEvent.iRem_MinsBefore   to C_Events.Rem_MinsBefore
+    Move tEvent.sRem_SoundFile    to C_Events.Rem_SoundFile
+    Move tEvent.iScheduleID       to C_Events.ScheduleID
+    Move tEvent.sScheduleIDs      to C_Events.ScheduleIDs
+    Move tEvent.dStartDate        to C_Events.StartDate
+    Move tEvent.tmStartTime       to C_Events.StartTime
+    Move tEvent.sSubject          to C_Events.Subject
+    Move tEvent.dRE_StartDateOrg  to C_Events.RE_StartDateOrg
+    Move tEvent.tmRE_StartTimeOrg to C_Events.RE_StartTimeOrg
+    Move tEvent.dRE_EndDateOrg    to C_Events.RE_EndDateOrg
+    Move tEvent.tmRE_EndTimeOrg   to C_Events.RE_EndTimeOrg
+    Move tEvent.bRE_Deleted       to C_Events.RE_Deleted
+    Move tEvent.iRec_Pattern_id   to C_Events.Rec_Pattern_id
+End_Procedure
+
+//-----------------------------------------------------------------------------
+
+Procedure Populate_C_RecPat tdSigCjCal_RecPattern tRecPattern 
+    Move tRecPattern.iID              to C_RecPat.URN            
+    Move tRecPattern.sCustomProp_XML  to C_RecPat.CustomProp_XML 
+    Move tRecPattern.iDurationMinutes to C_RecPat.DurationMinutes
+    Move tRecPattern.iEndAfterOcc     to C_RecPat.EndAfterOcc    
+    Move tRecPattern.dEndDate         to C_RecPat.EndDate        
+    Move tRecPattern.tmEndTime        to C_RecPat.EndTime        
+    Move tRecPattern.eEndMethod       to C_RecPat.EndMethod      
+    Move tRecPattern.iMasterEventId   to C_RecPat.MasterEventId  
+    Move tRecPattern.dStartDate       to C_RecPat.StartDate      
+    Move tRecPattern.tmStartTime      to C_RecPat.StartTime      
+    Move tRecPattern.bRoD_WeekDayOnly to C_RecPat.roD_WeekDayOnly
+    Move tRecPattern.iRoD_Int_Days    to C_RecPat.roD_Int_Days   
+    Move tRecPattern.iRoData1         to C_RecPat.roData1        
+    Move tRecPattern.iRoData2         to C_RecPat.roData2        
+    Move tRecPattern.iRoData3         to C_RecPat.roData3        
+    Move tRecPattern.iRoData4         to C_RecPat.roData4        
+    Move tRecPattern.iRoM_DayOfMonth  to C_RecPat.roM_DayOfMonth 
+    Move tRecPattern.iRoM_Int_Months  to C_RecPat.roM_Int_Months 
+    Move tRecPattern.iRoM_NthInt_Mths to C_RecPat.roM_NthInt_Mths
+    Move tRecPattern.iRoM_Nth_Day     to C_RecPat.roM_Nth_Day    
+    Move tRecPattern.eRoM_Nth_DayMask to C_RecPat.roM_Nth_DayMask
+    Move tRecPattern.eRoRecurr_Type   to C_RecPat.roRecurr_Type  
+    Move tRecPattern.eRoW_DayWeekMask to C_RecPat.roW_DayWeekMask
+    Move tRecPattern.iRoW_Int_Weeks   to C_RecPat.roW_Int_Weeks  
+    Move tRecPattern.iRoY_DayOfMonth  to C_RecPat.roY_DayOfMonth 
+    Move tRecPattern.iRoY_MonthOfYear to C_RecPat.roY_MonthOfYear
+    Move tRecPattern.iRoY_NthM_OfYear to C_RecPat.roY_NthM_OfYear
+    Move tRecPattern.iRoY_Nth_Day     to C_RecPat.roY_Nth_Day    
+    Move tRecPattern.iRoY_Nth_DayMask to C_RecPat.roY_Nth_DayMask
+End_Procedure
+
+//-----------------------------------------------------------------------------
+
+Function Populate_tdSigCjCal_Event_From_Buffer Returns tdSigCjCal_Event
+    tdSigCjCal_Event tEvent
+    
+    Move C_Events.URN              to tEvent.iID
+    Move C_Events.AllDayEvent      to tEvent.bAllDayEvent
+    Move C_Events.BusyStatus       to tEvent.eBusyStatus
+    Move C_Events.CreationDate     to tEvent.dCreationDate
+    Move C_Events.CreationTime     to tEvent.tmCreationTime
+    Move C_Events.DB_Link          to tEvent.bDB_Link
+    Move C_Events.EndDate          to tEvent.dEndDate
+    Move C_Events.EndTime          to tEvent.tmEndTime
+    Move C_Events.Importance       to tEvent.eImportance
+    Move C_Events.LastMod_Date     to tEvent.dLastMod_Date
+    Move C_Events.LastMod_Time     to tEvent.tmLastMod_Time
+    Move C_Events.MeetingFlag      to tEvent.bMeetingFlag
+    Move C_Events.PrivateFlag      to tEvent.bPrivateFlag
+    Move C_Events.Recurr_State     to tEvent.eRecurr_State
+    Move C_Events.Reminder         to tEvent.bReminder
+    Move C_Events.Rem_MinsBefore   to tEvent.iRem_MinsBefore
+    Move C_Events.ScheduleID       to tEvent.iScheduleID
+    Move C_Events.StartDate        to tEvent.dStartDate
+    Move C_Events.StartTime        to tEvent.tmStartTime
+    Move C_Events.RE_StartDateOrg  to tEvent.dRE_StartDateOrg
+    Move C_Events.RE_StartTimeOrg  to tEvent.tmRE_StartTimeOrg
+    Move C_Events.RE_EndDateOrg    to tEvent.dRE_EndDateOrg
+    Move C_Events.RE_EndTimeOrg    to tEvent.tmRE_EndTimeOrg
+    Move C_Events.RE_Deleted       to tEvent.bRE_Deleted
+    Move C_Events.Rec_Pattern_id   to tEvent.iRec_Pattern_id
+
+    Move (Trim(C_Events.Body         )) to tEvent.sBody
+    Move (Trim(C_Events.Categories   )) to tEvent.sCategories
+    Move (Trim(C_Events.CustomIcons  )) to tEvent.sCustomIcons
+    Move (Trim(C_Events.CustomProp   )) to tEvent.sCustomProperties
+    Move (Trim(C_Events.DB_Key       )) to tEvent.sDB_Key
+    Move (Trim(C_Events.DB_Table     )) to tEvent.sDB_Table
+    Move (Trim(C_Events.Label        )) to tEvent.sLabel
+    Move (Trim(C_Events.Location     )) to tEvent.sLocation
+    Move (Trim(C_Events.Rem_SoundFile)) to tEvent.sRem_SoundFile
+    Move (Trim(C_Events.ScheduleIDs  )) to tEvent.sScheduleIDs
+    Move (Trim(C_Events.Subject      )) to tEvent.sSubject
+                                   
+    Function_Return tEvent
+End_Function
+
+//-----------------------------------------------------------------------------
+
+Function Populate_tdSigCjCal_RecPattern_From_Buffer Returns tdSigCjCal_RecPattern
+    tdSigCjCal_RecPattern tRecPattern
+
+    Move C_RecPat.URN             to tRecPattern.iID
+    Move C_RecPat.CustomProp_XML  to tRecPattern.sCustomProp_XML
+    Move C_RecPat.DurationMinutes to tRecPattern.iDurationMinutes
+    Move C_RecPat.EndAfterOcc     to tRecPattern.iEndAfterOcc
+    Move C_RecPat.EndDate         to tRecPattern.dEndDate
+    Move C_RecPat.EndTime         to tRecPattern.tmEndTime
+    Move C_RecPat.EndMethod       to tRecPattern.eEndMethod
+    Move C_RecPat.MasterEventId   to tRecPattern.iMasterEventId
+    Move C_RecPat.StartDate       to tRecPattern.dStartDate
+    Move C_RecPat.StartTime       to tRecPattern.tmStartTime
+    Move C_RecPat.roD_WeekDayOnly to tRecPattern.bRoD_WeekDayOnly
+    Move C_RecPat.roD_Int_Days    to tRecPattern.iRoD_Int_Days
+    Move C_RecPat.roData1         to tRecPattern.iRoData1
+    Move C_RecPat.roData2         to tRecPattern.iRoData2
+    Move C_RecPat.roData3         to tRecPattern.iRoData3
+    Move C_RecPat.roData4         to tRecPattern.iRoData4
+    Move C_RecPat.roM_DayOfMonth  to tRecPattern.iRoM_DayOfMonth
+    Move C_RecPat.roM_Int_Months  to tRecPattern.iRoM_Int_Months
+    Move C_RecPat.roM_NthInt_Mths to tRecPattern.iRoM_NthInt_Mths
+    Move C_RecPat.roM_Nth_Day     to tRecPattern.iRoM_Nth_Day
+    Move C_RecPat.roM_Nth_DayMask to tRecPattern.eRoM_Nth_DayMask
+    Move C_RecPat.roRecurr_Type   to tRecPattern.eRoRecurr_Type
+    Move C_RecPat.roW_DayWeekMask to tRecPattern.eRoW_DayWeekMask
+    Move C_RecPat.roW_Int_Weeks   to tRecPattern.iRoW_Int_Weeks
+    Move C_RecPat.roY_DayOfMonth  to tRecPattern.iRoY_DayOfMonth
+    Move C_RecPat.roY_MonthOfYear to tRecPattern.iRoY_MonthOfYear
+    Move C_RecPat.roY_NthM_OfYear to tRecPattern.iRoY_NthM_OfYear
+    Move C_RecPat.roY_Nth_Day     to tRecPattern.iRoY_Nth_Day
+    Move C_RecPat.roY_Nth_DayMask to tRecPattern.iRoY_Nth_DayMask
+
+    Function_Return tRecPattern
+End_Function
+
+//=============================================================================
+//Data handling events
+//=============================================================================
+
+//This event needs to create a new Calendar Event record in the database. The 
+//data to be saved is in the tEvent structure. It needs to allocate the unique 
+//reference number / ID for the new Calendar Event and pass this back as the 
+//return value. The creation of the new Calendar Event can be cancelled by 
+//returning a value of -1. This should also be used to indicate that the 
+//creation failed
+
+Function OnCreateEvent tdSigCjCal_Event tEvent Returns Integer
+Send Debug_Log "Create Event" ""
+Send Debug_Event tEvent
+    Clear C_Events
+    Lock
+        Get Allocate_C_Event_URN of oCal_C_System_DD to tEvent.iID
+        Send Populate_C_Events tEvent
+        SaveRecord C_Events
+    Unlock
+
+    Function_Return tEvent.iID
+End_Function
+
+//-----------------------------------------------------------------------------
+
+//This event needs to create a new Calendar Recurrence Pattern record in the 
+//database. The data to be saved is in the tRecPattern structure. It needs to
+//allocate the unique reference number / ID for the new Calendar Recurrence 
+//Pattern and pass this back as the return value. The creation of the new 
+//Calendar Recurrence Pattern can be cancelled by returning a value of -1
+//This should also be used to indicate that the creation failed
+
+Function OnCreateRecPattern tdSigCjCal_RecPattern tRecPattern Returns Integer
+Send Debug_Log "Create RecPat" ""
+Send Debug_RecPat tRecPattern
+    Clear C_RecPat
+    Lock
+        Get Allocate_C_RecPat_URN of oCal_C_System_DD to tRecPattern.iID
+        Send Populate_C_RecPat tRecPattern
+        SaveRecord C_RecPat
+    Unlock
+
+    Function_Return tRecPattern.iID
+End_Function
+
+//-----------------------------------------------------------------------------
+
+//This event needs to delete a Calendar Event record from the database. The ID
+//of the Calendar Event to delete is in iEventID. The event needs to return 
+//TRUE if the deletion of the database record was successfull or FALSE if it 
+//failed.
+
+Function OnDeleteEvent Integer iEventID Returns Boolean
+Send Debug_Log "Delete Event" iEventID
+    Boolean bOK
+    
+    Clear C_Events
+    Move iEventID to C_Events.URN
+    Find Eq C_Events by Index.1
+    If (Found) Begin
+        Lock
+            Delete C_Events
+        Unlock
+        Move True to bOK
+    End
+    Else Begin
+        Move False to bOK
+    End
+
+    Function_Return bOK
+End_Function
+
+//-----------------------------------------------------------------------------
+
+//This event needs to delete all Calendar Event records from the database where
+//the Recrrence Pattern ID is iRecPatternID. It must also delete the C_RecPat
+//record where the ID is iRecPatternID. 
+
+Procedure OnDeleteEvent_Series Integer iRecPatternID 
+Send Debug_Log "Delete Event Series" iRecPatternID
+    Clear C_Events
+    Move iRecPatternID to C_Events.Rec_Pattern_id
+    Find Ge C_Events by Index.5
+
+    While (C_Events.Rec_Pattern_id = iRecPatternID)
+        Lock
+            Delete C_Events
+        Unlock
+        Find Ge C_Events by Index.5
+    Loop
+        
+    Clear C_RecPat
+    Move iRecPatternID to C_RecPat.URN
+    Find Eq C_RecPat by Index.1
+    If (Found) Begin
+        Lock
+            Delete C_RecPat
+        Unlock
+    End
+End_Procedure
+
+//-----------------------------------------------------------------------------
+
+//This event needs to delete a Calendar Recurrence Pattern record from the 
+//database. The ID of the Calendar Recurrence Pattern to delete is in 
+//iRecPatternID. The event needs to return TRUE if the deletion of the database
+//record was successfull or FALSE if it failed.
+
+Function OnDeleteRecPattern Integer iRecPatternID Returns Boolean
+Send Debug_Log "Delete RecPat" iRecPatternID
+    Boolean bOK
+    
+    Clear C_RecPat
+    Move iRecPatternID to C_RecPat.URN
+    Find Eq C_RecPat by Index.1
+    If (Found) Begin
+        Lock
+            Delete C_RecPat
+        Unlock
+        Move True to bOK
+    End
+    Else Begin
+        Move False to bOK
+    End
+
+    Function_Return bOK
+End_Function
+
+//-----------------------------------------------------------------------------
+
+//This event needs to call AddEventToCollection for all Calendar Events that 
+//are for the specified day or, for multi day events, that include the 
+//specified day. Only Calendar Events that are not recurring or master Calendar 
+//Events should be included. 
+//
+//      Recurr_State = OLExtpCalendarRecurrenceNotRecurring
+//      Recurr_State = OLExtpCalendarRecurrenceMaster
+//
+//The collection that AddEventToCollection adds Calendar Events to is 
+//initialised before this event is fired. The collection of Calendar Events is 
+//applied to the Calendar control when this event exits, therefore it is 
+//important to ensure that AddEventToCollection has been called for all the 
+//required Calendar Events before this event exits. The Schedule IDs are passed
+//in incase you want to filter the events loaded. The control will not display
+//any Events that are not for the applied schedules.
+
+Procedure OnGetDayEvents Date dDay Integer[] iSchedule_IDs
+//Send Debug_Log "Get Day Events" dDay
+    Boolean bEnableResources
+    Integer iValidSchedule
+    tdSigCjCal_Event tEvent
+
+    Get pbEnableResources to bEnableResources
+    If (not(bEnableResources)) Move 1 to iValidSchedule
+
+    Clear C_Events
+    Move dDay to C_Events.EndDate
+    Find GT C_Events by Index.2
+    While (Found)
+        If (C_Events.StartDate <= dDay) Begin
+            If (bEnableResources) Begin
+                Move (SearchArray(C_Events.ScheduleID, iSchedule_IDs)) to iValidSchedule
+            End
+            If (iValidSchedule <> -1) Begin
+                If ((C_Events.Recurr_State = OLExtpCalendarRecurrenceNotRecurring) or ;
+                    (C_Events.Recurr_State = OLExtpCalendarRecurrenceMaster)) Begin
+    
+                    Get Populate_tdSigCjCal_Event_From_Buffer to tEvent
+                    Send AddEventToCollection tEvent
+                End
+            End
+            Find GT C_Events by Index.2
+        End
+        Else Begin
+            Move False to Found
+        End
+    Loop
+End_Procedure
+
+//-----------------------------------------------------------------------------
+
+//This event needs to call AddEventToCollection for all Calendar Events that 
+//have reminders that are due between the FROM data time and the TO data time.
+//
+//The collection that AddEventToCollection adds Calendar Events to is 
+//initialised before this event is fired. The collection of Calendar Events is 
+//applied to the Calendar control when this event exits, therefore it is 
+//important to ensure that AddEventToCollection has been called for all the 
+//required Calendar Events before this event exits.
+
+Procedure OnGetUpcomingEvents DateTime dtFrom DateTime dtTo
+Send Debug_Log "Get UpC Events" dtFrom
+    DateTime dtEventStart
+    tdSigCjCal_Event tEvent
+    
+    Clear C_Events
+    Move dtFrom  to C_Events.StartDate
+    Get DateTime_to_Time dtFrom to C_Events.StartTime
+    Find Gt C_Events by Index.4
+    While (Found)
+        Get Date_and_Time_to_DateTime C_Events.StartDate C_Events.StartTime to dtEventStart
+        If ((dtEventStart >= dtFrom) and (dtEventStart <= dtTo)) Begin
+            Get Populate_tdSigCjCal_Event_From_Buffer to tEvent
+            Send AddEventToCollection tEvent
+            
+            Find Gt C_Events by Index.4
+        End
+        Else Begin
+            Move False to Found
+        End
+    Loop
+End_Procedure
+
+//-----------------------------------------------------------------------------
+
+Function OnLoadSpecialDate Date dThisDate Returns tdSigCjCal_SpecialDate
+    tdSigCjCal_SpecialDate tSpecialDate
+
+    Clear C_spDate
+    Move dThisDate to C_spDate.Date_From
+    Find Le C_spDate by Index.1
+    If ((Found) and (dThisDate >= C_spDate.Date_From) and (dThisDate <= C_spDate.Date_To)) Begin
+        Move dThisDate            to tSpecialDate.dDate
+        Move True                 to tSpecialDate.bIsSpecial
+        Move C_spDate.Description to tSpecialDate.sDescription
+        Move C_spDate.BackColor   to tSpecialDate.iBackColor
+        Move C_spDate.ShadeStyle      to tSpecialDate.eShadeStyle
+        Move C_spDate.AllowEvents to tSpecialDate.eAllowEvents
+    End
+    Else Begin
+        //Not a special date
+        Move dThisDate to tSpecialDate.dDate
+        Move False     to tSpecialDate.bIsSpecial
+    End
+
+    Function_Return tSpecialDate
+End_Function
+
+//-----------------------------------------------------------------------------
+
+//This event needs to call AddRecPatternExceptionEvent for all Calendar Events 
+//that are exceptions to the recurring Calendar Event specified by the 
+//recurrence pattern pass in iRecPatternID. These exception Calendar Events can
+//be identified by 
+//
+//      Recurr_State   = OLExtpCalendarRecurrenceException
+//      Rec_Pattern_id = iPatternID
+//
+
+Procedure OnReadRecPatternExceptions Integer iRecPatternID 
+//Send Debug_Log "Read RecPat Except" iRecPatternID
+    Boolean bAdd
+    Integer iSave_URN
+    tdSigCjCal_Event tEvent
+
+    //Keep track of the C_Event buffer
+    Move C_Events.URN to iSave_URN
+    
+    Clear C_Events
+    Move OLExtpCalendarRecurrenceException to C_Events.Recurr_State
+    Move iRecPatternID to C_Events.Rec_Pattern_id
+    Find GT C_Events by Index.3
+    While (Found)
+        Move (C_Events.Recurr_State = OLExtpCalendarRecurrenceException) to bAdd
+        If (bAdd) Move (C_Events.Rec_Pattern_id = iRecPatternID) to bAdd
+        If (bAdd) Begin
+            Get Populate_tdSigCjCal_Event_From_Buffer to tEvent
+            Send AddRecPatternExceptionEvent tEvent
+
+            Find GT C_Events by Index.3
+        End
+        Else Begin
+            Move False to Found
+        End
+    Loop
+
+    //Restore the C_Event buffer
+    Clear C_Events
+    Move iSave_URN to C_Events.URN
+    Find EQ C_Events by Index.1
+End_Procedure
+
+//-----------------------------------------------------------------------------
+
+//This event needs to read a Calendar Event record from the database. The ID of
+//the Calendar Event to read is in iEventID. The data for the Calendar Event is  
+//passed back in the tdSigCjCal_Event structure. If the reading of the Calendar 
+//Event record from the databased fails pass back -1 in the iID member of the 
+//structure.
+
+Function OnReadEvent Integer iEventID Returns tdSigCjCal_Event
+Send Debug_Log "Read Event" iEventID
+    tdSigCjCal_Event tEvent
+
+    Clear C_Events
+    Move iEventID to C_Events.URN
+    Find Eq C_Events by Index.1
+    If (Found) Begin
+        Get Populate_tdSigCjCal_Event_From_Buffer to tEvent
+    End
+    Else Begin
+        Move -1 to tEvent.iID
+    End
+
+    Function_Return tEvent
+End_Function
+
+//-----------------------------------------------------------------------------
+
+//This event needs to read a Calendar Recurrence Pattern record from the 
+//database. The ID of the Calendar Recurrence Pattern to read is in 
+//iRecPatternID. The data for the Calendar Recurrence Pattern is passed back in 
+//the tdSigCjCal_RecPattern structure. If the reading of the Calendar 
+//Recurrence Pattern record from the databased fails pass back -1 in the iID 
+//member of the structure.
+
+Function OnReadRecPattern Integer iRecPatternID Returns tdSigCjCal_RecPattern
+//Send Debug_Log "Read RecPat" iRecPatternID
+    tdSigCjCal_RecPattern tRecPattern
+
+    Clear C_RecPat
+    Move iRecPatternID to C_RecPat.URN
+    Find Eq C_RecPat by Index.1
+    If (Found) Begin
+        Get Populate_tdSigCjCal_RecPattern_From_Buffer to tRecPattern
+    End
+    Else Begin
+        Move -1 to tRecPattern.iID
+    End
+
+    Function_Return tRecPattern
+End_Function
+
+//-----------------------------------------------------------------------------
+
+//This event needs to update an existing Calendar Event record in the database. 
+//The ID of the Calendar Event to update is in the iID member of the structure 
+//tEvent. The event needs to return TRUE if the update of the database record 
+//was successfull or FALSE if it failed.
+
+Function OnUpdateEvent tdSigCjCal_Event tEvent Returns Boolean
+Send Debug_Log "Update Event" ""
+Send Debug_Event tEvent
+    Boolean bOK
+    
+    Clear C_Events
+    Move tEvent.iID to C_Events.URN
+    Find Eq C_Events by Index.1
+    If (Found) Begin
+        Reread
+            Send Populate_C_Events tEvent
+            SaveRecord C_Events
+        Unlock
+        Move True to bOK
+    End
+    Else Begin
+        Move False to bOK
+    End
+    
+    Function_Return bOK
+End_Function
+
+//-----------------------------------------------------------------------------
+
+//This event needs to update an existing Calendar Recurrence Pattern record in 
+//the database. The ID of the Calendar Recurrence Pattern to update is in the 
+//iID member of the structure tRecPattern. The event needs to return TRUE if 
+//the update of the database record was successfull or FALSE if it failed.
+
+Function OnUpdateRecPattern tdSigCjCal_RecPattern tRecPattern Returns Boolean
+Send Debug_Log "Update RecPat" ""
+Send Debug_RecPat tRecPattern
+    Boolean bOK
+    
+    Clear C_RecPat
+    Move tRecPattern.iID to C_RecPat.URN
+    Find Eq C_RecPat by Index.1
+    If (Found) Begin
+        Reread
+            Send Populate_C_RecPat tRecPattern
+            SaveRecord C_RecPat
+        Unlock
+        Move True to bOK
+    End
+    Else Begin
+        Move False to bOK
+    End
+    
+    Function_Return bOK
+End_Function
+    
+//==============================================================================
+//End of Package - SigCj_Cal_Std_Tables.pkg
+//==============================================================================
+
+Procedure Debug_Event tdSigCjCal_Event tEvent 
+//    Append_Output "E:\Cal.txt" 
+//    Writeln "--- Event ---"
+//    Writeln "iID               = |" tEvent.iID                "|"
+//    Writeln "bAllDayEvent      = |" tEvent.bAllDayEvent       "|"
+//    Writeln "sBody             = |" tEvent.sBody              "|"
+//    Writeln "eBusyStatus       = |" tEvent.eBusyStatus        "|"
+//    Writeln "sCategories       = |" tEvent.sCategories        "|"
+//    Writeln "dCreationDate     = |" tEvent.dCreationDate      "|"
+//    Writeln "tmCreationTime    = |" tEvent.tmCreationTime     "|"
+//    Writeln "sCustomIcons      = |" tEvent.sCustomIcons       "|"
+//    Writeln "sCustomProperies  = |" tEvent.sCustomProperies   "|"
+//    Writeln "bDB_Link          = |" tEvent.bDB_Link           "|"
+//    Writeln "sDB_Key           = |" tEvent.sDB_Key            "|"
+//    Writeln "sDB_Table         = |" tEvent.sDB_Table          "|"
+//    Writeln "dEndDate          = |" tEvent.dEndDate           "|"
+//    Writeln "tmEndTime         = |" tEvent.tmEndTime          "|"
+//    Writeln "eImportance       = |" tEvent.eImportance        "|"
+//    Writeln "sLabel            = |" tEvent.sLabel             "|"
+//    Writeln "dLastMod_Date     = |" tEvent.dLastMod_Date      "|"
+//    Writeln "tmLastMod_Time    = |" tEvent.tmLastMod_Time     "|"
+//    Writeln "sLocation         = |" tEvent.sLocation          "|"
+//    Writeln "bMeetingFlag      = |" tEvent.bMeetingFlag       "|"
+//    Writeln "bPrivateFlag      = |" tEvent.bPrivateFlag       "|"
+//    Writeln "eRecurr_State     = |" tEvent.eRecurr_State      "|"
+//    Writeln "bReminder         = |" tEvent.bReminder          "|"
+//    Writeln "iRem_MinsBefore   = |" tEvent.iRem_MinsBefore    "|"
+//    Writeln "sRem_SoundFile    = |" tEvent.sRem_SoundFile     "|"
+//    Writeln "iScheduleID       = |" tEvent.iScheduleID        "|"
+//    Writeln "sScheduleIDs      = |" tEvent.sScheduleIDs       "|"
+//    Writeln "dStartDate        = |" tEvent.dStartDate         "|"
+//    Writeln "tmStartTime       = |" tEvent.tmStartTime        "|"
+//    Writeln "sSubject          = |" tEvent.sSubject           "|"
+//    Writeln "dRE_StartDateOrg  = |" tEvent.dRE_StartDateOrg   "|"
+//    Writeln "tmRE_StartTimeOrg = |" tEvent.tmRE_StartTimeOrg  "|"
+//    Writeln "dRE_EndDateOrg    = |" tEvent.dRE_EndDateOrg     "|"
+//    Writeln "tmRE_EndTimeOrg   = |" tEvent.tmRE_EndTimeOrg    "|"
+//    Writeln "bRE_Deleted       = |" tEvent.bRE_Deleted        "|"
+//    Writeln "iRec_Pattern_id   = |" tEvent.iRec_Pattern_id    "|"
+//    Writeln "-------------"
+//    Close_Output
+End_Procedure 
+
+//----------------------------------------------------------------------------- 
+
+Procedure Debug_RecPat tdSigCjCal_RecPattern tRecPattern  
+//    Append_Output "E:\Cal.txt" 
+//    Writeln "--- RecPat ---"
+//    Writeln "iID              = |" tRecPattern.iID               "|"
+//    Writeln "sCustomProp_XML  = |" tRecPattern.sCustomProp_XML   "|"
+//    Writeln "iDurationMinutes = |" tRecPattern.iDurationMinutes  "|"
+//    Writeln "iEndAfterOcc     = |" tRecPattern.iEndAfterOcc      "|"
+//    Writeln "dEndDate         = |" tRecPattern.dEndDate          "|"
+//    Writeln "tmEndTime        = |" tRecPattern.tmEndTime         "|"
+//    Writeln "eEndMethod       = |" tRecPattern.eEndMethod        "|"
+//    Writeln "iMasterEventId   = |" tRecPattern.iMasterEventId    "|"
+//    Writeln "dStartDate       = |" tRecPattern.dStartDate        "|"
+//    Writeln "tmStartTime      = |" tRecPattern.tmStartTime       "|"
+//    Writeln "bRoD_WeekDayOnly = |" tRecPattern.bRoD_WeekDayOnly  "|"
+//    Writeln "iRoD_Int_Days    = |" tRecPattern.iRoD_Int_Days     "|"
+//    Writeln "iRoData1         = |" tRecPattern.iRoData1          "|"
+//    Writeln "iRoData2         = |" tRecPattern.iRoData2          "|"
+//    Writeln "iRoData3         = |" tRecPattern.iRoData3          "|"
+//    Writeln "iRoData4         = |" tRecPattern.iRoData4          "|"
+//    Writeln "iRoM_DayOfMonth  = |" tRecPattern.iRoM_DayOfMonth   "|"
+//    Writeln "iRoM_Int_Months  = |" tRecPattern.iRoM_Int_Months   "|"
+//    Writeln "iRoM_NthInt_Mths = |" tRecPattern.iRoM_NthInt_Mths  "|"
+//    Writeln "iRoM_Nth_Day     = |" tRecPattern.iRoM_Nth_Day      "|"
+//    Writeln "eRoM_Nth_DayMask = |" tRecPattern.eRoM_Nth_DayMask  "|"
+//    Writeln "eRoRecurr_Type   = |" tRecPattern.eRoRecurr_Type    "|"
+//    Writeln "eRoW_DayWeekMask = |" tRecPattern.eRoW_DayWeekMask  "|"
+//    Writeln "iRoW_Int_Weeks   = |" tRecPattern.iRoW_Int_Weeks    "|"
+//    Writeln "iRoY_DayOfMonth  = |" tRecPattern.iRoY_DayOfMonth   "|"
+//    Writeln "iRoY_MonthOfYear = |" tRecPattern.iRoY_MonthOfYear  "|"
+//    Writeln "iRoY_NthM_OfYear = |" tRecPattern.iRoY_NthM_OfYear  "|"
+//    Writeln "iRoY_Nth_Day     = |" tRecPattern.iRoY_Nth_Day      "|"
+//    Writeln "iRoY_Nth_DayMask = |" tRecPattern.iRoY_Nth_DayMask  "|"
+//    Writeln "--------------"
+//    Close_Output
+End_Procedure 
+
+Procedure Debug_Log String s1 String s2
+//    Append_Output "E:\Cal.txt" 
+//    If (Trim(s2) <> "") Writeln S1 " |" s2 "|"
+//    Else                Writeln S1 
+//    Close_Output
+End_Procedure 
+    

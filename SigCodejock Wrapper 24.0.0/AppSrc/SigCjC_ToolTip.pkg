@@ -1,0 +1,214 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : SigCjC_ToolTip.pkg
+// Description  : Common Define / Class for Codejock controls
+//
+// Created by   : Ian Smith
+// Revision     : $Rev$
+//                $Date$
+//                $Author$
+//
+// Requirements : Visual DataFlex 24.0
+//                Codejock SuitePro - Version 24.0.0
+//
+// Copyright    : Copyright c 2008-2025 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+//CompilerWarnings Suspend
+
+Use FlexCom20.pkg
+
+Define OLEXTPToolTipStyle for Integer
+    Define OLExtpToolTipStandard for 0
+    Define OLExtpToolTipBalloon for 1
+    Define OLExtpToolTipOffice for 2
+    Define OLExtpToolTipRTF for 3
+    Define OLExtpToolTipLuna for 4
+    Define OLExtpToolTipResource for 5
+    Define OLExtpToolTipHTML for 6
+    Define OLExtpToolTipMarkup for 7
+    Define OLExtpToolTipOffice2013 for 8
+    Define OLExtpToolTipOffice2016 for 8
+
+Define OLEXTPToolTipIcon for Integer
+    Define OLExtpToolTipIconNone for 0
+    Define OLExtpToolTipIconInfo for 1
+    Define OLExtpToolTipIconWarning for 2
+    Define OLExtpToolTipIconError for 3
+
+Class cSigCjComIToolTipContext is a Mixin
+
+    { MethodType=Property DesignTime=False }
+    Function ComStyle Returns OLEXTPToolTipStyle
+        OLEXTPToolTipStyle retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComStyle OLEXTPToolTipStyle value
+        Set ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComMaxTipWidth Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComMaxTipWidth Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTipBkColor Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTipBkColor OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTipTextColor Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 5 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTipTextColor OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 5 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComFont Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) -512 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComFont Variant value
+        Set ComProperty of (phDispatchDriver(Self)) -512 OLE_VT_DISPATCH to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComShowOfficeBorder Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 9 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComShowOfficeBorder Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 9 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComShowShadow Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 10 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComShowShadow Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 10 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComImageDPIScaling Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 11 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComImageDPIScaling Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 11 OLE_VT_BOOL to value
+    End_Procedure
+
+    Procedure ComShowTitleAndDescription Boolean llShowTitleAndDescription OLEXTPToolTipIcon llIconTitle
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_BOOL llShowTitleAndDescription
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llIconTitle
+        Send InvokeComMethod to hDispatchDriver 2 OLE_VT_VOID
+    End_Procedure
+
+    Function ComIsBalloonStyleSupported Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 6 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComSetMargin Integer llleft Integer lltop Integer llright Integer llbottom
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 4
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llleft
+        Send DefineParam to hDispatchDriver OLE_VT_I4 lltop
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llright
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llbottom
+        Send InvokeComMethod to hDispatchDriver 7 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComShowImage Boolean llShowImage Integer llImageBase
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_BOOL llShowImage
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llImageBase
+        Send InvokeComMethod to hDispatchDriver 8 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComSetVectorIconSize Integer llcx Integer llcy
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llcx
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llcy
+        Send InvokeComMethod to hDispatchDriver 12 OLE_VT_VOID
+    End_Procedure
+End_Class
+
+Class cSigCjComToolTipContext is a cComAutomationObject
+    Import_Class_Protocol cSigCjComIToolTipContext
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set peAutoCreate to acNoAutoCreate
+    End_Procedure
+End_Class
+
+//==============================================================================
+//End of package - SigCjC_ToolTip.pkg
+//==============================================================================
+

@@ -1,0 +1,517 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJCalendar_DialogClasses.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev: $
+//                $Date: $
+//                $Author: $
+//
+// Requirements : Visual DataFlex 14.1+
+//                Codejock SuitePro - Version 13.3.1+
+//
+// Copyright    : Copyright © 2009-2012 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+
+Use Windows.pkg
+Use StdFont.pkg
+Use cSigCJMethods_Mixin.pkg
+use SigCjW_Controls.pkg
+Use cSigCjCalendar_Public.pkg
+
+//==============================================================================
+//A DAW Combo with item data.
+//There is no item data on the standard DAW Combo. This class just adds two 
+//arrays to keep track of the combo item and the item data. Two seperate arrays
+//have been used instead of a single array of a structure to make it simple to 
+//find the data in the arrays.
+
+Class cSigCjCalendar_ComboForm is a ComboForm
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        
+        Property Integer[] ppiaData
+        Property String[]  psaValues
+        Property Integer piInitalValue
+    End_Procedure
+    
+    Procedure Activating
+        Forward Send Activating
+        
+        Set Selected_Value to (piInitalValue(Self))
+    End_Procedure
+    
+    Procedure Combo_Add_Item String sValue Integer iData
+        Integer   iIndex
+        Integer[] piaData
+        String[]  saValues
+        
+        Forward Send Combo_Add_Item sValue
+        
+        Get ppiaData   to piaData
+        Get psaValues to saValues
+        Move (SizeOfArray(piaData)) to iIndex
+        Move iData  to piaData[iIndex]
+        Move sValue to saValues[iIndex]
+        Set ppiaData   to piaData
+        Set psaValues to saValues
+    End_Procedure
+
+    Procedure Combo_Delete_Data
+        Integer[] piaData
+        String[]  saValues
+
+        Forward Send Combo_Delete_Data
+
+        Set ppiaData   to piaData
+        Set psaValues to saValues
+    End_Procedure
+
+//    Function Combo_Item_Data Returns Integer
+//    End_Function
+
+    Procedure Set Selected_Value Integer iData
+        Integer   iIndex
+        String    sValue
+        Integer[] piaData
+        String[]  saValues
+        
+        Get ppiaData   to piaData
+        Get psaValues to saValues
+        
+        Move (SearchArray(iData,piaData)) to iIndex
+        If (iIndex <> -1) Begin
+            Move saValues[iIndex] to sValue
+            Set Value to saValues[iIndex]
+        End
+    End_Procedure
+
+    Function Selected_Value Returns Integer
+        Integer   iIndex
+        String    sValue
+        Integer[] piaData
+        String[]  saValues
+            
+        Get ppiaData   to piaData
+        Get psaValues to saValues
+            
+        Get Value to sValue
+        Move (SearchArray(sValue,saValues)) to iIndex
+        
+        Function_Return piaData[iIndex]
+//        Integer iData
+//
+//        Get Combo_Item_Data to iData
+//        
+//        Function_Return iData
+    End_Function
+End_Class
+
+//==============================================================================
+
+Class cSigCJCalendar_ListBox is a cSigCjComListBox
+    Import_Class_Protocol cSigCJMethods_Mixin
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        { DesignTime=False }
+        Property Integer Private_peAppearance OLExtpAppearanceStandard
+        { DesignTime=False }
+        Property Integer Private_piBackColor clBtnFace
+        { DesignTime=False }
+        Property Boolean Private_pbChecked False
+        { DesignTime=False }
+        Property Integer Private_piColumnWidth 0
+        { DesignTime=False }
+        Property Boolean Private_pbDrawFocusRect True
+        { DesignTime=False }
+        Property Boolean Private_pbEnabled True
+        { DesignTime=False }
+        Property Boolean Private_pbEnableMarkup False
+        { DesignTime=False }
+        Property Boolean Private_pbFlatStyle False
+        { DesignTime=False }
+        Property Integer Private_piForeColor clWindowText
+
+        { DesignTime=False }
+        Property Boolean Private_pbRightToLeft False
+
+        { DesignTime=False }
+        Property Integer Private_peStyle OLExtpListStandard //xtpListCheckbox
+
+         { DesignTime=False }
+        Property Boolean Private_pbUseVisualStyle True
+
+        { DesignTime=False }
+        Property Boolean Private_pbBold False
+
+        { DesignTime=False }
+        Property Boolean Private_pbItalic False
+
+        { DesignTime=False }
+        Property Boolean Private_pbStrikethrough False
+
+        { DesignTime=False }
+        Property Boolean Private_pbUnderline False
+
+        { DesignTime=False }
+        Property String Private_psFontName "MS Sans Serif"
+
+        { DesignTime=False }
+        Property Number Private_pnFontSize 8.25
+
+        { DesignTime=False }
+        Property Handle Private_hoFont  (Create(Self, U_cComStdFont)) 
+
+         { DesignTime=False }
+        Property Integer Private_piData
+    End_Procedure
+
+    // Create and augment procedures and functions
+    Procedure Set Selected_Value Integer iData
+        Integer iCount iLoop iItemData iIndex
+        
+        Set Private_piData to iData
+        
+        If (IsComObjectCreated(Self)) Begin
+            Move -1 to iIndex
+            Get ComListCount to iCount
+            Decrement iCount
+            For iLoop from 0 to iCount
+                Get ComItemData iLoop to iItemData
+                If (iItemData = iData) Begin
+                    Move iLoop to iIndex
+                    Move (iCount + 1) to iLoop  //bomb loop
+                End
+            Loop
+    
+            If (iLoop <> -1) Begin
+                Set ComListIndex to iIndex
+            End
+        End
+    End_Procedure
+
+    Function Selected_Value Returns Integer
+        Integer iData iIndex
+
+        If (IsComObjectCreated(Self)) Begin
+            Get ComListIndex to iIndex
+            If (iIndex <> -1) begin
+                Get ComItemData iIndex to iData
+            End
+        End
+        Else Begin
+            Get Private_piData to iData
+        End
+
+        Function_Return iData
+    End_Function
+
+End_Class
+
+//==============================================================================
+//A CJ List box which displayed the list item via Markup.
+//The intension was to use the CJ ComboBox, but this has some focusing issues.
+
+Class cSigCJCalendar_CategoryList is a cSigCJCalendar_ListBox
+    Procedure Construct_Object
+        String sBase_XAML 
+        Forward Send Construct_Object
+        
+        Property String psBase_XAML 
+
+        Set pbBindValue to False
+
+        Move "" to sBase_XAML
+        Append sBase_XAML '<Page><StackPanel Orientation="Horizontal">'
+        Append sBase_XAML '<Rectangle Width="20" Height="20" Stroke="%Border%" StrokeThickness="2"><Rectangle.Fill>'
+        Append sBase_XAML '<LinearGradientBrush  StartPoint="0.5,0" EndPoint="0.5,1">'
+        Append sBase_XAML '<GradientStop Color="%Color1%" Offset="0"/>'
+        Append sBase_XAML '<GradientStop Color="%Color2%" Offset="%Gradient%"/>'
+        Append sBase_XAML '</LinearGradientBrush></Rectangle.Fill></Rectangle>'
+        Append sBase_XAML '<TextBlock FontSize="12" VerticalAlignment="Center" Padding="5,0,0,0">%Name%</TextBlock>'
+        Append sBase_XAML '</StackPanel></Page>'
+        
+        Set psBase_XAML to sBase_XAML
+    End_Procedure
+
+    Procedure OnCreate
+        Handle hoFont
+        Variant vFont
+        Forward Send OnCreate
+        
+//        Set ComStyle to OLExtpComboDropDown   // DropDownList
+        Set ComEnableMarkup to True           
+        Set ComSorted to True
+
+        Get Create U_cComStdFont to hoFont
+        Get ComFont to vFont
+        Set pvComObject of hoFont to vFont
+        Set ComSize of hoFont to 12
+        Send Destroy of hoFont
+    End_Procedure
+
+    Function DecToHex Integer iDec Returns String
+        String sHex
+
+        Move "" to sHex
+        Repeat
+            Move (Mid ("0123456789ABCDEF", 1, ((iDec iand 15) + 1)) + sHex) to sHex
+            Move (iDec / 16) to iDec
+        Until (iDec = 0)
+
+        Function_Return sHex
+    End_Function // DecToHex
+
+    Function HexColor Integer rgbColor Returns String
+        Integer iRed iGreen iBlue
+        String sRet sRed sGreen sBlue
+        
+        Move (R_From_RGB(rgbColor)) to iRed
+        Move (G_From_RGB(rgbColor)) to iGreen 
+        Move (B_From_RGB(rgbColor)) to iBlue
+    
+        Get DecToHex iRed to sRed
+        Get DecToHex iGreen to sGreen
+        Get DecToHex iBlue to sBlue
+        
+        If (Length(sRed)=1)     Move ('0'+sRed) to sRed
+        If (Length(sGreen)=1)   Move ('0'+sGreen) to sGreen
+        If (Length(sBlue)=1)    Move ('0'+sBlue) to sBlue
+        
+        Move ("#"+sRed+sGreen+sBlue) to sRet
+        
+        Function_Return sRet
+    End_Function
+
+    Procedure AddItem tdSigCjCal_Category tCategory
+        Integer iIndex
+        String sBase_XAML sBorder sColor1 sColor2
+
+        Get HexColor tCategory.iBorderColor to sBorder
+        Get HexColor tCategory.iColor_1     to sColor1
+        Get HexColor tCategory.iColor_2     to sColor2
+        
+        Get psBase_XAML to sBase_XAML
+        Move (Replace("%Border%"  , sBase_XAML, sBorder             )) to sBase_XAML
+        Move (Replace("%Color1%"  , sBase_XAML, sColor1             )) to sBase_XAML
+        Move (Replace("%Color2%"  , sBase_XAML, sColor2             )) to sBase_XAML
+        Move (Replace("%Gradient%", sBase_XAML, tCategory.nGradient )) to sBase_XAML
+        Move (Replace("%Name%"    , sBase_XAML, tCategory.sName     )) to sBase_XAML
+
+        Send ComAddItem sBase_XAML -1 ""
+        Get ComNewIndex to iIndex
+        Set ComItemData iIndex to tCategory.iID
+    End_Procedure
+End_Class
+
+//==============================================================================
+//A Radio group without the group border. 
+//Used to create a cleaner less cluttered GUI
+
+Class cSigCJCalendar_RadioGroup_NB is a Container3d
+  Procedure Construct_Object
+     Forward Send Construct_Object
+     Send Define_DFradio_group_Mixin
+  End_Procedure
+
+  Import_Class_Protocol DfRadio_Group_Mixin
+End_Class
+
+//==============================================================================
+//A Time picker control with spin buttons.
+//This is based on the CJ DateTimePicker but only supports Time formats. It 
+//supports formats with fixed seconds (00 & 59) and returns the time as a string 
+//in the formatted HH:MM:SS as reguired by the Calendar class.
+
+Enum_List
+    Define eDTP_HM for 1
+    Define eDTP_HMS
+    Define eDTP_HM00
+    Define eDTP_HM59
+End_Enum_List
+
+
+{ OverrideProperty=Size InitialValue=13,47 }
+Class cSigCJCalendar_TimePicker is a cSigCjComDateTimePicker
+    Import_Class_Protocol cSigCJMethods_Mixin
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        
+        Set Size to 13 47
+        
+        Property Integer pbAutoSize True
+        
+        Property Boolean Private_pb24Hour       True
+        Property Boolean Private_pbEnabled      True
+        Property Integer Private_peFormat       eDTP_HMS
+        Property String  Private_psTime_Value
+    End_Procedure
+
+    Procedure End_Construct_Object
+        Forward Send End_Construct_Object
+    End_Procedure
+
+    Procedure OnCreate
+        Forward Send OnCreate
+        
+        Send Set_Time_Format
+        Set Time_Value to (Private_psTime_Value(Self))
+        Set ComEnabled to (Enabled_State(Self))
+        Set ComEnabled to (Private_pbEnabled(Self)) 
+    End_Procedure
+
+    //=========================================================================
+
+    { MethodType=Property Category="SigCj:Calendar" InitialValue=True }
+    Procedure Set pbEnabled Boolean bValue
+        Set Private_pbEnabled to bValue
+        If (IsComObjectCreated(Self)) Begin
+            Set ComEnabled to bValue
+        End
+    End_Procedure
+
+    Function pbEnabled Returns Boolean
+        If (IsComObjectCreated(Self)) Function_Return (ComEnabled(Self))
+        Else                          Function_Return (Private_pbEnabled(Self))
+    End_Function
+
+    //=========================================================================
+    
+    Procedure Set_Time_Format
+        Integer eTimeFormat 
+        String sTimeFormat
+        
+        If (IsComObjectCreated(Self)) Begin
+            Get Private_peFormat to eTimeFormat
+            If (eTimeFormat = eDTP_HM  ) Move "hh:mm"    to sTimeFormat
+            If (eTimeFormat = eDTP_HMS ) Move "hh:mm:ss" to sTimeFormat
+            If (eTimeFormat = eDTP_HM00) Move "hh:mm:00" to sTimeFormat
+            If (eTimeFormat = eDTP_HM59) Move "hh:mm:59" to sTimeFormat
+    
+            If (Private_pb24Hour(Self)) Move (Replace("hh", sTimeFormat, "HH")) to sTimeFormat
+    
+            Set ComFormat to OLExtpPickerCustom 
+            Set ComCustomFormat to sTimeFormat         
+            Set ComUpDown to True
+
+            If (pbAutoSize(Self)) Begin
+                If (eTimeFormat = eDTP_HM) Set Size to 13 37
+                Else                       Set Size to 13 47
+            End
+        End
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="SigCj:Calendar" InitialValue=True }
+    Procedure Set pb24Hour Boolean bValue
+        Set Private_pb24Hour to bValue
+        Send Set_Time_Format
+    End_Procedure
+
+    Function pb24Hour Returns Boolean
+        Function_Return (Private_pb24Hour(Self))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { EnumList="eDTP_HM, eDTP_HMS, eDTP_HM00, eDTP_HM59" }
+    { MethodType=Property Category="SigCj:Calendar" InitialValue=eDTP_HMS }
+    Procedure Set peFormat Integer eFormat
+        Set Private_peFormat to eFormat
+        Send Set_Time_Format
+    End_Procedure
+
+    Function peFormat Returns Integer
+        Function_Return (Private_peFormat(Self))
+    End_Function
+
+    //==========================================================================
+    
+    Procedure Set Time_Value String sTime
+        Integer eFormat iHour iMinute
+
+        Set Private_psTime_Value to sTime
+
+        If (IsComObjectCreated(Self)) Begin
+            Move (Left(sTime,2))  to iHour
+            Move (Mid(sTime,2,4)) to iMinute              
+            Set ComHour   to iHour
+            Set ComMinute to iMinute
+    
+            Get peFormat to eFormat
+            If (eFormat = eDTP_HM  ) Set ComSecond to 0
+            If (eFormat = eDTP_HMS ) Set ComSecond to (Right(sTime,2))
+            If (eFormat = eDTP_HM00) Set ComSecond to 0
+            If (eFormat = eDTP_HM59) Begin
+                Set ComSecond to 59
+                If (iMinute > 0) Begin
+                    Set ComMinute to (iMinute - 1)
+                End
+                Else Begin
+                    Set ComMinute to 59
+                    If (iHour > 0) Set ComHour to (iHour - 1)
+                End
+            End
+        End
+    End_Procedure
+
+    Function Time_Value Returns String 
+        Integer iValue eFormat
+        String sTime
+
+        If (IsComObjectCreated(Self)) Begin
+            Move "" to sTime        
+    
+            Get ComHour to iValue
+            If (iValue < 10) Append sTime "0"
+            Append sTime iValue ":"
+            
+            Get ComMinute to iValue
+            If (iValue < 10) Append sTime "0"
+            Append sTime iValue ":"
+    
+            Get peFormat to eFormat
+            If (eFormat = eDTP_HM  ) Append sTime "00"
+            If (eFormat = eDTP_HM00) Append sTime "00"
+            If (eFormat = eDTP_HM59) Append sTime "59"
+            If (eFormat = eDTP_HMS ) Begin
+                Get ComSecond to iValue
+                If (iValue < 10) Append sTime "0"
+                Append sTime iValue ":"
+            End
+        End
+        Else Begin
+            Move "00:00:00" to sTime
+        End
+        
+        Function_Return sTime
+    End_Function
+End_Class
+
+//==============================================================================
+//End of Package - cSigCJCalendar_DialogClasses.pkg
+//==============================================================================

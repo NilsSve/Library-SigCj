@@ -1,0 +1,36 @@
+-----------------------------------------------------------------------------
+  DATE: 27/02/2012      TIME: 09:51                                  PAGE:  1
+  FILE DEFINITION FOR FILE: OrderDtl (# 31)
+-----------------------------------------------------------------------------
+  DRIVER NAME               : DATAFLEX
+  FILE ROOT NAME            : OrderDtl
+  USER DISPLAY NAME         : Order Detail
+  DATAFLEX FILE NAME        : OrderDtl
+-----------------------------------------------------------------------------
+  RECORD LENGTH             : 32        ( USED: 27 )
+  MAX NUMBER OF RECORDS     : 10000     ( USED: 271 )
+  FILE COMPRESSION          : NONE
+  RE-USE DELETED SPACE      : YES
+  LOCKING TYPE              : FILE
+  HEADER INTEGRITY CHECKING : YES
+  TRANSACTION TYPE          : CLIENT ATOMIC
+  RECORD IDENTITY INDEX     : 0 ( 0 , 0 )
+  FILE LOGIN PARAMETER      : 
+  SYSTEM FILE               : NO 
+-----------------------------------------------------------------------------
+
+NUM  FIELD NAME       TYPE SIZE  OFFST IX   RELATES TO FILE.FIELD
+---  ---------------  ---- ----- ----- --   ---------------------------------
+  1  Order_Number     NUM    6.0     1  1   OrderHea.FIELD_1 (30,1)
+  2  Detail_Number    NUM    4.0     4  1   
+  3  Item_ID          ASC     10     6      Invt.FIELD_1 (22,1)
+  4  Qty_Ordered      NUM    6.0    16      
+  5  Price            NUM    6.2    19      
+  6  Extended_Price   NUM    8.2    23      
+
+
+INDEX# FIELDS          DES U/C    LENGTH LEVELS SEGMENTS MODE
+------ --------------- --- ---    ------ ------ -------- -------
+  1    Order_Number    NO  NO       5      2       2     ON-LINE
+       Detail_Number   NO  NO 
+

@@ -1,0 +1,148 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : SigCJ_Font.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev: $
+//                $Date: $
+//                $Author: $ 
+//
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2009-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+
+Use StdFont.pkg
+Use cSigCJMethods_Mixin.pkg
+
+Class cSigCJFont is a cComStdFont
+    Import_Class_Protocol cSigCJMethods_Mixin
+
+    //-------------------------------------------------------------------------
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        { DesignTime=False }
+        Property Boolean Private_pbBold False
+
+        { DesignTime=False }
+        Property Boolean Private_pbItalic False
+
+        { DesignTime=False }
+        Property Boolean Private_pbStrikethrough False
+
+        { DesignTime=False }
+        Property Boolean Private_pbUnderline False
+
+        { DesignTime=False }
+        Property String Private_psFontName "MS Sans Serif"
+
+        { DesignTime=False }
+        Property Number Private_pnFontSize 8.25
+    End_Procedure
+
+    //Connect the OCX and dataflex FONT objects and set defaults
+    //This takes the place of OnCreate
+    Procedure Link Variant vComFontObject
+        Set pvComObject      to vComFontObject    
+        Set ComBold          to (Private_pbBold(Self))
+        Set ComItalic        to (Private_pbItalic(Self))
+        Set ComStrikethrough to (Private_pbStrikethrough(Self))
+        Set ComUnderline     to (Private_pbUnderline(Self))
+        Set ComName          to (Private_psFontName(Self))
+        Set ComSize          to (Private_pnFontSize(Self))
+    End_Procedure  
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbBold Boolean bState
+        Set SigCJProperty Set_Private_pbBold Set_ComBold to bState
+    End_Procedure
+
+    Function pbBold Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbBold, Get_ComBold))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbItalic Boolean bState
+        Set SigCJProperty Set_Private_pbItalic Set_ComItalic to bState
+    End_Procedure
+
+    Function pbItalic Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbItalic, Get_ComItalic))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbStrikethrough Boolean bState
+        Set SigCJProperty Set_Private_pbStrikethrough Set_ComStrikethrough to bState
+    End_Procedure
+
+    Function pbStrikethrough Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbStrikethrough, Get_ComStrikethrough))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbUnderline Boolean bState
+        Set SigCJProperty Set_Private_pbUnderline Set_ComUnderline to bState
+    End_Procedure
+
+    Function pbUnderline Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbUnderline, Get_ComUnderline))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue="MS Sans Serif" }
+    Procedure Set psFontName String sName
+        Set SigCJProperty Set_Private_psFontName Set_ComName to sName
+    End_Procedure
+
+    Function psFontName Returns String
+        Function_Return (SigCJProperty(Self, Get_Private_psFontName, Get_ComName))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=8.25 }
+    Procedure Set pnFontSize Number nSize
+        Set SigCJProperty Set_Private_pnFontSize Set_ComSize to nSize
+    End_Procedure
+
+    Function pnFontSize Returns Number
+        Function_Return (SigCJProperty(Self, Get_Private_pnFontSize, Get_ComSize))
+    End_Function
+
+End_Class
+
+//==============================================================================
+//End of package - SigCJ_Font.pkg
+//==============================================================================

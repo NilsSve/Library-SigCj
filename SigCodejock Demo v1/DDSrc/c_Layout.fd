@@ -1,0 +1,6 @@
+#REPLACE FILE59 c_Layout
+#REPLACE c_Layout.Recnum |FN59,0
+#REPLACE c_Layout.URN |FN59,1
+#REPLACE c_Layout.Name |FS59,2
+#REPLACE c_Layout.Categories |FS59,3
+#REPLACE c_Layout.Schedules |FS59,4

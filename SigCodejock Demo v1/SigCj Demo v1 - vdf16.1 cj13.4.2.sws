@@ -1,0 +1,8 @@
+[Properties]
+Version=16.1
+[WorkspacePaths]
+ConfigFile=.\Programs\Config.ws
+[Libraries]
+Lib1=..\SigCodejock Classes v1\SigCj Classes v1 - vdf16.1 cj13.4.2.sws
+[Projects]
+Project0=Codejock Order Sample.src

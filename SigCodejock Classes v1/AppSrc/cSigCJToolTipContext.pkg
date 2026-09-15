@@ -1,0 +1,113 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJToolTipContext.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev: 599 $
+//                $Date: 2009-10-14 10:39:01 +0100 (Wed, 14 Oct 2009) $
+//                $Author: Martin $ Martin Pincott
+// 
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//==============================================================================
+
+Use SigCjC_ToolTipContext.pkg
+Use cSigCJMethods_Mixin.pkg
+
+Class cSigCJToolTipContextr is a cSigCjComToolTipContext
+    Import_Class_Protocol cSigCJMethods_Mixin
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        // Define new Properties:
+        { DesignTime=False }
+        Property Integer Private_peTooltipStyle OLExtpToolTipStandard
+        
+        // Create child objects:
+
+        // Set property values:
+
+    End_Procedure
+
+    Procedure OnCreate
+    End_Procedure
+
+    Procedure End_Construct_Object
+        Forward Send End_Construct_Object
+
+        // Add your code that needs to be executed at the end of the object construction here:
+
+    End_Procedure
+
+    // Create and augment procedures and functions
+
+    // The Style Property gets\sets the style of the tool tip window. See TooltipContext.Style.
+    #IF (SigCj_Codejock_Version < 150001) 
+    #ELSE
+    #ENDIF
+    { MethodType=Property InitialValue=OLExtpToolTipStandard }
+    { Category="Tooltip" }
+    { EnumList="OLExtpToolTipStandard, OLExtpToolTipBalloon, OLExtpToolTipOffice, OLExtpToolTipRTF, OLExtpToolTipLuna, OLExtpToolTipOffice2007, OLExtpToolTipHTML, OLExtpToolTipMarkup" }
+    Procedure Set peTooltipStyle Integer eTooltipStyle
+        Set SigCJProperty Set_Private_peTooltipStyle Set_ComStyle to eTooltipStyle
+    End_Procedure
+    
+    Function peTooltipStyle Returns Integer
+        Function_Return (SigCJProperty(Self, Get_Private_peTooltipStyle, Get_ComStyle ))
+    End_Function
+
+    { MethodType=Property }
+    { Category="Tooltip" }
+    Procedure Set piTipBackColor Integer iValue
+        Set ComTipBkColor to iValue
+    End_Procedure
+
+    Function piTipBackColor Returns Integer
+        Integer iRetval
+        Get ComTipBkColor to iRetval 
+        Function_Return iRetval
+    End_Function
+
+    { MethodType=Property }
+    { Category="Tooltip" }
+    Procedure Set ComTipTextColor Integer iValue 
+        Set ComTipTextColor to iValue 
+    End_Procedure
+
+    Function ComTipTextColor Returns OLE_COLOR
+        Integer iValue
+        Get ComTipTextColor to iValue 
+        Function_Return iValue
+    End_Function
+
+
+
+
+End_Class
+
+//==============================================================================
+//End of Package - cSigCJToolTipContextr.pkg
+//==============================================================================

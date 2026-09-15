@@ -1,0 +1,460 @@
+Use cSigCJTaskPanel.pkg
+
+    Object oTaskPanel_Container is a cSigCJTaskPanel
+        Set peTaskPanelBehaviour to eTPB_BehaviourToolbox
+               
+        #IFDEF C_Module_Orders       
+        Object oOrder_Sample_Group is a cSigCJTaskPanelGroup
+            Set psLabel to "Order Samples"
+            Set psImage to "Order.ico"
+
+            Object oInventoryItemView_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel   to "Inventory Item View"
+                Set psImage   to "Order.ico"
+
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oInventoryView of hoClient
+                End_Procedure
+            End_Object
+            
+            Object oVendorEntryView_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Vendor Entry View"
+                Set psImage to "Order.ico"
+            
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oVendorView of hoClient
+                End_Procedure
+            End_Object
+
+            Object oSalesPersonEntryView_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Sales Person Entry View"
+                Set psImage to "Order.ico"
+            
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oSalesPersonView of hoClient
+                End_Procedure
+            End_Object
+
+            Object oCustomerEntryView_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Customer Entry View"
+                Set psImage to "Order.ico"
+            
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oCustomerView of hoClient
+                End_Procedure
+            End_Object
+
+            Object oOrderEntry_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Order Entry"
+                Set psImage to "Order.ico"
+            
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oOrderEntryView of hoClient
+                End_Procedure
+            End_Object
+
+        End_Object // oOrder_Sample_Group
+        #ENDIF
+
+        #IFDEF C_Module_GeneralComponents
+        Object oGeneral_Components_Group is a cSigCJTaskPanelGroup
+            Set psLabel to "General Components"
+            Set psImage to "Tasks_16.ico"
+            
+            Object oPushButtons_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Push Buttons"
+                Set psImage to "Tasks_16.ico"
+                
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oSigCJPushButtonDemo_View of hoClient
+                End_Procedure
+            End_Object
+
+            Object oTriStateCheckbox_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Tri-State Checkbox"
+                Set psImage to "Tasks_16.ico"
+
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oSigCJCheckBoxDemo_View of hoClient
+                End_Procedure
+            End_Object
+
+            Object oMessageDialogs_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Message Dialogs"
+                Set psImage to "Tasks_16.ico"
+
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oSigCJTaskDialogDemo_View of hoClient
+                End_Procedure
+            End_Object
+
+            Object oMonthCalendar_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Popup Calendar"
+                Set psImage to "Tasks_16.ico"
+
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oSigCJMonthCalendarDemo_View of hoClient
+                End_Procedure
+            End_Object
+
+            Object oPopupMessageControl_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Popup Message Control"
+                Set psImage to "Tasks_16.ico"
+
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oSigCJPopupControlDemo_View of hoClient
+                End_Procedure
+            End_Object
+
+            Object oMarkupControl_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Markup Control"
+                Set psImage to "Tasks_16.ico"
+
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oSIGCJLabelControlDemo_View of hoClient
+                End_Procedure
+            End_Object
+        End_Object // oGeneral_Components_Group
+        #ENDIF
+        
+        #IFDEF C_Module_ReportControl
+        Object oReport_Control_Group is a cSigCJTaskPanelGroup
+            Set psLabel to "Report Control"
+            Set psImage to "ActionCopy.ico"
+            
+            Object oReportControlText_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Text File"
+                Set psImage to "ActionCopy.ico"
+                
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_SigCjReportControlDemo_Text_View of hoClient
+                End_Procedure
+            End_Object
+        
+            Object oReportControlTable_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Standard Table"
+                Set psImage to "ActionCopy.ico"
+                
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_SigCjReportControlDemo_Table_View of hoClient
+                End_Procedure
+            End_Object
+
+            Object oReportControlSQL_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "SQL Table"
+                Set psImage to "ActionCopy.ico"
+                
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_SigCjReportControlDemo_SQL_View of hoClient
+                End_Procedure
+            End_Object
+                                        
+            Object oReportControlTree_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Tree View"
+                Set psImage to "ActionCopy.ico"
+                
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oSigCJReportControlDemo_TreeView of hoClient
+                End_Procedure
+            End_Object
+
+        End_Object // oReport_Control_Group
+        #ENDIF
+        
+        #IFDEF C_Module_Calendar
+        Object oCalendar_Control_Group is a cSigCJTaskPanelGroup
+            Set psLabel to "Calendar Control"
+            Set psImage to "ActionCalendar.ico"
+            
+            Object oCalendarControlMaintenance_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Calendar Maintenance"
+                Set psImage to "ActionCalendar.ico"
+                
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oCalendar_Maintenance_View of hoClient
+                End_Procedure
+            End_Object
+        
+            Object oCalendarControlDemo_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Calendar Demo"
+                Set psImage to "ActionCalendar.ico"
+                
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oCalendar_Demo_View of hoClient
+                End_Procedure
+            End_Object
+
+        End_Object // oCalendar_Control_Group
+        #ENDIF 
+        
+        #IFDEF C_Module_Calendar_Old
+        Object oOLD_Calendar_Control_Group is a cSigCJTaskPanelGroup
+            Set psLabel to "OLD Calendar Control"
+            Set psImage to "ActionCalendar.ico"
+            
+            Object oCalendarControlSpecialDates_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Special Dates"
+                Set psImage to "ActionCalendar.ico"
+                
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oSigCJCalendarDemo_Special_Dates_View of hoClient
+                End_Procedure
+            End_Object
+        
+            Object oCalendarControlCategories_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Categories"
+                Set psImage to "ActionCalendar.ico"
+                
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oSigCjCalendarDemo_Categories_View of hoClient
+                End_Procedure
+            End_Object
+
+            Object oCalendar_Resources_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Calendar Resources"
+                Set psImage to "ActionCalendar.ico"
+                
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oCalendar_Resources of hoClient
+                End_Procedure
+            End_Object
+
+            Object oCalendarControlStandardCalendar_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Standard Calendar"
+                Set psImage to "ActionCalendar.ico"
+                
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oSigCJCalendarDemo_Standard_View of hoClient
+                End_Procedure
+            End_Object
+
+            Object oCalendarControl_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Bespoke Calendar"
+                Set psImage to "ActionCalendar.ico"
+                
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oSigCJCalendarDemo_Bespoke_View of hoClient
+                End_Procedure
+            End_Object
+                                      
+            Object oResourceCalendarControl_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Resource Calendar"
+                Set psImage to "ActionCalendar.ico"
+                
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oSigCJCalendarDemo_Resource_View of hoClient
+                End_Procedure
+            End_Object
+
+        End_Object // oCalendar_Control_Group
+        #ENDIF 
+        
+        #IFDEF C_Module_Treeview
+        Object oTreeView_Control_Group is a cSigCJTaskPanelGroup
+            Set psLabel to "TreeView Control"
+            Set psImage to "WindowSidebar_16.ico"
+            
+            Object oSimpleTreeView_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Simple TreeView"
+                Set psImage to "WindowSidebar_16.ico"
+                
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oSigCJTreeViewDemo_Simple_View of hoClient
+                End_Procedure
+            End_Object
+        
+            Object oSalesOrdersTreeView_GroupItem is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Sales Orders TreeView"
+                Set psImage to "WindowSidebar_16.ico"
+                
+                Procedure OnClick
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oSigCJTreeViewDemo_SalesOrders_View of hoClient
+                End_Procedure
+            End_Object
+
+        End_Object // oTreeView_Control_Group
+        #ENDIF
+
+        Object oTheme_Group is a cSigCJTaskPanelGroup
+            Set psLabel to "Change Theme"
+            Set psImage to "Theme_16.ico"
+            Object oOffice2000_Item is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Office 2000"
+                Set psImage to "Theme_16.ico"
+                Procedure OnClick
+                    Set peTaskPanelTheme to eTPT_Office2000
+                End_Procedure
+            End_Object
+            Object oOffice2003_Item is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Office 2003"
+                Set psImage to "Theme_16.ico"
+                Procedure OnClick
+                    Set peTaskPanelTheme to eTPT_Office2003
+                End_Procedure
+            End_Object
+            Object oNativeWinXP_Item is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Native WinXP"
+                Set psImage to "Theme_16.ico"
+                Procedure OnClick
+                    Set peTaskPanelTheme to eTPT_NativeWinXP
+                End_Procedure
+            End_Object
+            Object oOffice2000Plain_Item is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Office 2000 Plain"
+                Set psImage to "Theme_16.ico"
+                Procedure OnClick
+                    Set peTaskPanelTheme to eTPT_Office2000Plain
+                End_Procedure
+            End_Object
+            Object oOfficeXPPlain_Item is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Office XP Plain"
+                Set psImage to "Theme_16.ico"
+                Procedure OnClick
+                    Set peTaskPanelTheme to eTPT_OfficeXPPlain
+                End_Procedure
+            End_Object
+            Object oOffice2003Plain_Item is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Office 2003 Plain"
+                Set psImage to "Theme_16.ico"
+                Procedure OnClick
+                    Set peTaskPanelTheme to eTPT_Office2003Plain
+                End_Procedure
+            End_Object
+            Object oNativeWinXPPlain_Item is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Native WinXP Plain"
+                Set psImage to "Theme_16.ico"
+                Procedure OnClick
+                    Set peTaskPanelTheme to eTPT_NativeWinXPPlain
+                End_Procedure
+            End_Object
+            Object Toolbox_Item is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Toolbox"
+                Set psImage to "Theme_16.ico"
+                Procedure OnClick
+                    Set peTaskPanelTheme to eTPT_Toolbox
+                End_Procedure
+            End_Object
+            Object oToolboxWhidbey_Item is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Toolbox Whidbey"
+                Set psImage to "Theme_16.ico"
+                Procedure OnClick
+                    Set peTaskPanelTheme to eTPT_ToolboxWhidbey
+                End_Procedure
+            End_Object
+            Object oListView_Item is a cSigCJTaskPanelGroupItem
+                Set psLabel to "ListView"
+                Set psImage to "Theme_16.ico"
+                Procedure OnClick
+                    Set peTaskPanelTheme to eTPT_ListView
+                End_Procedure
+            End_Object
+            Object oListViewOfficeXP_Item is a cSigCJTaskPanelGroupItem
+                Set psLabel to "ListView Office XP"
+                Set psImage to "Theme_16.ico"
+                Procedure OnClick
+                    Set peTaskPanelTheme to eTPT_ListOfficeXP
+                End_Procedure
+            End_Object
+            Object oListViewOffice2003_Item is a cSigCJTaskPanelGroupItem
+                Set psLabel to "ListView Office 2003"
+                Set psImage to "Theme_16.ico"
+                Procedure OnClick
+                    Set peTaskPanelTheme to eTPT_ListOffice2003
+                End_Procedure
+            End_Object
+            Object oShortcutBarOffice2003_Item is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Shortcut Bar Office 2003"
+                Set psImage to "Theme_16.ico"
+                Procedure OnClick
+                    Set peTaskPanelTheme to eTPT_BarOffice2003
+                End_Procedure
+            End_Object
+            Object oShortcutBarOffice2007_Item is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Shortcut Bar Office 2007"
+                Set psImage to "Theme_16.ico"
+                Procedure OnClick
+                    #IF (SigCj_Codejock_Version < 150001) 
+                        Set peTaskPanelTheme to eTPT_BarOffice2007
+                    #ELSE    
+                        Set peTaskPanelTheme to eTPT_Resource
+                    #ENDIF 
+                End_Procedure
+            End_Object
+        End_Object 
+        Object oBehaviour_Group is a cSigCJTaskPanelGroup
+            Set psLabel to "Change Behaviour"
+            Set psImage to "WindowSidebar_16.ico"
+            Object oBehaviour_Explorer_Item is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Windows Explorer"
+                Set psImage to "WindowSidebar_16.ico"
+                Procedure OnClick
+                    Set peTaskPanelBehaviour to eTPB_BehaviourExplorer
+                End_Procedure
+            End_Object
+            Object oBehaviour_List_Item is a cSigCJTaskPanelGroupItem
+                Set psLabel to "Windows List Box"
+                Set psImage to "WindowSidebar_16.ico"
+                Procedure OnClick
+                    Set peTaskPanelBehaviour to eTPB_BehaviourList
+                End_Procedure
+            End_Object
+            Object oBehaviour_Toolbox_Item is a cSigCJTaskPanelGroupItem
+                Set psLabel to "VS. NET Toolbox"
+                Set psImage to "WindowSidebar_16.ico"
+                Procedure OnClick
+                    Set peTaskPanelBehaviour to eTPB_BehaviourToolbox
+                End_Procedure
+            End_Object
+        End_Object
+        
+    End_Object

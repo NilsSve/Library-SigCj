@@ -1,0 +1,208 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJContextMenu.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$ Martin Pincott
+// 
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//==============================================================================
+
+Use cCJCommandBarSystem.pkg
+Use cSigCJMenuItem.pkg
+Use cSigCJMethods_Mixin.pkg
+
+{ DesignerClass = cDTCJContextMenu }
+Class cSigCJContextMenu is a cCJContextMenu
+    Import_Class_Protocol cSigCJMethods_Mixin
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        // Define new Properties:
+        { DesignTime=False }
+        Property String[][] psaMenuItem
+
+    End_Procedure
+
+    Procedure End_Construct_Object
+        Forward Send End_Construct_Object
+
+        Send OnAdd_MenuItems
+    End_Procedure // End_Construct_Object
+    
+    // Hook 
+    Procedure OnAdd_MenuItems
+    End_Procedure
+
+    // Create and augment procedures and functions
+    Procedure Popup
+        Send OnPopup
+        Forward Send Popup
+    End_Procedure
+    
+    // Hook 
+    Procedure OnPopup
+    End_Procedure    
+    
+    { DesignTime=False }
+    Procedure Add_MenuItem String sCaption String sMessage Boolean bBeginGroup_Optional String sImage_Optional
+        Handle     hoMenuItem
+	    String	sImage
+        Boolean bBeginGroup
+        
+        Move False to bBeginGroup
+        If (num_arguments >= 3) ;
+            Move bBeginGroup_Optional to bBeginGroup
+            
+        Move "" to sImage
+        If (num_arguments >= 4) ;
+            Move sImage_Optional to sImage            
+
+        Get phAdd_MenuItem sCaption sMessage bBeginGroup sImage to hoMenuItem
+    End_Procedure //Add_MenuItem String sCaption String sMessage Boolean bBeginGroup_Optional String sImage_Optional
+
+
+    { DesignTime=False }
+    Function phAdd_MenuItem String sCaption String sMessage Boolean bBeginGroup String sImage Returns Handle 
+        Integer    iArraySize iCount
+        Handle     hoMenuItem
+        String[][] saMenuItem
+        
+        Get psaMenuItem to saMenuItem
+        Move (SizeOfArray(saMenuItem)) to iArraySize
+
+        // Check to see if menu item has already been loaded
+        // if so just return the handle of the menu item
+        For iCount from 0 to (iArraySize-1)
+            If (Trim(sCaption) = saMenuItem[iCount][0]) Begin
+                Function_Return saMenuItem[iCount][1]        
+            End
+        Loop
+
+        Get Create U_cSigCJMenuItem to hoMenuItem
+        If (Trim(sImage)   <> "") Set psImage   of hoMenuItem to (Trim(sImage))
+        If (Trim(sCaption) <> "") Set psCaption of hoMenuItem to (Trim(sCaption))
+        If (Trim(sMessage) <> "") Set psMessage of hoMenuItem to (Trim(sMessage))
+        If (bBeginGroup)          Set pbControlBeginGroup of hoMenuItem to True
+        
+        Move (Trim(sCaption)) to saMenuItem[iArraySize][0]
+        Move hoMenuItem       to saMenuItem[iArraySize][1]
+        
+        Set psaMenuItem to saMenuItem
+        Function_Return hoMenuItem 
+    End_Function    //-- pAdd_MenuItem
+    
+    
+    { DesignTime=False }
+    Procedure Set Enabled String sCaption Boolean bState
+        Integer    iArraySize iCount iIndex
+        Handle     hoMenuItem
+        String[][] saMenuItem
+        String     sMenuItem
+        
+        Get psaMenuItem to saMenuItem
+        Move (SizeOfArray(saMenuItem)) to iArraySize
+        
+        For iCount from 0 to (iArraySize-1)
+            Move saMenuItem[iCount][0] to sMenuItem
+            Move saMenuItem[iCount][1] to hoMenuItem
+            If (sMenuItem = sCaption) Begin
+                // Showln hoMenuItem " ... " sMenuItem
+                Set pbEnabled of hoMenuItem to bState
+            End    
+        Loop
+    End_Procedure
+    
+    { DesignTime=False }
+    Procedure Set Checked String sCaption Boolean bState
+        Integer    iArraySize iCount iIndex
+        Handle     hoMenuItem
+        String[][] saMenuItem
+        String     sMenuItem
+        
+        Get psaMenuItem to saMenuItem
+        Move (SizeOfArray(saMenuItem)) to iArraySize
+        
+        For iCount from 0 to (iArraySize-1)
+            Move saMenuItem[iCount][0] to sMenuItem
+            Move saMenuItem[iCount][1] to hoMenuItem
+            If (sMenuItem = sCaption) Begin
+                // Showln hoMenuItem " ... " sMenuItem
+                Set pbChecked of hoMenuItem to bState
+            End    
+        Loop
+    End_Procedure
+    
+    { DesignTime=False }
+    Procedure Set Visible String sCaption Boolean bState
+        Integer    iArraySize iCount iIndex
+        Handle     hoMenuItem
+        String[][] saMenuItem
+        String     sMenuItem
+        
+        Get psaMenuItem to saMenuItem
+        Move (SizeOfArray(saMenuItem)) to iArraySize
+        
+        For iCount from 0 to (iArraySize-1)
+            Move saMenuItem[iCount][0] to sMenuItem
+            Move saMenuItem[iCount][1] to hoMenuItem
+            If (sMenuItem = sCaption) Begin
+                // Showln hoMenuItem " ... " sMenuItem
+                Set pbVisible of hoMenuItem to bState
+            End    
+        Loop
+    End_Procedure
+
+    //Almost a copy of the standard DAW PopUp method
+    Procedure DropDown Integer iLoc Integer iWidth
+        Handle hoCommandBars
+        Integer iId
+
+        Get CommandBarSystemObject to hoCommandBars
+        If (hoCommandBars=0) Begin
+            Error DFERR_PROGRAM "Context menu not attached to commandbars"
+            Procedure_Return
+        End
+        
+        // this will create the context menu and return it attached.
+        Send CreatePopupComInstance 
+
+        Set ComWidth to iWidth
+        Get ComShowPopup OLE_VT_Empty (low(iLoc)) (hi(iLoc)) to iID
+        // This releases all actions (which will still exist on the COM side)
+        // and controls (controls should already be released on both DF and COM side)
+        Broadcast Recursive_up Send ReleaseComObject
+        Send ReleaseComObject // after popup CJ deletes the controls, so we release this
+    End_Procedure
+
+End_Class
+
+//==============================================================================
+//End of Package - cSigCJContextMenu.pkg
+//==============================================================================

@@ -1,0 +1,831 @@
+//*************************************************************************
+//*                                                                       *
+//*  Confidential Trade Secret.                                           *
+//*  Copyright (c) 1997-2001 Mertech Data System, Miami Florida,          *
+//*  All rights reserved.                                                 *
+//*  DataFlex is a registered trademark of Data Access Corporation.       *
+//*                                                                       *
+//************************************************************************/
+
+
+#REM -----------------------------------------------
+#REM Mertech Data Systems Inc. - www.mertechdata.com
+#REM cSQLStatement.pkg Version 1.0.3
+#REM -----------------------------------------------
+
+//================================================================================================
+// 1.0.1 - first draft
+// 1.0.2 - WvA 12/05/2000 - Function ParseSelectStatement, ConstructStatement added.
+//                          Parserdata gets cleaned up just before a new select statement is parsed.
+// 1.0.3 - WvA 01/12/2001 - Following keywords added for parsing Select statements:
+//                           DISTINCT|ALL, TOP n [PERCENT], INTO tablename
+//
+//------------------------------------------------------------------------------------------------
+//
+
+Use Set.pkg
+
+Enum_List
+  Define STMT_UNKNOWN   For 0   // Unsupported statement
+  Define STMT_SELECT            // Select statement
+  Define STMT_CHANGE            // statement that needs a seperate commit/rollback)
+  Define STMT_BASIC             // Basic Statement
+  Define STMT_SP                // Stored procedure
+End_Enum_List
+
+
+Class cParser Is A Array
+  Procedure Construct_Object
+    Forward Send Construct_Object
+    Property Integer piColumnsParsed   Public 0
+    Set Delegation_Mode to delegate_to_parent
+  End_Procedure // Construct_Object
+
+
+  Function ColumnCount Returns Integer
+    Function_Return (Item_Count(Self))
+  End_Function // ColumnCount
+
+
+  Procedure DoAddColumnName String sName
+    Local Integer iCount
+    Move (Trim(Uppercase(sName))) To sName
+    If (sName <> "") Begin
+      Get ColumnCount To iCount
+      Set Array_Value Item iCount To sName
+    End
+    Else Begin
+      Send SQLException SQLX_CANNOT_PARSE_EMPTY_COLUMNNAME
+    End
+  End_Procedure // DoAddColumnName
+
+
+  Procedure Set ColumnName Integer iItem String sName
+    Set Array_Value Item iItem To sName
+  End_Procedure // Set ColumnName
+
+  Function ColumnName Integer iItem Returns String
+    Local String sName
+    Get Array_Value Item iItem To sName
+    Function_Return (sName)
+  End_Function // ColumnName
+
+
+  Function TokenInString String sTokens String sValue Returns Integer
+    Local Integer bFound bLoop iPos
+    Local String  sToken
+    Move (False) To bFound
+    Move (True)  To bLoop
+    While (bLoop)
+      Move (Pos(",",sValue)) To iPos
+      If (iPos > 0) Begin
+        Move (Left(sTokens,iPos -1)) To sToken
+        Move (Replace(sToken+",",sTokens,"")) To sTokens
+        If (Pos(sToken,sValue) <> 0) Begin
+          Move (False) To bLoop
+          Move (True)  To bFound
+        End
+      End
+      Else Move (False) To bLoop
+    Loop
+    Function_Return (bFound)
+  End_Function // TokenInString
+
+
+  // In Oracle hints are placed directly after the Select statement. This means that they
+  // are embedded in the columns. This function will strip the hints from the columns, so that
+  // only columns are parsed.
+  Function RemoveHints String sColumns Returns String
+    Local Integer iLength iStart iStop
+    Local String  sHints
+    Move (Length(sColumns))       To iLength
+    Move (Pos("/*+",sColumns)-1)  To iStart
+    Move (Pos("*/",sColumns)+1)   To iStop
+    If (iStop=1) Begin
+      Send SQLException SQLX_HINT_ENDMARK_MISSING
+      Move iLength To iStop // ignore the columns from the start of the hint
+    End
+    Else Begin
+      Move (Mid(sColumns,iStop-iStart,iStart+1)) To sHints
+      Set psHints To sHints
+    End
+    Function_Return ( (Left(sColumns,iStart)) + (Right(sColumns,iLength-iStop)) )
+  End_Function // RemoveHints
+
+
+  // SELECT a [,b [,c]] FROM x [,y [,z]]
+  // SELECT a [,b [,c]] FROM x [,y [,z]] ORDER BY a
+  // SELECT a [,b [,c]] FROM x [,y [,z]] WHERE a = b
+  // SELECT a [,b [,c]] FROM x [,y [,z]] WHERE a = b LIKE '  '
+  // SELECT a + " " + b + "," + c FROM x [,y [,z]]  (MS SQL)
+  // SELECT a || " " || b || "," || c FROM x [,y [,z]]  (Oracle)
+  // SELECT (RTRIM(a)) + " " + (RTRIM(b)) + "," + (RTRIM(c)) FROM x [,y [,z]]  (MS SQL)
+  // SELECT (RTRIM(a)) || " " || (RTRIM(b)) || "," || (RTRIM(c)) FROM x [,y [,z]]  (Oracle)
+  // SELECT (RTRIM(a)) + " " + (RTRIM(b)) + "," + (RTRIM(c)) AS d FROM x [,y [,z]]  (MS SQL)
+  // SELECT (RTRIM(a)) || " " || (RTRIM(b)) || "," || (RTRIM(c)) AS d FROM x [,y [,z]]  (Oracle)
+  // SELECT /*+ foo */ a [,b [,c]] FROM x [,y [,z]] (Oracle, hints)
+  // Adds the column names to the parser object.
+  Procedure DoAddColumns String sColumns
+    Local Integer iPos
+    Local String  sColumn
+
+    Set piColumnsParsed To 0
+    If (Pos("/*+",sColumns)) Begin
+      Get RemoveHints sColumns To sColumns
+    End
+    Repeat
+      Move (Pos(",",sColumns)) To iPos
+      If (iPos > 0) Begin
+        Move (Left(sColumns,(iPos-1))) To sColumn
+        Move (Replace(sColumn+",",sColumns,"")) To sColumns
+      End
+      Else Begin
+        Move sColumns To sColumn
+        Move "" To sColumns
+      End
+      Move (Pos(" AS ",sColumn)) To iPos  // Select "abc AS DEFG " From
+      If (iPos > 0) Begin
+        Move (Right(sColumn, Length(sColumn)-iPos-3)) To sColumn
+      End
+      Else Begin
+//        If (TokenInString(Self,"||,+,-,*,/",sColumns)) Move sColumn To
+//        Else Begin
+//          Move (Pos(".",sColumns)) To iPos
+//        End
+      End
+      Send DoAddColumnName sColumn
+    Until (Length(sColumns) = 0)
+  End_Procedure // DoAddColumns
+
+
+  // If found: Returns the itemnumber in the column array and sets the
+  //           value of the column to "?"
+  // Not found: Returns 0
+  Function ColumnExists String sTable String sColumn Returns Integer
+    Local Integer iCount iColumn iNdx iColumnsParsed
+    Local String  sValue
+    Get Item_Count To iCount
+    Get piColumnsParsed To iColumnsParsed
+    Move 0 To iNdx
+    Move 0 To iColumn
+    While (iNdx < iCount And iColumn = 0 And iCount <> iColumnsParsed)
+      Get Array_Value Item iNdx To sValue
+      If ( (sValue=sColumn) Or (sValue= (sTable+"."+sColumn)) ) Begin
+        Set Array_Value Item iNdx To "?" // This column is parsed
+        Move (iNdx+1) To iColumn
+        Increment iColumnsParsed
+        Set piColumnsParsed To iColumnsParsed
+      End
+      Add 1 To iNdx
+    Loop
+    Function_Return iColumn
+  End_Function // ColumnExists
+
+
+  // The following method is included for debugging purposes only, do not depend on this message
+  // as it will be removed in the final release.
+  Procedure ShowAllValues
+    Local Integer iCount iColumn
+    Get ColumnCount To iCount
+    Move 0 To iColumn
+    Showln ("Parser ColumnCount ="*trim(iCount))
+    While (iColumn < iCount)
+      Showln ("Parser Column ["+trim(iColumn)+"] = ["+ColumnName(Self,iColumn)+"]")
+      Increment iColumn
+    Loop
+  End_Procedure // ShowAllValues
+
+
+  Procedure DoAddFullColumnName String sTable String sColumn String sDataType Integer iDataLength Integer iScale
+    Local Integer iCount hoMetaData
+    Move (Uppercase(Trim(sTable)))  To sTable
+    Move (Uppercase(Trim(sColumn))) To sColumn
+    If ((sTable <> "") And (sColumn <> "")) Begin
+      Get phoMetaData To hoMetaData
+      If (hoMetaData > Desktop) Begin
+        Send DoAddTable            To hoMetaData sTable
+        Send DoAddColumnName       To hoMetaData (sTable+"."+sColumn)
+        Send DoAddColumnDataType   To hoMetaData sDataType
+        Send DoAddColumnDataLength To hoMetaData iDataLength
+        Send DoAddColumnDataScale  To hoMetaData iScale
+      End
+      Else Send SQLException SQLX_NO_METADATA_OBJ
+    End
+    Else Begin
+      If (sTable = "") Send SQLException SQLX_COLUMN_NOT_IN_TABLE
+      Else If (sColumn = "")  Send SQLException SQLX_COLUMN_MISSING
+    End
+  End_Procedure // DoAddFullColumnName
+
+
+  // If a column is unknown, for example a calculated column it is prefixed by a
+  // questionmark to indicate that it does not exist in the table.
+  Procedure DoAddUnknownColumns
+    Local Integer hoMetaData iCount iNdx
+    Local String  sValue
+    Get phoMetaData To hoMetaData
+    Get Item_Count To iCount
+    Move 0 To iNdx
+    While (iNdx < iCount)
+      Get Array_Value Item iNdx To sValue
+      If (sValue <> "?") Begin
+        Move ("?"+sValue) To sValue  // Prefix the column to indicate that it is not found.
+//        Set Array_Value Of hoMetaData Item iNdx To sValue
+        Set ColumnName         Of hoMetaData Item (iNdx+1) To sValue
+        Set ColumnEnabledState Of hoMetaData Item (iNdx+1) To False
+      End
+      Else Begin
+        Set ColumnEnabledState Of hoMetaData Item (iNdx+1) To True
+      End
+      Add 1 To iNdx
+    Loop
+  End_Procedure // DoAddUnknownColumns
+
+
+  // Precondition: The properties psColumns and psTables must contain the
+  //               substrings representing the Columns and tables that are passed in the
+  //               SQL select statement.
+  //
+  // returns a nonzero value if there were problems.
+  Function RetrieveMetaData Returns Integer
+    Local Integer iFile iField iLoop iCount iPos iColumn iDataType
+    Local Integer bFetchAllColumns
+    Local Integer iDataLength iDataScale iRetVal
+    Local String  sColumnName sColumnValue sTempQuery sOwner sTableName sSQLBackEnd
+    Local String  sQualifier  sDataType    sTableOwner sColumns sTables
+    Local Handle  hoMetaData
+
+    Get psColumns To sColumns
+    Get psTables  To sTables
+
+    Get piCurrentFile To iFile
+    Move (Pos("*",sColumns) = 1)   To bFetchAllColumns
+    Set pbFetchAllColumns To bFetchAllColumns
+    Get psOwner           To sOwner
+    Move (Uppercase(Trim(sOwner))) To sOwner
+    Get phoMetaData To hoMetaData
+
+    If (Not(bFetchAllColumns)) Send DoAddColumns sColumns
+
+    Repeat
+      // Get the tablename on the left
+      Move (Pos(",",sTables)) To iPos
+      If (iPos <> 0) Begin
+        Move (Left(sTables,iPos-1)) To sTableName
+        Move (lTrim(Replace((sTableName+","),sTables,""))) To sTables
+      End // iPos <> 0
+      Else Begin
+        Move (Trim(sTables)) To sTableName
+        Move "" To sTables
+      End
+
+      Send DoAddTable To hoMetaData sTableName
+
+
+      If (iFile > 0) Begin
+        //Get_Attribute DF_FILE_DISPLAY_NAME Of iFile To sTableName
+        //Send DoAddTable sTableName
+
+        Get_Attribute DF_FILE_NUMBER_FIELDS Of iFile To iCount
+        While (iField <= iCount)
+          Get_Attribute DF_FIELD_NAME Of iFile iField To sColumnName
+          // To Do : Get the data for
+          //       sDataType
+          //       iDataLength
+          //       iDataScale
+
+          If (bFetchAllColumns) Begin
+            Send DoAddFullColumnName sTableName sColumnName sDataType iDataLength iDataScale
+            Get ColumnCount Of hoMetaData To iColumn
+            Set FieldNum Of hoMetaData Item iColumn To iField
+          End
+          Else Begin
+            Move (ColumnExists (Self, sTableName, sColumnName)) To iColumn
+            If (iColumn > 0) Begin
+              Move (sTableName+"."+sColumnName) To sColumnName
+              Set ColumnName Of hoMetaData Item iColumn To sColumnName
+              Set FieldNum Of hoMetaData Item iColumn To iField
+            End
+          End
+          Increment iField
+        End // While <> 0
+
+      End
+
+      Else Begin // iFile <= 0
+        Get psSQLBackend To sSQLBackEnd
+        If (sSQLBackend = ORAFLEX) Begin
+
+          // Initialize the buffer and names for the columns
+          Move ("select TABLE_NAME, COLUMN_NAME, DATA_TYPE, DATA_LENGTH, DATA_SCALE from dba_tab_Columns ") To sTempQuery
+          Move (sTempQuery+"where table_name = '"+sTableName+"' ") To sTempQuery
+          Move (sTempQuery+"And Owner = '"+sOwner+"' ") To sTempQuery
+          Move (sTempQuery+"order by column_id") To sTempQuery
+
+          SQL_SET_STMT To sTempQuery
+          SQL_PREPARE_STMT
+          SQL_EXECUTE_STMT
+
+          SQL_FETCH_NEXT_ROW
+          While (Found)
+            DO_GET_BIND_PARAMETERS sTableName sColumnName sDataType iDataLength iDataScale
+            If (bFetchAllColumns) Begin
+              Send DoAddFullColumnName sTableName sColumnName sDataType iDataLength iDataScale
+            End
+            Else Begin
+              Move (ColumnExists (Self, sTableName, sColumnName)) To iColumn
+              If (iColumn > 0) Begin
+                Move (sTableName+"."+sColumnName) To sColumnName
+                Set ColumnName       Of hoMetaData Item iColumn To sColumnName
+                Set ColumnDataType   Of hoMetaData Item iColumn To sDataType
+                Set ColumnDataLength Of hoMetaData Item iColumn To iDataLength
+                Set ColumnDataScale  Of hoMetaData Item iColumn To iDataScale
+//                Set FieldNum Of hoMetaData Item iColumn To -1
+              End
+            End
+            SQL_FETCH_NEXT_ROW
+          Loop
+        End
+        Else If (sSQLBackend = SQLFLEX) Begin
+
+          CALL_SQLSERVER_PROCEDURE "sp_columns" PASSING sTableName sOwner BINDING ;
+            sQualifier sTableOwner sTableName sColumnName iDataType sDataType iDataScale iDataLength
+          While (Found)
+            If (bFetchAllColumns) Begin
+              Send DoAddFullColumnName sTableName sColumnName sDataType iDataLength iDataScale
+            End
+            Else Begin
+              Move (ColumnExists (Self, sTableName, sColumnName)) To iColumn
+              If (iColumn > 0) Begin
+                Move (sTableName+"."+sColumnName) To sColumnName
+                Set ColumnName       Of hoMetaData Item iColumn To sColumnName
+                Set ColumnDataType   Of hoMetaData Item iColumn To sDataType
+                Set ColumnDataLength Of hoMetaData Item iColumn To iDataLength
+                Set ColumnDataScale  Of hoMetaData Item iColumn To iDataScale
+                //Send DoAddFullColumnName sTableName sColumnName sDataType iDataLength iDataScale
+              End
+            End
+            SQL_FETCH_NEXT_ROW INTO sQualifier sTableOwner sTableName sColumnName iDataType sDataType iDataScale iDataLength
+          Loop
+
+        End
+      End
+    Until (length(sTables) = 0)
+
+    Send DoAddUnknownColumns
+
+    Function_Return iRetVal
+  End_Function // RetrieveMetaData
+
+
+  Procedure Delete_Data
+    Set psHints             To ""
+    Set psTop               To ""
+    Set psInto              To ""
+    Set psColumns           To ""
+    Set psTables            To ""
+    Set psGroupBy           To ""
+    Set psHaving            To ""
+    Set psWhere             To ""
+    Set psOrderBy           To ""
+    Set pbSelectDistinct    To False
+    Set pbSelectAll         To False
+    Forward Send Delete_Data
+  End_Procedure // Delete_Data
+
+
+
+
+  // Internal:
+  // This function will parse the select statement. The individual columns and tables in
+  // the statement are identified and properties to reconstruct the statement are set.
+  //
+  // Parse and execute the select statement
+  // It should parse the following statements:
+  // SELECT columnname, ...
+  //  FROM  tablename, ...
+  //  [WHERE ...]
+  //  [GROUP BY ...]
+  //  [HAVING ...]
+  //  [ORDER BY ...]
+  //
+  // Note: comments and hints for the SQL engine have to be removed from the column
+  //       and tablearea for parsing only.
+  //
+  //
+  // Preconditions: sQuery needs to be a select statement and must be in uppercase
+  //
+  // Returns a nonzero value if an error occured during parsing of the statement
+  //
+  Function ParseSelectStatement String sQuery Returns Integer
+    Local Integer iPos iPosW iPosG iPosH iPosO iRetVal
+    Local String  sTempQuery sColumns sTables sParam sTop sInto sSQLBackEnd
+    Move (lTrim(sQuery)) To sTempQuery
+    Get psColumns To sColumns
+    Get psTables  To sTables
+    Get psSQLBackend To sSQLBackEnd
+    If (sColumns = "") Begin // a required param
+       If (Pos("SELECT ",sTempQuery) = 1) ;
+         Move (lTrim(Replace("SELECT ",sTempQuery,""))) To sTempQuery
+       Move (Pos("DISTINCT ",sTempQuery))     To iPos
+       If (iPos = 1) Begin
+         Move (lTrim(Replace("DISTINCT ",sTempQuery,""))) To sTempQuery
+         Set pbSelectDistinct To True
+       End
+       Move (Pos("ALL ",sTempQuery))     To iPos
+       If (iPos = 1) Begin
+         Move (lTrim(Replace("ALL ",sTempQuery,""))) To sTempQuery
+         Set pbSelectAll To True
+       End
+       If (sSQLBackend = SQLFLEX) Begin
+         Move (Pos("TOP ",sTempQuery))     To iPos
+         If (iPos = 1) Begin
+           Move "TOP " To sTop
+           Move (lTrim(Replace(sTop,sTempQuery,""))) To sTempQuery
+           Move (Pos(" ",sTempQuery))     To iPos   // There's always a value
+           Move (Left(sTempQuery,iPos))   To sParam
+           Move (lTrim(Replace(sParam,sTempQuery,""))) To sTempQuery
+           If (Pos("PERCENT",sTempQuery) = 1) Begin
+            Move (sTop+sParam+"PERCENT ") To sTop
+           End
+           Else Move (sTop+sParam) To sTop
+           Set psTop To sTop
+         End
+         Move (Pos("INTO ",sTempQuery))     To iPos
+         If (iPos = 1) Begin
+           Move "INTO " To sInto
+           Move (lTrim(Replace(sInto,sTempQuery,""))) To sTempQuery
+           Move (Pos(" ",sTempQuery))     To iPos   // There's always a value
+           Move (Left(sTempQuery,iPos))   To sParam
+           Move (lTrim(Replace(sParam,sTempQuery,""))) To sTempQuery
+           Move (sInto+sParam) To sInto
+           Set psInto To sInto
+         End
+       End // SQLFLEX
+       Move (Pos(" FROM",sTempQuery))     To iPos
+       If (iPos > 0) Begin
+         Move (Left(sTempQuery,iPos-1)) To sColumns
+         Move (lTrim(Replace((sColumns+" FROM"),sTempQuery,""))) To sTempQuery
+         Set psColumns To sColumns
+         Get ParseSelectStatement sTempQuery To iRetVal
+       End
+       Else Begin
+         Send SQLException SQLX_CANNOT_PARSE_NO_FROM
+         Move 1 To iRetVal
+       End
+    End // sColumns = ""
+    Else Begin
+
+      Move (Pos("WHERE ",sTempQuery))    To iPosW
+      Move (Pos("GROUP BY ",sTempQuery)) To iPosG
+      Move (Pos("HAVING ",sTempQuery))   To iPosH
+      Move (Pos("ORDER BY ",sTempQuery)) To iPosO
+
+      If (sTables = "") Begin // another required param
+        If (Length(sTempQuery) > 0) Begin
+          If (iPosW > 0) Begin
+            Move (Left(sTempQuery,iPosW-1)) To sTables
+          End // iPosW > 0
+          Else If (iPosG > 0) Begin
+            Move (Left(sTempQuery,iPosG-1)) To sTables
+          End
+          Else If (iPosH > 0) Begin
+            Move (Left(sTempQuery,iPosH-1)) To sTables
+          End
+          Else If (iPosO > 0) Begin
+            Move (Left(sTempQuery,iPosO-1)) To sTables
+          End
+          Else Move (Left(sTempQuery,Length(sTempQuery))) To sTables
+
+          Move (lTrim(Replace(sTables,sTempQuery,""))) To sTempQuery
+          Set psTables To sTables
+          Get ParseSelectStatement sTempQuery To iRetVal
+        End // Length(sTempQuery) > 0
+        Else Begin
+          Send SQLException SQLX_CANNOT_PARSE_NO_TABLE
+          Move 1 To iRetVal
+        End
+      End // sTables = ""
+      Else Begin // Parse the optional params
+        If (Length(sTempQuery) > 0) Begin
+          Move 0 To iPos
+          If (iPosW > 0) Begin  // Where clause
+            If (iPosG > 0)  Move iPosG To iPos
+            Else If (iPosH > 0) Move iPosH To iPos
+            Else If (iPosO > 0) Move iPosO To iPos
+            If (iPos <> 0) Move (Left(sTempQuery,iPos-1)) To sParam
+            Else Move sTempQuery To sParam
+            Move (lTrim(Replace(sParam,sTempQuery,""))) To sTempQuery
+            Move (lTrim(Replace("WHERE ",sParam,""))) To sParam
+            Set psWhere To sParam
+            Get ParseSelectStatement sTempQuery To iRetVal
+          End // iPosW > 0
+          Else If (iPosG > 0) Begin // Group by clause
+            If (iPosH > 0)  Move iPosH To iPos
+            Else If (iPosO > 0) Move iPosO To iPos
+            If (iPos <> 0) Move (Left(sTempQuery,iPos-1)) To sParam
+            Else Move sTempQuery To sParam
+            Move (lTrim(Replace(sParam,sTempQuery,""))) To sTempQuery
+            Move (lTrim(Replace("GROUP BY ",sParam,""))) To sParam
+            Set psGroupBy To sParam
+            Get ParseSelectStatement sTempQuery To iRetVal
+          End
+          Else If (iPosH > 0) Begin // Having clause
+            If (iPosO > 0)  Move iPosO To iPos
+            If (iPos <> 0) Move (Left(sTempQuery,iPos-1)) To sParam
+            Else Move sTempQuery To sParam
+            Move (lTrim(Replace(sParam,sTempQuery,""))) To sTempQuery
+            Move (lTrim(Replace("HAVING ",sParam,""))) To sParam
+            Set psHaving To sParam
+            Get ParseSelectStatement sTempQuery To iRetVal
+          End
+          Else If (iPosO > 0) Begin // Order by clause
+            Move sTempQuery To sParam
+            Move (lTrim(Replace("ORDER BY ",sParam,""))) To sParam
+            Set psOrderBy To sParam
+            // Parsing is done.
+          End
+          Else Move (Left(sTempQuery,Length(sTempQuery))) To sTables
+        End // Length(sTempQuery) > 0
+      End
+    End
+    Function_Return iRetVal
+  End_Function // ParseSelectStatement
+
+End_Class // cParser
+
+
+
+Class cStatement Is A Set
+  Procedure Construct_Object
+    Local Integer hoParser hoSelf
+    Forward Send Construct_Object
+    Property Integer phoParser             Public 0
+    Property Integer piStatementType       Public 0
+    Property Integer pbSelectDistinct      Public False
+    Property Integer pbSelectAll           Public False
+    Property String  psHints               Public ""
+    Property String  psTop                 Public ""
+    Property String  psInto                Public ""
+    Property String  psColumns             Public ""
+    Property String  psTables              Public ""
+    Property String  psGroupBy             Public ""
+    Property String  psHaving              Public ""
+    Property String  psWhere               Public ""
+    Property String  psOrderBy             Public ""
+    Property String  psStatement           Public ""  //
+    Property String  psUnparsedStatement   Public ""  //
+
+    Object oParser Is A cParser  // Used to parse the columns in the statement
+      Move Self To hoParser
+    End_Object // oParser
+    Set phoParser    To hoParser
+
+    Send AddCommandElements
+    Set Delegation_Mode to delegate_to_parent
+
+    Move Self To hoSelf
+    Set phoStatement To hoSelf
+  End_Procedure // Construct_Object
+
+  // 0 - STMT_UNKNOWN    :Unsupported statement
+  // 1 - STMT_SELECT     :Select statement
+  // 2 - STMT_CHANGE     :statement that needs a seperate commit/rollback)
+  // 3 - STMT_BASIC      :Basic Statement
+  Procedure AddCommandElements
+    Send Add_Element "SELECT,1"
+    Send Add_Element "CREATE,3"
+    Send Add_Element "DROP,3"
+    Send Add_Element "ALTER,2"
+    Send Add_Element "INSERT,2"
+    Send Add_Element "UPDATE,2"
+    Send Add_Element "DESCRIBE,3" //?  = untested
+    Send Add_Element "COMMIT,3"   //?
+    Send Add_Element "ROLLBACK,3" //?
+  End_Procedure // AddCommandElements
+
+  Function ElementName Integer iNdx Returns String
+    Local String  sCmnd sVal
+    Local Integer iPos
+    Get array_value item iNdx to sVal
+    Move (Pos(",",sVal)) To iPos
+    If (iPos) Move (Left(sVal,iPos-1)) To sCmnd
+    Function_Return sCmnd
+  End_Function // ElementName
+
+  Function ElementType Integer iNdx Returns Integer
+    Local String  sVal
+    Local Integer iPos iType
+    Get array_value item iNdx To sVal
+    Move (Pos(",",sVal)) To iPos
+    If (iPos) Move (Right(sVal,Length(sVal)-iPos)) To iType
+    Function_Return iType
+  End_Function // ElementType
+
+
+  Function FindElement String sCommand returns integer
+    Local Integer iLoop iRetVal iItem_Count
+    Local String sElement
+    Get Item_Count to iItem_Count
+    Move -1 to iRetVal
+    Move 0 to iLoop
+    While (iLoop < iItem_Count And iRetVal = -1)
+      Get ElementName item iLoop to sElement
+      If (sElement <> "") Begin
+        If (sElement = sCommand) Begin
+          Move iLoop To iRetVal
+        End
+      End
+      Increment iLoop
+    End
+    Function_Return iRetVal
+  End_Function // FindElement
+
+
+  // This function will parse and implement the SQL statement
+  // If it is a select statement, the metadata will be retrieved.
+  Procedure PrepareStatement String sStmt
+    Local String sCommand
+    Local Integer iPos iElement iType hoParser bErr
+    // remove a possible trailing ; from the query
+    If (Right(sStmt,1) = ";") Move (Left(sStmt,length(sStmt)-1)) To sStmt
+    Set psUnparsedStatement To sStmt
+    Move (uppercase(trim(sStmt))) To sStmt
+
+    Move (Pos(" ",sStmt)) To iPos
+    If (iPos = 0) Move sStmt To sCommand
+    Else Begin
+      Move (Left(sStmt,iPos-1)) To sCommand
+    End
+    Get FindElement sCommand To iElement
+    If (iElement <> -1) Begin
+      Get ElementType iElement To iType
+      Set piStatementType To iType
+      If (iType = STMT_SELECT) Begin
+        Get phoParser   To hoParser
+        If (hoParser <> 0) Begin
+
+          Send Delete_Data To hoParser
+
+          Get ParseSelectStatement Of hoParser sStmt To bErr
+          If (bErr = 0) Begin
+            Get RetrieveMetaData Of hoParser To bErr
+            If (bErr = 0) Begin
+              Get ConstructStatement To bErr
+            End
+          End
+        End // iType = STMT_SELECT
+        Else Error 330 "No Parser object"
+      End
+      Else Get ConstructStatement To bErr
+    End
+  End_Procedure // PrepareStatement
+
+
+  // This function will use the dissassembled pieces of the parsed statement and the list of
+  // columns and tables in the metadata object to create a new statement to be passed on to
+  // the SQL backend.
+  // The result of this is stored in the psStatement property.
+  Function ConstructStatement Returns Integer
+    Local Integer iRetVal iType iCount iNdx bAutoRowNum bAutoRowID
+    Local Integer hoMetaData
+    Local String  sStatement sVal sSQLBackEnd sDataType
+
+    Get piStatementType To iType
+    Get phoMetaData     To hoMetaData
+    Get psSQLBackend    To sSQLBackend
+
+    If (iType = STMT_SELECT) Begin
+      Move "SELECT " To sStatement
+
+      Get psHints To sVal
+      If (sVal <> "") Begin
+        Move (sStatement+sVal+" ") To sStatement
+      End
+
+      If (pbSelectDistinct(Self)) Begin
+        Move (sStatement+"DISTINCT ") To sStatement
+      End
+
+      If (pbSelectAll(Self)) Begin
+        Move (sStatement+"ALL ") To sStatement
+      End
+
+      Get psTop To sVal
+      If (sVal <> "") Begin
+        Move (sStatement+sVal) To sStatement
+      End
+
+      Get psInto To sVal
+      If (sVal <> "") Begin
+        Move (sStatement+sVal) To sStatement
+      End
+
+      // enumerate the columns
+      Get ColumnCount Of hoMetaData To iCount
+      Move 1 To iNdx
+      While (iNdx <= iCount)
+        Get FullColumnName Of hoMetaData Item iNdx To sVal
+
+        If (sSQLBackEnd = SQLFLEX) Begin
+          Get ColumnDataType  Of hoMetaData Item iNdx To sDatatype
+          If (Pos("DATE",sDataType) <> 0)  Begin
+            Move ("convert(char(10),"+sVal+", 101)") To sVal
+          End
+        End
+
+        If (Pos("?",sVal) = 1) Move (Replace("?",sVal,"")) To sVal // A calculated value
+        Move (sStatement+sVal) To sStatement
+        If (iNdx <> iCount) Begin
+          Move (sStatement+", ") To sStatement
+        End
+        Increment iNdx
+      Loop
+
+
+      Get pbAutoRowNum To bAutoRowNum
+      If (bAutoRowNum = True) Begin
+        If (sSQLBackend = ORAFLEX) Begin
+          Move (sStatement+", ROWNUM") To sStatement
+        End
+        // T-SQL has no alternative for the ROWNUM column, the value is set to
+        // the piCurrentRow in the cSQLResultSet class.
+        //        Else If (sSQLBackend = SQLFLEX) Begin
+        //        End
+      End
+
+      Get pbAutoRowID To bAutoRowID
+      If (bAutoRowID = True) Begin
+        If (sSQLBackend = ORAFLEX) Begin
+          // We need to convert to char, otherwise a few characters are skipped.
+          // This is a workaround for the incorrect columnsize of the ROWID returned for Oracle 8i
+          Move (sStatement+", (ROWIDTOCHAR(ROWID))") To sStatement
+        End
+        Else If (sSQLBackend = SQLFLEX) Begin
+          Move (sStatement+", IDENTITYCOL") To sStatement
+        End
+      End
+
+      Move (sStatement+" FROM ") To sStatement
+
+      // enumerate the tables
+      Get TableCount Of hoMetaData To iCount
+      Move 1 To iNdx
+      While (iNdx <= iCount)
+        Get TableName Of hoMetaData Item iNdx To sVal
+         Move (sStatement+sVal) To sStatement
+         If (iNdx <> iCount) Begin
+           Move (sStatement+", ") To sStatement
+         End
+        Increment iNdx
+      Loop
+
+      Get psWhere To sVal
+      If (sVal <> "") Begin
+        Move (sStatement+" WHERE "+sVal) To sStatement
+      End
+
+      Get psGroupBy To sVal
+      If (sVal <> "") Begin
+        Move (sStatement+" GROUP BY "+sVal) To sStatement
+      End
+
+      Get psHaving To sVal
+      If (sVal <> "") Begin
+        Move (sStatement+" HAVING "+sVal) To sStatement
+      End
+
+      Get psOrderBy To sVal
+      If (sVal <> "") Begin
+        Move (sStatement+" ORDER BY "+sVal) To sStatement
+      End
+    End // iType = STMT_SELECT
+    Else Begin
+      Get psUnparsedStatement To sStatement
+    End
+
+    Set psStatement To sStatement
+    Function_Return iRetVal
+  End_Function // ConstructStatement
+
+
+  // Returns the SQL statement that produced this resultset.
+  // This may be different from the statement that is passed to the executequery
+  // method.
+  Function Statement Returns String
+    Local String  sStmt
+    Get psStatement To sStmt
+    Function_Return sStmt
+  End_Function // Statement
+
+
+  // Returns the SQL statement that produced this resultset.
+  // This is the statement that is passed to the executequery method.
+  Function UnparsedStatement Returns String
+    Function_Return (psUnparsedStatement(Self))
+  End_Function // UnparsedStatement
+
+
+
+End_Class // cStatement
+

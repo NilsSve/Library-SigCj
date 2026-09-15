@@ -1,0 +1,53 @@
+Object 
+    Set Size to 186 300
+    Set Location to 2 2
+    Set peAnchors to anAll
+    Set pbEnableDB_Link to True
+    Set pbDB_Link_OnClick to False
+    Set pbEnableCustomIcons to True
+    Set pbEnableCustomProperties to True
+
+    #Include Calendar_v2\cSigCJCalendar_Standard_Tables.pkg
+
+    Procedure OnCreate_DataProvider
+        //Do Nothing - we will use the auto created default
+    End_Procedure
+    
+    Procedure OnLoadIcons
+        Send Load_Icon 10 "Con_All_16.ico" 
+        Send Load_Icon 11 "Con_Act_16.ico" 
+        Send Load_Icon 12 "Con_Ter_16.ico" 
+        Send Load_Icon 22 "Gear_16.ico" 
+        Send Load_Icon 23 "Grid_16.ico" 
+        Send Load_Icon 24 "Grids_16.ico" 
+    End_Procedure
+
+    Procedure OnCreate_Categories
+        tdSigCjCal_Category     tCategory
+        
+        Move 1          to tCategory.iID
+        Move "Holiday"  to tCategory.sName
+        Move clRed      to tCategory.iBorderColor
+        Move clAqua     to tCategory.iColor_1
+        Move clAqua     to tCategory.iColor_2
+        Move 0.75       to tCategory.nGradient
+        Send Create_Category tCategory
+
+        Move 2                  to tCategory.iID
+        Move "Internal Meeting" to tCategory.sName
+        Move clLime             to tCategory.iBorderColor
+        Move clYellow           to tCategory.iColor_1
+        Move clYellow           to tCategory.iColor_2
+        Move 0.75               to tCategory.nGradient
+        Send Create_Category  tCategory
+
+        Move 3                to tCategory.iID
+        Move "Client Meeting" to tCategory.sName
+        Move clBlue           to tCategory.iBorderColor
+        Move clGreen          to tCategory.iColor_1
+        Move clGreen          to tCategory.iColor_2
+        Move 0.75             to tCategory.nGradient
+        Send Create_Category  tCategory
+    End_Procedure
+End_Object
+

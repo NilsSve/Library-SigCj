@@ -1,0 +1,174 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJMessageBar.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev: 343 $
+//                $Date: 2010-02-26 22:57:12 +0000 (Fri, 26 Feb 2010) $
+//                $Author: martin $ Martin Pincott and Pieter van Dieren
+// 
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2010-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//==============================================================================
+// Contributions
+// =============
+//
+// When       Who                 What
+// ========== =================== =====================================================
+// 2010-02-26 Pieter van Dieren   Initial Idea and code sample 
+//
+//==============================================================================
+
+Use SigCjW_Controls.pkg
+Use cCJCommandBars.pkg
+Use cSigCJMethods_Mixin.pkg
+Use cSigCJImage_Manager_Mixin.pkg
+Use cHexLib.Pkg
+Use GlobalFunctionsProcedures.pkg
+
+Class cSigCJMessageBar is a cCJMessageBar
+    Import_Class_Protocol cSigCJMethods_Mixin
+    Import_Class_Protocol cSigCJImage_Manager_Mixin    
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        Send Initialise_Image_Manager_Mixin
+        
+        { DesignTime=False Visibility=Private }
+        Property Handle Private_phoCommandBarGlobalSettings (Create(Self,RefClass(cCJCommandBarsGlobalSettings)))
+
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private_pbVisible True 
+    
+        { DesignTime=False Visibility=Private }
+        Property String  Private_psMessage 
+
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private_pbCloseButton True
+        
+        { MethodType=Property Category="CodeJock" PropertyType=Color }
+        { EnumList="clAqua, clBlack, clBlue, clDkGray, clFuchsia, clGray, clGreen, clLime, clLtGray" }
+        { EnumList+="clMaroon, clNavy, clOlive, clPurple, clRed, clSilver, clTeal, clWhite, clYellow" }
+        Property Integer piTextColor clBlack
+        
+        { MethodType=Property Category="CodeJock" }
+        Property String psCloseButtonTooltip "Close"
+
+        Object oHex is a cHexLib
+        End_Object
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbVisible Boolean bState
+        Set SigCJProperty Set_Private_pbVisible Set_ComVisible to bState
+    End_Procedure
+    
+    Function pbVisible Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbVisible, Get_ComVisible ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=True }
+    Procedure Set pbCloseButton Boolean bState
+        Set Private_pbCloseButton to bState
+        If (bState) Begin
+            Send ComAddCloseButton (psCloseButtonTooltip(Self)) 
+        End
+    End_Procedure
+    
+    Function pbCloseButton Returns Boolean
+        Function_Return (Private_pbCloseButton(Self))
+    End_Function
+
+    //-------------------------------------------------------------------------
+    
+    { MethodType=Event }
+    Procedure Add_Close_Button String llToolTip
+        Send ComAddCloseButton llToolTip
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure Add_Button Integer llId String llCaption String llToolTip
+        Send ComAddButton llId llCaption llToolTip
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure Remove_Buttons 
+        Send ComRemoveButtons
+    End_Procedure
+
+    // Convert illegal characters to XAML entities
+    { Visibility=Private }
+    Function EncodePlaintext String sMessage Returns String
+        Move (Replaces("&",sMessage,"&amp;"))     to sMessage
+        Move (Replaces("<",sMessage,"&lt;"))      to sMessage
+        Move (Replaces(">",sMessage,"&gt;"))      to sMessage
+        Move (Replaces("'",sMessage,"&apos;"))    to sMessage
+        Move (Replaces('"',sMessage,"&quot;"))    to sMessage
+        Move (Replaces("\n",sMessage,"&#x0a;"))   to sMessage
+        Function_Return sMessage
+    End_Function // EncodePlaintext
+   
+    Function ComIcons Returns Variant
+        Handle hoGlobalSettings
+        
+        Get Private_phoCommandBarGlobalSettings to hoGlobalSettings
+        Set pvComObject of hoGlobalSettings to (ComGlobalSettings(Self))
+
+        Function_Return (ComIcons(hoGlobalSettings))
+    End_Function
+   
+    { Visibility=Private }
+    Procedure DoShowMessageBar String sMessage String sMessageTitle String sImage
+        String sXml sHexColor sShowImage
+        Integer iImageId
+        
+        If (IsComObjectCreated(Self)) Begin
+            Get HexColor of oHex (piTextColor(Self)) to sHexColor
+            If (num_arguments=3) Begin
+                Get AddImage sImage 0 0 to iImageId
+                Move (SFormat("<Image Source='%1'/>",iImageId)) to sShowImage
+            End
+            Else Begin
+                Move "" to sShowImage
+            End
+            
+            Move ("<StackPanel Orientation='Horizontal'>" + ;
+               sShowImage + ; 
+               " <TextBlock Padding='10, 0, 0, 0' VerticalAlignment='Center' Foreground='" + sHexColor + "'><Bold>" + EncodePlaintext(Self,sMessageTitle) + "</Bold></TextBlock>" + ;
+               " <TextBlock Padding='20, 0, 0, 0' VerticalAlignment='Center' Foreground='" + sHexColor + "'>" + EncodePlaintext(Self,sMessage) + "</TextBlock>" + ;
+               "</StackPanel>") to sMessage
+            
+            Send Remove_Buttons
+            Set pbCloseButton to (pbCloseButton(Self))
+            Set ComMessage to sMessage
+        End
+    End_Procedure
+   
+End_Class
+

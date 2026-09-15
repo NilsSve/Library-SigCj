@@ -1,0 +1,452 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJShortcutBar.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$ Martin Pincott
+//
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+
+Use SigCjW_ShortcutBar.pkg
+Use cSigCJPushButton.pkg
+Use cSigCJMethods_Mixin.pkg
+
+Handle ghoSigCj_ShortcutBar
+
+Enum_List
+    Define eSCB_Button_Up   for 1
+    Define eSCB_Button_Down for 2
+End_Enum_List
+
+Define eSCB_Item_Offset for 42 //50
+
+Struct tdBarId
+    Integer iID
+    Handle  hoBar
+    Variant vSC_Bar
+End_Struct
+
+//=============================================================================
+
+Class cSigCjShortcutBar_Item_Button is a cSigCJPushButton
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        Property Handle phMsg
+        Property Handle phObj
+        
+        Set peAnchors to anLeftRight
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnCreate
+        Forward Send OnCreate
+        Set size                 to 40 88
+        Set ComFlatStyle         to True
+        Set ComMultiLine         to True
+        Set ComTextImageRelation to OLExtpImageAboveText
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnClick
+        Handle hMsg hObj
+
+        Get phMsg to hMsg
+        Get phObj to hObj
+
+        Send hMsg of hObj
+    End_Procedure
+
+End_Class
+
+//=============================================================================
+
+Class cSigCjShortcutBar_Scroll_Button is a Button
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        Property Integer piDirection
+
+        Set Size to 10 10
+        Send Page_Object True
+        Set Visible_State to False
+        Set Enabled_State to False
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnClick
+        Integer iDirection
+
+        Get piDirection to iDirection
+        If (iDirection = eSCB_Button_Up)   Send Scroll_Up      //Understood by parent
+        If (iDirection = eSCB_Button_Down) Send Scroll_Down    //Understood by parent
+    End_Procedure
+
+End_Class
+
+//=============================================================================
+
+Class cSigCJ_ShortcutBar_Client is a Container3d
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        Property Integer piNextLocation 5   //Location (height) of next item
+        Property Handle  phoButtonUp        //Scroll Up button object
+        Property Handle  phoButtonDown      //Scroll Down button object
+        Property Integer piTopItem      1   //Number of item at top of client area
+        Property Handle[] phoItems
+
+        Set Visible_State to False
+        Set Color         to clWhite
+        Set Border_Style  to Border_None
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure Show_Button Integer iButton Boolean bVisible
+        Handle hoButton
+
+        If (iButton = eSCB_Button_Up)   Get phoButtonUp   to hoButton
+        If (iButton = eSCB_Button_Down) Get phoButtonDown to hoButton
+        If (hoButton <> 0) Begin
+            Set Visible_State of hoButton to bVisible
+            Set Enabled_State of hoButton to bVisible
+        End
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure Scroll_Up
+        Integer iTopItem iItem iMax iXY iHeight
+        Handle[] hoItems
+
+        //Move items
+        Get phoItems to hoItems
+        Move (SizeOfArray(hoItems)) to iMax
+        While (iItem < iMax)
+
+            Get Location of hoItems[iItem] to iXY
+            Set Location of hoItems[iItem] to (hi(iXY) + eSCB_Item_Offset) (Low(iXY))
+            Increment iItem
+        Loop
+
+        //Sortout Up button
+        Get piTopItem to iTopItem
+        Set piTopItem to (iTopItem - 1)
+        If (iTopItem = 2) Send Show_Button eSCB_Button_Up False
+
+        //Sortout Down button
+        Get ComClientHeight to iHeight
+        Get Location of hoItems[(iMax -1)] to iXY
+        Send Show_Button eSCB_Button_Down ((hi(iXY) + eSCB_Item_Offset) > iHeight)
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure Scroll_Down
+        Integer iTopItem iItem iXY iHeight
+        Handle[] hoItems
+
+        //Move items
+        Get phoItems to hoItems
+        Move (SizeOfArray(hoItems)) to iItem
+        While (iItem > 0)
+            Decrement iItem
+
+            Get Location of hoItems[iItem] to iXY
+            Set Location of hoItems[iItem] to (hi(iXY) - eSCB_Item_Offset) (Low(iXY))
+        Loop
+
+        //Sortout Up button
+        Get piTopItem to iTopItem
+        Set piTopItem to (iTopItem + 1)
+        If (iTopItem = 1) Send Show_Button eSCB_Button_Up True
+
+        //Sortout Down button
+        Get ComClientHeight to iHeight
+        Move (SizeOfArray(hoItems)-1) to iItem
+        Get Location of hoItems[iItem] to iXY
+        Send Show_Button eSCB_Button_Down ((hi(iXY) + eSCB_Item_Offset) > iHeight)
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure Add_Scroll_Buttons
+        Handle hoButton
+        Integer iWidth iHeight
+
+        Get ComClientWidth  to iWidth
+        Get ComClientHeight to iHeight
+
+        //---------------------------------------------------------------------
+        //Up Button
+        Get Create U_cSigCjShortcutBar_Scroll_Button to hoButton
+        Set piDirection of hoButton to eSCB_Button_Up
+        Set phoButtonUp to hoButton
+        Set Bitmap of hoButton to "Scroll_Up.bmp"
+        Set Border_Style to Border_None
+
+        //---------------------------------------------------------------------
+        //Down Button
+        Get Create U_cSigCjShortcutBar_Scroll_Button to hoButton
+        Set piDirection of hoButton to eSCB_Button_Down
+        Set phoButtonDown to hoButton
+        Set Bitmap of hoButton to "Scroll_Down.bmp"
+        Set Border_Style to Border_None
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure Add_Item String sText Variant vImage String sMsg String sObj
+        Handle  hoItem
+        Integer iLocation iItemCount iWork
+        Handle[] hoItems
+
+        Get piNextLocation to iLocation
+
+        Get Create U_cSigCjShortcutBar_Item_Button to hoItem
+        Send CreateComObject of hoItem
+
+        Set Location    of hoItem to iLocation 2
+        Set ComCaption  of hoItem to sText
+        Set phMsg       of hoItem to sMsg
+        Set phObj       of hoItem to sObj
+
+        If (not(IsNullComObject(vImage))) Set ComIcon of hoItem to vImage
+//        Send Page_Object  of hoItem True
+        Send add_focus of hoItem Self // JJT: This seems to be focusable, so this should be added to the focus tree
+
+        Set piNextLocation to (iLocation + eSCB_Item_Offset)
+        Get phoItems   to hoItems
+        Move (SizeOfArray(hoItems)) to iItemCount
+        Move hoItem to hoItems[iItemCount]
+        Set phoItems   to hoItems
+
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure Position_Buttons
+        Handle hoButton
+        Integer iWidth iHeight iTopItem iItemCount
+        Handle[] hoItems
+
+        Get ComClientWidth  to iWidth
+        Get ComClientHeight to iHeight
+
+        Get piTopItem   to iTopItem
+        Get phoItems   to hoItems
+
+        //---------------------------------------------------------------------
+        //Up Button
+        Get phoButtonUp to hoButton
+        If (hoButton > 0) Begin
+        Set Location    of hoButton to 1 (iWidth - 11)
+        Send Show_Button eSCB_Button_Up (iTopItem > 1)
+        End
+
+        //---------------------------------------------------------------------
+        //Down Button
+        Get phoButtonDown to hoButton
+        If (hoButton > 0) Begin
+        Set Location      of hoButton to (iHeight - 11) (iWidth - 11)
+        Send Show_Button eSCB_Button_Down (SizeOfArray(hoItems) > (iHeight / (eSCB_Item_Offset + 5) ))
+        End
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure Color_Bar Integer iColor
+        Integer iItem iMax 
+        Handle[] hoItems
+
+        //Move items
+        Get phoItems to hoItems
+        Move (SizeOfArray(hoItems)) to iMax
+        While (iItem < iMax)
+            Set ComBackColor of hoItems[iItem] to iColor
+            Increment iItem
+        Loop
+        
+        Set Color to iColor
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+End_Class
+
+//==============================================================================
+
+Class cSigCjShortCutBar is a cSigCjComShortcutBar
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        Property tdBarId[]  ptBarIDs
+        Property Handle     phoSC_Bar (Create(Self, U_cSigCjComShortcutBarItem))
+
+        Move Self to ghoSigCj_ShortcutBar
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnCreate
+        Handle hoImages
+        Variant vImages
+        Integer iMsg iLoop iMax
+        String  sMsg
+        tdBarId[] tBarIDs
+
+        Forward Send OnCreate
+
+        //Link to global settings image manager
+        Get ComIcons of ghoSigCjGlobalSetting to vImages
+        Set ComIcons to vImages
+
+        Set ComExpandedLinesCount to 3
+
+        // Call setup method
+        Send Setup_ShortcutBar
+
+        //Now add the scroll buttons. They are Added after the Item Buttons so 
+        //that they appear on top of thge Item Buttons.
+        Get ptBarIDs to tBarIDs
+        Move (SizeOfArray(tBarIDs)-1) to iMax
+        For iLoop from 0 to iMax
+            Send Add_Scroll_Buttons of tBarIDs[iLoop].hoBar
+        Loop
+    End_Procedure
+
+    //Dummy Hook
+    Procedure Setup_ShortcutBar
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure Show_Bar Integer iBar
+        Handle hoSC_Bar
+        tdBarId[] tBarIDs
+        
+        Get ptBarIDs to tBarIDs
+        Set ComSelected to tBarIDs[(iBar-1)].vSC_Bar
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Function Find_Bar Integer iID Returns Handle
+        Handle hoBar
+        Integer iLoop iMax
+        tdBarId[] tBarIDs
+
+        Move 0 to hoBar
+        Get ptBarIDs to tBarIDs
+        Move (SizeOfArray(tBarIDs)-1) to iMax
+
+        For iLoop from 0 to iMax
+            If (tBarIDs[iLoop].iID = iID) Begin
+                Move tBarIDs[iLoop].hoBar to hoBar
+                Move iMax to iLoop  //bomb the loop as we have found it!
+            End
+        Loop
+
+        Function_Return hoBar
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Procedure Add_Bar Integer iID String sText String sImage
+        Handle    hWnd hoBar_Client hoSC_Bar
+        Integer   iImage  iSize
+        Variant   vSC_Bar
+        tdBarId[] tBarIDs
+
+        Get Create U_cSigCJ_ShortcutBar_Client to hoBar_Client
+//        Send Page_Object  of hoBar_Client True
+        Send add_focus of hoBar_Client Self // JJT: This seems to be focusable, so this should be added to the focus tree
+
+        Get Window_Handle of hoBar_Client to hWnd
+        Get ComAddItem iID sText hWnd to vSC_Bar
+        Get phoSC_Bar to hoSC_Bar
+        Set pvComObject of hoSC_Bar to vSC_Bar
+
+        Get AddImage of ghoSigCjGlobalSetting sImage 0 OLExtpImageNormal to iImage
+        Set ComIconId of hoSC_Bar to iImage
+
+        //Register bar (id / handle)
+        Get ptBarIDs to tBarIDs
+        Move (SizeOfArray(tBarIDs)) to iSize
+        Move iID                    to tBarIDs[iSize].iID
+        Move hoBar_Client           to tBarIDs[iSize].hoBar
+        Move vSC_Bar                to tBarIDs[iSize].vSC_Bar
+        Set ptBarIDs                to tBarIDs
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure Add_Item Integer iBar String sText String sImage String sMsg String sObj
+        Handle  hoBar
+        Integer iImage
+        Variant vImage
+
+        Get Find_Bar iBar to hoBar
+        If (hoBar = 0) Begin
+            Error 5001 "Application Error - Invalid Shortcut Bar ID"
+            Abort
+        End
+        Else Begin
+            Get AddImage    of ghoSigCjGlobalSetting sImage 0 OLExtpImageNormal to iImage
+            Get ImageFromId of ghoSigCjGlobalSetting iImage to vImage
+            Send Add_Item   of hoBar sText vImage sMsg sObj
+        End
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnComClientSizeChanged
+        Integer iLoop iMax
+        tdBarId[] tBarIDs
+
+        Get ptBarIDs to tBarIDs
+        Move (SizeOfArray(tBarIDs)-1) to iMax
+        For iLoop from 0 to iMax
+            Send Position_Buttons of tBarIDs[iLoop].hoBar
+        Loop
+    End_Procedure
+
+End_Class
+
+//==============================================================================
+//End of Package - cSigCJShortcutBar.pkg
+//==============================================================================

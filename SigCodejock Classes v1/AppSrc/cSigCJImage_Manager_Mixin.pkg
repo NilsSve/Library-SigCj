@@ -1,0 +1,454 @@
+﻿//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJImage_Manager_Mixin.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$ Martin Pincott
+// 
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright ® 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//==============================================================================
+
+Use VDFBase.pkg
+
+Struct tdImageInfo
+    String  sImageName
+    Integer iImageId
+    Variant vImageHandle
+    Handle  hWnd
+End_Struct
+
+Class cSigCJImage_Manager_Mixin is a Mixin
+
+    // Initialise, create properties etc
+    Procedure Initialise_Image_Manager_Mixin 
+
+        { Category="CodeJock" }
+        Property Handle phoImagelist
+
+        { Visibility=Private }
+        Property Integer piLastImageId 5000
+
+        { Visibility=Private }
+        Property tdImageInfo[] ptImageInfo
+
+    End_Procedure
+
+    // Creation method that creates the image list object for storage of images and icons
+    { MethodType=Method }
+    Procedure Create_Image_Manager
+        Handle  hoImageManager
+        Variant vImagelist
+        
+        Get Create U_cCJImageManager to hoImageManager
+        Send CreateComObject of hoImageManager
+        Get ComIcons of hoImageManager to vImagelist
+        Set ComIcons to vImagelist
+        Send destroy of hoImageManager
+    End_Procedure  // Create_Image_Manager
+
+    // Hook for loading Images 
+    { MethodType=Method }
+    Procedure Load_Images
+    End_Procedure
+    
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Function     : CompareImageName
+    //
+    // Scope        : Private 
+    //
+    // Purpose      : Used internally as part of a SearchArray call to compare the sImageName elements 
+    //                of two tdImageInfo structs 
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+    
+    {MethodType=Method Visibility=Private}    
+    Function CompareImageName tdImageInfo tImage1 tdImageInfo tImage2 Returns Integer
+        Integer iRetVal
+        If (tImage1.sImageName = tImage2.sImageName) Begin
+            Move (EQ) to iRetVal
+        End  
+        Function_Return iRetVal
+    End_Function
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Function     : CompareImageID
+    //
+    // Scope        : Private 
+    //
+    // Purpose      : Used internally as part of a SearchArray call to compare the iImageId elements 
+    //                of two tdImageInfo structs 
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+    
+    {MethodType=Method Visibility=Private}       
+    Function CompareImageID tdImageInfo tImage1 tdImageInfo tImage2 Returns Integer
+        Integer iRetVal
+        If (tImage1.iImageId = tImage2.iImageId) Begin
+            Move (EQ) to iRetVal
+        End  
+        Function_Return iRetVal
+    End_Function
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Function     : Find_Image
+    //
+    // Scope        : Public 
+    //
+    // Paramaters   : String sImage
+    //
+    // Returns      : Integer (Image ID)
+    //
+    // Purpose      : Searches the ptImageInfo property to see if an image, specified by name ("someicon.ico") has
+    //                already been uploaded. If so, it returns the unique id to that image.            
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+        
+    Function Find_Image String sImage Returns Integer
+        Integer iImageId iSearchIndex        
+        tdImageInfo[] taImageInfo
+        tdImageInfo tImageInfo
+        
+        Get ptImageInfo to taImageInfo
+        Move sImage to tImageInfo.sImageName
+        Move (SearchArray(tImageInfo,taImageInfo,Self,get_CompareImageName)) to iSearchIndex
+        If (iSearchIndex <> -1) Begin
+            Move taImageInfo[iSearchIndex].iImageId to iImageId
+        End   
+        Function_Return iImageId
+    End_Function
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Function     : Find_Image_Name
+    //
+    // Scope        : Public 
+    //
+    // Paramaters   : Integer iImageId
+    //
+    // Returns      : Handle
+    //
+    // Purpose      : Returns the Image file name as specified by its Image ID                  
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+        
+    Function Find_Image_Name Integer iImageId Returns String
+        String sRetVal
+        Integer iSearchIndex        
+        tdImageInfo[] taImageInfo
+        tdImageInfo tImageInfo
+        
+        Get ptImageInfo to taImageInfo
+        Move iImageId to tImageInfo.iImageId
+        Move (SearchArray(tImageInfo,taImageInfo,Self,get_CompareImageID)) to iSearchIndex
+        If (iSearchIndex <> -1) Begin
+            Move taImageInfo[iSearchIndex].sImageName to sRetVal
+        End                
+        Function_Return sRetVal  
+    End_Function
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Function     : ImageHwndFromId
+    //
+    // Scope        : Public 
+    //
+    // Paramaters   : Integer iImageId
+    //
+    // Returns      : Handle
+    //
+    // Purpose      : Returns the window handle to an image as specified by its Image ID                  
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+        
+    Function ImageHwndFromId Integer iImageId Returns Handle
+        Handle hRetVal
+        Integer iSearchIndex        
+        tdImageInfo[] taImageInfo
+        tdImageInfo tImageInfo
+        
+        Get ptImageInfo to taImageInfo
+        Move iImageId to tImageInfo.iImageId
+        Move (SearchArray(tImageInfo,taImageInfo,Self,get_CompareImageID)) to iSearchIndex
+        If (iSearchIndex <> -1) Begin
+            Move taImageInfo[iSearchIndex].hWnd to hRetVal
+        End                
+        Function_Return hRetVal  
+    End_Function
+    
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Function     : ImageFromId
+    //
+    // Scope        : Public 
+    //
+    // Paramaters   : Integer iImageId
+    //
+    // Returns      : variant (IDispatch* pointer to the image)
+    //
+    // Purpose      : Returns the IDispatch* pointer to the image as specified by its Image ID                  
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+    
+    Function ImageFromId Integer iImageId Returns Variant
+        Variant vImage
+        Integer iSearchIndex        
+        tdImageInfo[] taImageInfo
+        tdImageInfo tImageInfo
+        
+        Get ptImageInfo to taImageInfo
+        Move iImageId to tImageInfo.iImageId
+        Move (SearchArray(tImageInfo,taImageInfo,Self,get_CompareImageID)) to iSearchIndex
+        If (iSearchIndex <> -1) Begin
+            Move taImageInfo[iSearchIndex].vImageHandle to vImage
+        End  
+        Else Begin
+            Move (NullComObject()) to vImage
+        End
+        Function_Return vImage
+    End_Function
+        
+
+    {DocStart=Method}
+    //-------------------------------------------------------------------------
+    //
+    //Purpose : Adds an image to the image manager
+    //
+    //Parameters : sImage - The file name of the image to load#
+    //             iID - If zero the next ID will be allocated 
+    //                   If NOT zero this will be used as the ID. If an image 
+    //                   with this ID has already been loaded then it will be 
+    //                   replaced
+    //              eImageType - The usage type of the image i.e. normal, 
+    //                           shadowed, checked etc.
+    //
+    //Returns : The image ID. 
+    //
+    //-------------------------------------------------------------------------
+    {DocEnd}
+    
+//    Function AddImage String sImage Integer iId Integer eImageType Returns Integer
+//        Boolean bIsIcon bIsBitmap bOK
+//        Handle hImage
+//        Variant vImageManager vImageHandle
+//        Handle  hoImageIcons
+//        Integer iVoid iNextImage iImageId
+//        String sFileImage
+//        tdImageInfo[] tImageInfo
+//
+//        //Have we already loaded this 
+//        Get Find_Image sImage to iImageId
+//        If (iImageId = 0) Begin
+//
+//            //What type of image...
+//            //If .ICO try loading from file first then from resource (resource only allows one image)
+//            //If .BMP try loading from resource first then from file (resource quicker)
+//            //If any other load from file (resource only support .BMP & .ICO)
+//            Move (Pos(".ico",Lowercase(sImage))>0) to bIsIcon
+//            Move (Pos(".bmp",Lowercase(sImage))>0) to bIsBitMap
+//            Move False to bOK
+//
+//            //If no ID passed use next else replace image for specified ID
+//                If (iId=0) Begin
+//                    Get piLastImageId to iImageId
+//                    Increment iImageId
+//                    Set piLastImageId to iImageId
+//                End
+//                Else Begin
+//                    Move iId to iImageId
+//                End
+//
+//            //Connect to the local Image manager
+//                Get Create U_cCJImageManagerIcons to hoImageIcons
+//                Get ComIcons to vImageManager
+//                    Set pvComObject of hoImageIcons to vImageManager
+//    
+//            // if an icon we will always try to load from a file first. Loading from a file works better than
+//            // the internal resource load because the internal load only finds the first image. If the ico has
+//            // multiple images (which CJ can use) all of the extra images are lost
+//    
+//            // if an Icon - load from file first then load from resource
+//            If bIsIcon Begin
+//                Get_File_Path sImage to sFileImage // find path in DFPATH, if appropriate
+//                If (sFileImage<>"") Begin
+//                    Send ComLoadIcon of hoImageIcons sFileImage iImageId eImageType
+//                    Move True to bOk
+//                    End
+//                    Else Begin
+//                    Move (LoadImage(GetModuleHandle(0), sImage, IMAGE_ICON, 0, 0, 0)) to hImage
+//                    If hImage Begin
+//                        // this works with alpha blends - even when passed false
+//                        Send ComAddIconHandle hImage iImageId eImageType False
+//                        Move (DestroyIcon(hImage)) to iVoid
+//                        Move True to bOk
+//                    End
+//                End
+//            End //is icon
+//            Else Begin
+//                If bIsBitmap Begin // if a bitmap - load from resource first then from file
+//                    Move (LoadImage(GetModuleHandle(0), sImage, IMAGE_BITMAP, 0, 0, 0)) to hImage
+//                    If (hImage=0) Begin // the bitmap was not in the EXE resource
+//                        Get_File_Path sImage to sFileImage // find path in DFPATH, if appropriate
+//                        If (sFileImage <>"") Begin // The image was found!
+//                            Move (LoadImage(0, sFileImage, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE)) to hImage
+//                        End
+//                    End
+//
+//                    If hImage Begin
+//                        Send ComAddBitmap of hoImageIcons hImage iImageId eImageType False
+//                        Move (DeleteObject(hImage)) to iVoid
+//                        Move True to bOk
+//                    End
+//                End //is bitmap
+//                Else Begin //other image type
+//                    Get_File_Path sImage to sFileImage // find path in DFPATH, if appropriate
+//                    If (sFileImage <>"") Begin // The image was found!
+//                        Send ComLoadBitmap of hoImageIcons sFileImage iImageId eImageType
+//                        Move True to bOk
+//                    End
+//                End
+//            End //not icon
+//
+//                    Get ComGetImage of hoImageIcons iImageId 0 to vImageHandle
+//                Send destroy of hoImageIcons
+//
+//            If bOK Begin
+//                //Note what we have just added                
+//                Get ptImageInfo to tImageInfo
+//                Move (SizeOfArray(tImageInfo)) to iNextImage
+//                Move sImage       to tImageInfo[iNextImage].sImageName
+//                Move iImageId     to tImageInfo[iNextImage].iImageID
+//                Move vImageHandle to tImageInfo[iNextImage].vImageHandle
+//                Move hImage       to tImageInfo[iNextImage].hWnd
+//                Set ptImageInfo   to tImageInfo
+//            End
+//        End
+//        
+//        Function_Return (If(bOk, iImageId, 0))
+//    End_Procedure
+    
+    Function AddImage String sImage Integer iId Integer eImageType Returns Integer
+        Boolean bIsIcon bOK 
+        Handle  hBitmap 
+        Handle  hoImageIcons
+        Integer iVoid eType iNextImage iImageId
+        String  sImagePath
+        Variant vImageManager vImageHandle
+        tdImageInfo[] tImageInfo
+
+        If (Trim(sImage) <> "") Begin
+            //Keep thing simple
+            Move (Uppercase(sImage)) to sImage
+    
+            //Have we already loaded this 
+            Get Find_Image sImage to iImageId
+            
+            If (iImageId = 0) Begin
+                //Are we looking for an Icon or a Bitmap
+                Move (Pos(".ICO",sImage)>0) to bIsIcon
+                Move (If(bIsIcon,IMAGE_ICON,IMAGE_BITMAP)) to eType
+    
+                //Is it in the EXE as a resource
+                Move (LoadImage(GetModuleHandle(0), sImage, eType, 0, 0, 0)) to hBitmap
+                If (hBitmap =0) Begin // the bitmap was not in the EXE resource
+                    Get_File_Path sImage to sImagePath // find path in DFPATH, if appropriate
+                    If (sImagePath <> "") Begin // The image was found!
+                        //If we use LoadImage to here we can ignore the "load from file"
+                        //methods in the CJ Image Manager
+                        Move (LoadImage(0, sImagePath, eType, 0, 0, LR_LOADFROMFILE)) to hBitmap
+                    End
+                End
+    
+                //If we have an image loaded into memeory, add it 
+                If (hBitmap <> 0) Begin
+    
+                    //Sort out the ID
+                    If (iId=0) Begin
+                        Get piLastImageId to iImageId
+                        Increment iImageId
+                        Set piLastImageId to iImageId
+                    End
+                    Else Begin
+                        Move iId to iImageId
+                    End
+    
+                    Get ComIcons to vImageManager
+                    Get Create U_cCJImageManagerIcons to hoImageIcons
+                        Set pvComObject of hoImageIcons to vImageManager
+        
+                        If (bIsIcon) Begin
+                            Send ComAddIcon of hoImageIcons hBitmap iImageId eImageType 
+                        End
+                        Else Begin
+                            Send ComAddBitmap of hoImageIcons hBitmap iImageId eImageType False
+                            // this works with alpha blends - even when passed false
+                        End
+    
+                        Get ComGetImage of hoImageIcons iImageId 0 to vImageHandle
+                    Send destroy of hoImageIcons
+    
+                    Move (DeleteObject(hBitmap)) to iVoid
+    
+                    //Note what we have just added                
+                    Get ptImageInfo to tImageInfo
+                    Move (SizeOfArray(tImageInfo)) to iNextImage
+                    Move sImage       to tImageInfo[iNextImage].sImageName
+                    Move iImageId     to tImageInfo[iNextImage].iImageID
+                    Move vImageHandle to tImageInfo[iNextImage].vImageHandle
+                    Move hBitmap      to tImageInfo[iNextImage].hWnd
+                    Set ptImageInfo   to tImageInfo
+                End
+                Else Begin 
+                    If (IsDebuggerPresent()) Begin
+                        Error DFERR_PROGRAM ("Cannot find image [" +  sImage + "]")
+                    End
+                End
+            End
+        End
+        
+        Function_Return iImageId
+    End_Procedure
+End_Class 
+
+//==============================================================================
+//End of Package - cSigCJImage_Manager_Mixin.pkg
+//==============================================================================

@@ -1,0 +1,207 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJReportControlContextMenu.pkg
+// Description  : VDF Classes for standard Context menus within the Report control
+//
+// Revision     : $Rev: 599 $
+//                $Date: 2009-10-14 10:39:01 +0100 (Wed, 14 Oct 2009) $
+//                $Author: pak $ Martin Pincott
+// 
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//==============================================================================
+// Contributions
+// =============
+//
+// When       Who            What
+// ========== ============== =====================================================
+// 2012-05-08 Chuck Atkinson Added right click Context Menu Grouping options
+
+Use cSigCJContextMenu.pkg
+
+Register_Function phoFieldChooser Returns Handle
+Register_Function pbFreezeColumns Returns Boolean   
+Register_Function pbEnableTotals  Returns Boolean      
+
+Class cSigCJReportControlContextMenu_Header is a cSigCJContextMenu
+
+    Procedure Add_Standard_MenuItems
+        Send Add_MenuItem "Rebuild"             "Rebuild_Report"   False
+        Send Add_MenuItem "Refresh"             "Refresh_Report"   False
+        Send Add_MenuItem "Field Chooser"       "FieldChooser"     True 
+        Send Add_MenuItem "Restore Layout"      "DefaultLayout"    False
+        Send Add_MenuItem "Freeze Column"       "FreezeColumn"     True
+        Send Add_MenuItem "Clear Freeze Column" "FreezeClear"      False
+    End_Procedure // Add_Standard_MenuItems
+
+    Procedure Popup
+        Boolean bVisible
+        Handle hoContextMenu 
+        Get phoContextMenu_Header to hoContextMenu
+
+
+        If (not(phoFieldChooser(Self))) Begin
+            Set Visible "Field Chooser"  to False
+            Set Visible "Restore Layout" to False
+        End
+        Set Visible "Freeze Column"       to (pbFreezeColumns(Self)) 
+        Set Visible "Clear Freeze Column" to (pbFreezeColumns(Self)) 
+
+        Send OnPopup_ContextMenu_Header hoContextMenu
+        Forward Send Popup 
+    End_Procedure
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set phoContextMenu_Header to (Self)
+    End_Procedure // Construct_Object
+
+End_Class // cSigCJReportControlContextMenu_Header
+
+Class cSigCJReportControlContextMenu_GroupBox is a cSigCJContextMenu
+    
+    Procedure Add_Standard_MenuItems
+        Send Add_MenuItem "Rebuild"            "Rebuild_Report"   False
+        Send Add_MenuItem "Refresh"            "Refresh_Report"   False
+        Send Add_MenuItem "Field Chooser"      "FieldChooser"     True 
+        Send Add_MenuItem "Restore Layout"     "DefaultLayout"    False
+    End_Procedure // Add_Standard_MenuItems
+
+    Procedure Popup
+        Handle hoContextMenu 
+        Get phoContextMenu_GroupBox to hoContextMenu
+        
+        If (not(phoFieldChooser(Self))) Begin
+            Set Visible "Field Chooser"  to False
+            Set Visible "Restore Layout" to False
+        End
+        Send OnPopup_ContextMenu_GroupBox hoContextMenu
+        Forward Send Popup 
+    End_Procedure
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set phoContextMenu_GroupBox to (Self)
+    End_Procedure // Construct_Object
+
+End_Class // cSigCJReportControlContextMenu_GroupBox 
+
+Class cSigCJReportControlContextMenu_Groups is a cSigCJContextMenu
+
+    Procedure Add_Standard_MenuItems
+        Send Add_MenuItem "Expand All"   "Expand_All"   False
+        Send Add_MenuItem "Collapse All" "Collapse_All" False
+    End_Procedure // Add_Standard_MenuItems
+
+    Procedure Popup
+        Handle hoContextMenu 
+        Get phoContextMenu_Groups to hoContextMenu
+        
+        Send OnPopup_ContextMenu_Groups hoContextMenu
+        Forward Send Popup 
+    End_Procedure
+    
+    Procedure Expand_All Boolean bRecursive
+        Send ComExpandAll True                       
+    End_Procedure
+    
+    Procedure Collapse_All 
+        Send ComCollapseAll 
+    End_Procedure
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set phoContextMenu_Groups to (Self)
+    End_Procedure // Construct_Object
+
+End_Class // cSigCJReportControlContextMenu_GroupBox 
+
+
+Class cSigCJReportControlContextMenu_ReportArea is a cSigCJContextMenu
+    
+    Procedure Add_Standard_MenuItems
+        Send Add_MenuItem "Rebuild"                "Rebuild_Report"   True
+        Send Add_MenuItem "Refresh"                "Refresh_Report"   False
+        Send Add_MenuItem "Field Chooser"          "FieldChooser"     True 
+        Send Add_MenuItem "Restore Layout"         "DefaultLayout"    False
+        Send Add_MenuItem "Select All"             "SelectAll"        True 
+        Send Add_MenuItem "Deselect All"           "DeselectAll"      False
+        Send Add_MenuItem "Invert Selection"       "Invert_Selection" False
+        Send Add_MenuItem "Preview Report"         "PreviewReport"    True 
+        Send Add_MenuItem "Print Report"           "PrintReport"      False
+        Send Add_MenuItem "Show Footer"            "ShowFooter"       True 
+        Send Add_MenuItem "Hide Footer"            "ShowFooter"       True 
+        Send Add_MenuItem "Export To CSV"          "CSV_Export"       True 
+        //Send Add_MenuItem "Process Selected Rows"  "Process_Rows"     True 
+    End_Procedure // Add_Standard_MenuItems
+
+    Procedure Popup
+        Handle hoContextMenu 
+        Get phoContextMenu_ReportArea to hoContextMenu
+        Boolean bMultipleSelection
+    
+        If (not(phoFieldChooser(Self))) Begin
+            Set Visible "Field Chooser"  to False
+            Set Visible "Restore Layout"   to False
+        End
+        
+        Get pbMultipleSelection to bMultipleSelection
+        Set Visible "Select All"       to bMultipleSelection
+        Set Visible "Deselect All"     to bMultipleSelection
+        Set Visible "Invert Selection" to bMultipleSelection
+           
+        If (pbEnableTotals(Self)) Begin 
+            If (pbShowFooter(Self)) Begin
+               Set Visible "Show Footer"  to False
+               Set Visible "Hide Footer"  to True 
+            End
+            Else Begin 
+               Set Visible "Show Footer"  to True
+               Set Visible "Hide Footer"  to False 
+            End 
+        End 
+        Else Begin
+            Set Visible "Show Footer"      to False
+            Set Visible "Hide Footer"      to False
+        End
+        
+//**IS         Send OnPopup_ContextMenu_ReportArea hoContextMenu
+        Forward Send Popup 
+    End_Procedure
+    
+    Procedure ShowFooter
+        Boolean bShowFooter 
+        Get pbShowFooter to bShowFooter
+        If (bShowFooter = True) Set pbShowFooter to False
+        Else Set pbShowFooter to True 
+    End_Procedure
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set phoContextMenu_ReportArea to (Self)
+    End_Procedure // Construct_Object
+
+End_Class // cSigCJReportControlContextMenu_ReportArea
+            

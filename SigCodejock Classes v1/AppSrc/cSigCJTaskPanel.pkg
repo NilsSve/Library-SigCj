@@ -1,0 +1,636 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJTaskPanel.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$ Martin Pincott
+// 
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//==============================================================================
+Use SigCjW_TaskPanel.pkg
+Use cSigCJMethods_Mixin.pkg
+Use cSigCJGlobalSettings.pkg
+Use StdFont.pkg
+Use brdcster.pkg
+
+Define eTPT_Office2000        for OLExtpTaskPanelThemeOffice2000
+Define eTPT_Office2003        for OLExtpTaskPanelThemeOffice2003
+Define eTPT_NativeWinXP       for OLExtpTaskPanelThemeNativeWinXP
+Define eTPT_Office2000Plain   for OLExtpTaskPanelThemeOffice2000Plain
+Define eTPT_OfficeXPPlain     for OLExtpTaskPanelThemeOfficeXPPlain
+Define eTPT_Office2003Plain   for OLExtpTaskPanelThemeOffice2003Plain
+Define eTPT_NativeWinXPPlain  for OLExtpTaskPanelThemeNativeWinXPPlain
+Define eTPT_Toolbox           for OLExtpTaskPanelThemeToolbox
+Define eTPT_ToolboxWhidbey    for OLExtpTaskPanelThemeToolboxWhidbey
+Define eTPT_ListView          for OLExtpTaskPanelThemeListView
+Define eTPT_ListOfficeXP      for OLExtpTaskPanelThemeListViewOfficeXP
+Define eTPT_ListOffice2003    for OLExtpTaskPanelThemeListViewOffice2003
+Define eTPT_BarOffice2003     for OLExtpTaskPanelThemeShortcutBarOffice2003
+
+#IF (SigCj_Codejock_Version < 150001) 
+    Define eTPT_BarOffice2007     for OLExtpTaskPanelThemeShortcutBarOffice2007
+#ELSE 
+    Define eTPT_Resource          for OLExtpTaskPanelThemeResource
+    Define eTPT_VisualStudio2010  for OLExtpTaskPanelThemeVisualStudio2010
+#ENDIF 
+                              
+Define eTPA_Yes               for OLExtpTaskPanelAnimationYes   
+Define eTPA_No                for OLExtpTaskPanelAnimationNo    
+Define eTPA_System            for OLExtpTaskPanelAnimationSystem
+
+Define eTPB_BehaviourExplorer for OLExtpTaskPanelBehaviourExplorer 
+Define eTPB_BehaviourList     for OLExtpTaskPanelBehaviourList     
+Define eTPB_BehaviourToolbox  for OLExtpTaskPanelBehaviourToolbox  
+
+Define eTPB_BorderNone        for OLExtpBorderNone       
+Define eTPB_BorderFlat        for OLExtpBorderFlat       
+Define eTPB_BorderStaticEdge  for OLExtpBorderStaticEdge 
+Define eTPB_BorderClientEdge  for OLExtpBorderClientEdge 
+Define eTPB_BorderFrame       for OLExtpBorderFrame      
+        
+Define eTPIT_Link             for OLExtpTaskItemTypeLink
+Define eTPIT_Text             for OLExtpTaskItemTypeText
+
+{ OverrideProperty=Label                     DesignTime=False }
+{ OverrideProperty=Label_Col_Offset          DesignTime=False }
+{ OverrideProperty=Label_Justification_Mode  DesignTime=False }
+{ OverrideProperty=Label_Row_Offset          DesignTime=False }
+{ OverrideProperty=Location                  DesignTime=False }
+{ OverrideProperty=peAnchors                 DesignTime=False }
+{ OverrideProperty=piMinSize                 DesignTime=False }
+{ OverrideProperty=Size                      DesignTime=False }
+{ OverrideProperty=TextColor                 DesignTime=False }
+{ OverrideProperty=Color                     DesignTime=False }
+{ OverrideProperty=Border_Style              DesignTime=False }
+{ OverrideProperty=Enabled_State             DesignTime=False }
+{ OverrideProperty=Visible_State             DesignTime=False }
+{ OverrideProperty=Attach_Parent_State       DesignTime=False }
+{ OverrideProperty=Block_Mouse_State         DesignTime=False }
+{ OverrideProperty=Client_Area_State         DesignTime=False }
+{ OverrideProperty=Delegation_Mode           DesignTime=False }
+{ OverrideProperty=Focus_Mode                DesignTime=False }
+{ OverrideProperty=pbBindValue               DesignTime=False }
+{ OverrideProperty=peAutoCreate              DesignTime=False }
+{ OverrideProperty=peNeighborhood            DesignTime=False }
+{ OverrideProperty=Popup_State               DesignTime=False }
+{ OverrideProperty=Ring_State                DesignTime=False }
+{ OverrideProperty=Scope_State               DesignTime=False }
+{ OverrideProperty=Search_Case               DesignTime=False }
+{ OverrideProperty=Skip_State                DesignTime=False }
+{ OverrideProperty=Help_Id                   DesignTime=False }
+{ OverrideProperty=Help_Keyword              DesignTime=False }
+{ OverrideProperty=psHtmlHelpTopic           DesignTime=False }
+{ OverrideProperty=Status_Help               DesignTime=False }
+{ OverrideProperty=Use_Parent_Status_Help    DesignTime=False }
+{ OverrideProperty=psLicenseKey              DesignTime=False }
+{ OverrideProperty=psProgID                  DesignTime=False }
+
+Class cSigCJTaskPanel is a cSigCjComTaskPanel
+    Import_Class_Protocol cSigCJMethods_Mixin
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        { Visibility=Private }
+        Property Handle phoGroupCollection          (Create(Self, U_cSigCjComTaskPanelGroups))        
+        { Visibility=Private }
+        Property Boolean Private.pbVisible True
+        { Visibility=Private }
+
+        #IF (SigCj_Codejock_Version < 150001) 
+            Property Integer Private.peTaskPanelTheme           eTPT_BarOffice2007
+        #ELSE 
+            Property Integer Private.peTaskPanelTheme           eTPT_Resource
+        #ENDIF 
+        { Visibility=Private }
+        Property Integer Private.peAnimation                eTPA_No
+        { Visibility=Private }
+        Property Integer Private.peBehaviour                eTPB_BehaviourExplorer
+        { Visibility=Private }
+        Property Integer Private.peBorderStyle              eTPB_BorderNone 
+        { Visibility=Private }
+        Property Integer Private.piGroupIconHeight          16
+        { Visibility=Private }
+        Property Integer Private.piGroupIconWidth           16    
+        
+        // Create child objects:
+        Object oAllTaskPanelItems is a Broadcaster
+        End_Object            
+    End_Procedure  // Construct_Object
+    
+    { MethodType=Property Category="CodeJock" }
+    #IF (SigCj_Codejock_Version < 150001) 
+        { EnumList="eTPT_Office2000, eTPT_Office2003, eTPT_NativeWinXP, eTPT_Office2000Plain, eTPT_OfficeXPPlain, eTPT_Office2003Plain, eTPT_NativeWinXPPlain, eTPT_Toolbox, eTPT_ToolboxWhidbey, eTPT_ListView, eTPT_ListOfficeXP, eTPT_ListOffice2003, eTPT_BarOffice2003, eTPT_BarOffice2007" }
+        { InitialValue=eTPT_BarOffice2007 }
+    #ELSE    
+        { EnumList="eTPT_Office2000, eTPT_Office2003, eTPT_NativeWinXP, eTPT_Office2000Plain, eTPT_OfficeXPPlain, eTPT_Office2003Plain, eTPT_NativeWinXPPlain, eTPT_Toolbox, eTPT_ToolboxWhidbey, eTPT_ListView, eTPT_ListOfficeXP, eTPT_ListOffice2003, eTPT_BarOffice2003, eTPT_Resource, eTPT_VisualStudio2010" }
+        { InitialValue=eTPT_Resource }
+    #ENDIF 
+    Procedure Set peTaskPanelTheme Integer eTheme
+        Set SigCJProperty Set_Private.peTaskPanelTheme Set_ComVisualTheme to eTheme
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function peTaskPanelTheme Returns Integer
+        Function_Return (Private.peTaskPanelTheme(Self))
+    End_Function
+    
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set pbVisible Boolean bVisible
+        Set SigCJProperty Set_Private.pbVisible Set_ComEnabled to bVisible   
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function pbVisible Returns Boolean
+        Function_Return (Private.pbVisible(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { EnumList="eTPA_Yes, eTPA_No, eTPA_System" }
+    { InitialValue=eTPA_No }
+    Procedure Set peTaskPanelAnimation Integer eValue
+        Set SigCJProperty Set_Private.peAnimation Set_ComAnimation to eValue
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function peTaskPanelAnimation Returns Integer
+        Function_Return (Private.peAnimation(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { EnumList="eTPB_BehaviourExplorer, eTPB_BehaviourList, eTPB_BehaviourToolbox" }
+    { InitialValue=eTPB_BehaviourExplorer }
+    Procedure Set peTaskPanelBehaviour Integer eValue
+        Set SigCJProperty Set_Private.peBehaviour Set_ComBehaviour to eValue
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function peTaskPanelBehaviour Returns Integer
+        Function_Return (Private.peBehaviour(Self))
+    End_Function
+ 
+    { MethodType=Property Category="CodeJock" }
+    { EnumList="eTPB_BorderNone, eTPB_BorderFlat, eTPB_BorderStaticEdge, eTPB_BorderClientEdge, eTPB_BorderFrame" }
+    { InitialValue=eTPB_BorderNone }
+    Procedure Set peTaskPanelBorder Integer eValue
+        Set SigCJProperty Set_Private.peBorderStyle Set_ComBorderStyle to eValue
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function peTaskPanelBorder Returns Integer
+        Function_Return (Private.peBorderStyle(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set piGroupIconSize Integer iWidth Integer iHeight
+        If (IsComObjectCreated(Self)) Begin
+            Send ComSetGroupIconSize iWidth iHeight
+        End
+        Set Private.piGroupIconHeight to iHeight
+        Set Private.piGroupIconWidth to iWidth
+    End_Procedure
+        
+    { MethodType=Event }
+    Procedure OnCreate        
+        Forward Send OnCreate
+        
+        Set Visible_State to (Private.pbVisible(Self))
+        Set ComIcons to (ComIcons(ghoSigCjGlobalSetting))
+        Set pvComObject of (phoGroupCollection(Self)) to (ComGroups(Self))
+        
+        //Apply Settings...
+        Set peTaskPanelTheme to (Private.peTaskPanelTheme(Self))
+        Set peTaskPanelAnimation to (Private.peAnimation(Self))
+        Set peTaskPanelBehaviour to (Private.peBehaviour (Self))
+        Set peTaskPanelBorder to (Private.peBorderStyle(Self))
+        Set piGroupIconSize to (Private.piGroupIconWidth(Self)) (Private.piGroupIconHeight(Self))
+        
+        // Create all groups
+        Broadcast Send Private.Create Self True
+    End_Procedure  // OnCreate
+
+
+    { MethodType=Method }
+    Procedure OnComItemClick Variant vItem
+        Handle hoItem
+        Handle hoID
+        
+        Get Create U_cSigCjComTaskPanelGroupItem to hoItem
+        Set pvComObject of hoItem to vItem
+        Get ComID of hoItem to hoID
+        Send Destroy to hoItem
+        If (hoID <> 0) Begin
+            Send OnClick to hoID        
+        End
+    End_Procedure  // OnComItemClick
+    
+    { MethodType=Method }
+    Function FindGroup Integer iID Returns Handle
+        Variant vGroup
+        Handle hoGroup hoGroupFound hoGroupCollection
+        
+        Get phoGroupCollection to hoGroupCollection
+        
+        If (hoGroupCollection = 0) Begin
+            Function_Return -1
+        End
+        
+        Get ComFind of hoGroupCollection iID to vGroup
+        If (not(IsNullComObject(vGroup))) Begin
+            // Create temporary object to retrieve <Tag>.
+            Get Create U_cSigCjComTaskPanelGroup to hoGroup
+            Set pvComObject of hoGroup to vGroup
+            Get ComTag of hoGroup to hoGroupFound
+            Send Destroy to hoGroup
+        End
+        
+        Function_Return hoGroupFound
+    End_Function  // FindGroup
+    
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : DoEnumerateAllTaskPanelItems
+    //
+    // Scope        : Public 
+    //
+    // Paramaters   : iMsg
+    //
+    // Returns      : None
+    //
+    // Purpose      : As objects of type cSigCJTaskPanelGroupItem are created they are registered with a Broadcaster object
+    //                DoEnumerateAllTaskPanelItems simply sends the passed message to all registered objects
+    //                
+    // Notes        : 
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+    
+    { MethodType=Method Visibility=Public }
+    Procedure DoEnumerateAllTaskPanelItems Integer iMsg
+        Set broadcast_state of (oAllTaskPanelItems(Self)) to True
+        Send iMsg of (oAllTaskPanelItems(Self))
+        Set broadcast_state of (oAllTaskPanelItems(Self)) to False
+    End_Procedure
+    
+End_Class  // cSigCJTaskPanel
+
+{ OverrideProperty=Delegation_Mode DesignTime=False }
+{ OverrideProperty=peAutoCreate    DesignTime=False }
+{ OverrideProperty=peNeighborhood  DesignTime=False }
+{ OverrideProperty=psLicenseKey    DesignTime=False }
+{ OverrideProperty=psProgID        DesignTime=False }
+Class cSigCJTaskPanelGroup is a cSigCjComTaskPanelGroup
+    Import_Class_Protocol cSigCJMethods_Mixin
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        { Visibility=Private }
+        Property Integer piID 0
+
+        { Visibility=Private }
+        Property Handle phoItemCollection           (Create(Self, U_cSigCjComTaskPanelGroupItems))
+        { Visibility=Private }
+        Property Handle phoCaptionFont              (Create(Self, U_cComStdFont))
+
+        { Visibility=Private }
+        Property String Private.psLabel             ""
+        { Visibility=Private }
+        Property String Private.psImage             ""
+        { Visibility=Private }
+        Property Boolean Private.pbCreateExpanded   False
+        { Visibility=Private }
+        Property Boolean Private.pbLabelEmboldened  False
+        { Visibility=Private }
+        Property Boolean Private.pbLabelItalic      False           
+    End_Procedure  // Construct_Object
+    
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set psLabel String sValue
+        Set SigCJProperty Set_Private.psLabel Set_ComCaption to sValue
+    End_Procedure  
+    
+    { MethodType=Property Category="CodeJock" }
+    Function psLabel Returns String
+        Function_Return (Private.psLabel(Self))
+    End_Function  
+    
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbLabelEmboldened Boolean bState
+        If (IsComObjectCreated(phoCaptionFont(Self))) Begin
+            Set ComBold of (phoCaptionFont(Self)) to bState
+        End
+        Set Private.pbLabelEmboldened to bState
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function pbLabelEmboldened Returns Boolean
+        Function_Return (Private.pbLabelEmboldened(Self))
+    End_Function  
+    
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set pbLabelItalic Boolean bState
+        If (IsComObjectCreated(phoCaptionFont(Self))) Begin
+            Set ComItalic of (phoCaptionFont(Self)) to bState
+        End
+        Set Private.pbLabelItalic to bState
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function pbLabelItalic Returns Boolean
+        Function_Return (Private.pbLabelItalic(Self))
+    End_Function      
+    
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set psImage String sImage
+        Integer iIndex
+        Get AddImage of ghoSigCjGlobalSetting sImage 0 0 to iIndex
+        If (IsComObjectCreated(Self)) Begin
+            Set ComIconIndex to iIndex
+        End
+        Set Private.psImage to sImage
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function psImage Returns String
+        Function_Return (Private.psImage(Self))
+    End_Function
+    
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set pbCreateExpanded Boolean bState
+        Set SigCJProperty Set_Private.pbCreateExpanded Set_ComExpanded to bState
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function pbCreateExpanded Returns Boolean
+        Function_Return (Private.pbCreateExpanded(Self))
+    End_Function
+    
+    
+    { MethodType=Method }
+    Procedure Private.Create Handle hoParent Boolean bRecurse
+        Variant vGroup
+        Handle hoGroups
+        
+        // Check for parent
+        If (hoParent = 0) Begin
+            Procedure_Return
+        End
+        // Get collection of groups and check
+        Get phoGroupCollection of hoParent to hoGroups
+        If (hoGroups = 0) Begin
+            Procedure_Return
+        End
+        
+        Get ComAdd of hoGroups (piID(Self)) (Private.psLabel(Self)) to vGroup
+        Set pvComObject to vGroup
+        
+        Set pvComObject of (phoItemCollection(Self)) to (ComItems(Self))
+        Set pvComObject of (phoCaptionFont(Self)) to (ComFont(Self))
+        Set ComTag to (Self)
+        Set psImage to (Private.psImage(Self))
+        Set pbCreateExpanded  to (Private.pbCreateExpanded(Self))
+        Set pbLabelEmboldened to (Private.pbLabelEmboldened(Self))
+        Set pbLabelItalic to (Private.pbLabelItalic(Self))
+                        
+        If (bRecurse) Begin
+            Broadcast Send Private.Create Self
+        End
+    End_Procedure  // Private.Create
+
+End_Class  // cSigCJTaskPanelGroup
+    
+
+{ OverrideProperty=Delegation_Mode DesignTime=False }
+{ OverrideProperty=peAutoCreate    DesignTime=False }
+{ OverrideProperty=peNeighborhood  DesignTime=False }
+{ OverrideProperty=psLicenseKey    DesignTime=False }
+{ OverrideProperty=psProgID        DesignTime=False }
+Class cSigCJTaskPanelGroupItem is a cSigCjComTaskPanelGroupItem
+    Import_Class_Protocol cSigCJMethods_Mixin
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        { Visibility=Private }
+        Property Integer piID
+        { Visibility=Private }
+        Property Integer phmMessage     0
+        { Visibility=Private }
+        Property Handle phoDestination (Client_ID(Self))
+        { Visibility=Private }
+        Property Handle phoItemsFont                (Create(Self, U_cComStdFont))
+        
+        { Visibility=Private }
+        Property String Private.psLabel             ""
+        { Visibility=Private }
+        Property String Private.psToolTip           ""
+        { Visibility=Private }
+        Property String Private.psImage             ""
+        { Visibility=Private }
+        Property Integer Private.peItemType         eTPIT_Link  
+        { Visibility=Private }
+        Property Boolean Private.pbLabelEmboldened  False
+        { Visibility=Private }
+        Property Boolean Private.pbLabelItalic      False   
+        { Visibility=Private }
+        Property Boolean Private.pbEnabled          True   
+        { Visibility=Private }
+        Property Integer Private.piTextColor        clNone       
+    End_Procedure  // Construct_Object
+
+    Procedure End_Construct_Object
+        Send Add_Element of (oAllTaskPanelItems(Self)) Self
+        Forward Send End_Construct_Object
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set psLabel String sValue
+        Set SigCJProperty Set_Private.psLabel Set_ComCaption to sValue
+    End_Procedure  
+    
+    { MethodType=Property Category="CodeJock" }
+    Function psLabel Returns String
+        Function_Return (Private.psLabel(Self))
+    End_Function  
+    
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Color InitialValue=clNone }
+    { EnumList= "clScrollBar, clBackground, clActiveCaption, clInactiveCaption, clMenu, clWindow" }
+    { EnumList+="clWindowFrame, clMenuText, clWindowText, clCaptionText, clActiveBorder" }
+    { EnumList+="clInactiveBorder, clAppWorkSpace, clHighlight, clHighlightText, clBtnFace" }
+    { EnumList+="clBtnShadow, clGrayText, clBtnText, clInactiveCaptionText, clBtnHighlight" }
+    { EnumList+="cl3DDkShadow, cl3DLight, clInfoText, clInfoBk, clDefault, clNone" }
+    { EnumList+="clAqua, clBlack, clBlue, clDkGray, clFuchsia, clGray, clGreen, clLime, clLtGray" }
+    { EnumList+="clMaroon, clNavy, clOlive, clPurple, clRed, clSilver, clTeal, clWhite, clYellow" }
+    Procedure Set piTextColor Integer iColor
+        Set SigCJProperty Set_Private.piTextColor Set_ComTextColor to iColor
+    End_Procedure  
+    
+    { MethodType=Property Category="CodeJock" }
+    Function piTextColor Returns Integer
+        Function_Return (Private.piTextColor(Self))
+    End_Function  
+
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set psTooltip String sValue
+        Set SigCJProperty Set_Private.psTooltip Set_ComTooltip to sValue
+    End_Procedure  
+    
+    { MethodType=Property Category="CodeJock" }
+    Function psTooltip Returns String
+        Function_Return (Private.psTooltip(Self))
+    End_Function  
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbLabelEmboldened Boolean bState
+        If (IsComObjectCreated(phoItemsFont(Self))) Begin
+            Set ComBold of (phoItemsFont(Self)) to bState
+        End
+        Set Private.pbLabelEmboldened to bState
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function pbLabelEmboldened Returns Boolean
+        Function_Return (Private.pbLabelEmboldened(Self))
+    End_Function  
+    
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set pbLabelItalic Boolean bState
+        If (IsComObjectCreated(phoItemsFont(Self))) Begin
+            Set ComItalic of (phoItemsFont(Self)) to bState
+        End
+        Set Private.pbLabelItalic to bState
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function pbLabelItalic Returns Boolean
+        Function_Return (Private.pbLabelItalic(Self))
+    End_Function 
+    
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set psImage String sImage
+        Integer iIndex
+        Get AddImage of ghoSigCjGlobalSetting sImage 0 0 to iIndex
+        If (IsComObjectCreated(Self)) Begin
+            Set ComIconIndex to iIndex
+        End
+        Set Private.psImage to sImage
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function psImage Returns String
+        Function_Return (Private.psImage(Self))
+    End_Function
+        
+    { MethodType=Property Category="CodeJock" }
+    { EnumList="eTPIT_Link, eTPIT_Text" }
+    { InitialValue=eTPIT_Link }
+    Procedure Set peItemType Integer eValue
+        Set SigCJProperty Set_Private.peItemType Set_ComType to eValue
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function peItemType Returns Integer
+        Function_Return (Private.peItemType(Self))
+    End_Function   
+    
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=True }
+    Procedure Set pbEnabled Boolean bState
+        Set SigCJProperty Set_Private.pbEnabled Set_ComEnabled to bState
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function pbEnabled Returns Boolean
+        Function_Return (Private.pbEnabled(Self))
+    End_Function     
+   
+
+    { MethodType=Method }
+    Procedure Private.Create Handle hoParent
+        Handle hoItems hoItem
+        Variant vItem
+        Integer iIndex
+        
+        // Check for parent
+        If (hoParent = 0) Begin
+            Procedure_Return
+        End
+        // Get collection of items and check
+        Get phoItemCollection of hoParent to hoItems
+        If (hoItems = 0) Begin
+            Procedure_Return
+        End
+        Move Self to hoItem
+        Get ComAdd of hoItems hoItem (Private.psLabel(Self)) OLExtpTaskItemTypeLink 0 to vItem
+        Set pvComObject to vItem
+        Set pvComObject of (phoItemsFont(Self)) to (ComFont(Self))
+        
+        Set piTextColor to (Private.piTextColor(Self))
+        Set psImage to (Private.psImage(Self))
+        Set peItemType to (Private.peItemType(Self))
+        Set pbLabelEmboldened to (Private.pbLabelEmboldened(Self))
+        Set pbLabelItalic to (Private.pbLabelItalic(Self))
+        Set pbEnabled to (Private.pbEnabled(Self))
+    End_Procedure  // Private.Create
+
+        
+    // Procedure : OnClick
+    // Purpose   : This event is sent when the user selects an item
+    { MethodType=Event }
+    Procedure OnClick
+        Integer iMessage
+        Handle hoDestination
+        
+        Get phmMessage to iMessage
+        If (iMessage <> 0) Begin
+            // Get destination from item
+            Get phoDestination to hoDestination
+
+            // Get default destination from parent if item has no destination
+            If (Object_ID(hoDestination) = 0) Begin
+                Delegate Get phoDestination to hoDestination
+            End
+            // Send message
+            If (Object_ID(hoDestination) > 0) Begin
+                Send iMessage of hoDestination
+            End
+            Else Begin
+                Send iMessage of (Focus(Desktop))
+            End
+        End
+    End_Procedure  // OnClick
+    
+End_Class  // cSigCJTaskPanelGroupItem
+
+//==============================================================================
+//End of Package - cSigCJTaskPanel.pkg
+//==============================================================================

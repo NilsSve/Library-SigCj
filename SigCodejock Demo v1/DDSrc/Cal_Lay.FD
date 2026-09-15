@@ -1,0 +1,6 @@
+#REPLACE FILE8 Cal_Lay
+#REPLACE Cal_Lay.Recnum |FN8,0
+#REPLACE Cal_Lay.ID |FN8,1
+#REPLACE Cal_Lay.Title |FS8,2
+#REPLACE Cal_Lay.Count |FN8,3
+#REPLACE Cal_Lay.Category_Set |FN8,4

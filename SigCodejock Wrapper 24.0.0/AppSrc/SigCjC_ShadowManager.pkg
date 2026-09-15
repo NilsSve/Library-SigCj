@@ -1,0 +1,497 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : SigCjC_ShadowManager.pkg
+// Description  : Common Define / Class for Codejock controls
+//
+// Created by   : Ian Smith
+// Revision     : $Rev$
+//                $Date$
+//                $Author$
+//
+// Requirements : Visual DataFlex 24.0
+//                Codejock SuitePro - Version 24.0.0
+//
+// Copyright    : Copyright c 2008-2025 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+//CompilerWarnings Suspend
+
+Use FlexCom20.pkg
+
+Define OLEXTPFrameShadowManagerFlags for Integer
+    Define OLExtpFrameShadowsDisabled for 1
+    Define OLExtpFrameShadowsInvisible for 2
+    Define OLExtpFrameShadowsNotResizeable for 4
+    Define OLExtpFrameShadowsDisabledInTSS for 8
+    Define OLExtpFrameShadowsInvisibleInTSS for 16
+
+Class cSigCjComIFrameShadow is a Mixin
+
+    { MethodType=Property DesignTime=False }
+    Function ComOuterSize Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComOuterSize Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComInnerSize Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComInnerSize Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComOffsetX Returns OLE_XSIZE_PIXELS
+        OLE_XSIZE_PIXELS retVal
+        Get ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComOffsetX OLE_XSIZE_PIXELS value
+        Set ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComOffsetY Returns OLE_YSIZE_PIXELS
+        OLE_YSIZE_PIXELS retVal
+        Get ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComOffsetY OLE_YSIZE_PIXELS value
+        Set ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComColor Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 5 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComColor OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 5 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTransparency Returns Short
+        Short retVal
+        Get ComProperty of (phDispatchDriver(Self)) 6 OLE_VT_I2 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTransparency Short value
+        Set ComProperty of (phDispatchDriver(Self)) 6 OLE_VT_I2 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComBlendingFactors Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) 7 OLE_VT_VARIANT to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComBlendingFactors Variant value
+        Set ComProperty of (phDispatchDriver(Self)) 7 OLE_VT_VARIANT to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComBlendingPositions Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) 8 OLE_VT_VARIANT to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComBlendingPositions Variant value
+        Set ComProperty of (phDispatchDriver(Self)) 8 OLE_VT_VARIANT to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComClipOwner Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 15 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComClipOwner Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 15 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComOwner Returns OLE_HANDLE
+        Handle hDispatchDriver
+        OLE_HANDLE retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 9 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComFreezeUpdates Boolean llfreeze
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_BOOL llfreeze
+        Send InvokeComMethod to hDispatchDriver 10 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComShow
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 11 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComHide
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 12 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComUpdatePosition
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 13 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComSetBlendingOptions Variant llfactors Variant llpositions
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_VARIANT llfactors
+        Send DefineParam to hDispatchDriver OLE_VT_VARIANT llpositions
+        Send InvokeComMethod to hDispatchDriver 14 OLE_VT_VOID
+    End_Procedure
+End_Class
+
+Class cSigCjComFrameShadow is a cComAutomationObject
+    Import_Class_Protocol cSigCjComIFrameShadow
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set peAutoCreate to acNoAutoCreate
+    End_Procedure
+End_Class
+
+Class cSigCjComIFrameShadows is a Mixin
+
+    { MethodType=Property DesignTime=False }
+    Function Com_NewEnum Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver -4 OLE_VT_UNKNOWN to retVal
+        Function_Return retVal
+    End_Function
+End_Class
+
+Class cSigCjComFrameShadows is a cComAutomationObject
+    Import_Class_Protocol cSigCjComIFrameShadows
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set peAutoCreate to acNoAutoCreate
+    End_Procedure
+End_Class
+
+Class cSigCjComIFrameShadowManager is a Mixin
+
+    { MethodType=Property DesignTime=False }
+    Function ComFlags Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComFlags Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComDefaultOuterSize Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComDefaultOuterSize Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComDefaultInnerSize Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComDefaultInnerSize Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComDefaultOffsetX Returns OLE_XSIZE_PIXELS
+        OLE_XSIZE_PIXELS retVal
+        Get ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComDefaultOffsetX OLE_XSIZE_PIXELS value
+        Set ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComDefaultOffsetY Returns OLE_YSIZE_PIXELS
+        OLE_YSIZE_PIXELS retVal
+        Get ComProperty of (phDispatchDriver(Self)) 5 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComDefaultOffsetY OLE_YSIZE_PIXELS value
+        Set ComProperty of (phDispatchDriver(Self)) 5 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComDefaultColor Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 6 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComDefaultColor OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 6 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComDefaultTransparency Returns Short
+        Short retVal
+        Get ComProperty of (phDispatchDriver(Self)) 7 OLE_VT_I2 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComDefaultTransparency Short value
+        Set ComProperty of (phDispatchDriver(Self)) 7 OLE_VT_I2 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComDefaultClipOwner Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 24 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComDefaultClipOwner Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 24 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComDefaultBlendingFactors Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 8 OLE_VT_VARIANT to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComDefaultBlendingPositions Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 9 OLE_VT_VARIANT to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComIsShadowSupported Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 10 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    Function ComEnableShadow OLE_HANDLE llhWnd OLE_COLOR llColor Integer llOuterSize Integer llInnerSize Integer llxOffset Integer llyOffset Short llTransparency Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 7
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llhWnd
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llColor
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llOuterSize
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llInnerSize
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llxOffset
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llyOffset
+        Send DefineParam to hDispatchDriver OLE_VT_I2 llTransparency
+        Get InvokeComMethod of hDispatchDriver 11 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComDisableShadow OLE_HANDLE llhWnd
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llhWnd
+        Send InvokeComMethod to hDispatchDriver 12 OLE_VT_VOID
+    End_Procedure
+
+    Function ComIsShadowEnabled OLE_HANDLE llhWnd Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llhWnd
+        Get InvokeComMethod of hDispatchDriver 13 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    Function ComGetShadow OLE_HANDLE llhWnd Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llhWnd
+        Get InvokeComMethod of hDispatchDriver 14 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComFreezeUpdates Boolean llfreeze
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_BOOL llfreeze
+        Send InvokeComMethod to hDispatchDriver 15 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComSetGlobalOuterSize Integer llsize
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llsize
+        Send InvokeComMethod to hDispatchDriver 16 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComSetGlobalInnerSize Integer llsize
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llsize
+        Send InvokeComMethod to hDispatchDriver 17 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComSetGlobalOffset OLE_XSIZE_PIXELS llOffsetX OLE_YSIZE_PIXELS llOffsetY
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llOffsetX
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llOffsetY
+        Send InvokeComMethod to hDispatchDriver 18 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComSetGlobalColor OLE_COLOR llColor
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llColor
+        Send InvokeComMethod to hDispatchDriver 19 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComSetGlobalTransparency Short llTransparency
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I2 llTransparency
+        Send InvokeComMethod to hDispatchDriver 20 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComSetDefaultBlendingOptions Variant llfactors Variant llpositions
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_VARIANT llfactors
+        Send DefineParam to hDispatchDriver OLE_VT_VARIANT llpositions
+        Send InvokeComMethod to hDispatchDriver 21 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComSetGlobalBlendingOptions Variant llfactors Variant llpositions
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_VARIANT llfactors
+        Send DefineParam to hDispatchDriver OLE_VT_VARIANT llpositions
+        Send InvokeComMethod to hDispatchDriver 22 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComSetGlobalClipOwner Boolean llclip
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_BOOL llclip
+        Send InvokeComMethod to hDispatchDriver 25 OLE_VT_VOID
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComFrameShadows Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 23 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+End_Class
+
+Class cSigCjComFrameShadowManager is a cComAutomationObject
+    Import_Class_Protocol cSigCjComIFrameShadowManager
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set peAutoCreate to acNoAutoCreate
+    End_Procedure
+End_Class
+
+//==============================================================================
+//End of package - SigCjC_ShadowManager.pkg
+//==============================================================================
+

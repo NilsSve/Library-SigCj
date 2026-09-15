@@ -1,0 +1,3429 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJCalendarControl.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$
+//
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+
+//==============================================================================
+//NOTES
+//=====
+//CAUTION - Codejock use the term "Event" for an item / entry in the calendar.
+//          Do not confuse program events with calendar items!!!
+//==============================================================================
+
+//Comment out the next line to remove all references to the standard files. If 
+//you do not want to use the standard files you have to do this to stop the 
+//compiler complaining.
+Define SigCj_Use_StdFiles
+
+//Comment out the next line to remove all references to the standard special 
+//date files. If you do not want to use the standard special date files you 
+//have to do this to stop the compiler complaining.
+Define SigCj_Use_StdDates
+
+//Comment out the next line to remove all references to the standard resource 
+//and schedule files. If you do not want to use the standard resource and 
+//schedule files you have to do this to stop the compiler complaining.
+Define SigCj_Use_StdResources
+
+//==============================================================================
+//Use Codejock
+
+Use SigCjW_Calendar.pkg
+Use cSigCJMethods_Mixin.pkg
+Use cSigCJPushButton.pkg
+Use cSigCJContextMenu.pkg
+
+//=============================================================================
+//Enums
+//=====
+//
+//TimeScale
+//---------
+Define eCal_TimeScale_5       for 5
+Define eCal_TimeScale_10      for 10
+Define eCal_TimeScale_15      for 15
+Define eCal_TimeScale_20      for 20
+Define eCal_TimeScale_30      for 30
+Define eCal_TimeScale_60      for 60
+
+//ViewType
+//--------
+Define eCal_ViewType_Day      for OLExtpCalendarDayView
+Define eCal_ViewType_Working  for OLExtpCalendarWorkWeekView
+Define eCal_ViewType_Week     for OLExtpCalendarWeekView
+Define eCal_ViewType_Month    for OLExtpCalendarMonthView
+Define eCal_ViewType_FullWeek for OLExtpCalendarFullWeekView
+
+//Data Providers
+//--------------
+Define eCal_DataProvider_XML      for "XML"
+Define eCal_DataProvider_Access   for "Microsoft.Jet.OLEDB.4.0"
+Define eCal_DataProvider_Outlook  for "MAPI"
+Define eCal_DataProvider_Custom   for "custom"
+
+//Built In Dialogs
+//----------------
+Define eCal_Dialog_NewEvent       for 1
+Define eCal_Dialog_EditEvent      for 2
+Define eCal_Dialog_EditRecurrence for 3
+Define eCal_Dialog_Reminders      for 4
+Define eCal_Dialog_TimeScale      for 5
+Define eCal_Dialog_NewEvent2      for 6
+
+//Mouse Buttons
+//-------------
+Define eCal_Mouse_Button_Left    for 1
+Define eCal_Mouse_Button_Right   for 2
+
+Define eCal_Mouse_Shift          for 1
+Define eCal_Mouse_Ctrl           for 2
+Define eCal_Mouse_Alt            for 4
+Define eCal_Mouse_Shift_Ctrl     for (eCal_Mouse_Shift + eCal_Mouse_Ctrl )
+Define eCal_Mouse_Alt_Shift      for (eCal_Mouse_Alt   + eCal_Mouse_Shift)
+Define eCal_Mouse_Alt_Ctrl       for (eCal_Mouse_Alt   + eCal_Mouse_Ctrl )
+Define eCal_Mouse_Shift_Alt_Ctrl for (eCal_Mouse_Shift + eCal_Mouse_Alt + eCal_Mouse_Ctrl)
+
+//Show Caption Bar
+//----------------
+Define eCal_NoCaptionBar                for 0
+Define eCal_ShowCaptionBar              for 1
+Define eCal_CaptionBarDateLabel         for 2
+Define eCal_CaptionBarScrollDateButtons for 4
+Define eCal_CaptionBarSwitchViewButtons for 8
+Define eCal_FullCaptionBar              for 15
+
+//Days
+//----
+Define eCal_Sunday      for 1
+Define eCal_Monday      for 2
+Define eCal_Tuesday     for 3
+Define eCal_Wednesday   for 4
+Define eCal_Thursday    for 5
+Define eCal_Friday      for 6
+Define eCal_Saturday    for 7
+
+//Month / Week view options
+//-------------------------
+Define eCal_MW_None    for 0
+Define eCal_MW_Week    for 1
+Define eCal_MW_Month   for 2
+Define eCal_MW_Both    for 3
+
+//Working Week Mask -WW
+//---------------------
+Define eCal_WW_Sunday    for OLExtpCalendarDaySunday
+Define eCal_WW_Monday    for OLExtpCalendarDayMonday
+Define eCal_WW_Tuesday   for OLExtpCalendarDayTuesday
+Define eCal_WW_Wednesday for OLExtpCalendarDayWednesday
+Define eCal_WW_Thursday  for OLExtpCalendarDayThursday
+Define eCal_WW_Friday    for OLExtpCalendarDayFriday
+Define eCal_WW_Saturday  for OLExtpCalendarDaySaturday
+Define eCal_WW_AllWeek   for OLExtpCalendarDayAllWeek
+Define eCal_WW_SaSu      for OLExtpCalendarDaySaSu
+Define eCal_WW_Mo_Fr     for OLExtpCalendarDayMo_Fr
+
+//Time Mark
+//---------
+Define eCal_TM_None             for OLExtpCalendarCurrentTimeMarkNone
+Define eCal_TM_VisibleForToday  for OLExtpCalendarCurrentTimeMarkVisibleForToday
+Define eCal_TM_VisibleAlways    for OLExtpCalendarCurrentTimeMarkVisibleAlways
+Define eCal_TM_Printed          for OLExtpCalendarCurrentTimeMarkPrinted
+
+//Special Dates - Allow Edit
+Define eCal_AE_No   for 0
+Define eCal_AE_Yes  for 1
+Define eCal_AE_Ask  for 2
+
+//Resources
+Define eCal_RS_None         for 0
+Define eCal_RS_StdFiles     for 1 
+Define eCal_RS_CustomFiles  for 2
+
+//Data Types
+Define eCal_DT_DataFlex for 1
+Define eCal_DT_OutLook  for 2
+
+//=============================================================================
+
+Struct tdEvent
+    Integer iURN              //NUM  8.0
+    Boolean bAllDayEvent      //NUM  2.0
+    String  sBody             //ASC  254
+    Integer eBusyStatus       //NUM  2.0
+    String  sCategories       //ASC  254
+    Date    dCreationDate     //DAT    6
+    String  tmCreationTime    //ASC    5
+    String  sCustomIcons      //ASC  254
+    String  sCustomProp       //ASC  254
+    Date    dEndDate          //DAT    6
+    String  tmEndTime         //ASC    5
+    Integer eImportance       //NUM  2.0
+    String  sLabel            //ASC  254
+    Date    dLastMod_Date     //DAT    6
+    String  tmLastMod_Time    //ASC    5
+    String  sLocation         //ASC  254
+    Boolean bMeetingFlag      //NUM  2.0
+    Boolean bPrivateFlag      //NUM  2.0
+    Integer eRecurr_State     //NUM  2.0
+    Boolean bReminder         //NUM  2.0
+    Integer iRem_MinsBefore   //NUM  8.0
+    String  sRem_SoundFile    //ASC  254
+    Integer iScheduleID       //NUM  8.0
+    Date    dStartDate        //DAT    6
+    String  tmStartTime       //ASC    5
+    String  sSubject          //ASC  254
+    Date    dRE_StartDateOrg  //DAT    6
+    String  tmRE_StartTimeOrg //ASC    5
+    Date    dRE_EndDateOrg    //DAT    6
+    String  tmRE_EndTimeOrg   //ASC    5
+    Boolean bRE_Deleted       //NUM  2.0
+    Integer iRec_Pattern_id   //NUM  8.0
+End_Struct
+
+Struct tdR_Pat
+  //Member                    File  Def
+  //------------------------- ----------
+    Integer iURN              //NUM 8.0
+    String  sCustomProp_XML   //ASC 254
+    Integer iDurationMinutes  //NUM 8.0
+    Integer iEndAfterOcc      //NUM 8.0
+    Date    dEndDate          //DAT   6
+    String  tmEndTime         //ASC   5
+    Integer eEndMethod        //NUM 2.0
+    Integer iMasterEventId    //NUM 8.0
+    Date    dStartDate        //DAT   6
+    String  tmStartTime       //ASC   5
+    Boolean bRoD_WeekDayOnly  //NUM 2.0
+    Integer iRoD_Int_Days     //NUM 4.0
+    Integer iRoData1          //NUM 8.0
+    Integer iRoData2          //NUM 8.0
+    Integer iRoData3          //NUM 8.0
+    Integer iRoData4          //NUM 8.0
+    Integer iRoM_DayOfMonth   //NUM 2.0
+    Integer iRoM_Int_Months   //NUM 8.0
+    Integer iRoM_NthInt_Mths  //NUM 8.0
+    Integer iRoM_Nth_Day      //NUM 2.0
+    Integer eRoM_Nth_DayMask  //NUM 2.0
+    Integer eRoRecurr_Type    //NUM 2.0
+    Integer eRoW_DayWeekMask  //NUM 2.0
+    Integer iRoW_Int_Weeks    //NUM 8.0
+    Integer iRoY_DayOfMonth   //NUM 2.0
+    Integer iRoY_MonthOfYear  //NUM 2.0
+    Integer iRoY_NthM_OfYear  //NUM 8.0
+    Integer iRoY_Nth_Day      //NUM 2.0
+    Integer iRoY_Nth_DayMask  //NUM 8.0
+End_Struct
+
+Struct tdCal_Category
+    Integer iURN            //NUM 2.0
+    String  sShort_Desc     //ASC  10
+    String  sLong_Desc      //ASC  40
+    Integer iBorder_Color  //NUM 8.0
+    Integer iColor_Light   //NUM 8.0
+    Integer iColor_Dark    //NUM 8.0
+    Number  nGradient       //NUM 2.2
+    Integer iCategory_Set   //NUM 4.0
+End_Struct
+
+Struct tdCal_Dates
+    Date    dDate
+    String  sTitle
+    Integer iBackColor
+    Boolean bAllDay
+    Integer eAllowEvents
+End_Struct
+
+//=============================================================================
+//A global handle is created for the Calendar control. This makes it easier for
+//other objects that need to 'connect' to the calendar control. E.G. the
+//Data Picker object.
+
+Global_Variable Handle ghoSigCj_Calendar
+
+//=============================================================================
+//Datafiles Cal_Sys  - This provides Unique Reference Numbers for the other two files.
+//                     (Includes methods to allocate the URNs)
+//          CalEvent - This stores the calendar events.
+//                     (The DD is not used... but we need the file to be open)
+//          CalR_Pat - This stores the Recurrence Paterns for the calendar events.
+//                     (The DD is not used... but we need the file to be open)
+//          Cal_Cats - This stores the custom categoey details.
+//                     (The DD is not used... but we need the file to be open)
+
+#IFDEF SigCj_Use_StdFiles
+Use Cal_Sys.DD
+Use CalEvent.DD
+Use CalR_Pat.DD
+Use Cal_Cats.DD
+#ENDIF
+
+#IFDEF SigCj_Use_StdDates
+Use Cal_Date.DD
+#ENDIF
+
+#IFDEF SigCj_Use_StdResources
+Use Cal_Lay.DD
+Use Cal_Res.DD
+Use Cal_Sch.DD
+Use Cal_SRL.DD
+#ENDIF
+
+//=============================================================================
+//Context Menu
+//=============================================================================
+
+Define cEventRCCM_RemoveException  for 1
+Define cEventRCCM_GotoCRM          for 2    //Not Used
+
+Class cCRM_MenuItem is a cCJMenuItem
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        { DesignTime=False }
+        Property Handle  phoCallBack
+        { DesignTime=False }
+        Property Handle  phmMsg
+        { DesignTime=False }
+        Property Variant pvEvent
+
+        Set pbEnabled   to False
+        Set pbVisible   to False
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnExecute Variant vCommandBarControl
+        Handle  hoCallBack hmMsg
+        Variant vEvent
+        String  sMessage
+
+        Get phoCallBack to hoCallBack
+        Get phmMsg      to hmMsg
+        Get pvEvent     to vEvent
+
+        Send hmMsg of hoCallBack vEvent
+    End_Procedure
+End_Class
+
+//-----------------------------------------------------------------------------
+
+Class cEventRCCM is a cCJContextMenu
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        Property Integer piItemCount 0
+
+        //Define a cCRM_MenuItem object for each item that may be required.
+
+        Object oRemoveException is a cCRM_MenuItem
+        End_Object
+
+        //Object oGotoCRM is a cCRM_MenuItem
+        //End_Object
+
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure ConfigureItem Integer eItem Handle hoCallBack Handle hmMsg String sCaption Boolean bSeparator Variant vEvent
+        Handle  hoItem
+        Integer iItemCount
+
+//        If (eItem = cEventRCCM_GotoCRM)         Move oGotoCRM         to hoItem
+        If (eItem = cEventRCCM_RemoveException) Move oRemoveException to hoItem
+        If (hoItem > 0) Begin
+            Set phoCallBack of hoItem to hoCallBack
+            Set phmMsg      of hoItem to hmMsg
+            Set pvEvent     of hoItem to vEvent
+            Set psCaption   of hoItem to sCaption
+            Set pbEnabled   of hoItem to True
+            Set pbVisible   of hoItem to True
+
+            Get piItemCount to iItemCount
+            Set piItemCount to (iItemCount + 1)
+
+            If (bSeparator and (iItemCount > 0)) Set pbControlBeginGroup of hoItem to True
+        End
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure Display_RCCM
+        Send Popup
+    End_Procedure
+End_Class
+
+//=============================================================================
+//Dialogs
+//=============================================================================
+
+Class cCJ_CalendarDialogs is a cSigCjComCalendarDialogs
+    Procedure Construct_Object
+        Boolean bIsComObjectCreated bRetVal
+        Handle  hWND
+        Variant vCal_ComObject
+
+        Forward Send Construct_Object
+
+        Get IsComObjectCreated to bIsComObjectCreated
+        If (not(bIsComObjectCreated)) Begin
+            Send CreateComObject
+        End
+
+        //Attached the dialogs to the calendar container
+        Move (Window_Handle(Parent(Self))) to hWND
+        Set ComParentHWND to hWND
+
+        //Attached the dialogs ro the calendar object
+        Get pvComObject of ghoSigCj_Calendar to vCal_ComObject
+        Set ComCalendar to vCal_ComObject
+
+        //Reminders
+        Get ComCreateRemindersWindow to bRetVal
+    End_Procedure
+End_Class
+
+//=============================================================================
+//Date Picker
+//=============================================================================
+
+{ DesignerClass=cDTContainer3D }
+Class cSigCJCalendarDatePicker is a cSigCjComDatePicker
+
+    Procedure Construct_Object
+        Forward Send Construct_Object   // very important!
+
+        Set peAutoCreate to acAutoCreate
+
+        { DesignTime=False }
+        Property Boolean Private_pbDayMetrics False
+
+    End_Procedure
+
+    Procedure End_Construct_Object
+        Variant vCJ_Cal
+
+        Forward Send End_Construct_Object   // very important!
+
+        //Set defaults
+        Set ComBorderStyle     to OLExtpDatePickerBorderNone
+        Set ComShowWeekNumbers to True
+
+        //Set Theme
+        //We will be using the Office 07 theme, so (as yet) I have not
+        //implemented theme changing.
+        #IF (SigCj_Codejock_Version < 150103)
+        Send Set_Theme_To_Office_07
+        #ELSE
+        Set ComVisualTheme to OLExtpCalendarThemeResource 
+        #ENDIF 
+
+        //Attach to the Calendar control
+        Get pvComObject of ghoSigCj_Calendar to vCJ_Cal
+        Send ComAttachToCalendar vCJ_Cal
+    End_Procedure
+
+    Procedure OnCreate
+        Forward Send OnCreate
+        
+        If (Private_pbDayMetrics(Self)) Begin
+            Set ComAskDayMetrics to True
+            Send OnSetDateRange
+        End 
+        
+    End_Procedure  
+       
+   { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbDayMetrics Boolean bValue
+         Set Private_pbDayMetrics to bValue
+    End_Procedure
+
+    Function pbDayMetrics Returns Boolean
+        Function_Return (Private_pbDayMetrics(Self))  
+    End_Function
+
+    { MethodType=Event }        
+    Procedure OnSetDateRange
+        // Hook for setting the date range
+    End_Procedure
+
+    { MethodType=Event }        
+    Procedure OnDayMetrics Handle hoDayMetrics Date dValue
+        // Hook, sent for each day in the date range
+    End_Procedure
+    
+    // This will only get called if pbDayMetrics is set to True
+    Procedure OnComDayMetrics DateTime llDay Variant llMetrics
+        Handle hoDayMetrics 
+        Date   dDate
+
+        Move llDay to dDate
+        Get Create U_cSigCjComDatePickerDayMetrics to hoDayMetrics
+        Set pvComObject of hoDayMetrics to llMetrics
+            Send OnDayMetrics hoDayMetrics dDate    
+        Send Destroy of hoDayMetrics
+    End_Procedure
+
+    #IF (SigCj_Codejock_Version < 150103)
+    Procedure Set_Theme_To_Office_07
+        Handle hoThemeOffice07
+        Variant vTheme
+
+        Get Create U_cSigCjComDatePickerThemeOffice2007 to hoThemeOffice07
+            Get pvComObject of hoThemeOffice07 to vTheme
+            Send ComSetTheme vTheme
+        Send Destroy of hoThemeOffice07
+    End_Procedure
+    #ENDIF
+    
+End_Class
+
+//=============================================================================
+//Calendar - class definition
+//=============================================================================
+
+{ OverrideProperty=Label_Col_Offset          DesignTime=False }
+{ OverrideProperty=Label_Justification_Mode  DesignTime=False }
+{ OverrideProperty=Label_Row_Offset          DesignTime=False }
+{ OverrideProperty=piMinSize                 DesignTime=False }
+{ OverrideProperty=Border_Style              DesignTime=False }
+{ OverrideProperty=Visible_State             DesignTime=False }
+{ OverrideProperty=Attach_Parent_State       DesignTime=False }
+{ OverrideProperty=Block_Mouse_State         DesignTime=False }
+{ OverrideProperty=Client_Area_State         DesignTime=False }
+{ OverrideProperty=Delegation_Mode           DesignTime=False }
+{ OverrideProperty=Focus_Mode                DesignTime=False }
+{ OverrideProperty=pbBindValue               DesignTime=False }
+{ OverrideProperty=peAutoCreate              DesignTime=False }
+{ OverrideProperty=peNeighborhood            DesignTime=False }
+{ OverrideProperty=Popup_State               DesignTime=False }
+{ OverrideProperty=Ring_State                DesignTime=False }
+{ OverrideProperty=Scope_State               DesignTime=False }
+{ OverrideProperty=Search_Case               DesignTime=False }
+{ OverrideProperty=Skip_State                DesignTime=False }
+{ OverrideProperty=Help_Id                   DesignTime=False }
+{ OverrideProperty=Help_Keyword              DesignTime=False }
+{ OverrideProperty=psHtmlHelpTopic           DesignTime=False }
+{ OverrideProperty=Status_Help               DesignTime=False }
+{ OverrideProperty=Use_Parent_Status_Help    DesignTime=False }
+{ OverrideProperty=psLicenseKey              DesignTime=False }
+{ OverrideProperty=psProgID                  DesignTime=False }
+{ OverrideProperty=Color                     InitialValue=clActiveCaption }
+Class cSigCJCalendarControl is a cSigCjComCalendarControl
+    Import_Class_Protocol cSigCJMethods_Mixin
+
+    //=========================================================================
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        Set peAutoCreate to acAutoCreate
+        Move Self to ghoSigCj_Calendar
+
+        //---------------------------------------------------------------------
+
+        { Visibility=Private DesignTime=False }
+        Property Handle phoOptions
+        { Visibility=Private DesignTime=False }
+        Property Handle phoPrintOptions
+        { Visibility=Private DesignTime=False }
+        Property Handle phoPrintPreviewOptions
+
+        { DesignTime=False }
+        Property tdEvent        ptEvent_Buffer
+        { DesignTime=False }
+        Property tdR_Pat        ptR_Pat_Buffer
+        { DesignTime=False }
+        Property tdCal_Dates[]  ptCal_Dates
+        
+        //---------------------------------------------------------------------
+
+        { DesignTime=False }
+        Property Boolean  pbUseIcons                         True
+        { DesignTime=False }
+        Property Boolean  pbUseCustomIcons                   False
+        { DesignTime=False }
+        Property Boolean  pbUseCustomProperties              False
+        { DesignTime=False }
+        Property DateTime pdtHitDateTime
+        { DesignTime=False }
+        Property Integer  Private_peCaptionBar                       eCal_FullCaptionBar
+        { DesignTime=False }
+        Property Boolean  Private_pbEnableReminders                  True
+        { DesignTime=False }
+        Property Boolean  Private_pbEnableStdToolTips                True
+        { DesignTime=False }
+        Property String   Private_psPrintPreviewTitle                ""
+        { DesignTime=False }
+        Property Boolean  Private_pbUseCustomDialogs                 False
+        { DesignTime=False }
+        Property Boolean  Private_pbUseCustomCategories              False
+        { DesignTime=False }
+        Property Boolean  Private_pbClickToAdd                       True
+        { DesignTime=False }
+        Property String   Private_psClickToAddText                   //
+        { DesignTime=False }
+        Property Integer  Private_peDayViewCurrentTimeMarkVisible    eCal_TM_VisibleAlways
+        { DesignTime=False }
+        Property Boolean  Private_pbDayViewShowMinutes               True
+        { DesignTime=False }
+        Property Boolean  Private_pbInPlaceCreateEvent               False
+        { DesignTime=False }
+        Property Boolean  Private_pbInPlaceEdit_AfterEventResize     False
+        { DesignTime=False }
+        Property Boolean  Private_pbInPlaceEdit_ByF2                 False
+        { DesignTime=False }
+        Property Boolean  Private_pbInPlaceEdit_ByMouseClick         False
+        { DesignTime=False }
+        Property Boolean  Private_pbInPlaceEdit_ByTab                False
+        { DesignTime=False }
+        Property Integer  Private_peFirstDayOfTheWeek                eCal_Sunday
+        { DesignTime=False }
+        Property Boolean  Private_pbCompressWeekendDays              True
+        { DesignTime=False }
+        Property Boolean  Private_pbUseOutlookGlyphs                 False
+        { DesignTime=False }
+        Property Integer  Private_peShowEndDate                      eCal_MW_None
+        { DesignTime=False }
+        Property Integer  Private_peShowTimeAsClocks                 eCal_MW_None
+        { DesignTime=False }
+        Property Integer  Private_peTimeScale                        eCal_TimeScale_30
+        { DesignTime=False }
+        Property Integer  Private_peViewType                         eCal_ViewType_Working
+        { DesignTime=False }
+        Property String   Private_ptmWorkDayEndTime                  "17:00"
+        { DesignTime=False }
+        Property String   Private_ptmWorkDayStartTime                "09:00"
+        { DesignTime=False }
+        Property Integer  Private_peWorkWeekMask                     eCal_WW_Mo_Fr
+        { DesignTime=False }
+        Property String   Private_ptmTimeScaleMinTime                "08:00"
+        { DesignTime=False }
+        Property String   Private_ptmTimeScaleMaxTime                "19:00"
+
+        { DesignTime=False }
+        Property Boolean  Private_pbPrnLandscape                     False
+        { DesignTime=False }
+        Property Boolean  Private_pbPrnGreyScale                     False
+        { DesignTime=False }
+        Property Boolean  Private_pbPrnPrintDateHeader               False
+        { DesignTime=False }
+        Property DateTime Private_pdtPrnPrintFrom                    //
+        { DesignTime=False }
+        Property DateTime Private_pdtPrnPrintTo                      //
+        { DesignTime=False }
+        Property Boolean  Private_pbPrnFromToExactly                 False
+        { DesignTime=False }
+        Property String   Private_psPrnFooterLeft                    ""
+        { DesignTime=False }
+        Property String   Private_psPrnFooterCenter                  ""
+        { DesignTime=False }
+        Property String   Private_psPrnFooterRight                   ""
+        { DesignTime=False }
+        Property String   Private_psPrnHeaderLeft                    ""
+        { DesignTime=False }
+        Property String   Private_psPrnHeaderCenter                  ""
+        { DesignTime=False }
+        Property String   Private_psPrnHeaderRight                   ""
+        { DesignTime=False }
+        Property Number   Private_pnPrnMarginBottom                  1.0
+        { DesignTime=False }
+        Property Number   Private_pnPrnMarginTop                     1.0
+        { DesignTime=False }
+        Property Number   Private_pnPrnMarginLeft                    1.0
+        { DesignTime=False }
+        Property Number   Private_pnPrnMarginRight                   1.0
+        { DesignTime=False }
+        Property Boolean  Private_pbMultiColumnWeekMode              True
+
+        //---------------------------------------------------------------------
+
+        { Category=Codejock InitialValue=16777215 }
+        Property Integer piWorkingCellBackColor     16777215
+        { Category=Codejock InitialValue=16248294 }
+        Property Integer piNonWorkingCellBackColor  16248294
+        { Category=Codejock InitialValue="CAUTION - Special Date" }
+        Property String psAllowEventTitle           "CAUTION - Special Date"
+        { Category=Codejock InitialValue="Create Event?" }
+        Property String psAllowEventText            "Create Event?"
+        
+        //---------------------------------------------------------------------
+
+        { Category=Codejock }
+        Property String  ptmLastWorkDayEndTime      "16:00"
+        { Category=Codejock }
+        Property Boolean pbShorterLastDay           True
+        { Category=Codejock }
+        Property Boolean pbShadeLunchTime           True
+        { Category=Codejock }
+        Property String  ptmLunchEndTime            "14:00"
+        { Category=Codejock }
+        Property String  ptmLunchStartTime          "13:00"
+        { Category=Codejock }
+        Property Boolean pbUseStdFiles              True
+        { Category=Codejock }
+        Property Boolean pbUseStdDates              True
+        { Category=Codejock }
+        Property Boolean pbUseScaleTimes            False
+
+        //---------------------------------------------------------------------
+        //Commonly used objects or objects many levels down (so once found we save them here for speed).
+        { DesignTime=False }
+        Property Handle  phoOptions                         (Create(Self, U_cSigCjComCalendarOptions))
+        { DesignTime=False }
+        Property Handle  phoPrintOptions                    (Create(Self, U_cSigCjComCalendarPrintOptions))
+        { DesignTime=False }
+        Property Handle  phoPrintPreviewOptions             (Create(Self, U_cSigCjComXtremePrintPreviewOptions))
+        { DesignTime=False }
+        Property Handle  phoDayView                         (Create(Self, U_cSigCjComCalendarDayView))
+        
+        { DesignTime=False }
+        Property Handle  Private_phoWorkingCellColors       (Create(Self, U_cSigCjComCalendarThemeDayViewCellColors))
+        { DesignTime=False }
+        Property Handle  Private_phoNonWorkingCellColors    (Create(Self, U_cSigCjComCalendarThemeDayViewCellColors))
+        { DesignTime=False }
+        Property Handle  Private_phoThemeDayViewCellParams  (Create(Self, U_cSigCjComCalendarThemeDayViewCellParams))
+        { DesignTime=False }
+        Property Handle  Private_phoDataProvider            (Create(Self, U_cSigCjComCalendarDataProvider))
+        { DesignTime=False }
+        Property Handle  Private_phoDataProvider_RS         (Create(Self, U_cSigCjComCalendarDataProvider))
+        { DesignTime=False }
+        Property Handle  Private_phoCategoriesIDs           (Create(Self, U_cSigCjComCalendarEventCategoryIDs))
+        { DesignTime=False }
+        Property Handle  Private_phoCategories              (Create(Self, U_cSigCjComCalendarEventCategories))
+        { DesignTime=False }
+        Property Handle  Private_phoCustomIcons             (Create(Self, U_cSigCjComCalendarIconIDs))
+        { DesignTime=False }
+        Property Handle  Private_phoCustomProps             (Create(Self, U_cSigCjComCalendarCustomProperties))
+        { DesignTime=False }
+        Property Handle  Private_phoEvent                   (Create(Self, U_cSigCjComCalendarEvent))
+        { DesignTime=False }
+        Property Handle  Private_phoEvents                  (Create(Self, U_cSigCjComCalendarEvents))
+        { DesignTime=False }
+        Property Handle  Private_phoR_Pat                   (Create(Self, U_cSigCjComCalendarRecurrencePattern))
+        { DesignTime=False }
+        Property Handle  Private_phoR_Pat_Options           (Create(Self, U_cSigCjComCalendarRecurrencePatternOptions))
+
+        //---------------------------------------------------------------------
+
+        { Category="Codejock" InitialValue="" }
+        Property String psDataSource ""
+
+        { Category="Codejock" InitialValue=eCal_DT_DataFlex }
+        { EnumList="eCal_DT_DataFlex, eCal_DT_OutLook" }
+        Property Integer peDataType eCal_DT_DataFlex
+
+        { Category="Codejock" InitialValue=eCal_RS_None }
+        { EnumList="eCal_RS_None, eCal_RS_StdFiles, eCal_RS_CustomFiles" }
+        Property Integer peUseResources     eCal_RS_None
+        { Category=Codejock InitialValue="" }
+        Property String  psResourceLayout   ""
+        
+        { DesignTime=False }
+        Property Handle  Private_phoCalResources (Create(Self, U_cSigCjComCalendarResources))
+        { DesignTime=False }
+        Property Handle  Private_phoCalSchedules (Create(Self, U_cSigCjComCalendarSchedules))
+
+        { DesignTime=False }
+        Property Handle  Private_phoResource (Create(Self, U_cSigCjComCalendarResource))
+        { DesignTime=False }
+        Property Handle  Private_phoSchedule (Create(Self, U_cSigCjComCalendarSchedule))
+
+        { DesignTime=False }
+        Property Handle  Private_phoScheduleIDs (Create(Self, U_cSigCjComCalendarScheduleIDs))
+
+        //---------------------------------------------------------------------
+
+#IFDEF SigCj_Use_StdFiles
+        Object oeCal_Sys_DD is a Cal_Sys_DataDictionary
+        End_Object
+#ENDIF
+    End_Procedure
+
+    Procedure End_Construct_Object
+        Handle  hoOptions
+        Variant vOptions
+
+        Forward Send End_Construct_Object   // very important!
+
+        //Set the theme to Office 07... The theme setting has not been implemented (Yet).
+        Send Set_Theme_To_Office_07
+
+        //The meeting / private / recurring icons are not displayed by default,
+        //they have to be enabled individually and for each view type.
+        //This enables all glyphs / icons for all view types.
+        Send Enable_Icons
+
+        //This removes the default categories and loads new categoreies from the Cal_Cats table
+        //---------------------------------------------------------------------
+        Object oe_CJ_CalendarDialogs is a cCJ_CalendarDialogs
+        End_Object
+
+        //---------------------------------------------------------------------
+    End_Procedure
+
+    Procedure OnCreate
+        Handle  hoFlags hoCalResources hoCalSchedules
+        Variant vFlags   vCalResources  vCalSchedules
+        Integer iUseResources
+        
+        Forward Send OnCreate
+
+        Set pvComObject of (phoOptions            (Self)) to (ComOptions            (Self))
+        Set pvComObject of (phoPrintOptions       (Self)) to (ComPrintOptions       (Self))
+        Set pvComObject of (phoPrintPreviewOptions(Self)) to (ComPrintPreviewOptions(Self))
+        Set pvComObject of (phoDayView(Self))             to (ComDayView(Self))
+
+        Set peCaptionBar                    to (Private_peCaptionBar                   (Self))
+        Set pbEnableReminders               to (Private_pbEnableReminders              (Self))
+        Set pbEnableStdToolTips             to (Private_pbEnableStdToolTips            (Self))
+        Set psPrintPreviewTitle             to (Private_psPrintPreviewTitle            (Self))
+        Set pbUseCustomDialogs              to (Private_pbUseCustomDialogs             (Self))
+        Set pbUseCustomCategories           to (Private_pbUseCustomCategories          (Self))
+        Set pbClickToAdd                    to (Private_pbClickToAdd                   (Self))
+        Set psClickToAddText                to (Private_psClickToAddText               (Self))
+        Set peDayViewCurrentTimeMarkVisible to (Private_peDayViewCurrentTimeMarkVisible(Self))
+        Set pbDayViewShowMinutes            to (Private_pbDayViewShowMinutes           (Self))
+        Set pbInPlaceCreateEvent            to (Private_pbInPlaceCreateEvent           (Self))
+        Set pbInPlaceEdit_AfterEventResize  to (Private_pbInPlaceEdit_AfterEventResize (Self))
+        Set pbInPlaceEdit_ByF2              to (Private_pbInPlaceEdit_ByF2             (Self))
+        Set pbInPlaceEdit_ByMouseClick      to (Private_pbInPlaceEdit_ByMouseClick     (Self))
+        Set pbInPlaceEdit_ByTab             to (Private_pbInPlaceEdit_ByTab            (Self))
+        Set peFirstDayOfTheWeek             to (Private_peFirstDayOfTheWeek            (Self))
+        Set pbCompressWeekendDays           to (Private_pbCompressWeekendDays          (Self))
+        Set pbMultiColumnWeekMode           to (Private_pbMultiColumnWeekMode          (Self))
+        Set pbUseOutlookGlyphs              to (Private_pbUseOutlookGlyphs             (Self))
+        Set peShowEndDate                   to (Private_peShowEndDate                  (Self))
+        Set peShowTimeAsClocks              to (Private_peShowTimeAsClocks             (Self))
+        Set peTimeScale                     to (Private_peTimeScale                    (Self))
+        Set peViewType                      to (Private_peViewType                     (Self))
+        Set ptmWorkDayEndTime               to (Private_ptmWorkDayEndTime              (Self))
+        Set ptmWorkDayStartTime             to (Private_ptmWorkDayStartTime            (Self))
+        Set peWorkWeekMask                  to (Private_peWorkWeekMask                 (Self))
+        Set ptmTimeScaleMinTime             to (Private_ptmTimeScaleMinTime            (Self))
+        Set ptmTimeScaleMaxTime             to (Private_ptmTimeScaleMaxTime            (Self))
+
+//        Set pbPrnLandscape                  to (Private_pbPrnLandscape                 (Self))
+//        Set pbPrnGreyScale                  to (Private_pbPrnGreyScale                 (Self))
+//        Set pbPrnPrintDateHeader            to (Private_pbPrnPrintDateHeader           (Self))
+//        Set pdtPrnPrintFrom                 to (Private_pdtPrnPrintFrom                (Self))
+//        Set pdtPrnPrintTo                   to (Private_pdtPrnPrintTo                  (Self))
+//        Set pbPrnFromToExactly              to (Private_pbPrnFromToExactly             (Self))
+//        Set psPrnFooterLeft                 to (Private_psPrnFooterLeft                (Self))
+//        Set psPrnFooterCenter               to (Private_psPrnFooterCenter              (Self))
+//        Set psPrnFooterRight                to (Private_psPrnFooterRight               (Self))
+//        Set psPrnHeaderLeft                 to (Private_psPrnHeaderLeft                (Self))
+//        Set psPrnHeaderCenter               to (Private_psPrnHeaderCenter              (Self))
+//        Set psPrnHeaderRight                to (Private_psPrnHeaderRight               (Self))
+//        Set pnPrnMarginBottom               to (Private_pnPrnMarginBottom              (Self))
+//        Set pnPrnMarginTop                  to (Private_pnPrnMarginTop                 (Self))
+//        Set pnPrnMarginLeft                 to (Private_pnPrnMarginLeft                (Self))
+//        Set pnPrnMarginRight                to (Private_pnPrnMarginRight               (Self))
+
+
+        Get Create U_cSigCjComCalendarFlagsSet to hoFlags
+            Get ComBeforeDrawThemeObjectFlags to vFlags
+            Set pvComObject of hoFlags to vFlags
+
+            Send ComSetFlag of hoFlags OLExtpCalendarBeforeDraw_DayViewCell
+        Send Destroy of hoFlags
+
+        //---------------------------------------------------------------------
+        
+        Send Set_Single_Data_Source (peDataType(Self)) (psDataSource(Self))
+        Get peUseResources to iUseResources
+
+//        If (iUseResources = eCal_RS_None) Begin
+//            Send Set_Single_Data_Source (peDataType(Self)) (psDataSource(Self))
+//        End
+//        Else Begin
+        If (iUseResources <> eCal_RS_None) Begin
+            Get Private_phoCalResources to hoCalResources
+            Send CreateComObject of hoCalResources
+
+            If (iUseResources = eCal_RS_StdFiles) Begin
+                Send Load_Resources 
+            End
+            Else Begin
+                Send OnLoad_Resources
+            End
+
+            Get pvComObject of hoCalResources to vCalResources
+            Send ComSetMultipleResources vCalResources
+        End
+
+        //---------------------------------------------------------------------
+
+        Send Setup_Categories
+        Send ComPopulate
+    End_Procedure
+
+    //=========================================================================
+
+    Procedure OnLoad_Resources
+        //Hook
+    End_Procedure
+    
+    Procedure Load_Resources
+        Boolean bFound
+        Handle  hoCalResources hoResource
+        Variant vResource
+        Integer iLast_Res
+        String  sLayout
+        
+#IFDEF SigCj_Use_StdResources
+        Get psResourceLayout to sLayout
+        
+        Clear Cal_Lay
+        Move sLayout to Cal_Lay.Title
+        Find Eq Cal_Lay by Index.2
+        If (Found) Begin
+            Clear Cal_SRL
+            Move Cal_Lay.ID to Cal_SRL.Layout
+            Repeat 
+                Find GT Cal_SRL by Index.1
+                Move (Found) to bFound
+                If (bFound) Move (Cal_SRL.Layout = Cal_Lay.ID) to bFound
+                If (bFound) Begin
+                    Relate Cal_SRL  
+                    Clear Cal_Res
+                    Move Cal_SRL.Resource to Cal_Res.ID
+                    Find Eq Cal_Res by Index.1 
+                    Clear Cal_Sch
+                    Move Cal_SRL.Schedule to Cal_Sch.ID
+                    Find Eq Cal_Sch by Index.1 
+                    Send Add_Resource_And_Schedule (Trim(Cal_Res.Title)) Cal_Sch.ID (Trim(Cal_Sch.Title)) Cal_Res.DataType (Trim(Cal_Res.DataSource))
+                End
+            Until (not(bFound))
+        End
+        Else Begin
+            Error 5001 "Invalid Calendar Layout Title"    
+            Send Close_panel
+        End
+#ENDIF
+    End_Procedure
+
+    //Add Resource / schedule
+    
+    Procedure Add_Resource_And_Schedule String sResourceName Integer iScheduleID String sScheduleName Integer iDataType String sDataSource
+        Boolean bFound bOK
+        Handle hoResource hoSchedule hoScheduleIDs hoDataProvider hoCalSchedules hoCalResources 
+        Variant vResource  vSchedule  vScheduleIDs  vDataProvider  vCalSchedules
+        Integer iCount iLoop
+        String sName
+        
+        Get Private_phoDataProvider_RS to hoDataProvider
+
+        //---------------------------------------------------------------------
+        //Find / Add Resource
+        Get Private_phoCalResources to hoCalResources
+        Get Private_phoResource     to hoResource
+        
+        Get ComCount of hoCalResources to iCount
+        Decrement iCount    // zero based
+        Move False to bFound
+        For iLoop from 0 to iCount
+            Get ComItem of hoCalResources iLoop to vResource
+            Set pvComObject of hoResource to vResource
+            Get ComName of hoResource to sName             
+            If (sName = sResourceName) Begin
+                Move True to bFound
+                
+                //Bomb loop as found. This leaves hoResource pointing to the 
+                //corrrect resource object.
+                Move iCount to iLoop    
+            End
+        Loop
+
+        If (not(bFound)) Begin
+            //Not found so add a resource object.
+            Get Create U_cSigCjComCalendarResource to hoResource
+            Send CreateComObject of hoResource
+            Get pvComObject of hoResource to vResource
+            Set ComName of hoResource to sResourceName
+            Send ComAdd of hoCalResources vResource
+
+            If (iDataType = eCal_DT_DataFlex) Begin
+                Get pvComObject of hoDataProvider to vDataProvider
+                //Need to create the data provider the first time, after that
+                //we will use the same object. This is just for DataFlex files.
+                If (IsNullComObject(vDataProvider)) Begin
+                    Send ComSetDataProvider2 of hoResource ("Provider="+eCal_DataProvider_Custom+";DSN=Not Needed") True
+                    Get ComDataProvider of hoResource to vDataProvider
+                    Set pvComObject of hoDataProvider to vDataProvider
+                    Get ComOpen of hoDataProvider to bOK
+                    If (not(bOK)) Begin
+                        Get ComCreate of hoDataProvider to bOK
+                    End
+                End
+                Else Begin
+                    Send ComSetDataProvider of hoResource vDataProvider False
+                End
+            End
+            Else Begin
+                //For PST files we will create a new data provider for each
+                //resource.
+                Send ComSetDataProvider2 of hoResource ("Provider="+eCal_DataProvider_Outlook+";DSN="+sDataSource) True
+                Get ComDataProvider of hoResource to vDataProvider
+                Set pvComObject of hoDataProvider to vDataProvider
+                Get ComOpen of hoDataProvider to bOK
+                If (not(bOK)) Begin
+                    Get ComCreate of hoDataProvider to bOK
+                End
+            End
+        End
+        
+        //---------------------------------------------------------------------
+        //Find / Add Schedule
+        Get Private_phoCalSchedules to hoCalSchedules
+        Get ComSchedules of hoDataProvider to vCalSchedules
+        Set pvComObject of hoCalSchedules to vCalSchedules
+        
+        Get Private_phoSchedule to hoSchedule
+        
+        Get ComCount of hoCalSchedules to iCount
+        Decrement iCount    // zero based
+        Move False to bFound
+        For iLoop from 0 to iCount
+            Get ComItem of hoCalSchedules iLoop to vSchedule
+            Set pvComObject of hoSchedule to vSchedule
+
+            //The ID could be used to find the schedule, but the name is used
+            //for consistancy with the Resource above. 
+            Get ComName of hoSchedule to sName             
+            If (sName = sScheduleName) Begin
+                Move True to bFound
+                
+                //Bomb loop as found. This leaves hoSchedule pointing to the 
+                //corrrect schedule object.
+                Move iCount to iLoop    
+            End
+        Loop
+        
+        If (not(bFound)) Begin
+            //Not found so add a schedule object.
+            Get ComAddNewSchedule of hoCalSchedules sScheduleName to bOK
+            If (bOK) Begin
+                Get ComCount of hoCalSchedules to iCount
+                Decrement iCount
+                Get ComItem of hoCalSchedules iCount to vSchedule
+                Set pvComObject of hoSchedule to vSchedule
+                Set ComId of hoSchedule to iScheduleID
+            End
+        End
+
+        //---------------------------------------------------------------------
+        //Find / Attach Resource and Scehdule
+        If (iDataType = eCal_DT_DataFlex) Begin
+        Get ComExistsScheduleID of hoResource iScheduleID False to bFound
+        If (not(bFound)) Begin
+            Get Private_phoScheduleIDs to hoScheduleIDs
+            Get ComScheduleIDs of hoResource to vScheduleIDs
+            Set pvComObject of hoScheduleIDs to vScheduleIDs
+            
+            Send ComAdd of hoScheduleIDs iScheduleID 
+        End
+        End    
+    End_Procedure
+
+    //=========================================================================
+    //Property Methods
+    //=========================================================================
+
+    { MethodType=Property Category="CodeJock" InitialValue=eCal_FullCaptionBar }
+    { EnumList="eCal_NoCaptionBar, eCal_CaptionBarDateLabel, eCal_CaptionBarScrollDateButtons, eCal_CaptionBarSwitchViewButtons, eCal_FullCaptionBar" }
+    Procedure Set peCaptionBar Integer eCaption
+
+        If (IsComObjectCreated(Self)) Begin
+            Set ComShowCaptionBar                  to (eCaption iand eCal_ShowCaptionBar)
+            Set ComShowCaptionBarDateLabel         to (eCaption iand eCal_CaptionBarDateLabel)
+            Set ComShowCaptionBarScrollDateButtons to (eCaption iand eCal_CaptionBarScrollDateButtons)
+            Set ComShowCaptionBarSwitchViewButtons to (eCaption iand eCal_CaptionBarSwitchViewButtons)
+#IF (SigCj_Codejock_Version > 120101) 
+            //New for 13.0.0 - Time Line mode. Disable the button until we implement support for this.
+            Set ComShowTimelineButton to False
+#ENDIF
+        End
+
+        Set Private_peCaptionBar to eCaption
+    End_Procedure
+
+    Function peCaptionBar Returns Integer
+        Boolean bValue
+        Integer eCaption
+
+        If (IsComObjectCreated(Self)) Begin
+            Get ComShowCaptionBar to eCaption
+
+            Get ComShowCaptionBarDateLabel to bValue
+            If (bValue) Move (eCaption ior eCal_CaptionBarDateLabel) to eCaption
+
+            Get ComShowCaptionBarScrollDateButtons to bValue
+            If (bValue) Move (eCaption ior eCal_CaptionBarScrollDateButtons) to eCaption
+
+            Get ComShowCaptionBarSwitchViewButtons to bValue
+            If (bValue) Move (eCaption ior eCal_CaptionBarSwitchViewButtons) to eCaption
+        End
+        Else Get Private_peCaptionBar to eCaption
+
+        Function_Return eCaption
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=True }
+    Procedure Set pbEnableReminders Boolean bState
+        Set Private_pbEnableReminders to bState
+        If (IsComObjectCreated(Self)) Begin
+            Send ComEnableReminders bState
+        End
+    End_Procedure
+
+    Function pbEnableReminders Returns Boolean
+        Boolean bState
+
+        If (IsComObjectCreated(Self)) Begin
+            Get ComIsRemindersEnabled to bState
+        End
+        Else Begin
+            Get Private_pbEnableReminders to bState
+        End
+
+        Function_Return bState
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=True }
+    Procedure Set pbEnableStdToolTips Boolean bValue
+        Set SigCjProperty Set_Private_pbEnableStdToolTips Set_ComEnableAddNewTooltip (phoOptions(Self)) to bValue
+    End_Procedure
+
+    Function pbEnableStdToolTips Returns Boolean
+        Function_Return (SigCjProperty(Self, Get_Private_pbEnableStdToolTips, Get_ComEnableAddNewTooltip, (phoOptions(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue="" }
+    Procedure Set psPrintPreviewTitle String sValue
+        Set SigCjProperty Set_Private_psPrintPreviewTitle Set_ComTitle (phoPrintPreviewOptions(Self)) to sValue
+    End_Procedure
+
+    Function psPrintPreviewTitle Returns String
+        Function_Return (SigCjProperty(Self, Get_Private_psPrintPreviewTitle, Get_ComTitle, (phoPrintPreviewOptions(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbUseCustomDialogs Boolean bValue
+        Set Private_pbUseCustomDialogs to bValue
+    End_Procedure
+
+    Function pbUseCustomDialogs Returns Boolean
+        Function_Return (Private_pbUseCustomDialogs(Self))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbUseCustomCategories Boolean bValue
+        Set Private_pbUseCustomCategories to bValue
+    End_Procedure
+
+    Function pbUseCustomCategories Returns Boolean
+        Function_Return (Private_pbUseCustomCategories(Self))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=True }
+    Procedure Set pbClickToAdd Boolean bValue
+        Set SigCjProperty Set_Private_pbClickToAdd Set_ComEnableAddNewTooltip (phoOptions(Self)) to bValue
+    End_Procedure
+
+    Function pbClickToAdd Returns Boolean
+        Function_Return (SigCjProperty(Self, Get_Private_pbClickToAdd, Get_ComEnableAddNewTooltip, (phoOptions(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue="" }
+    Procedure Set psClickToAddText String sValue
+        Set SigCjProperty Set_Private_psClickToAddText Set_ComTooltipAddNewText (phoOptions(Self)) to sValue
+    End_Procedure
+
+    Function psClickToAddText Returns String
+        Function_Return (SigCjProperty(Self, Get_Private_psClickToAddText, Get_ComTooltipAddNewText, (phoOptions(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=eCal_TM_VisibleAlways }
+    { EnumList="eCal_TM_None, eCal_TM_VisibleForToday, eCal_TM_VisibleAlways, eCal_TM_Printed" }
+    Procedure Set peDayViewCurrentTimeMarkVisible Integer eValue
+        Set SigCjProperty Set_Private_peDayViewCurrentTimeMarkVisible Set_ComDayViewCurrentTimeMarkVisible (phoOptions(Self)) to eValue
+    End_Procedure
+
+    Function peDayViewCurrentTimeMarkVisible Returns Integer
+        Function_Return (SigCjProperty(Self, Get_Private_peDayViewCurrentTimeMarkVisible, Get_ComDayViewCurrentTimeMarkVisible, (phoOptions(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=True }
+    Procedure Set pbDayViewShowMinutes Boolean bValue
+        Set SigCjProperty Set_Private_pbDayViewShowMinutes Set_ComDayViewTimeScaleShowMinutes (phoOptions(Self)) to bValue
+    End_Procedure
+
+    Function pbDayViewShowMinutes Returns Boolean
+        Function_Return (SigCjProperty(Self, Get_Private_pbDayViewShowMinutes, Get_ComDayViewTimeScaleShowMinutes, (phoOptions(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=True }
+    Procedure Set pbInPlaceCreateEvent Boolean bValue
+        Set SigCjProperty Set_Private_pbInPlaceCreateEvent Set_ComEnableInPlaceCreateEvent (phoOptions(Self)) to bValue
+    End_Procedure
+
+    Function pbInPlaceCreateEvent Returns Boolean
+        Function_Return (SigCjProperty(Self, Get_Private_pbInPlaceCreateEvent, Get_ComEnableInPlaceCreateEvent, (phoOptions(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbInPlaceEdit_AfterEventResize Boolean bValue
+        Set SigCjProperty Set_Private_pbInPlaceEdit_AfterEventResize Set_ComEnableInPlaceEditEventSubject_AfterEventResize (phoOptions(Self)) to bValue
+    End_Procedure
+
+    Function pbInPlaceEdit_AfterEventResize Returns Boolean
+        Function_Return (SigCjProperty(Self, Get_Private_pbInPlaceEdit_AfterEventResize, Get_ComEnableInPlaceEditEventSubject_AfterEventResize, (phoOptions(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbInPlaceEdit_ByF2 Boolean bValue
+        Set SigCjProperty Set_Private_pbInPlaceEdit_ByF2 Set_ComEnableInPlaceEditEventSubject_ByF2 (phoOptions(Self)) to bValue
+    End_Procedure
+
+    Function pbInPlaceEdit_ByF2 Returns Boolean
+        Function_Return (SigCjProperty(Self, Get_Private_pbInPlaceEdit_ByF2, Get_ComEnableInPlaceEditEventSubject_ByF2, (phoOptions(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbInPlaceEdit_ByMouseClick Boolean bValue
+        Set SigCjProperty Set_Private_pbInPlaceEdit_ByMouseClick Set_ComEnableInPlaceEditEventSubject_ByMouseClick (phoOptions(Self)) to bValue
+    End_Procedure
+
+    Function pbInPlaceEdit_ByMouseClick Returns Boolean
+        Function_Return (SigCjProperty(Self, Get_Private_pbInPlaceEdit_ByMouseClick, Get_ComEnableInPlaceEditEventSubject_ByMouseClick, (phoOptions(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbInPlaceEdit_ByTab Boolean bValue
+        Set SigCjProperty Set_Private_pbInPlaceEdit_ByTab Set_ComEnableInPlaceEditEventSubject_ByTab (phoOptions(Self)) to bValue
+    End_Procedure
+
+    Function pbInPlaceEdit_ByTab Returns Boolean
+        Function_Return (SigCjProperty(Self, Get_Private_pbInPlaceEdit_ByTab, Get_ComEnableInPlaceEditEventSubject_ByTab, (phoOptions(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=eCal_Sunday }
+    { EnumList="eCal_Sunday, eCal_Monday, eCal_Tuesday, eCal_Wednesday, eCal_Thursday, eCal_Friday, eCal_Saturday" }
+    Procedure Set peFirstDayOfTheWeek Integer eValue
+        Set SigCjProperty Set_Private_peFirstDayOfTheWeek Set_ComFirstDayOfTheWeek (phoOptions(Self)) to eValue
+    End_Procedure
+
+    Function peFirstDayOfTheWeek Returns Boolean
+        Function_Return (SigCjProperty(Self, Get_Private_peFirstDayOfTheWeek, Get_ComFirstDayOfTheWeek, (phoOptions(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=True }
+    Procedure Set pbCompressWeekendDays Boolean bValue
+        Set SigCjProperty Set_Private_pbCompressWeekendDays Set_ComMonthViewCompressWeekendDays (phoOptions(Self)) to bValue
+    End_Procedure
+
+    Function pbCompressWeekendDays Returns Boolean
+        Function_Return (SigCjProperty(Self, Get_Private_pbCompressWeekendDays, Get_ComMonthViewCompressWeekendDays, (phoOptions(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=True }
+    Procedure Set pbMultiColumnWeekMode Boolean bValue
+#IF (SigCj_Codejock_Version > 120101) 
+        Set SigCjProperty Set_Private_pbMultiColumnWeekMode Set_ComUseMultiColumnWeekMode (phoOptions(Self)) to bValue
+#ENDIF
+    End_Procedure
+
+    Function pbMultiColumnWeekMode Returns Boolean
+#IF (SigCj_Codejock_Version > 120101) 
+        Function_Return (SigCjProperty(Self, Get_Private_pbMultiColumnWeekMode, Get_ComUseMultiColumnWeekMode, (phoOptions(Self)) ))
+#ENDIF
+    End_Function
+
+    //-------------------------------------------------------------------------
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbUseOutlookGlyphs Boolean bValue
+        Set SigCjProperty Set_Private_pbUseOutlookGlyphs Set_ComUseOutlookFontGlyphs (phoOptions(Self)) to bValue
+    End_Procedure
+
+    Function pbUseOutlookGlyphs Returns Boolean
+        Function_Return (SigCjProperty(Self, Get_Private_pbUseOutlookGlyphs, Get_ComUseOutlookFontGlyphs, (phoOptions(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=eCal_MW_None }
+    { EnumList=" eCal_MW_None, eCal_MW_Week, eCal_MW_Month, eCal_MW_Both" }
+    Procedure Set peShowEndDate Integer eValue
+
+        If (IsComObjectCreated(Self)) Begin
+            Set ComMonthViewShowEndDate of (phoOptions(Self)) to (eValue iand eCal_MW_Month)
+            Set ComWeekViewShowEndDate  of (phoOptions(Self)) to (eValue iand eCal_MW_Week)
+        End
+
+        Set Private_peShowEndDate to eValue
+    End_Procedure
+
+    Function peShowEndDate Returns Integer
+        Boolean bValue
+        Integer eValue
+
+        If (IsComObjectCreated(Self)) Begin
+            Get ComMonthViewShowEndDate of (phoOptions(Self)) to eValue
+
+            Get ComWeekViewShowEndDate of (phoOptions(Self)) to bValue
+            If (bValue) Move (eValue ior eCal_MW_Week) to eValue
+        End
+        Else Get Private_peShowEndDate to eValue
+
+        Function_Return eValue
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=eCal_MW_None }
+    { EnumList=" eCal_MW_None, eCal_MW_Week, eCal_MW_Month, eCal_MW_Both" }
+    Procedure Set peShowTimeAsClocks Integer eValue
+
+        If (IsComObjectCreated(Self)) Begin
+            Set ComMonthViewShowTimeAsClocks of (phoOptions(Self)) to (eValue iand eCal_MW_Month)
+            Set ComWeekViewShowTimeAsClocks  of (phoOptions(Self)) to (eValue iand eCal_MW_Week)
+        End
+
+        Set Private_peShowTimeAsClocks to eValue
+    End_Procedure
+
+    Function peShowTimeAsClocks Returns Integer
+        Boolean bValue
+        Integer eValue
+
+        If (IsComObjectCreated(Self)) Begin
+            Get ComMonthViewShowTimeAsClocks of (phoOptions(Self)) to eValue
+
+            Get ComWeekViewShowTimeAsClocks of (phoOptions(Self)) to bValue
+            If (bValue) Move (eValue ior eCal_MW_Week) to eValue
+        End
+        Else Get Private_peShowTimeAsClocks to eValue
+
+        Function_Return eValue
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { EnumList="eCal_TimeScale_5, eCal_TimeScale_10, eCal_TimeScale_15, eCal_TimeScale_20, eCal_TimeScale_30, eCal_TimeScale_60" }
+    { MethodType=Property Category="CodeJock" InitialValue=eCal_TimeScale_30 }
+    Procedure Set peTimeScale Integer eValue
+        Handle hoDayView
+        Variant vDayView
+
+        If (IsComObjectCreated(Self)) Begin
+            Get Create U_cSigCjComCalendarDayView to hoDayView
+                Get ComDayView to vDayView
+                Set pvComObject  of hoDayView to vDayView
+                Set ComTimeScale of hoDayView to eValue
+            Send Destroy of hoDayView
+        End
+
+        Set Private_peTimeScale to eValue
+    End_Procedure
+
+    {MethodType=Property }
+    Function peTimeScale Returns Integer
+        Integer eValue
+        Handle hoDayView
+        Variant vDayView
+
+        If (IsComObjectCreated(Self)) Begin
+            Get Create U_cSigCjComCalendarDayView to hoDayView
+                Get ComDayView to vDayView
+                Set pvComObject  of hoDayView to vDayView
+                Get ComTimeScale of hoDayView to eValue
+            Send Destroy of hoDayView
+        End
+        Else Begin
+            Get Private_peTimeScale to eValue
+        End
+        Function_Return eValue
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=eCal_ViewType_Working }
+    { EnumList="eCal_ViewType_Day, eCal_ViewType_Working, eCal_ViewType_Week, eCal_ViewType_Month, eCal_ViewType_FullWeek" }
+    Procedure Set peViewType Integer eValue
+        Set SigCjProperty Set_Private_peViewType Set_ComViewType to eValue
+    End_Procedure
+
+    Function peViewType Returns Boolean
+        Function_Return (SigCjProperty(Self, Get_Private_peViewType, Get_ComViewType ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue="17:00" }
+    Procedure Set ptmWorkDayEndTime String tmValue
+        DateTime dtWork
+        Integer iHour iMins
+
+        Set Private_ptmWorkDayEndTime to tmValue
+        If (phoOptions(Self) and IsComObjectCreated(phoOptions(Self))) Begin
+            //Have to get current value... Codejock issue
+            //and then set the hours and mins from integers... Dataflex issue
+            //Fun working this lot out!!!!
+            Get ComWorkDayEndTime of (phoOptions(Self)) to dtWork
+            Get SigCj_GetHours   tmValue to iHour
+            Get SigCj_GetMinutes tmValue to iMins
+            Move (DateSetHour  (dtWork, iHour)) to dtWork
+            Move (DateSetMinute(dtWork, iMins)) to dtWork
+
+            //Now we can set the time!!
+            Set ComWorkDayEndTime of (phoOptions(Self)) to dtWork
+        End
+
+    End_Procedure
+
+    Function ptmWorkDayEndTime Returns String
+        //We always return our private property as the COM property is returned as a DateTime
+        Function_Return (Private_ptmWorkDayEndTime(Self))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue="09:00" }
+    Procedure Set ptmWorkDayStartTime String tmValue
+        DateTime dtWork
+        Integer iHour iMins
+
+        Set Private_ptmWorkDayStartTime to tmValue
+        If (phoOptions(Self) and IsComObjectCreated(phoOptions(Self))) Begin
+            //Have to get current value... Codejock issue
+            //and then set the hours and mins from integers... Dataflex issue
+            //Fun working this lot out!!!!
+            Get ComWorkDayStartTime of (phoOptions(Self)) to dtWork
+            Get SigCj_GetHours   tmValue to iHour
+            Get SigCj_GetMinutes tmValue to iMins
+            Move (DateSetHour  (dtWork, iHour)) to dtWork
+            Move (DateSetMinute(dtWork, iMins)) to dtWork
+
+            //Now we can set the time!!
+            Set ComWorkDayStartTime of (phoOptions(Self)) to dtWork
+        End
+
+    End_Procedure
+
+    Function ptmWorkDayStartTime Returns String
+        //We always return our private property as the COM property is returned as a DateTime
+        Function_Return (Private_ptmWorkDayStartTime(Self))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue="08:00" }
+    Procedure Set ptmTimeScaleMinTime String tmValue
+        DateTime dtWork dtEmpty
+        Integer iHour iMins
+
+        If (pbUseScaleTimes(Self)=False) Procedure_Return
+   
+        Set Private_ptmTimeScaleMinTime to tmValue
+        If (phoDayView(Self) and IsComObjectCreated(phoDayView(Self))) Begin
+#IF (SigCj_Codejock_Version > 120002) 
+            Get ComTimeScaleMinTime of (phoDayView(Self)) to dtWork
+            Get SigCj_GetHours   tmValue to iHour
+            Get SigCj_GetMinutes tmValue to iMins
+            Move (DateSetHour  (dtWork, iHour)) to dtWork
+            Move (DateSetMinute(dtWork, iMins)) to dtWork
+            Move (DateSetSecond(dtWork,     1)) to dtWork
+
+            //Now we can set the time!!
+            Set ComTimeScaleMinTime of (phoDayView(Self)) to dtWork
+#ENDIF
+        End
+
+    End_Procedure
+
+    Function ptmTimeScaleMinTime Returns String
+        //We always return our private property as the COM property is returned as a DateTime
+        Function_Return (Private_ptmTimeScaleMinTime(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" InitialValue="19:00" }
+    Procedure Set ptmTimeScaleMaxTime String tmValue
+        DateTime dtWork dtEmpty
+        Integer iHour iMins
+
+        If (pbUseScaleTimes(Self)=False) Procedure_Return
+        
+        Set Private_ptmTimeScaleMaxTime to tmValue
+        If (phoDayView(Self) and IsComObjectCreated(phoDayView(Self))) Begin
+#IF (SigCj_Codejock_Version > 120002) 
+            Get ComTimeScaleMaxTime of (phoDayView(Self)) to dtWork
+            Get SigCj_GetHours   tmValue to iHour
+            Get SigCj_GetMinutes tmValue to iMins
+            Move (DateSetHour  (dtWork, iHour)) to dtWork
+            Move (DateSetMinute(dtWork, iMins)) to dtWork
+            Move (DateSetSecond(dtWork,     1)) to dtWork
+
+            //Now we can set the time!!
+            Set ComTimeScaleMaxTime of (phoDayView(Self)) to dtWork
+#ENDIF
+        End
+
+    End_Procedure
+
+    Function ptmTimeScaleMaxTime Returns String
+        //We always return our private property as the COM property is returned as a DateTime
+        Function_Return (Private_ptmTimeScaleMaxTime(Self))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=eCal_WW_Mo_Fr }
+    { EnumList="eCal_WW_Sunday, eCal_WW_Monday, eCal_WW_Tuesday, eCal_WW_Wednesday, eCal_WW_Thursday, eCal_WW_Friday, eCal_WW_Saturday, eCal_WW_AllWeek, eCal_WW_SaSu, eCal_WW_Mo_Fr" }
+    Procedure Set peWorkWeekMask Integer eValue
+        Set SigCjProperty Set_Private_peWorkWeekMask Set_ComWorkWeekMask (phoOptions(Self)) to eValue
+    End_Procedure
+
+    Function peWorkWeekMask Returns Boolean
+        Function_Return (SigCjProperty(Self, Get_Private_peWorkWeekMask, Get_ComWorkWeekMask, (phoOptions(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+//        Property Boolean  Private_pbPrnLandscape                     False
+//        Property Boolean  Private_pbPrnGreyScale                     False
+//        Property Boolean  Private_pbPrnPrintDateHeader               False
+//        Property DateTime Private_pdtPrnPrintFrom                    //
+//        Property DateTime Private_pdtPrnPrintTo                      //
+//        Property Boolean  Private_pbPrnFromToExactly                 False
+//        Property String   Private_psPrnFooterLeft                    ""
+//        Property String   Private_psPrnFooterCenter                  ""
+//        Property String   Private_psPrnFooterRight                   ""
+//        Property String   Private_psPrnHeaderLeft                    ""
+//        Property String   Private_psPrnHeaderCenter                  ""
+//        Property String   Private_psPrnHeaderRight                   ""
+//        Property Number   Private_pnPrnMarginBottom                  1.0
+//        Property Number   Private_pnPrnMarginTop                     1.0
+//        Property Number   Private_pnPrnMarginLeft                    1.0
+//        Property Number   Private_pnPrnMarginRight                   1.0
+
+    //=========================================================================
+
+    Function Date_and_Time_to_DateTime Date dDate String sTime Returns DateTime
+        DateTime dtRetVal
+
+        Move dDate to dtRetVal
+        Move (DateSetHour  (dtRetVal, Left (sTime,2))) to dtRetVal
+        Move (DateSetMinute(dtRetVal, Right(sTime,2))) to dtRetVal
+
+        Function_Return dtRetVal
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Function DateTime_to_Time DateTime dtTime Returns String
+        String sHour sMins
+
+        Move (DateGetHour(dtTime)) to sHour
+        If (sHour < 10) Move ("0" + sHour) to sHour
+
+        Move (DateGetMinute(dtTime)) to sMins
+        If (sMins < 10) Move ("0" + sMins) to sMins
+
+        Function_Return (sHour + ":" + sMins)
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    //=========================================================================
+    //Control Data Events
+    //=========================================================================
+
+    Procedure OnComDoCreateEvent Variant llpEvent Integer ByRef llNewEventID Boolean ByRef llbResult
+        tdEvent tEvent
+
+        //Make sure we are returning a valid value
+        Move False to llbResult
+
+        //Move object data to buffer
+        Get Move_Event_Object_Data_To_tdEvent llpEvent to tEvent
+
+        If (pbUseStdFiles(Self)) Begin
+#IFDEF SigCj_Use_StdFiles
+            Clear CalEvent
+            Lock
+                Get Allocate_CalEvent_URN of oeCal_Sys_DD to tEvent.iURN
+                Send Move_tdEvent_To_StdFile_Event tEvent
+                SaveRecord CalEvent
+            Unlock
+
+            Move tEvent.iURN to llNewEventID
+            Move True to llbResult
+#ENDIF
+        End
+        Else Begin
+            Get OnEvent_Create tEvent to llNewEventID
+            If (llNewEventID <> 0) Move True to llbResult
+        End
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnComDoCreateRPattern Variant llpPattern Integer ByRef llNewPatternID Boolean ByRef llbResult
+        tdR_Pat tR_Pat
+
+        //Make sure we are returning a valid value
+        Move False to llbResult
+
+        //Move object data to buffer
+        Get Move_R_Pat_Object_Data_To_tdR_Pat llpPattern to tR_Pat
+
+        If (pbUseStdFiles(Self)) Begin
+#IFDEF SigCj_Use_StdFiles
+            Clear CalR_Pat
+            Lock
+                Get Allocate_CalR_Pat_URN of oeCal_Sys_DD to tR_Pat.iURN
+                Send Move_tdR_Pat_To_StdFile_R_Pat tR_Pat
+                SaveRecord CalR_Pat
+            Unlock
+
+            Move tR_Pat.iURN to llNewPatternID
+            Move True to llbResult
+#ENDIF
+        End
+        Else Begin
+            Get OnR_Pat_Create tR_Pat to llNewPatternID
+            If (llNewPatternID <> 0) Move True to llbResult
+        End
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnComDoDeleteEvent Variant llpEvent Boolean ByRef llbResult
+        Handle  hoEvent
+        Integer iEventID
+
+        Get Private_phoEvent to hoEvent
+        Set pvComObject of hoEvent to llpEvent
+        Get ComId of hoEvent to iEventID
+
+        Move False to llbResult
+
+        If (pbUseStdFiles(Self)) Begin
+#IFDEF SigCj_Use_StdFiles
+            Clear CalEvent
+            Move iEventID to CalEvent.URN
+            Find Eq CalEvent by Index.1
+            If (Found) Begin
+                Lock
+                    Delete CalEvent
+                Unlock
+                Move True to llbResult
+            End
+#ENDIF
+        End
+        Else Begin
+            Get OnEvent_Delete iEventID to llbResult
+        End
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnComDoDeleteRPattern Variant llpPattern Boolean ByRef llbResult
+        Handle  hoR_Pat
+        Integer iPatternID
+
+        Get Private_phoR_Pat to hoR_Pat
+        Set pvComObject of hoR_Pat to llpPattern
+        Get ComID of hoR_Pat to iPatternID
+
+        Move False to llbResult
+
+        If (pbUseStdFiles(Self)) Begin
+#IFDEF SigCj_Use_StdFiles
+            Clear CalR_Pat
+            Move iPatternID to CalR_Pat.URN
+            Find Eq CalR_Pat by Index.1
+            If (Found) Begin
+                Lock
+                    Delete CalR_Pat
+                Unlock
+                Move True to llbResult
+            End
+#ENDIF
+        End
+        Else Begin
+            Get OnR_Pat_Delete iPatternID to llbResult
+        End
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnComDoReadEvent Integer llEventID Variant ByRef llpEvent
+        tdEvent tEvent
+
+        If (pbUseStdFiles(Self)) Begin
+#IFDEF SigCj_Use_StdFiles
+            Clear CalEvent
+            Move llEventID to CalEvent.URN
+            Find EQ CalEvent by Index.1
+            If (Found) Begin
+                Get Move_StdFile_Event_To_tdEvent to tEvent
+            End
+            Else Begin
+                Move 0 to tEvent.iURN
+            End
+#ENDIF
+        End
+        Else Begin
+            Get OnEvent_Read llEventID to tEvent
+        End
+
+        If (tEvent.iURN <> 0) Begin
+            Get Create_Event_Object_From_tdEvent tEvent False to llpEvent
+        End
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnComDoReadRPattern Integer llPatternID Variant ByRef llpPattern
+        tdR_Pat tR_Pat
+
+        If (pbUseStdFiles(Self)) Begin
+#IFDEF SigCj_Use_StdFiles
+            Clear CalR_Pat
+            Move llPatternID to CalR_Pat.URN
+            Find Eq CalR_Pat by Index.1
+            If (Found) Begin
+                Get Move_StdFile_R_Pat_To_tdR_Pat to tR_Pat
+            End
+            Else Begin
+                Move 0 to tR_Pat.iURN
+            End
+#ENDIF
+        End
+        Else Begin
+            Get OnR_Pat_Read llPatternID to tR_Pat
+        End
+
+        If (tR_Pat.iURN <> 0) Begin
+            Get Create_R_Pat_Object_From_tdR_Pat tR_Pat to llpPattern
+        End
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnComDoRetrieveDayEvents DateTime lldtDay Variant llEvents
+        Date    dThisDate
+        tdEvent tEvent
+
+        Set pvComObject of (Private_phoEvents(Self)) to llEvents
+        Move lldtDay to dThisDate
+
+        If (pbUseStdFiles(Self)) Begin
+#IFDEF SigCj_Use_StdFiles
+            Clear CalEvent
+            Move dThisDate to CalEvent.EndDate
+            Find GT CalEvent by Index.2
+            While (Found)
+                If (CalEvent.StartDate <= dThisDate) Begin
+                    If ((CalEvent.Recurr_State = OLExtpCalendarRecurrenceNotRecurring) or ;
+                        (CalEvent.Recurr_State = OLExtpCalendarRecurrenceMaster)) Begin
+
+                        Get Move_StdFile_Event_To_tdEvent to tEvent
+                        Send Add_Event_For_Day tEvent
+                    End
+                End
+
+                Find GT CalEvent by Index.2
+            End
+#ENDIF
+        End
+        Else Begin
+            Send OnEvents_For_Day    dThisDate
+        End
+        If (pbUseStdDates(Self)) Begin
+            Send Load_Special_Date dThisDate
+        End
+        Else Begin
+            Send OnLoad_Special_Date dThisDate
+        End
+    End_Procedure
+
+    Procedure Add_Event_For_Day tdEvent tEvent
+        Variant vEvent
+
+        Move (NullComObject()) to vEvent
+        Get Create_Event_Object_From_tdEvent tEvent False to vEvent
+
+        If (not(IsNullComObject(vEvent))) Begin
+            Send ComAdd of (Private_phoEvents(Self)) vEvent
+        End
+    End_Procedure
+
+    Procedure OnLoad_Special_Date Date dThisDate
+    End_Procedure
+
+    Procedure Load_Special_Date Date dThisDate
+        Integer iIndex
+        tdCal_Dates tCal_Date
+        
+#IFDEF SigCj_Use_StdDates
+        Clear Cal_Date
+        Move dThisDate to Cal_Date.Date_From
+        Find Le Cal_Date by Index.1
+        If ((Found) and (dThisDate >= Cal_Date.Date_From) and (dThisDate <= Cal_Date.Date_To)) Begin
+            Move dThisDate            to tCal_Date.dDate
+            Move Cal_Date.Title       to tCal_Date.sTitle
+            Move Cal_Date.BackColour  to tCal_Date.iBackColor
+            Move Cal_Date.AllDay      to tCal_Date.bAllDay
+            Move Cal_Date.AllowEvents to tCal_Date.eAllowEvents
+            
+            Send Add_Special_Date tCal_Date
+        End
+#ENDIF
+    End_Procedure
+
+    Function Cal_Find_Date tdCal_Dates tCal_Dates tdCal_Dates tDate Returns Integer
+        Integer iRetVal
+        
+        Move (NE) to iRetVal
+        If (tCal_Dates.dDate = tDate.dDate) Move (EQ) to iRetVal
+
+        Function_Return iRetVal
+    End_Function  
+
+    Function Cal_Special_Date Date dDate Returns Integer
+        tdCal_Dates[] tCal_Dates
+        tdCal_Dates   tDate
+        Integer iDate
+        
+        Get ptCal_Dates to tCal_Dates
+        Move dDate to tDate.dDate
+         
+        Move (SearchArray(tDate, tCal_Dates, Self, get_Cal_Find_Date)) to iDate
+        
+        Function_Return iDate        
+    End_Function
+
+    Procedure Add_Special_Date tdCal_Dates tCal_Date
+        Integer iIndex
+        tdCal_Dates[] tCalDates
+
+        //Check if already added 
+        If (Cal_Special_Date(Self,tCal_Date.dDate) = -1) Begin
+            Get ptCal_Dates to tCalDates
+            Move (SizeOfArray(tCalDates)) to iIndex
+            Move tCal_Date to tCalDates[iIndex]
+            Set ptCal_Dates to tCalDates
+        End
+    End_Procedure
+
+    Function Cal_BackColor Integer iDate Returns Integer
+        tdCal_Dates[] tCal_Dates
+        
+        Get ptCal_Dates to tCal_Dates
+        
+        Function_Return tCal_Dates[iDate].iBackColor
+    End_Function
+
+    Function Cal_AllDay Integer iDate Returns Boolean
+        tdCal_Dates[] tCal_Dates
+        
+        Get ptCal_Dates to tCal_Dates
+        
+        Function_Return tCal_Dates[iDate].bAllDay
+    End_Function
+
+    Function Cal_AllowEvents Integer iDate Returns Integer
+        tdCal_Dates[] tCal_Dates
+        
+        Get ptCal_Dates to tCal_Dates
+        
+        Function_Return tCal_Dates[iDate].eAllowEvents
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnComDoUpdateEvent Variant llpEvent Boolean ByRef llbResult
+        tdEvent tEvent
+
+        //Make sure we are returning a valid value
+        Move False to llbResult
+
+        //Move object data to buffer
+        Get Move_Event_Object_Data_To_tdEvent llpEvent to tEvent
+
+        If (pbUseStdFiles(Self)) Begin
+#IFDEF SigCj_Use_StdFiles
+            Clear CalEvent
+            Move tEvent.iURN to CalEvent.URN
+            Find Eq CalEvent by Index.1
+            If (Found) Begin
+                Reread
+                    Send Move_tdEvent_To_StdFile_Event tEvent
+                    SaveRecord CalEvent
+                Unlock
+                Move True to llbResult
+            End
+#ENDIF
+        End
+        Else Begin
+            Get OnEvent_Save tEvent to llbResult
+        End
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnComDoUpdateRPattern Variant llpPattern Boolean ByRef llbResult
+        tdR_Pat tR_Pat
+
+        //Make sure we are returning a valid value
+        Move False to llbResult
+
+        //Move object data to buffer
+        Get Move_R_Pat_Object_Data_To_tdR_Pat llpPattern to tR_Pat
+
+        If (pbUseStdFiles(Self)) Begin
+#IFDEF SigCj_Use_StdFiles
+            Clear CalR_Pat
+            Move tR_Pat.iURN to CalR_Pat.URN
+            Find Eq CalR_Pat by Index.1
+            If (Found) Begin
+                Reread
+                    Send Move_tdR_Pat_To_StdFile_R_Pat tR_Pat
+                    SaveRecord CalR_Pat
+                Unlock
+                Move True to llbResult
+            End
+#ENDIF
+        End
+        Else Begin
+            Get OnR_Pat_Save tR_Pat to llbResult
+        End
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnComDoGetUpcomingEvents DateTime lldtFrom Integer llPeriodMinutes Variant llpEvents
+        Boolean  bFound
+        DateTime dtTo dtStart
+        TimeSpan tsTo
+        tdEvent  tEvent
+        Handle   hoEvents
+        Variant  vEvent
+
+        //Workout To Date Time
+        Move (DateSetHour(tsTo, (llPeriodMinutes / 60))) to tsTo
+        Move (DateSetMinute(tsTo, mod(llPeriodMinutes,60))) to tsTo
+        Move (lldtFrom + tsTo) to dtTo
+
+        Get Private_phoEvents to hoEvents
+        Set pvComObject of hoEvents to llpEvents
+
+        If (pbUseStdFiles(Self)) Begin
+#IFDEF SigCj_Use_StdFiles
+            Clear CalEvent
+            Move lldtFrom  to CalEvent.StartDate
+            Move (DateTime_to_Time(Self,lldtFrom)) to CalEvent.StartTime
+            Find Gt CalEvent by Index.4
+            While (Found)
+                Move (Date_and_Time_to_DateTime(Self,CalEvent.StartDate, CalEvent.StartTime)) to dtStart
+                If ((dtStart >= lldtFrom) and (dtStart <= dtTo)) Begin
+                    Get Move_StdFile_Event_To_tdEvent to tEvent
+
+                    Send Add_Upcoming_Event tEvent
+                End
+                Find Gt CalEvent by Index.4
+            Loop
+#ENDIF
+        End
+        Else Begin
+            Send OnEvent_GetUpcoming lldtFrom dtTo
+        End
+    End_Procedure
+
+    Procedure Add_Upcoming_Event tdEvent tEvent
+        Variant vEvent
+
+        Get Create_Event_Object_From_tdEvent tEvent False to vEvent
+
+        If (not(IsNullComObject(vEvent))) Begin
+            Send ComAdd of (Private_phoEvents(Self)) vEvent
+        End
+    End_Procedure
+
+    //=========================================================================
+    //Std File --> Buffer methods
+    //=========================================================================
+
+#IFDEF SigCj_Use_StdFiles
+    Function Move_StdFile_Event_To_tdEvent Returns tdEvent
+        tdEvent tEvent
+
+        Move CalEvent.URN               to tEvent.iURN
+        Move CalEvent.AllDayEvent       to tEvent.bAllDayEvent
+        Move CalEvent.Body              to tEvent.sBody
+        Move CalEvent.BusyStatus        to tEvent.eBusyStatus
+        Move CalEvent.Categories        to tEvent.sCategories
+        Move CalEvent.CreationDate      to tEvent.dCreationDate
+        Move CalEvent.CreationTime      to tEvent.tmCreationTime
+        Move CalEvent.CustomIcons       to tEvent.sCustomIcons
+        Move CalEvent.CustomProp        to tEvent.sCustomProp
+        Move CalEvent.EndDate           to tEvent.dEndDate
+        Move CalEvent.EndTime           to tEvent.tmEndTime
+        Move CalEvent.Importance        to tEvent.eImportance
+        Move CalEvent.Label             to tEvent.sLabel
+        Move CalEvent.LastMod_Date      to tEvent.dLastMod_Date
+        Move CalEvent.LastMod_Time      to tEvent.tmLastMod_Time
+        Move CalEvent.Location          to tEvent.sLocation
+        Move CalEvent.MeetingFlag       to tEvent.bMeetingFlag
+        Move CalEvent.PrivateFlag       to tEvent.bPrivateFlag
+        Move CalEvent.Recurr_State      to tEvent.eRecurr_State
+        Move CalEvent.Reminder          to tEvent.bReminder
+        Move CalEvent.Rem_MinsBefore    to tEvent.iRem_MinsBefore
+        Move CalEvent.Rem_SoundFile     to tEvent.sRem_SoundFile
+        Move CalEvent.ScheduleID        to tEvent.iScheduleID
+        Move CalEvent.StartDate         to tEvent.dStartDate
+        Move CalEvent.StartTime         to tEvent.tmStartTime
+        Move CalEvent.Subject           to tEvent.sSubject
+        Move CalEvent.RE_StartDateOrg   to tEvent.dRE_StartDateOrg
+        Move CalEvent.RE_StartTimeOrg   to tEvent.tmRE_StartTimeOrg
+        Move CalEvent.RE_EndDateOrg     to tEvent.dRE_EndDateOrg
+        Move CalEvent.RE_EndTimeOrg     to tEvent.tmRE_EndTimeOrg
+        Move CalEvent.RE_Deleted        to tEvent.bRE_Deleted
+        Move CalEvent.Rec_Pattern_id    to tEvent.iRec_Pattern_id
+
+        Function_Return tEvent
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Function Move_StdFile_R_Pat_To_tdR_Pat Returns tdR_Pat
+        tdR_Pat tR_Pat
+
+        Move CalR_Pat.URN               to tR_Pat.iURN
+        Move CalR_Pat.CustomProp_XML    to tR_Pat.sCustomProp_XML
+        Move CalR_Pat.DurationMinutes   to tR_Pat.iDurationMinutes
+        Move CalR_Pat.EndAfterOcc       to tR_Pat.iEndAfterOcc
+        Move CalR_Pat.EndDate           to tR_Pat.dEndDate
+        Move CalR_Pat.EndMethod         to tR_Pat.eEndMethod
+        Move CalR_Pat.MasterEventId     to tR_Pat.iMasterEventId
+        Move CalR_Pat.StartDate         to tR_Pat.dStartDate
+        Move CalR_Pat.StartTime         to tR_Pat.tmStartTime
+        Move CalR_Pat.roD_WeekDayOnly   to tR_Pat.bRoD_WeekDayOnly
+        Move CalR_Pat.roD_Int_Days      to tR_Pat.iRoD_Int_Days
+        Move CalR_Pat.roData1           to tR_Pat.iRoData1
+        Move CalR_Pat.roData2           to tR_Pat.iRoData2
+        Move CalR_Pat.roData3           to tR_Pat.iRoData3
+        Move CalR_Pat.roData4           to tR_Pat.iRoData4
+        Move CalR_Pat.roM_DayOfMonth    to tR_Pat.iRoM_DayOfMonth
+        Move CalR_Pat.roM_Int_Months    to tR_Pat.iRoM_Int_Months
+        Move CalR_Pat.roM_NthInt_Mths   to tR_Pat.iRoM_NthInt_Mths
+        Move CalR_Pat.roM_Nth_Day       to tR_Pat.iRoM_Nth_Day
+        Move CalR_Pat.roM_Nth_DayMask   to tR_Pat.eRoM_Nth_DayMask
+        Move CalR_Pat.roRecurr_Type     to tR_Pat.eRoRecurr_Type
+        Move CalR_Pat.roW_DayWeekMask   to tR_Pat.eRoW_DayWeekMask
+        Move CalR_Pat.roW_Int_Weeks     to tR_Pat.iRoW_Int_Weeks
+        Move CalR_Pat.roY_DayOfMonth    to tR_Pat.iRoY_DayOfMonth
+        Move CalR_Pat.roY_MonthOfYear   to tR_Pat.iRoY_MonthOfYear
+        Move CalR_Pat.roY_NthM_OfYear   to tR_Pat.iRoY_NthM_OfYear
+        Move CalR_Pat.roY_Nth_Day       to tR_Pat.iRoY_Nth_Day
+        Move CalR_Pat.roY_Nth_DayMask   to tR_Pat.iRoY_Nth_DayMask
+
+        Function_Return tR_Pat
+    End_Function
+#ENDIF
+
+    //=========================================================================
+    //Buffer --> Object methods
+    //=========================================================================
+
+    Function Create_Event_Object_From_tdEvent tdEvent tEvent Boolean bRException Returns Variant
+        Handle   hoDataProvider hoEvent hoCategories hoCustomIcons hoCustomProps hoDiary_CallBack
+        Integer  iURN
+        DateTime dtWork
+        Variant  vEvent vCategories vCustomIcons vCustomProps
+
+        Get Private_phoDataProvider to hoDataProvider
+
+        Get Private_phoEvent to hoEvent
+        Get ComCreateEventEx of hoDataProvider tEvent.iURN to vEvent
+        Set pvComObject of hoEvent to vEvent
+
+        Set ComBody                         of hoEvent to (Trim(tEvent.sBody))
+        Set ComSubject                      of hoEvent to (Trim(tEvent.sSubject))
+        Set ComLocation                     of hoEvent to (Trim(tEvent.sLocation))
+
+        Set ComAllDayEvent                  of hoEvent to tEvent.bAllDayEvent
+        Set ComBusyStatus                   of hoEvent to tEvent.eBusyStatus
+        Set ComImportance                   of hoEvent to tEvent.eImportance
+        Set ComLabel                        of hoEvent to (Trim(tEvent.sLabel))
+        Set ComMeetingFlag                  of hoEvent to tEvent.bMeetingFlag
+        Set ComPrivateFlag                  of hoEvent to tEvent.bPrivateFlag
+        Set ComReminder                     of hoEvent to tEvent.bReminder
+        Set ComReminderMinutesBeforeStart   of hoEvent to tEvent.iRem_MinsBefore
+        Set ComReminderSoundFile            of hoEvent to (Trim(tEvent.sRem_SoundFile))
+        Set ComScheduleID                   of hoEvent to tEvent.iScheduleID
+
+        If (tEvent.eRecurr_State <> OLExtpCalendarRecurrenceMaster) Begin
+            Get Date_and_Time_to_DateTime tEvent.dStartDate tEvent.tmStartTime to dtWork
+            Set ComStartTime of hoEvent to dtWork
+
+            Get Date_and_Time_to_DateTime tEvent.dEndDate   tEvent.tmEndTime   to dtWork
+            Set ComEndTime of hoEvent to dtWork
+        End
+
+        Get ComCategories of hoEvent to vCategories
+        Get Private_phoCategoriesIDs to hoCategories
+        Set pvComObject of hoCategories to vCategories
+        Send ComLoadFromString of hoCategories tEvent.sCategories
+
+        Get ComCustomIcons of hoEvent to vCustomIcons
+        Get Private_phoCustomIcons to hoCustomIcons
+        Set pvComObject of hoCustomIcons to vCustomIcons
+        Send ComLoadFromString of hoCustomIcons tEvent.sCustomIcons
+
+        Get ComCustomProperties of hoEvent to vCustomProps
+        Get Private_phoCustomProps to hoCustomProps
+        Set pvComObject of hoCustomProps to vCustomProps
+        Send ComLoadFromString of hoCustomProps tEvent.sCustomProp
+
+        If (bRException) Begin
+            Send ComMakeAsRException of hoEvent
+
+            //These are Hidden !!!!!!!!!!!!
+            Get Date_and_Time_to_DateTime tEvent.dRE_StartDateOrg tEvent.tmRE_StartTimeOrg to dtWork
+            Set ComRExceptionStartTimeOrig of hoEvent to dtWork
+
+            Get Date_and_Time_to_DateTime tEvent.dRE_EndDateOrg   tEvent.tmRE_EndTimeOrg   to dtWork
+            Set ComRExceptionEndTimeOrig of hoEvent to dtWork
+
+            Set ComRExceptionDeleted       of hoEvent to tEvent.bRE_Deleted
+        End
+        Else Begin
+            Set ComProperty of hoCustomProps "process_RecurrenceState"     to tEvent.eRecurr_State
+            Set ComProperty of hoCustomProps "process_RecurrencePatternID" to tEvent.iRec_Pattern_id
+        End
+
+        Function_Return vEvent
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Function Create_R_Pat_Object_From_tdR_Pat tdR_Pat tR_Pat Returns Variant
+        Handle   hoDataProvider hoR_Pat hoR_Pat_Options hoCustomProps
+        DateTime dtWork
+        Variant  vR_Pat vR_Pat_Options vCustomProps
+
+        Get Private_phoDataProvider to hoDataProvider
+
+        Get Private_phoR_Pat to hoR_Pat
+        Get ComCreateRecurrencePattern of hoDataProvider tR_Pat.iURN to vR_Pat
+        Set pvComObject of hoR_Pat to vR_Pat
+
+        Set ComMasterEventId   of hoR_Pat to tR_Pat.iMasterEventId
+        Set ComDurationMinutes of hoR_Pat to tR_Pat.iDurationMinutes
+        Set ComEndMethod       of hoR_Pat to tR_Pat.eEndMethod
+
+        Case Begin
+            Case (tR_Pat.eEndMethod = OLExtpCalendarPatternEndDate)
+                Set ComEndDate of hoR_Pat to tR_Pat.dEndDate
+            Case Break
+
+            Case (tR_Pat.eEndMethod = OLExtpCalendarPatternEndAfterOccurrences)
+                Set ComEndAfterOccurrences of hoR_Pat to tR_Pat.iEndAfterOcc
+            Case Break
+
+            Case Else
+                //if no end info change end type
+                Set ComEndMethod of hoR_Pat to OLExtpCalendarPatternEndNoDate
+        Case End
+
+        Set ComStartDate of hoR_Pat to tR_Pat.dStartDate
+        Get Date_and_Time_to_DateTime tR_Pat.dStartDate tR_Pat.tmStartTime to dtWork
+        Set ComStartTime of hoR_Pat to dtWork
+
+        Get ComOptions of hoR_Pat to vR_Pat_Options
+        Get Private_phoR_Pat_Options to hoR_Pat_Options
+        Set pvComObject of hoR_Pat_Options to vR_Pat_Options
+
+        Set ComDailyEveryWeekDayOnly  of hoR_Pat_Options to tR_Pat.bRoD_WeekDayOnly
+        Set ComDailyIntervalDays      of hoR_Pat_Options to tR_Pat.iRoD_Int_Days
+        Set ComData1                  of hoR_Pat_Options to tR_Pat.iRoData1
+        Set ComData2                  of hoR_Pat_Options to tR_Pat.iRoData2
+        Set ComData3                  of hoR_Pat_Options to tR_Pat.iRoData3
+        Set ComData4                  of hoR_Pat_Options to tR_Pat.iRoData4
+        Set ComMonthlyDayOfMonth      of hoR_Pat_Options to tR_Pat.iRoM_DayOfMonth
+        Set ComMonthlyIntervalMonths  of hoR_Pat_Options to tR_Pat.iRoM_Int_Months
+        Set ComMonthNthIntervalMonths of hoR_Pat_Options to tR_Pat.iRoM_NthInt_Mths
+        Set ComMonthNthWhichDay       of hoR_Pat_Options to tR_Pat.iRoM_Nth_Day
+        Set ComMonthNthWhichDayMask   of hoR_Pat_Options to tR_Pat.eRoM_Nth_DayMask
+        Set ComRecurrenceType         of hoR_Pat_Options to tR_Pat.eRoRecurr_Type
+        Set ComWeeklyDayOfWeekMask    of hoR_Pat_Options to tR_Pat.eRoW_DayWeekMask
+        Set ComWeeklyIntervalWeeks    of hoR_Pat_Options to tR_Pat.iRoW_Int_Weeks
+        Set ComYearlyDayOfMonth       of hoR_Pat_Options to tR_Pat.iRoY_DayOfMonth
+        Set ComYearlyMonthOfYear      of hoR_Pat_Options to tR_Pat.iRoY_MonthOfYear
+        Set ComYearNthMonthOfYear     of hoR_Pat_Options to tR_Pat.iRoY_NthM_OfYear
+        Set ComYearNthWhichDay        of hoR_Pat_Options to tR_Pat.iRoY_Nth_Day
+        Set ComYearNthWhichDayMask    of hoR_Pat_Options to tR_Pat.iRoY_Nth_DayMask
+
+        Get ComCustomProperties of hoR_Pat to vCustomProps
+        Get Private_phoCustomProps to hoCustomProps
+        Set pvComObject of hoCustomProps to vCustomProps
+        Send ComLoadFromString of hoCustomProps tR_Pat.sCustomProp_XML
+
+        Send ReadRPatternExceptions
+
+        Function_Return vR_Pat
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Procedure ReadRPatternExceptions
+        Boolean bFound
+        Integer iSave_Event_URN iPatternID
+        Variant vEvent
+        tdEvent tEvent
+
+        Get ComID of (Private_phoR_Pat(Self)) to iPatternID
+
+        If (pbUseStdFiles(Self)) Begin
+#IFDEF SigCj_Use_StdFiles
+            Move CalEvent.URN to iSave_Event_URN
+
+            Clear CalEvent
+            Move OLExtpCalendarRecurrenceException to CalEvent.Recurr_State
+            Move iPatternID to CalEvent.Rec_Pattern_id
+            Find GT CalEvent by Index.3
+            Move Found to bFound
+            If (bFound) Move (CalEvent.Recurr_State   = OLExtpCalendarRecurrenceException) to bFound
+            If (bFound) Move (CalEvent.Rec_Pattern_id = iPatternID                       ) to bFound
+            While (bFound)
+                Get Move_StdFile_Event_To_tdEvent to tEvent
+
+                Send Add_R_Pat_Exception_Event tEvent
+
+                Find GT CalEvent by Index.3
+                Move Found to bFound
+                If (bFound) Move (CalEvent.Recurr_State   = OLExtpCalendarRecurrenceException) to bFound
+                If (bFound) Move (CalEvent.Rec_Pattern_id = iPatternID                       ) to bFound
+            End
+
+            Clear CalEvent
+            Move iSave_Event_URN to CalEvent.URN
+            Find Eq CalEvent by Index.1
+#ENDIF
+        End
+        Else Begin
+            Send OnEventLoadR_Pat_Exceptions iPatternID
+        End
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure Add_R_Pat_Exception_Event tdEvent tEvent
+        Variant vEvent
+
+        Move (NullComObject()) to vEvent
+        Get Create_Event_Object_From_tdEvent tEvent True to vEvent
+
+        If (not(IsNullComObject(vEvent))) Begin
+            Send ComSetException of (Private_phoR_Pat(Self)) vEvent
+        End
+    End_Procedure
+
+    //=========================================================================
+    //Object --> Buffer methods
+    //=========================================================================
+
+    Function Move_Event_Object_Data_To_tdEvent Variant vEvent Returns tdEvent
+        Handle hoEvent hoR_Pat hoCategories hoCustomIcons hoCustomProps
+        Variant         vR_Pat vCategories vCustomIcons vCustomProps
+        DateTime dtWork
+
+        tdEvent tEvent
+
+        //Get the predeclared Dataflex objects
+        Get Private_phoEvent         to hoEvent
+        Get Private_phoR_Pat         to hoR_Pat
+        Get Private_phoCategoriesIDs to hoCategories
+        Get Private_phoCustomIcons   to hoCustomIcons
+        Get Private_phoCustomProps   to hoCustomProps
+
+        Set pvComObject of hoEvent to vEvent
+
+        Get ComId                           of hoEvent to tEvent.iURN
+        Get ComAllDayEvent                  of hoEvent to tEvent.bAllDayEvent
+        Get ComBody                         of hoEvent to tEvent.sBody
+        Get ComBusyStatus                   of hoEvent to tEvent.eBusyStatus
+        Get ComImportance                   of hoEvent to tEvent.eImportance
+        Get ComLabel                        of hoEvent to tEvent.sLabel
+        Get ComLocation                     of hoEvent to tEvent.sLocation
+        Get ComMeetingFlag                  of hoEvent to tEvent.bMeetingFlag
+        Get ComPrivateFlag                  of hoEvent to tEvent.bPrivateFlag
+        Get ComRecurrenceState              of hoEvent to tEvent.eRecurr_State
+        Get ComReminder                     of hoEvent to tEvent.bReminder
+        Get ComReminderMinutesBeforeStart   of hoEvent to tEvent.iRem_MinsBefore
+        Get ComReminderSoundFile            of hoEvent to tEvent.sRem_SoundFile
+        Get ComScheduleID                   of hoEvent to tEvent.iScheduleID
+        Get ComSubject                      of hoEvent to tEvent.sSubject
+        Get ComRExceptionDeleted            of hoEvent to tEvent.bRE_Deleted
+
+        If ((tEvent.eRecurr_State = OLExtpCalendarRecurrenceMaster) or ;
+            (tEvent.eRecurr_State = OLExtpCalendarRecurrenceException)) Begin
+
+            Get ComRecurrencePattern of hoEvent to vR_Pat
+            Set pvComObject of hoR_Pat to vR_Pat
+
+            Get ComID of hoR_Pat to tEvent.iRec_Pattern_id
+        End
+        Else Begin
+            Move 0 to tEvent.iRec_Pattern_id
+        End
+
+        Get ComStartTime of hoEvent to dtWork
+        Move dtWork to tEvent.dStartDate
+        Get DateTime_to_Time dtWork to tEvent.tmStartTime
+
+        Get ComEndTime of hoEvent to dtWork
+        If (IsDateValid(dtWork)) Begin
+            Move dtWork to tEvent.dEndDate
+        End
+        Get DateTime_to_Time dtWork to tEvent.tmEndTime
+
+        Get ComCreationTime of hoEvent to dtWork
+        Move dtWork to tEvent.dCreationDate
+        Get DateTime_to_Time dtWork to tEvent.tmCreationTime
+
+        Get ComLastModificationTime of hoEvent to dtWork
+        Move dtWork to tEvent.dLastMod_Date
+        Get DateTime_to_Time dtWork to tEvent.tmLastMod_Time
+
+        Get ComRExceptionStartTimeOrig of hoEvent to dtWork
+        Move dtWork to tEvent.dRE_StartDateOrg
+        Get DateTime_to_Time dtWork to tEvent.tmRE_StartTimeOrg
+
+        Get ComRExceptionEndTimeOrig of hoEvent to dtWork
+        Move dtWork to tEvent.dRE_EndDateOrg
+        Get DateTime_to_Time dtWork to tEvent.tmRE_EndTimeOrg
+
+        Get ComCategories of hoEvent to vCategories
+        Set pvComObject of hoCategories to vCategories
+        Get ComSaveToString of hoCategories to tEvent.sCategories
+
+        //Remove multiple cats. leave only the last one selected / added
+        Move (Left(tEvent.sCategories,(pos(",",tEvent.sCategories) -1))) to tEvent.sCategories
+
+        Get ComCustomIcons of hoEvent to vCustomIcons
+        Set pvComObject of hoCustomIcons to vCustomIcons
+        Get ComSaveToString of hoCustomIcons to tEvent.sCustomIcons
+
+        Get ComCustomProperties of hoEvent to vCustomProps
+        Set pvComObject of hoCustomProps to vCustomProps
+        Get ComSaveToString of hoCustomProps to tEvent.sCustomProp
+
+        Function_Return tEvent
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Function Move_R_Pat_Object_Data_To_tdR_Pat Variant vR_Pat Returns tdR_Pat
+        Handle   hoR_Pat hoCustomProps hoR_Pat_Options
+        Variant           vCustomProps  vR_Pat_Options
+        DateTime dtWork
+        tdR_Pat  tR_Pat
+
+        Get Private_phoR_Pat to hoR_Pat
+        Set pvComObject of hoR_Pat to vR_Pat
+
+        Get ComId                   of hoR_Pat to tR_Pat.iURN
+        Get ComDurationMinutes      of hoR_Pat to tR_Pat.iDurationMinutes
+        Get ComEndAfterOccurrences  of hoR_Pat to tR_Pat.iEndAfterOcc
+        Get ComEndMethod            of hoR_Pat to tR_Pat.eEndMethod
+        Get ComMasterEventId        of hoR_Pat to tR_Pat.iMasterEventId
+
+        Get ComEndDate              of hoR_Pat to tR_Pat.dEndDate
+
+        Get ComStartDate            of hoR_Pat to tR_Pat.dStartDate
+        Get ComStartTime of hoR_Pat to dtWork
+        Get DateTime_to_Time dtWork to tR_Pat.tmStartTime
+
+        Get ComCustomProperties of hoR_Pat to vCustomProps
+        Get Private_phoCustomProps to hoCustomProps
+        Set pvComObject of hoCustomProps to vCustomProps
+        Get ComSaveToString of hoCustomProps to tR_Pat.sCustomProp_XML
+
+        Get ComOptions of hoR_Pat to vR_Pat_Options
+        Get Private_phoR_Pat_Options to hoR_Pat_Options
+        Set pvComObject of hoR_Pat_Options to vR_Pat_Options
+
+        Get ComDailyEveryWeekDayOnly  of hoR_Pat_Options to tR_Pat.bRoD_WeekDayOnly
+        Get ComDailyIntervalDays      of hoR_Pat_Options to tR_Pat.iRoD_Int_Days
+        Get ComData1                  of hoR_Pat_Options to tR_Pat.iRoData1
+        Get ComData2                  of hoR_Pat_Options to tR_Pat.iRoData2
+        Get ComData3                  of hoR_Pat_Options to tR_Pat.iRoData3
+        Get ComData4                  of hoR_Pat_Options to tR_Pat.iRoData4
+        Get ComMonthlyDayOfMonth      of hoR_Pat_Options to tR_Pat.iRoM_DayOfMonth
+        Get ComMonthlyIntervalMonths  of hoR_Pat_Options to tR_Pat.iRoM_Int_Months
+        Get ComMonthNthIntervalMonths of hoR_Pat_Options to tR_Pat.iRoM_NthInt_Mths
+        Get ComMonthNthWhichDay       of hoR_Pat_Options to tR_Pat.iRoM_Nth_Day
+        Get ComMonthNthWhichDayMask   of hoR_Pat_Options to tR_Pat.eRoM_Nth_DayMask
+        Get ComRecurrenceType         of hoR_Pat_Options to tR_Pat.eRoRecurr_Type
+        Get ComWeeklyDayOfWeekMask    of hoR_Pat_Options to tR_Pat.eRoW_DayWeekMask
+        Get ComWeeklyIntervalWeeks    of hoR_Pat_Options to tR_Pat.iRoW_Int_Weeks
+        Get ComYearlyDayOfMonth       of hoR_Pat_Options to tR_Pat.iRoY_DayOfMonth
+        Get ComYearlyMonthOfYear      of hoR_Pat_Options to tR_Pat.iRoY_MonthOfYear
+        Get ComYearNthMonthOfYear     of hoR_Pat_Options to tR_Pat.iRoY_NthM_OfYear
+        Get ComYearNthWhichDay        of hoR_Pat_Options to tR_Pat.iRoY_Nth_Day
+        Get ComYearNthWhichDayMask    of hoR_Pat_Options to tR_Pat.iRoY_Nth_DayMask
+
+        Function_Return tR_Pat
+    End_Function
+
+    //=========================================================================
+    //Buffer --> Std File methods
+    //=========================================================================
+
+#IFDEF SigCj_Use_StdFiles
+    Procedure Move_tdEvent_To_StdFile_Event tdEvent tEvent
+        Move tEvent.iURN              to CalEvent.URN
+        Move tEvent.bAllDayEvent      to CalEvent.AllDayEvent
+        Move tEvent.sBody             to CalEvent.Body
+        Move tEvent.eBusyStatus       to CalEvent.BusyStatus
+        Move tEvent.sCategories       to CalEvent.Categories
+        Move tEvent.dCreationDate     to CalEvent.CreationDate
+        Move tEvent.tmCreationTime    to CalEvent.CreationTime
+        Move tEvent.sCustomIcons      to CalEvent.CustomIcons
+        Move tEvent.sCustomProp       to CalEvent.CustomProp
+        Move tEvent.dEndDate          to CalEvent.EndDate
+        Move tEvent.tmEndTime         to CalEvent.EndTime
+        Move tEvent.eImportance       to CalEvent.Importance
+        Move tEvent.sLabel            to CalEvent.Label
+        Move tEvent.dLastMod_Date     to CalEvent.LastMod_Date
+        Move tEvent.tmLastMod_Time    to CalEvent.LastMod_Time
+        Move tEvent.sLocation         to CalEvent.Location
+        Move tEvent.bMeetingFlag      to CalEvent.MeetingFlag
+        Move tEvent.bPrivateFlag      to CalEvent.PrivateFlag
+        Move tEvent.eRecurr_State     to CalEvent.Recurr_State
+        Move tEvent.bReminder         to CalEvent.Reminder
+        Move tEvent.iRem_MinsBefore   to CalEvent.Rem_MinsBefore
+        Move tEvent.sRem_SoundFile    to CalEvent.Rem_SoundFile
+        Move tEvent.iScheduleID       to CalEvent.ScheduleID
+        Move tEvent.dStartDate        to CalEvent.StartDate
+        Move tEvent.tmStartTime       to CalEvent.StartTime
+        Move tEvent.sSubject          to CalEvent.Subject
+        Move tEvent.dRE_StartDateOrg  to CalEvent.RE_StartDateOrg
+        Move tEvent.tmRE_StartTimeOrg to CalEvent.RE_StartTimeOrg
+        Move tEvent.dRE_EndDateOrg    to CalEvent.RE_EndDateOrg
+        Move tEvent.tmRE_EndTimeOrg   to CalEvent.RE_EndTimeOrg
+        Move tEvent.bRE_Deleted       to CalEvent.RE_Deleted
+        Move tEvent.iRec_Pattern_id   to CalEvent.Rec_Pattern_id
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure Move_tdR_Pat_To_StdFile_R_Pat tdR_Pat tR_Pat
+        Move tR_Pat.iURN             to CalR_Pat.URN
+        Move tR_Pat.sCustomProp_XML  to CalR_Pat.CustomProp_XML
+        Move tR_Pat.iDurationMinutes to CalR_Pat.DurationMinutes
+        Move tR_Pat.iEndAfterOcc     to CalR_Pat.EndAfterOcc
+        Move tR_Pat.dEndDate         to CalR_Pat.EndDate
+        Move tR_Pat.eEndMethod       to CalR_Pat.EndMethod
+        Move tR_Pat.iMasterEventId   to CalR_Pat.MasterEventId
+        Move tR_Pat.dStartDate       to CalR_Pat.StartDate
+        Move tR_Pat.tmStartTime      to CalR_Pat.StartTime
+        Move tR_Pat.bRoD_WeekDayOnly to CalR_Pat.roD_WeekDayOnly
+        Move tR_Pat.iRoD_Int_Days    to CalR_Pat.roD_Int_Days
+        Move tR_Pat.iRoData1         to CalR_Pat.roData1
+        Move tR_Pat.iRoData2         to CalR_Pat.roData2
+        Move tR_Pat.iRoData3         to CalR_Pat.roData3
+        Move tR_Pat.iRoData4         to CalR_Pat.roData4
+        Move tR_Pat.iRoM_DayOfMonth  to CalR_Pat.roM_DayOfMonth
+        Move tR_Pat.iRoM_Int_Months  to CalR_Pat.roM_Int_Months
+        Move tR_Pat.iRoM_NthInt_Mths to CalR_Pat.roM_NthInt_Mths
+        Move tR_Pat.iRoM_Nth_Day     to CalR_Pat.roM_Nth_Day
+        Move tR_Pat.eRoM_Nth_DayMask to CalR_Pat.roM_Nth_DayMask
+        Move tR_Pat.eRoRecurr_Type   to CalR_Pat.roRecurr_Type
+        Move tR_Pat.eRoW_DayWeekMask to CalR_Pat.roW_DayWeekMask
+        Move tR_Pat.iRoW_Int_Weeks   to CalR_Pat.roW_Int_Weeks
+        Move tR_Pat.iRoY_DayOfMonth  to CalR_Pat.roY_DayOfMonth
+        Move tR_Pat.iRoY_MonthOfYear to CalR_Pat.roY_MonthOfYear
+        Move tR_Pat.iRoY_NthM_OfYear to CalR_Pat.roY_NthM_OfYear
+        Move tR_Pat.iRoY_Nth_Day     to CalR_Pat.roY_Nth_Day
+        Move tR_Pat.iRoY_Nth_DayMask to CalR_Pat.roY_Nth_DayMask
+    End_Procedure
+#ENDIF
+
+    //=========================================================================
+    //Non Std Table Events
+    //=========================================================================
+
+    Procedure OnEvent_GetUpcoming DateTime dtFrom DateTime dtTo
+        Error 5001 "OnEvent_GetUpcoming - Custom Table Event not coded"
+    End_Procedure
+
+    Function OnEvent_Create tdEvent tEvent_Data Returns Integer
+        Error 5001 "OnEvent_Create - Custom Table Event not coded"
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Function OnEvent_Delete Integer iEvent_ID Returns Boolean
+        Error 5001 "OnEvent_Delete - Custom Table Event not coded"
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Function OnEvent_Read Integer iEvent_ID Returns tdEvent
+        Error 5001 "OnEvent_Read - Custom Table Event not coded"
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Function OnEvent_Save tdEvent tEvent_Data Returns Boolean
+        Error 5001 "OnEvent_Save - Custom Table Event not coded"
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnEvents_For_Day Date dDay
+        Error 5001 "OnEvent_For_Day - Custom Table Event not coded"
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnEventLoadR_Pat_Exceptions Integer iPatternID
+        Error 5001 "OnEventLoadR_Pat_Exceptions - Custom Table Event not coded"
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Function OnR_Pat_Create tdR_Pat tR_Pat_Data Returns Integer
+        Error 5001 "OnR_Pat_Create - Custom Table Event not coded"
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Function OnR_Pat_Delete Integer iR_Pat_ID Returns Boolean
+        Error 5001 "OnR_Pat_Delete - Custom Table Event not coded"
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Function OnR_Pat_Read Integer iR_Pat_ID Returns tdR_Pat
+        Error 5001 "OnR_Pat_Read - Custom Table Event not coded"
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Function OnR_Pat_Save tdR_Pat tR_Pat_Data Returns Boolean
+        Error 5001 "OnR_Pat_Save - Custom Table Event not coded"
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnCategory_Load 
+        Error 5001 "OnCategory_load  - Custom Table Event not coded"
+    End_Procedure
+
+    //=========================================================================
+    //Other Events
+    //=========================================================================
+
+    Procedure OnComBeforeEditOperation Variant llOpParams Boolean ByRef llbCancelOperation
+        Handle  hoParams bConfirmDelete hoEventViews
+        Integer iOperation iBtn iCount
+        String  sMessage sTitle
+        Variant vEventViews
+
+        Move False to bConfirmDelete
+
+        Get Create U_cSigCjComCalendarEditOperationParameters to hoParams
+            Set pvComObject of hoParams to llOpParams
+
+            Get ComOperation of hoParams to iOperation
+
+            //-------------------------------------------------------------
+            Case Begin
+                Case (iOperation = OLExtpCalendarEO_Unknown)                      //Unknown operation value.
+                    Case Break
+
+                Case (iOperation = OLExtpCalendarEO_DragCopy)                     //Drag copy event.
+                    Case Break
+
+                Case (iOperation = OLExtpCalendarEO_DragMove)                     //Drag move event.
+                    Case Break
+
+                Case (iOperation = OLExtpCalendarEO_DragResizeBegin)              //Drag Resizing event begin.
+                    Case Break
+
+                Case (iOperation = OLExtpCalendarEO_DragResizeEnd)                //Drag Resizing event end.
+                    Case Break
+
+                Case (iOperation = OLExtpCalendarEO_EditSubject_ByF2)             //In-place edit event by pressing F2 key.
+                    Case Break
+
+                Case (iOperation = OLExtpCalendarEO_EditSubject_ByMouseClick)     //In-place edit event by mouse click.
+                    Case Break
+
+                Case (iOperation = OLExtpCalendarEO_EditSubject_ByTab)            //In-place edit event tab key.
+                    Case Break
+
+                Case (iOperation = OLExtpCalendarEO_EditSubject_AfterEventResize) //In-place edit event after resizing an event.
+                    Case Break
+
+                Case (iOperation = OLExtpCalendarEO_Cut)                          //Cut events.
+                    Case Break
+
+                Case (iOperation = OLExtpCalendarEO_Copy)                         //Copy events.
+                    Case Break
+
+                Case (iOperation = OLExtpCalendarEO_Paste)                        //Paste event.
+                    Case Break
+
+                //-------------------------------------------------------------
+
+                Case (iOperation = OLExtpCalendarEO_DeleteSelectedEvents)         //Delete selected events.
+                    Get ComEventViews of hoParams to vEventViews
+                    Get Create U_cSigCjComCalendarViewEvents to hoEventViews
+                        Set pvComObject of hoEventViews to vEventViews
+
+                        Get ComCount of hoEventViews to iCount
+                    Send Destroy of hoEventViews
+
+                    //Handle both single selection and muilt selection here as
+                    //this only gets called once, where ...EO_DeleteEvent gets
+                    //called for each event .
+                    If (iCount = 1) Begin
+                        Move "Delete the event"     to sMessage
+                        Move "Confirm Delete Event" to sTitle
+                    End
+                    Else Begin
+                        Move "Delete the selected events" to sMessage
+                        Move "Confirm Delete Events"      to sTitle
+                    End
+
+                    Get YesNo_Box sMessage sTitle to iBtn
+                    If (iBtn = MBR_NO) Begin
+                        Move True to llbCancelOperation
+                    End
+
+                    Case Break
+
+                //-------------------------------------------------------------
+
+                Case (iOperation = OLExtpCalendarEO_DeleteEvent)                  //Delete event. Sent for a single event or for each selected event.
+                    Case Break
+
+                Case (iOperation = OLExtpCalendarEO_InPlaceCreateEvent)           //In-place event creation.
+                    Case Break
+
+                //-------------------------------------------------------------
+
+            Case End
+
+            //-------------------------------------------------------------
+
+        Send Destroy of hoParams
+
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnComReminders OLECalendarRemindersAction llAction Variant llReminder
+        If (llAction = OLExtpCalendarRemindersFire) Begin
+            Send ComShowRemindersWindow of oe_CJ_CalendarDialogs
+        End
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnComViewChanged
+        Handle  hoActiveView
+        Variant vActiveView
+
+        Get Create U_cSigCjComCalendarView to hoActiveView
+            Get ComActiveView to vActiveView
+            Set pvComObject of hoActiveView to vActiveView
+
+            Send OnViewChanged hoActiveView
+        Send Destroy of hoActiveView
+    End_Procedure
+
+    Procedure OnViewChanged Handle hoActiveView
+        //dummy to be over ridden
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure GetHitCode Variant ByRef vViewEvent Integer ByRef iHitCode
+        Handle  hoActiveView hoHitTest
+        Variant vActiveView vHitTest
+        DateTime dtHitDateTime
+        
+        Get Create U_cSigCjComCalendarView to hoActiveView
+            Get ComActiveView to vActiveView
+            Set pvComObject of hoActiveView to vActiveView
+
+            Get Create U_cSigCjComCalendarHitTestInfo to hoHitTest
+                Get ComHitTest of hoActiveView to vHitTest
+                Set pvComObject of hoHitTest to vHitTest
+
+                Get ComHitCode   of hoHitTest to iHitCode
+                Get ComViewEvent of hoHitTest to vViewEvent
+                
+                //We save the Hit date & Time here as we have it.
+                //This is used with Special Dates Allow Edit when showing dialogs 
+                Get ComHitDateTime of hoHitTest to dtHitDateTime
+                Set pdtHitDateTime to dtHitDateTime
+                
+            Send Destroy of hoHitTest
+        Send Destroy of hoActiveView
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnComPrePopulate Variant llViewGroup Variant llEvents
+        Boolean bReminder bOccurrence bException bMeeting bPrivate
+        Integer iCount iLoop iRecState
+        Handle  hoEvent hoCustomIcons hoEvents
+        Variant vEvent  vCustomIcons
+
+        Get Create U_cSigCjComCalendarEvents to hoEvents
+            Set pvComObject of hoEvents to llEvents
+
+            Get ComCount of hoEvents to iCount
+            Decrement iCount
+
+            For iLoop from 0 to iCount
+                Get ComEvent of hoEvents iLoop to vEvent
+                Get Create U_cSigCjComCalendarEvent to hoEvent
+                    Set pvComObject of hoEvent to vEvent
+
+                    Get ComReminder    of hoEvent to bReminder
+                    Get ComMeetingFlag of hoEvent to bMeeting
+                    Get ComPrivateFlag of hoEvent to bPrivate
+
+                    Get ComRecurrenceState of hoEvent to iRecState
+                    Move (iRecState = OLExtpCalendarRecurrenceOccurrence) to bOccurrence
+                    Move (iRecState = OLExtpCalendarRecurrenceException ) to bException
+
+                    Get ComCustomIcons of hoEvent to vCustomIcons
+                    Get Create U_cSigCjComCalendarIconIDs to hoCustomIcons
+                        Set pvComObject of hoCustomIcons to vCustomIcons
+
+                        If (bReminder  ) Send ComAddIfNeed of hoCustomIcons OLExtpCalendarEventIconIDReminder
+                        Else             Send ComRemoveID  of hoCustomIcons OLExtpCalendarEventIconIDReminder
+
+                        If (bOccurrence) Send ComAddIfNeed of hoCustomIcons OLExtpCalendarEventIconIDOccurrence
+                        Else             Send ComRemoveID  of hoCustomIcons OLExtpCalendarEventIconIDOccurrence
+
+                        If (bException ) Send ComAddIfNeed of hoCustomIcons OLExtpCalendarEventIconIDException
+                        Else             Send ComRemoveID  of hoCustomIcons OLExtpCalendarEventIconIDException
+
+                        If (bMeeting   ) Send ComAddIfNeed of hoCustomIcons OLExtpCalendarEventIconIDMeeting
+                        Else             Send ComRemoveID  of hoCustomIcons OLExtpCalendarEventIconIDMeeting
+
+                        If (bPrivate   ) Send ComAddIfNeed of hoCustomIcons OLExtpCalendarEventIconIDPrivate
+                        Else             Send ComRemoveID  of hoCustomIcons OLExtpCalendarEventIconIDPrivate
+                    Send Destroy of hoCustomIcons
+                Send Destroy of hoEvent
+            Loop
+
+        Send Destroy of hoEvents
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnComDblClick
+        Integer iHitCode iEventID
+        Handle  hoViewEvent hoEvent
+        Variant vViewEvent vEvent
+
+        Move (NullComObject()) to vViewEvent
+        Send GetHitCode (&vViewEvent) (&iHitCode)
+
+        If ((iHitCode =    1) or ;
+            (iHitCode = 8193)) Begin
+            Send Show_Built_In_Dialog eCal_Dialog_NewEvent vEvent //vEvent not need for NewEvent
+        End
+        If ((iHitCode =    32) or ;
+            (iHitCode =  8208) or ;
+            (iHitCode =  8224) or ;
+            (iHitCode =  9472) or ;
+            (iHitCode = 10496)) Begin
+            //Now need the Event from the ViewEvent
+            Get Create U_cSigCjComCalendarViewEvent to hoViewEvent
+                Set pvComObject of hoViewEvent to vViewEvent
+                Get ComEvent of hoViewEvent to vEvent
+            Send Destroy of hoViewEvent
+
+            Send Show_Built_In_Dialog eCal_Dialog_EditEvent vEvent
+        End
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnComMouseUp Short llButton Short llShift OLE_XPOS_PIXELS llx OLE_YPOS_PIXELS lly
+        Boolean bAddRemoveException bAddGotoCRM
+        Integer iRecState iCRM_Link iHitCode
+        Handle  hoViewEvent hoEvent hoCustomProps hoRCCM
+        Variant vViewEvent  vEvent  vCustomProps
+
+        If (llButton = eCal_Mouse_Button_Right) Begin
+
+            Send GetHitCode (&vViewEvent) (&iHitCode)
+            If (iHitCode = 8224) Begin
+                //Now need the Event from the ViewEvent
+                Get Create U_cSigCjComCalendarViewEvent to hoViewEvent
+                    Set pvComObject of hoViewEvent to vViewEvent
+                    Get ComEvent of hoViewEvent to vEvent
+                Send Destroy of hoViewEvent
+
+                Get Create U_cSigCjComCalendarEvent to hoEvent
+                    Set pvComObject of hoEvent to vEvent
+
+                    Get ComRecurrenceState of hoEvent to iRecState
+                    If (iRecState = OLExtpCalendarRecurrenceException) Move True to bAddRemoveException
+
+                    Get ComCustomProperties of hoEvent to vCustomProps
+                    Get Create U_cSigCjComCalendarCustomProperties to hoCustomProps
+                        Set pvComObject of hoCustomProps to vCustomProps
+
+                        Get ComProperty of hoCustomProps "CRM_Link" to iCRM_Link
+                    Send Destroy of hoCustomProps
+                    Move (iCRM_Link > 0) to bAddGotoCRM
+                Send Destroy of hoEvent
+            End
+        End
+
+        If (bAddRemoveException or bAddGotoCRM) Begin
+            Get Create U_cEventRCCM to hoRCCM
+                If (bAddGotoCRM)         Send ConfigureItem of hoRCCM cEventRCCM_GotoCRM         (Self) "msg_GotoCRM"         "Goto CRM Entry"   True vEvent
+                If (bAddRemoveException) Send ConfigureItem of hoRCCM cEventRCCM_RemoveException (Self) "msg_RemoveException" "Remove Exception" True vEvent
+
+                Send Display_RCCM of hoRCCM
+            Send Destroy of hoRCCM
+        End
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure GotoCRM Variant vEvent
+//        Handle  hoCustomProps hoEvent hoCallBack
+//        Variant vCustomProps
+//        Integer iURN
+//
+//        Get Create U_cSigCjComCalendarEvent to hoEvent
+//            Set pvComObject of hoEvent to vEvent
+//
+//            Get ComCustomProperties of hoEvent to vCustomProps
+//            Get Create U_cSigCjComCalendarCustomProperties to hoCustomProps
+//                Set pvComObject of hoCustomProps to vCustomProps
+//
+//                Get ComProperty of hoCustomProps "CRM_Link" to iURN
+//            Send Destroy of hoCustomProps
+//        Send Destroy of hoEvent
+//
+//        Send Close_Panel
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure RemoveException Variant vEvent
+        Handle  hoEvent
+        Integer iURN
+
+        Get Create U_cSigCjComCalendarEvent to hoEvent
+            Set pvComObject of hoEvent to vEvent
+
+            Get ComID of hoEvent to iURN
+        Send Destroy of hoEvent
+
+#IFDEF SigCj_Use_StdFiles
+        Clear CalEvent
+        Move iURN to CalEvent.URN
+        Find eq CalEvent by Index.1
+        If (Found) Begin
+            Lock
+                Delete CalEvent
+            Unlock
+        End
+#ENDIF 
+        Send Force_Data_Refresh
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure Force_Data_Refresh
+        Handle  hoDataProvider
+
+        Get Private_phoDataProvider to hoDataProvider
+        Send ComRemoveAllEvents of hoDataProvider
+
+        Send ComPopulate
+        Send ComRedrawControl
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+//    Procedure OnComSelectionChanged OLECalendarSelectionChanged llSelType
+//        If (llSelType = OLExtpCalendarSelectionUnknown) Begin
+//            Set pdSelectedDate to "01/01/1900"    
+//        End
+//        If (llSelType = OLExtpCalendarSelectionDays) Begin
+//            
+//        End
+//        If (llSelType = OLExtpCalendarSelectionEvents) Begin
+//            
+//        End
+//    End_Procedure
+
+    Procedure Show_Built_In_Dialog Integer eDialog Variant vEvent
+        Boolean bOK 
+        DateTime dtHitDateTime
+        Date dHitDate
+        Integer iSpecial_Date eAllow
+
+        If (eDialog = eCal_Dialog_NewEvent) Begin
+            Get pdtHitDateTime to dtHitDateTime 
+            Move (Date(dtHitDateTime)) to dHitDate
+            Get Cal_Special_Date dHitDate to iSpecial_Date
+
+            Move False to bOK
+            If (iSpecial_Date <> -1) Begin
+                Move (Cal_AllowEvents(Self,iSpecial_Date)) to eAllow
+                If (eAllow = eCal_AE_Ask) Begin
+                    If (YesNo_Box(psAllowEventText(Self), psAllowEventTitle(Self), MB_DEFBUTTON2) = MBR_YES) Move True to bOK
+                End
+                If (eAllow = eCal_AE_Yes) Begin
+                    Move True to bOK
+                End
+            End
+            Else Begin
+                Move True to bOK
+            End
+
+            If (bOK) Begin
+                Get ComShowNewEvent of oe_CJ_CalendarDialogs to bOK
+            End
+        End
+
+        If (eDialog = eCal_Dialog_EditEvent) Begin
+            Get ComShowEditEvent of oe_CJ_CalendarDialogs vEvent to bOK
+        End
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure Set_Theme_To_Office_07
+        Handle hoThemeOffice07 hoCustonIcons hoWorkspace
+        Variant vTheme vCustonIcons
+        String sBitmapPath
+
+        Handle hoDayView hoDay hoGroup hoCell hoWorkCell hoNonWorkCell
+        Variant vDayView  vDay  vGroup  vCell  vWorkCell  vNonWorkCell
+        Integer iColor
+
+        Get phoWorkspace of ghoApplication to hoWorkspace
+        Get psBitmapPath of hoWorkspace to sBitmapPath
+
+        Get Create U_cSigCjComCalendarThemeOffice2007 to hoThemeOffice07
+        Get ComTheme to vTheme
+
+        Send CreateComObject of hoThemeOffice07
+            Get pvComObject of hoThemeOffice07 to vTheme
+            Send ComSetTheme vTheme
+
+            //Load any custom options (e.g. icons etc)
+            Get ComCustomIcons of hoThemeOffice07 to vCustonIcons
+            Get Create U_cSigCjComImageManagerIcons to hoCustonIcons
+                Set pvComObject of hoCustonIcons to vCustonIcons
+
+                Send ComLoadIcon of hoCustonIcons (sBitmapPath + "\Cal_Reminder.ico"  ) OLExtpCalendarEventIconIDReminder   OLExtpImageNormal
+                Send ComLoadIcon of hoCustonIcons (sBitmapPath + "\Cal_Occurrence.ico") OLExtpCalendarEventIconIDOccurrence OLExtpImageNormal
+                Send ComLoadIcon of hoCustonIcons (sBitmapPath + "\Cal_Exception.ico" ) OLExtpCalendarEventIconIDException  OLExtpImageNormal
+                Send ComLoadIcon of hoCustonIcons (sBitmapPath + "\Cal_Meeting.ico"   ) OLExtpCalendarEventIconIDMeeting    OLExtpImageNormal
+                Send ComLoadIcon of hoCustonIcons (sBitmapPath + "\Cal_Private.ico"   ) OLExtpCalendarEventIconIDPrivate    OLExtpImageNormal
+//                Send ComLoadIcon of hoCustonIcons (sBitmapPath + "\Diary_Link.ico"      ) cj_CRM_Link_Icon                    OLExtpImageNormal
+//                Send ComLoadIcon of hoCustonIcons (sBitmapPath + "\Diary_Complete.ico"  ) cj_CRM_Complete_Icon                OLExtpImageNormal
+
+            Send Destroy of hoCustonIcons
+            //Standard colors
+            //We drill down to the color objects. Having got to them we Set 
+            //properties so that they are easy to access.
+
+            //This is coded as a full Create Destory set incase we need to
+            //access the intermediate objects for anything else.
+
+            Get Private_phoWorkingCellColors    to hoWorkCell
+            Get Private_phoNonWorkingCellColors to hoNonWorkCell
+
+            Get ComDayView of hoThemeOffice07 to vDayView
+            Get Create U_cSigCjComCalendarThemeOffice2007DayView to hoDayView
+                Set pvComObject of hoDayView to vDayView
+
+                Get ComDay of hoDayView to vDay
+                Get Create U_cSigCjComCalendarThemeOffice2007DayViewDay to hoDay
+                    Set pvComObject of hoDay to vDay
+
+                    Get ComGroup of hoDay to vGroup
+                    Get Create U_cSigCjComCalendarThemeOffice2007DayViewDayGroup to hoGroup
+                        Set pvComObject of hoGroup to vGroup
+
+                        Get ComCell of hoGroup to vCell
+                        Get Create U_cSigCjComCalendarThemeDayViewCell to hoCell
+                            Set pvComObject of hoCell to vCell
+
+                            Get ComWorkCell of hoCell to vWorkCell
+                            Set pvComObject of hoWorkCell to vWorkCell
+
+                            Get ComNonWorkCell of hoCell to vNonWorkCell
+                            Set pvComObject of hoNonWorkCell to vNonWorkCell
+
+                            //We do not destory the Non/WorkingCell objects
+
+                        Send Destroy of hoCell
+                    Send Destroy of hoGroup
+                Send Destroy of hoDay
+            Send Destroy of hoDayView
+        Send Destroy of hoThemeOffice07
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure Custom_Icon Variant llpEvent Integer iIcon Boolean bShow
+        Handle  hoCustomIcons hoEvent
+        Variant vCustomIcons
+
+        Get Create U_cSigCjComCalendarEvent to hoEvent
+            Set pvComObject of hoEvent to llpEvent
+
+            Get ComCustomIcons of hoEvent to vCustomIcons
+            Get Create U_cSigCjComCalendarIconIDs to hoCustomIcons
+                Set pvComObject of hoCustomIcons to vCustomIcons
+
+                If (bShow) Send ComAddIfNeed of hoCustomIcons iIcon
+                Else       Send ComRemoveID  of hoCustomIcons iIcon
+            Send Destroy of hoCustomIcons
+        Send Destroy of hoEvent
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure Add_Link_Icon Variant llpEvent
+        Handle  hoCustomIcons hoEvent
+        Variant vCustomIcons
+
+        Get Create U_cSigCjComCalendarEvent to hoEvent
+            Set pvComObject of hoEvent to llpEvent
+
+            Get ComCustomIcons of hoEvent to vCustomIcons
+            Get Create U_cSigCjComCalendarIconIDs to hoCustomIcons
+                Set pvComObject of hoCustomIcons to vCustomIcons
+
+//                Send ComAddIfNeed of hoCustomIcons cj_CRM_Link_Icon
+
+            Send Destroy of hoCustomIcons
+        Send Destroy of hoEvent
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure Enable_Icons
+        Integer iView ismDay
+        Handle hoThemeOffice07 hoView hoEvent hoIcons hoDay hoGroup hoSM_Day hoFormula
+        Variant vIconsToDraw vView vEvent vIcons vTheme vDay vSM_Day vGroup vFormula
+
+        Get ComTheme to vTheme
+        Get Create U_cSigCjComCalendarThemeOffice2007 to hoThemeOffice07
+            Set pvComObject of hoThemeOffice07 to vTheme
+
+            For iView from 1 to 3
+                If (iView = 1) Begin
+                    Get ComDayView of hoThemeOffice07 to vView
+                    Get Create U_cSigCjComCalendarThemeOffice2007DayView to hoView
+                End
+                If (iView = 2) Begin
+                    Get ComWeekView of hoThemeOffice07 to vView
+                    Get Create U_cSigCjComCalendarThemeOffice2007WeekView to hoView
+                End
+                If (iView = 3) Begin
+                    Get ComMonthView of hoThemeOffice07 to vView
+                    Get Create U_cSigCjComCalendarThemeOffice2007MonthView to hoView
+                End
+                    Set pvComObject of hoView to vView
+
+                    Get comEvent of hoView to vEvent
+                    If (iView = 1) Get Create U_cSigCjComCalendarThemeOffice2007DayViewEvent   to hoEvent
+                    If (iView = 2) Get Create U_cSigCjComCalendarThemeOffice2007WeekViewEvent  to hoEvent
+                    If (iView = 3) Get Create U_cSigCjComCalendarThemeOffice2007MonthViewEvent to hoEvent
+                        Set pvComObject of hoEvent to vEvent
+
+                        Get ComEventIconsToDraw of hoEvent to vIcons
+                        Get Create U_cSigCjComCalendarThemeEventIconsToDraw to hoIcons
+                            Set pvComObject of hoIcons to vIcons
+
+                            Set ComShowException    of hoIcons to True
+                            Set ComShowMeeting      of hoIcons to True
+                            Set ComShowOccurrence   of hoIcons to True
+                            Set ComShowPrivate      of hoIcons to True
+                            Set ComShowReminder     of hoIcons to True
+                        Send Destroy of hoIcons
+
+                        Get ComHeightFormula of hoEvent to vFormula
+                        Get Create U_cSigCjComCalendarThemeFormulaMulDivC to hoFormula
+                            Set pvComObject of hoFormula to vFormula
+
+                            Set ComConstant of hoFormula to 5
+                        Send Destroy of hoFormula
+                    Send Destroy of hoEvent
+
+                    Get ComDay of hoView to vDay
+                    If (iView = 1) Get Create U_cSigCjComCalendarThemeOffice2007DayViewDay   to hoDay
+                    If (iView = 2) Get Create U_cSigCjComCalendarThemeOffice2007WeekViewDay  to hoDay
+                    If (iView = 3) Get Create U_cSigCjComCalendarThemeOffice2007MonthViewDay to hoDay
+                        Set pvComObject of hoDay to vDay
+
+                        If (iView = 1) Begin
+                            Get ComGroup of hoDay to vGroup
+                            Get Create U_cSigCjComCalendarThemeOffice2007DayViewDayGroup to hoGroup
+                            Set pvComObject of hoGroup to vGroup
+                        End
+                        Else Move hoDay to hoGroup
+                        For ismDay from 1 to 2
+                            If (ismDay = 1) Begin
+                                Get ComSingleDayEvent of hoGroup to vSM_Day
+                                Get Create U_cSigCjComCalendarThemeOffice2007DayViewEventSingleDay to hoSM_Day
+                            End
+                            If (ismDay = 2) Begin
+                                Get ComMultiDayEvent of hoGroup to vSM_Day
+                                Get Create U_cSigCjComCalendarThemeOffice2007DayViewEventMultiDay to hoSM_Day
+                            End
+                                Set pvComObject of hoSM_Day to vSM_Day
+
+                                Get ComEventIconsToDraw of hoSM_Day to vIcons
+                                Get Create U_cSigCjComCalendarThemeEventIconsToDraw to hoIcons
+                                    Set pvComObject of hoIcons to vIcons
+
+                                    Set ComShowException    of hoIcons to True
+                                    Set ComShowMeeting      of hoIcons to True
+                                    Set ComShowOccurrence   of hoIcons to True
+                                    Set ComShowPrivate      of hoIcons to True
+                                    Set ComShowReminder     of hoIcons to True
+                                Send Destroy of hoIcons
+                            Send Destroy of hoSM_Day
+                        Loop
+
+                        If (iView = 1) Send Destroy of hoGroup
+                    Send Destroy of hoDay
+                Send Destroy of hoView
+            Loop
+
+        Send ComRefreshMetrics of hoThemeOffice07
+        Send Destroy of hoThemeOffice07
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure Setup_Categories
+        Handle  hoDataProvider hoCategories 
+        Variant vCategories  
+        tdCal_Category tCat
+
+        Get Private_phoDataProvider to hoDataProvider
+
+        Get Private_phoCategories to hoCategories
+        Get ComEventCategories of hoDataProvider to vCategories
+        Set pvComObject of hoCategories to vCategories
+            
+        Send ComRemoveAll of hoCategories
+
+        If (pbUseStdFiles(Self)) Begin
+#IFDEF SigCj_Use_StdFiles
+            Clear Cal_Cats
+            Find gt Cal_Cats by Index.1
+            While (Found)
+                Get Move_StdFile_Cats_To_tdCats to tCat
+                Send Add_Category tCat
+                    
+                Find gt Cal_Cats by Index.1
+            Loop
+#ENDIF
+        End
+        Else Begin
+            Send OnCategory_Load 
+        End
+    End_Procedure
+
+#IFDEF SigCj_Use_StdFiles
+    Function Move_StdFile_Cats_To_tdCats Returns tdCal_Category
+        tdCal_Category tCats
+        
+        Move Cal_Cats.ID             to tCats.iURN
+        Move Cal_Cats.Short_Desc     to tCats.sShort_Desc
+        Move Cal_Cats.Long_Desc      to tCats.sLong_Desc
+        Move Cal_Cats.BorderColour   to tCats.iBorder_Color
+        Move Cal_Cats.ColourDark     to tCats.iColor_Dark
+        Move Cal_Cats.ColourLight    to tCats.iColor_Light
+        Move Cal_Cats.GradientFactor to tCats.nGradient
+
+        Function_Return tCats
+    End_Function
+#ENDIF
+
+    Procedure Add_Category tdCal_Category tCat
+        Boolean bIsComObjectCreated
+        Handle  hoCategory hoColorGradient 
+        Variant vCategory vBackGround
+
+        Get Create U_cSigCjComCalendarEventCategory to hoCategory
+            Get IsComObjectCreated of hoCategory to bIsComObjectCreated
+            If (not(bIsComObjectCreated)) Begin
+                Send CreateComObject of hoCategory
+            End
+    
+            Set ComID          of hoCategory to tCat.iURN
+            Set ComName        of hoCategory to tCat.sShort_Desc
+            Set ComBorderColor of hoCategory to tCat.iBorder_Color
+    
+            Get ComBackground of hoCategory to vBackGround
+            Get Create U_cSigCjComCalendarThemeColorGradient to hoColorGradient
+                Set pvComObject of hoColorGradient to vBackGround
+    
+                Set ComColorDark      of hoColorGradient to tCat.iColor_Dark
+                Set ComColorLight     of hoColorGradient to tCat.iColor_Light
+                Set ComGradientFactor of hoColorGradient to tCat.nGradient
+    
+            Send Destroy of hoColorGradient
+
+            Get pvComObject of hoCategory to vCategory
+            Send ComAdd of (Private_phoCategories(Self)) vCategory
+        Send Destroy of hoCategory
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Function Date_Range_String Handle hoActiveView Returns String
+        Handle  hoDay
+        Variant vDay
+        Integer iDaysCount
+        String  sRange
+        Date    dDate
+
+        Get ComDaysCount of hoActiveView to iDaysCount
+
+        If (iDaysCount < 1) Begin
+            Move "Error no days selected" to sRange
+        End
+        Else Begin
+            Get Create U_cSigCjComCalendarViewDay to hoDay
+                Get ComDays of hoActiveView 0 to vDay
+                Set pvComObject of hoDay to vDay
+                Get ComDate of hoDay to dDate
+                Move dDate to sRange
+
+                If (iDaysCount > 1) Begin
+                    Get ComDays of hoActiveView (iDaysCount -1) to vDay
+                    Set pvComObject of hoDay to vDay
+                    Get ComDate of hoDay to dDate
+                    Move (sRange + " - " + String(dDate)) to sRange
+                End
+            Send Destroy of hoDay
+        End
+
+        Function_Return sRange
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Procedure Set_Single_Data_Source Integer iDataType String sDataSource
+        Boolean bOK
+        Handle  hoDataProvider
+        Variant vDataProvider
+        String  sConnection
+
+        //We only support DataFlex & Outlook at present.
+        If (iDataType = eCal_DT_DataFlex) Begin
+            Move "Provider=custom;DSN=Not Needed" to sConnection
+        End
+        Else Begin
+            Move ("Provider=" + eCal_DataProvider_Outlook + ";Data Source=" + sDataSource) to sConnection
+        End
+
+        Send ComSetDataProvider sConnection
+
+        Get Private_phoDataProvider to hoDataProvider
+        Get ComDataProvider to vDataProvider
+        Set pvComObject of hoDataProvider to vDataProvider
+
+        Get ComOpen of hoDataProvider to bOK
+        If (not(bOK)) Begin
+            Get ComCreate of hoDataProvider to bOK
+        End
+    End_Procedure
+
+    //=========================================================================
+
+    Function IsTimeBetween DateTime dtTime String sStartTime String sEndTime Returns Boolean
+        Integer iWork iStart iEnd iTime
+        String  sWork
+
+        Move (Left(sStartTime,5)) to sStartTime //strip of secinds (if there)
+        Move (Left(sEndTime,5)) to sEndTime //strip of secinds (if there)
+
+        Move (Replaces(":",sEndTime,  "")) to iEnd
+        Move (Replaces(":",sStartTime,"")) to iStart
+
+        Move (DateGetHour(dtTime)) to sWork
+        Move (DateGetMinute(dtTime)) to iWork
+        If (iWork < 10) Move (Append(sWork,"0")) to sWork
+        Move (Append(sWork,String(iWork))) to iTime
+
+        Function_Return ((iTime >= iStart) and (iTime < iEnd))
+    End_Function
+
+    Function IsLastWeekDay Date dDate Returns Boolean
+        Integer iDay iMask iLastDay
+
+        Move (Mod(dDate,7)) to iDay //Saturday = 1 Friday = 0
+
+        Get peWorkWeekMask to iMask
+        If (iMask = eCal_WW_AllWeek ) Move 2 to iLastDay    //Assume Sunday is last day of week
+        If (iMask = eCal_WW_SaSu    ) Move 2 to iLastDay
+        If (iMask = eCal_WW_Mo_Fr   ) Move 0 to iLastDay
+        If (iMask = 126             ) Move 1 to iLastDay
+
+        Function_Return (iDay = iLastDay)
+    End_Function
+
+    Procedure OnComBeforeDrawThemeObject OLECalendarBeforeDrawThemeObject lleObjType Variant llDrawParams
+        Boolean  bWorkCell bShade bLastDay
+        Handle   hoDrawParams hoCellColor
+        DateTime dtBegin
+        Integer  iIndex iSpecial_Date
+        Integer iWorkingColor iNonWorkingColor
+
+        If (lleObjType = OLExtpCalendarBeforeDraw_DayViewCell) Begin
+            Get Private_phoThemeDayViewCellParams to hoDrawParams
+            Set pvComObject  of hoDrawParams to llDrawParams
+            Get ComBeginTime of hoDrawParams to dtBegin
+            Get ComWorkCell  of hoDrawParams to bWorkCell
+
+            Get piWorkingCellBackColor    to iWorkingColor
+            Get piNonWorkingCellBackColor to iNonWorkingColor
+
+            Get Cal_Special_Date (Date(dtBegin)) to iSpecial_Date
+            If (iSpecial_Date <> -1) Begin
+                Move (Cal_BackColor(Self,iSpecial_Date)) to iWorkingColor
+                If (Cal_AllDay(Self,iSpecial_Date)) Begin
+                    Move (Cal_BackColor(Self,iSpecial_Date)) to iNonWorkingColor
+                End
+            End
+            Else Begin
+                If (bWorkCell) Begin
+                    If (pbShadeLunchTime(Self)) Begin
+                        Get IsTimeBetween dtBegin (ptmLunchStartTime(Self)) (ptmLunchEndTime(Self)) to bShade
+                        If (bShade) Begin
+                            Move iNonWorkingColor to iWorkingColor
+                        End
+                    End
+    
+                    If (pbShorterLastDay(Self)) Begin
+                        Get ComIndex of hoDrawParams to iIndex
+    
+                        //need to cast the DateTime as passing DateTime to a Date results in a DateTime!
+                        Get IsLastWeekDay (Date(dtBegin)) to bLastDay
+                        If (bLastDay) Begin
+                            Get IsTimeBetween dtBegin (ptmLastWorkDayEndTime(Self)) (Private_ptmWorkDayEndTime(Self)) to bShade
+                            If (bShade) Begin
+                            Move iNonWorkingColor to iWorkingColor
+                            End
+                        End
+                    End
+                End
+            End // not special
+            
+            If (bWorkCell) Begin
+                Get Private_phoWorkingCellColors to hoCellColor
+                Set ComBackgroundColor of hoCellColor to iWorkingColor
+            End
+            Else Begin
+                Get Private_phoNonWorkingCellColors to hoCellColor
+                Set ComBackgroundColor of hoCellColor to iNonWorkingColor
+            End
+        End
+
+    End_Procedure
+End_Class
+
+//==============================================================================
+//End of Package - cSigCJCalendarControl.pkg
+//==============================================================================

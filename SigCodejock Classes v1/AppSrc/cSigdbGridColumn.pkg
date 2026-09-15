@@ -1,0 +1,65 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigdbGridColumn.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev: 828 $
+//                $Date: 2013-04-09 16:24:18 +0100 (Tue, 09 Apr 2013) $
+//                $Author: martin $ Martin Pincott
+// 
+// Requirements : Visual DataFlex 12.1+
+//                Codejock SuitePro - Version 12.0.0+
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//==============================================================================
+Use cDbCJGridColumn.pkg
+
+Class cSigdbGridColumn is a cDbCJGridColumn
+
+	Procedure OnSetDisplayMetrics Handle hoGridItemMetrics Integer iRow String ByRef sValue
+		Integer iCurrentRow iColor iRed iBlue iGreen
+		Number nShade
+		
+		Send OnSetRowColour hoGridItemMetrics iRow
+		 
+		If (pbShade_Row(Parent(Self))) Begin
+	        Get SelectedRow of (phoDataSource(Parent(Self))) to iCurrentRow
+	        If (iCurrentRow = iRow) Begin
+	            Get ComBackColor of hoGridItemMetrics to iColor
+	            Get pnShade of (Parent(Self)) to nShade
+	            Get R_From_RGB iColor to iRed
+	            Get G_From_RGB iColor to iGreen
+	            Get B_From_RGB iColor to iBlue
+	            Move ( RGB(Mod(iRed * nShade, 256), Mod(iGreen * nShade, 256), Mod(iBlue * nShade, 256)) ) to iColor
+	            Set ComBackColor of hoGridItemMetrics to iColor
+	        End
+	  	End
+
+		Forward Send OnSetDisplayMetrics hoGridItemMetrics iRow (&sValue)	
+ 	End_Procedure	
+
+End_Class
+
+//==============================================================================
+//End of Package - cSigdbGridColumn.pkg
+//==============================================================================

@@ -1,0 +1,8 @@
+#REPLACE FILE54 c_Categ
+#REPLACE c_Categ.Recnum |FN54,0
+#REPLACE c_Categ.ID |FN54,1
+#REPLACE c_Categ.Description |FS54,2
+#REPLACE c_Categ.BorderColor |FN54,3
+#REPLACE c_Categ.ColorLight |FN54,4
+#REPLACE c_Categ.ColorDark |FN54,5
+#REPLACE c_Categ.GradientFactor |FN54,6

@@ -1,0 +1,83 @@
+-----------------------------------------------------------------------------
+  DATE: 27/02/2012      TIME: 09:51                                  PAGE:  1
+  FILE DEFINITION FOR FILE: c_Events (# 52)
+-----------------------------------------------------------------------------
+  DRIVER NAME               : DATAFLEX
+  FILE ROOT NAME            : c_Events
+  USER DISPLAY NAME         : Calendar v2 Events
+  DATAFLEX FILE NAME        : c_Events
+-----------------------------------------------------------------------------
+  RECORD LENGTH             : 2304      ( USED: 2255 )
+  MAX NUMBER OF RECORDS     : 10000     ( USED: 65 )
+  FILE COMPRESSION          : NONE
+  RE-USE DELETED SPACE      : YES
+  LOCKING TYPE              : FILE
+  HEADER INTEGRITY CHECKING : YES
+  TRANSACTION TYPE          : CLIENT ATOMIC
+  RECORD IDENTITY INDEX     : 0 ( 0 , 0 )
+  FILE LOGIN PARAMETER      : 
+  SYSTEM FILE               : NO 
+-----------------------------------------------------------------------------
+
+NUM  FIELD NAME       TYPE SIZE  OFFST IX   RELATES TO FILE.FIELD
+---  ---------------  ---- ----- ----- --   ---------------------------------
+  1  URN              NUM    8.0     1  1   
+  2  AllDayEvent      NUM    2.0     5      
+  3  Body             ASC    254     6      
+  4  BusyStatus       NUM    2.0   260      
+  5  Categories       ASC    254   261      
+  6  CreationDate     DAT      6   515      
+  7  CreationTime     ASC      5   518      
+  8  CreatedBy        ASC     20   523      
+  9  CustomIcons      ASC    254   543      
+ 10  CustomProp       ASC    254   797      
+ 11  DB_Link          NUM    2.0  1051      
+ 12  DB_Key           ASC     20  1052      
+ 13  DB_Table         ASC     20  1072      
+ 14  EndDate          DAT      6  1092  2   
+ 15  EndTime          ASC      5  1095      
+ 16  Importance       NUM    2.0  1100      
+ 17  Label            ASC    254  1101      
+ 18  LastMod_Date     DAT      6  1355      
+ 19  LastMod_Time     ASC      5  1358      
+ 20  LastMod_By       ASC     20  1363      
+ 21  Location         ASC    254  1383      
+ 22  MeetingFlag      NUM    2.0  1637      
+ 23  PrivateFlag      NUM    2.0  1638      
+ 24  Recurr_State     NUM    2.0  1639  3   
+ 25  Reminder         NUM    2.0  1640      
+ 26  Rem_MinsBefore   NUM    8.0  1641      
+ 27  Rem_SoundFile    ASC    254  1645      
+ 28  ScheduleID       NUM    8.0  1899      
+ 29  Schedule_IDs     ASC     50  1903      
+ 30  StartDate        DAT      6  1953  2   
+ 31  StartTime        ASC      5  1956  4   
+ 32  Subject          ASC    254  1961      
+ 33  RE_StartDateOrg  DAT      6  2215      
+ 34  RE_StartTimeOrg  ASC      5  2218      
+ 35  RE_EndDateOrg    DAT      6  2223      
+ 36  RE_EndTimeOrg    ASC      5  2226      
+ 37  RE_Deleted       NUM    2.0  2231      
+ 38  Rec_Pattern_id   NUM    8.0  2232  3   
+ 39  ScheduleIDs      ASC     20  2236      
+
+
+INDEX# FIELDS          DES U/C    LENGTH LEVELS SEGMENTS MODE
+------ --------------- --- ---    ------ ------ -------- -------
+  1    URN             NO  NO       4      2       1     ON-LINE
+
+  2    EndDate         NO  NO       10     3       3     ON-LINE
+       StartDate       NO  NO 
+       URN             NO  NO 
+
+  3    Recurr_State    NO  NO       9      3       3     ON-LINE
+       Rec_Pattern_id  NO  NO 
+       URN             NO  NO 
+
+  4    StartDate       NO  NO       12     3       3     ON-LINE
+       StartTime       NO  NO 
+       URN             NO  NO 
+
+  5    Rec_Pattern_id  NO  NO       8      3       2     ON-LINE
+       URN             NO  NO 
+

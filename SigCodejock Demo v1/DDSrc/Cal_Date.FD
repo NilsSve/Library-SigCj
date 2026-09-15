@@ -1,0 +1,8 @@
+#REPLACE FILE15 cal_date
+#REPLACE cal_date.Recnum |FN15,0
+#REPLACE cal_date.Date_From |FD15,1
+#REPLACE cal_date.Date_To |FD15,2
+#REPLACE cal_date.Title |FS15,3
+#REPLACE cal_date.BackColour |FN15,4
+#REPLACE cal_date.AllDay |FN15,5
+#REPLACE cal_date.AllowEvents |FN15,6

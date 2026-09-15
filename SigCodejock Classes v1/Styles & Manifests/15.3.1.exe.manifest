@@ -1,0 +1,113 @@
+
+    <file name="Bin/Codejock.CommandBars.v15.3.1.ocx">
+        <typelib tlbid="{555E8FCC-830E-45CC-AF00-A012D5AE7451}" version="15.3" helpdir=""/>
+        <comClass description="Xtreme CommandBars Control"                clsid="{D7DA998C-CE45-41D4-A098-7EA140743CCA}" progid="Codejock.CommandBars.15.3.1" threadingModel="Apartment" tlbid="{555E8FCC-830E-45CC-AF00-A012D5AE7451}"/>
+        <comClass description="Xtreme CommandBars Frame Control"          clsid="{8357D4D0-2195-456B-88CE-E2C30D8F7B46}" progid="Codejock.CommandBarsFrame.15.3.1" threadingModel="Apartment" tlbid="{555E8FCC-830E-45CC-AF00-A012D5AE7451}"/>
+        <comClass description="Xtreme ImageManager Control"               clsid="{1552834C-D001-4596-9DEA-747121626FD4}" progid="Codejock.ImageManager.15.3.1" threadingModel="Apartment" tlbid="{555E8FCC-830E-45CC-AF00-A012D5AE7451}"/>
+        <comClass description="Xtreme PrintPreview Control"               clsid="{37E785E4-5F6B-42E1-8FF3-58FAD9C7E1B6}" progid="Codejock.PrintPreview.15.3.1" threadingModel="Apartment" tlbid="{555E8FCC-830E-45CC-AF00-A012D5AE7451}"/>
+        <comClass description="Codejock.CommandBarsGlobalSettings.15.3.1" clsid="{55F8727D-9252-45FF-9900-FC84CA2D7C72}" progid="Codejock.CommandBarsGlobalSettings.15.3.1"/>
+    </file>
+
+    <file name="Bin/Codejock.Controls.v15.3.1.ocx">
+        <typelib tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}" version="15.3" helpdir=""/>
+        <comClass description="Xtreme PushButton Control"                   clsid="{DFA62ADB-9867-4936-82B9-16D3889B9D76}" progid="Codejock.PushButton.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme RadioButton Control"                  clsid="{83E44ADC-25CA-4D7A-B616-E1306C0F0D74}" progid="Codejock.RadioButton.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme GroupBox Control"                     clsid="{05279099-2808-4E09-857D-D78F06BC89D0}" progid="Codejock.GroupBox.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme FlatEdit Control"                     clsid="{4F169CE0-EF34-4C8C-99F4-F443C2B4AC0A}" progid="Codejock.FlatEdit.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme Label Control"                        clsid="{24C0CF82-10C1-4465-96D0-D05C46B56F7C}" progid="Codejock.Label.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme ListBox Control"                      clsid="{D5D5B8FF-DEEC-4AC3-9F88-0B442AD42305}" progid="Codejock.ListBox.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme ComboBox Control"                     clsid="{097A400A-4B17-4511-A28B-AF846C8A67B0}" progid="Codejock.ComboBox.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme Resizer Control"                      clsid="{CC2F21C5-3A70-4117-8321-A80113FBCC6B}" progid="Codejock.Resizer.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme Tab Control"                          clsid="{7D276239-FBFB-4C88-ABCF-6E5F85E9EE6C}" progid="Codejock.TabControl.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme TabPage Control"                      clsid="{08B16398-9A37-4DA5-B7DB-EDC421598A4A}" progid="Codejock.TabControlPage.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme Popup Control"                        clsid="{8EE9A25E-FF16-40AF-A36B-B990E8FDABF7}" progid="Codejock.PopupControl.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme TreeView Control"                     clsid="{7728FF42-7387-4ADA-A1EA-131963D790EA}" progid="Codejock.TreeView.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme ListView Control"                     clsid="{C6EE28A4-4239-460A-8591-41DF5A62460C}" progid="Codejock.ListView.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme ProgressBar Control"                  clsid="{D8EBF0A2-510F-47DB-AA15-8A1D13A604DA}" progid="Codejock.ProgressBar.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme ScrollBar Control"                    clsid="{B2A03B2F-74B3-477D-8E5D-7CE31B93737E}" progid="Codejock.ScrollBar.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme UpDown Control"                       clsid="{283A7669-92BE-4CCF-9798-930F3EA55470}" progid="Codejock.UpDown.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme Slider Control"                       clsid="{BD646B53-7DFE-4328-9C7B-123DE3E6A08C}" progid="Codejock.Slider.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme TaskDialog Control"                   clsid="{675CF683-8641-48C7-B172-54F31831E649}" progid="Codejock.TaskDialog.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme CommonDialog Control"                 clsid="{CD34D8F2-BC59-417E-B873-B0477D0C9A8C}" progid="Codejock.CommonDialog.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme DateTimePicker Control"               clsid="{3E2D9F47-191D-4E31-B1BC-4D70B2BBDD8F}" progid="Codejock.DateTimePicker.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme MonthCalendar Control"                clsid="{FAE169DE-6613-467E-86CA-1334A6B648F0}" progid="Codejock.MonthCalendar.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme WebBrowser Control"                   clsid="{23FE108A-98F3-4721-8122-68365F223EED}" progid="Codejock.WebBrowser.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme TrayIcon Control"                     clsid="{482D18EF-9B76-474F-B735-C8EA915EE6D4}" progid="Codejock.TrayIcon.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme HexEdit Control"                      clsid="{7159D48D-CF11-4625-8C70-3CC5B0099B09}" progid="Codejock.HexEdit.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme FormExtender Control"                 clsid="{367052E8-0BAB-4F02-ABE0-1941B4600BE3}" progid="Codejock.FormExtender.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+       <comClass description="Xtreme TaskbarManager Control"                clsid="{2C4625BF-EE3F-42B1-A529-F784A55591EA}" progid="Codejock.TaskbarManager.15.3.1" threadingModel="Apartment" tlbid="{A8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+
+        <comClass description="Codejock.SuiteControlsGlobalSettings.15.3.1" clsid="{6B6A12D7-646C-4FFB-82CE-7F25BDFAF793}" progid="Codejock.SuiteControlsGlobalSettings.15.3.1"/>
+    </file>
+    
+	  <file name="Bin/Codejock.SkinFramework.v15.3.1.ocx">
+        <typelib tlbid="{BD0C1912-66C3-49CC-8B12-7B347BF6C846}" version="15.3" helpdir=""/>
+        <comClass description="Xtreme SkinFramework Control"                clsid="{A93F00D2-D25E-483C-9BD4-7DA977D24264}" progid="Codejock.SkinFramework.15.3.1" threadingModel="Apartment" tlbid="{BD0C1912-66C3-49CC-8B12-7B347BF6C846}"/>
+        <comClass description="Codejock.SkinFrameworkGlobalSettings.15.3.1" clsid="{04321109-B098-429C-A71F-22FF76BAFA5C}" progid="Codejock.SkinFrameworkGlobalSettings.15.3.1"></comClass>
+    </file>
+
+    <file name="Bin/Codejock.Calendar.v15.3.1.ocx">
+        <typelib tlbid="{79EB16A5-917F-4145-AB5F-D3AEA60612D8}" version="15.3" helpdir=""/>
+        <comClass description="Codejock.CalendarEventCategories.15.3.1"   clsid="{472B638B-58E2-413E-8473-A171C05FF791}" progid="Codejock.CalendarEventCategories.15.3.1"/>
+        <comClass description="Codejock.CalendarEventCategory.15.3.1"     clsid="{E394B02D-F024-4CBF-AB41-768EC5F0D630}" progid="Codejock.CalendarEventCategory.15.3.1"/>
+        <comClass description="Codejock.CalendarResources.15.3.1"         clsid="{8CF52E36-6378-4959-B2AA-B8962463D793}" progid="Codejock.CalendarResources.15.3.1"/>
+        <comClass description="Codejock.CalendarResource.15.3.1"          clsid="{232DEDF7-2112-42ED-83F1-68EB54AD4F86}" progid="Codejock.CalendarResource.15.3.1"/>
+        <comClass description="Codejock.CalendarThemeOffice2007.15.3.1"   clsid="{B6C5D1C2-F4A9-4FF6-8FFA-EFC0D93925B4}" progid="Codejock.CalendarThemeOffice2007.15.3.1"/>
+        <comClass description="Codejock.CalendarThemeImageList.15.3.1"    clsid="{E47C3089-B2F9-4BB3-9280-9FB36EB88042}" progid="Codejock.CalendarThemeImageList.15.3.1"/>
+        <comClass description="Codejock.CalendarThemeRect.15.3.1"         clsid="{7A6574C0-4FDD-4DBE-A3A5-4FA3D13A5B36}" progid="Codejock.CalendarThemeRect.15.3.1"/>
+        <comClass description="Xtreme Calendar Control"                   clsid="{14AFDEAC-156A-42C8-A094-CA35333698F9}" progid="Codejock.CalendarControl.15.3.1" threadingModel="Apartment" tlbid="{79EB16A5-917F-4145-AB5F-D3AEA60612D8}"/>
+        <comClass description="Xtreme Calendar CaptionBar Control"        clsid="{136C352E-C6A9-4905-B3A2-2CF06D0EEC1F}" progid="Codejock.CalendarCaptionBar.15.3.1" threadingModel="Apartment" tlbid="{79EB16A5-917F-4145-AB5F-D3AEA60612D8}"/>
+        <comClass description="Codejock.CalendarResourcesManager.15.3.1"  clsid="{505CDF6F-80CA-4109-965F-DB2FB7227F10}" progid="Codejock.CalendarResourcesManager.15.3.1"/>
+        <comClass description="Codejock.CalendarDialogs.15.3.1"           clsid="{A7A284E8-C007-4A4C-82B6-ACEC164E0442}" progid="Codejock.CalendarDialogs.15.3.1"/>
+        <comClass description="Xtreme DatePicker Control"                 clsid="{AFC39ED7-1DE8-47B0-B0DC-C150203DAD2A}" progid="Codejock.DatePicker.15.3.1" threadingModel="Apartment" tlbid="{79EB16A5-917F-4145-AB5F-D3AEA60612D8}"/>
+        <comClass description="Codejock.CalendarGlobalSettings.15.3.1"    clsid="{DC90B3D9-8750-4A8C-B75B-2E0226EFDC4C}" progid="Codejock.CalendarGlobalSettings.15.3.1"/>
+    </file>
+
+	  <file name="Bin/Codejock.DockingPane.v15.3.1.ocx">
+        <typelib tlbid="{945E8FCC-830E-45CC-AF00-A012D5AE7451}"  version="15.3" helpdir=""/>
+        <comClass description="Xtreme Docking Pane Control"               clsid="{DB7DEED9-8FC4-43A6-BA73-76BA33E14794}" progid="Codejock.DockingPane.15.3.1" threadingModel="Apartment" tlbid="{945E8FCC-830E-45CC-AF00-A012D5AE7451}"/>
+        <comClass description="Xtreme Docking Pane Frame Control"         clsid="{0491FE63-AD48-4DD9-8356-D1207FCEAC34}" progid="Codejock.DockingPaneFrame.15.3.1" threadingModel="Apartment" tlbid="{945E8FCC-830E-45CC-AF00-A012D5AE7451}"/>
+        <comClass description="Codejock.DockingPaneGlobalSettings.15.3.1" clsid="{A31B2204-3795-4764-8C56-C930510ABDCD}" progid="Codejock.DockingPaneGlobalSettings.15.3.1"/>
+    </file>
+
+    <file name="Bin/Codejock.Markup.v15.3.1.ocx">
+        <typelib tlbid="{C981544E-1A65-45D5-B80E-28746DFE8055}" version="15.3" helpdir=""/>
+        <comClass description="Xtreme Markup Label Control" 							clsid="{61E4F345-DD85-4E9E-AA55-0BB0EE51A81F}" progid="Codejock.MarkupLabel.15.3.1" threadingModel="Apartment" tlbid="{C981544E-1A65-45D5-B80E-28746DFE8055}"/>
+    </file>
+
+    <file name="Bin/Codejock.PropertyGrid.v15.3.1.ocx">
+        <typelib tlbid="{5B44EC52-B95B-45CF-98FF-A49DFEED5A92}" version="15.3" helpdir=""/>
+        <comClass description="Xtreme PropertyGrid Control"                clsid="{ED91DAE7-AD5C-4FA8-9025-0F8474FFC0D7}" progid="Codejock.PropertyGrid.15.3.1" threadingModel="Apartment" tlbid="{5B44EC52-B95B-45CF-98FF-A49DFEED5A92}"/>
+        <comClass description="Codejock.PropertyGridGlobalSettings.15.3.1" clsid="{245039B5-BA29-48F5-8E9A-0E8FDA033D71}" progid="Codejock.PropertyGridGlobalSettings.15.3.1"/>
+    </file>
+
+    <file name="Bin/Codejock.ReportControl.v15.3.1.ocx">
+        <typelib tlbid="{7CAC59E5-B703-4CCF-B326-8B956D962F27}" version="15.3" helpdir=""/>
+        <comClass description="Codejock.ReportRecord.15.3.1"                clsid="{A8A7F314-B5A6-40DA-96C0-C1806F03C691}" progid="Codejock.ReportRecord.15.3.1"/>
+        <comClass description="Xtreme Report Control"                       clsid="{6AC6E353-B13A-4F86-BC05-57AE005D952A}" progid="Codejock.ReportControl.15.3.1" threadingModel="Apartment" tlbid="{7CAC59E5-B703-4CCF-B326-8B956D962F27}"/>
+        <comClass description="Xtreme Track Control"                        clsid="{6A4E21AC-02D6-4998-9345-0704385A30B9}" progid="Codejock.TrackControl.15.3.1" threadingModel="Apartment" tlbid="{7CAC59E5-B703-4CCF-B326-8B956D962F27}"/>
+        <comClass description="Xtreme Report FieldChooser"                  clsid="{9F346692-6AF3-4C66-B8AE-6908CAB17EC7}" progid="Codejock.FieldChooser.15.3.1" threadingModel="Apartment" tlbid="{7CAC59E5-B703-4CCF-B326-8B956D962F27}"/>
+        <comClass description="Codejock.ReportControlGlobalSettings.15.3.1" clsid="{B4852EBC-73E6-4762-91F7-137100422E72}" progid="Codejock.ReportControlGlobalSettings.15.3.1"/>
+    </file>
+
+    <file name="Bin/Codejock.ShortcutBar.v15.3.1.ocx">
+        <typelib tlbid="{C8E5842E-102B-4289-9D57-3B3F5B5E15D3}" version="15.3" helpdir=""/>
+        <comClass description="Xtreme ShortcutBar Control"                clsid="{C55CC209-2BCE-4ED1-9A41-EF3704147E35}" progid="Codejock.ShortcutBar.15.3.1" threadingModel="Apartment" tlbid="{C8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Xtreme Shortcut Caption Control"           clsid="{5ACF9CEB-4ACD-4C05-9099-3ACE5A1A9E6C}" progid="Codejock.ShortcutCaption.15.3.1" threadingModel="Apartment" tlbid="{C8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Codejock.ShortcutBarGlobalSettings.15.3.1" clsid="{19A6E302-AC3A-4BC8-A6E5-A46C7D2F1C48}" progid="Codejock.ShortcutBarGlobalSettings.15.3.1"/>
+    </file>
+  
+    <file name="Bin/Codejock.SyntaxEdit.v15.3.1.ocx">
+        <typelib tlbid="{CA73588D-282F-4592-9369-A61CC244FADA}" version="15.3" helpdir=""/>
+        <comClass description="Xtreme Syntax Edit"                       clsid="{643D6410-40A6-46F8-8545-F2D2C4A4DED1}" progid="Codejock.SyntaxEdit.15.3.1" threadingModel="Apartment" tlbid="{CA73588D-282F-4592-9369-A61CC244FADA}"/>
+        <comClass description="Xtreme Syntax Edit Frame"                 clsid="{5E14995B-5759-485F-BC14-A8E0CA98E4F8}" progid="Codejock.SyntaxEditFrame.15.3.1" threadingModel="Apartment" tlbid="{CA73588D-282F-4592-9369-A61CC244FADA}"/>
+        <comClass description="Codejock.SyntaxEditGlobalSettings.15.3.1" clsid="{9821E7A3-D142-4C93-BFB1-C445E34E1121}" progid="Codejock.SyntaxEditGlobalSettings.15.3.1"/>
+    </file>
+
+    <file name="Bin/Codejock.TaskPanel.v15.3.1.ocx">
+        <typelib tlbid="{B8E5842E-102B-4289-9D57-3B3F5B5E15D3}" version="15.3" helpdir=""/>
+        <comClass description="Xtreme Task Panel Control"               clsid="{49670AC8-A87D-4FA5-B001-ED50B282FB51}" progid="Codejock.TaskPanel.15.3.1" threadingModel="Apartment" tlbid="{B8E5842E-102B-4289-9D57-3B3F5B5E15D3}"/>
+        <comClass description="Codejock.TaskPanelGlobalSettings.15.3.1" clsid="{4B85DF23-AD3C-4419-A8FE-E027413FB07A}" progid="Codejock.TaskPanelGlobalSettings.15.3.1"/>
+    </file>
+
+

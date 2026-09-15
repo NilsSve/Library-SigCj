@@ -1,0 +1,625 @@
+Use SigCJLibraries.pkg 
+Use Dftimer.pkg
+Register_Object oDockingManager
+
+Object oCommandBarSystem is a cSigCJRibbonBar 
+    
+    Object oSystemButton is a cSigCJSystemButton
+        Set pbSystemMenuShowGripper to False
+        Set piSystemMenuIconSize to 32 32  
+        Set psImage to "order.ico"
+        Object oNew is a cCJMenuItem
+            Set psImage to "newdoc_32.ico"
+            Set psCaption to "&New"
+            Set psShortcut to "Ctrl+N"
+        End_Object
+              
+        Object oOpen is a cCJMenuItem
+            Set psImage to "openfolder_32.ico"
+            Set psCaption to "&Open"
+            Set psShortcut to "Ctrl+O"
+        End_Object 
+        
+        Object oPrintPreview is a cCJMenuItem
+            Set psImage to "printer_32.ico"
+            Set psCaption to "&Print Preview"
+            Set psShortcut to "Ctrl+P"                
+        End_Object
+        
+        Object oExit is a cCJExitMenuItem
+            Set psImage to "Exit_32.ico"
+        End_Object 
+        
+        Object oContributors is a cCJMenuItem
+            Set psCaption to "VDF SIG UK"
+            Set pbControlFlagWrapRow to True 
+            Set peControlType to xtpControlLabel
+            
+            Procedure OnCreateControl Handle hoObj
+                Set ComHeight of hoObj to 24
+            End_Procedure
+            
+        End_Object
+
+        Object o1Donor is a cCJMenuItem
+            Set psCaption to "Martin Pincott" 
+            Set peControlStyle to xtpButtonCaption
+            
+            Procedure OnCreateControl Handle hoObj
+                Set ComHeight of hoObj to 24
+            End_Procedure                      
+        End_Object
+        
+        Object o2Donor is a cCJMenuItem
+            Set psCaption to "Ian Smith" 
+            
+            Procedure OnCreateControl Handle hoObj
+                Set ComHeight of hoObj to 24
+            End_Procedure                
+        End_Object
+
+        Object o3Donor is a cCJMenuItem
+            Set psCaption to "Peter Bragg" 
+            Set peControlStyle to xtpButtonCaption
+            
+            Procedure OnCreateControl Handle hoObj
+                Set ComHeight of hoObj to 24
+            End_Procedure                      
+        End_Object
+    End_Object
+
+    Object oQuickAccessToolbar is a cSigCJQuickAccessToolbar
+        Object oSaveItem is a cCJSaveMenuItem
+        End_Object
+        Object oDeleteItem is a cCJDeleteEditMenuItem
+        End_Object
+        Object oCutItem is a cCJCutMenuItem
+            Set pbControlBeginGroup to True
+        End_Object
+        Object oCopyAllItem is a cCJCopyMenuItem
+        End_Object
+        Object oPasteItem is a cCJPasteMenuItem
+        End_Object
+    End_Object 
+    
+    Object oMenuTab is a cSigCJRibbonTab 
+        Set psCaption to "Menu"
+        
+        #IFDEF C_Module_Orders 
+        Object oOrderViews is a cSigCJRibbonTabGroup
+            Set psCaption to "Order Views"
+            Set pbControlsCentered to True
+            
+            Object oOrderViews is a cCJMenuItem
+                Set peControlType to xtpControlPopup
+                Set psImage to "Windows_32.ico"
+                Set psCaption to "Order Views"
+                Set psToolTip to "Order Entry Views"
+                Object oCustomerEntry is a cCJMenuItem
+                    Set psCaption to "Customer Entry"
+                    
+                    Procedure OnExecute Variant vCommandBarControl
+                        Handle hoClient
+                        Get Client_Id to hoClient
+                        Send Activate_oCustomerView of hoClient
+                    End_Procedure
+                End_Object
+                Object oInventoryitem is a cCJMenuItem
+                    Set psCaption to "Inventory Item"
+                    
+                    Procedure OnExecute Variant vCommandBarControl
+                        Handle hoClient
+                        Get Client_Id to hoClient
+                        Send Activate_oInventoryView of hoClient
+                    End_Procedure
+                End_Object
+                Object oOrderEntry is a cCJMenuItem
+                    Set psCaption to "Order Entry"
+                    
+                    Procedure OnExecute Variant vCommandBarControl
+                        Handle hoClient
+                        Get Client_Id to hoClient
+                        Send Activate_oOrderEntryView of hoClient
+                    End_Procedure
+                End_Object
+                Object oSalesPerson is a cCJMenuItem
+                    Set psCaption to "Sales Person Entry"
+                    
+                    Procedure OnExecute Variant vCommandBarControl
+                        Handle hoClient
+                        Get Client_Id to hoClient
+                        Send Activate_oSalesPersonView of hoClient
+                    End_Procedure
+                End_Object
+                Object oVendors is a cCJMenuItem
+                    Set psCaption to "Vendor Entry"
+                    
+                    Procedure OnExecute Variant vCommandBarControl
+                        Handle hoClient
+                        Get Client_Id to hoClient
+                        Send Activate_oVendorView of hoClient
+                    End_Procedure
+                End_Object
+            End_Object
+      
+        End_Object
+        #ENDIF 
+        
+        #IFDEF C_Module_GeneralComponents
+        Object oGeneralCompontantViews is a cSigCJRibbonTabGroup
+            Set psCaption to "General Components"
+            
+            Procedure OnCreate
+                Forward Send OnCreate
+                
+                // Set ComAllowReduce to False
+            End_Procedure
+
+            Object oPushButtonsMenuItem is a cCJMenuItem
+                Set psCaption to "Push Buttons"
+                Set psTooltip to "Push Buttons"
+                Set psImage to "pushbuttons_16.ico"
+                Procedure OnExecute Variant vCommandBarControl
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oSigCJPushButtonDemo_View of hoClient
+                End_Procedure
+            End_Object
+
+            Object oTriStateCheckboxMenuItem is a cCJMenuItem
+                Set psCaption to "Tri-State Checkbox"
+                Set psTooltip to "Tri-State Checkbox"
+                Set psImage to "checkbox_16.ico"
+                
+                Procedure OnExecute Variant vCommandBarControl
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oSigCJCheckBoxDemo_View of hoClient
+                End_Procedure
+            End_Object
+
+            Object oMessageDialogsMenuItem is a cCJMenuItem
+                Set psCaption to "Message Dialogs"
+                Set psTooltip to "Message Dialogs"
+                Set psImage to "messagedialogs_16.ico"
+
+                Procedure OnExecute Variant vCommandBarControl
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oSigCJTaskDialogDemo_View of hoClient
+                End_Procedure
+            End_Object
+
+            Object oMonthCalendarMenuItem is a cCJMenuItem
+                Set psCaption to "Popup Calendar"
+                Set psTooltip to "Popup Calendar"
+                Set psImage to "popupcalendar_16.ico"
+                
+                Procedure OnExecute Variant vCommandBarControl
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oSigCJMonthCalendarDemo_View of hoClient
+                End_Procedure
+            End_Object
+
+            Object oPopupMessageControlMenuItem is a cCJMenuItem
+                Set psCaption to "Popup Message Control"
+                Set psTooltip to "Popup Message Control"
+                Set psImage to "message_16.ico"
+                
+                Procedure OnExecute Variant vCommandBarControl
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oSigCJPopupControlDemo_View of hoClient
+                End_Procedure
+            End_Object
+
+            Object oMarkupControlMenuItem is a cCJMenuItem
+                Set psCaption to "Markup Control"
+                Set psTooltip to "Markup Control"
+                Set psImage to "markup_16.ico"
+
+                Procedure OnExecute Variant vCommandBarControl
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oSIGCJLabelControlDemo_View of hoClient
+                End_Procedure
+            End_Object
+
+            Object oProgressBarControlMenuItem is a cCJMenuItem
+                Set psCaption to "Progress Bar"
+                Set psTooltip to "Progress Bar"
+                Set psImage to "ControlProgressBar.ico"
+
+                Procedure OnExecute Variant vCommandBarControl
+                    Handle hoClient
+                    Get Client_Id to hoClient
+                    Send Activate_oSIGCJProgressBarDemo_View of hoClient
+                End_Procedure
+            End_Object
+        End_Object
+        #ENDIF 
+        
+        Object oReportandCalendarViews is a cSigCJRibbonTabGroup
+            Set psCaption to "Report && Calendar"
+            Set pbControlsCentered to True
+
+            #IFDEF C_Module_ReportControl
+            Object oReportViews is a cCJMenuItem
+                Set peControlType to xtpControlPopup
+                Set psImage to "report_view_32.ico"
+                Set psCaption to "Report Control"
+                Set psToolTip to "Report View Demos"
+                Object oReportViewText is a cCJMenuItem
+                    Set psCaption to "Text File"
+                    
+                    Procedure OnExecute Variant vCommandBarControl
+                        Handle hoClient
+                        Get Client_Id to hoClient
+                        Send Activate_SigCjReportControlDemo_Text_View of hoClient
+                    End_Procedure
+                End_Object
+                Object oReportViewStandard is a cCJMenuItem
+                    Set psCaption to "Standard Table"
+                    
+                    Procedure OnExecute Variant vCommandBarControl
+                        Handle hoClient
+                        Get Client_Id to hoClient
+                        Send Activate_SigCjReportControlDemo_Table_View of hoClient
+                    End_Procedure
+                End_Object
+                Object oReportViewSQL is a cCJMenuItem
+                    Set psCaption to "SQL Table/Query"
+                    
+                    Procedure OnExecute Variant vCommandBarControl
+                        Handle hoClient
+                        Get Client_Id to hoClient
+                        Send Activate_SigCjReportControlDemo_SQL_View of hoClient
+                    End_Procedure
+                End_Object
+                Object oReportViewTree is a cCJMenuItem
+                    Set psCaption to "Tree Style"
+                    
+                    Procedure OnExecute Variant vCommandBarControl
+                        Handle hoClient
+                        Get Client_Id to hoClient
+                        Send Activate_oSigCJReportControlDemo_TreeView of hoClient
+                    End_Procedure
+                End_Object
+
+            End_Object
+            #ENDIF 
+            
+            #IFDEF C_Module_Calendar
+            Object oCalendarViews is a cCJMenuItem
+                Set pbControlBeginGroup to True
+                Set peControlType to xtpControlPopup
+                Set psImage to "calendar_view_32.ico"
+                Set psCaption to "Calendar Control"
+                Set psToolTip to "Calendar Control Demos"
+                
+                Object oSpecialDates is a cCJMenuItem
+                    Set psCaption to "Maintenance"
+                    
+                    Procedure OnExecute Variant vCommandBarControl
+                        Handle hoClient
+                        Get Client_Id to hoClient
+                        Send Activate_oCalendar_Maintenance_View of hoClient
+                    End_Procedure
+                End_Object
+                Object oCategories is a cCJMenuItem
+                    Set psCaption to "Demo"
+                    
+                    Procedure OnExecute Variant vCommandBarControl
+                        Handle hoClient
+                        Get Client_Id to hoClient
+                        Send Activate_oCalendar_Demo_View of hoClient
+                    End_Procedure
+                End_Object
+            End_Object
+            #ENDIF
+            
+            #IFDEF C_Module_Calendar_Old 
+            Object oOLDCalendarViews is a cCJMenuItem
+                Set pbControlBeginGroup to True
+                Set peControlType to xtpControlPopup
+                Set psImage to "calendar_view_32.ico"
+                Set psCaption to "OLD Calendar Control"
+                Set psToolTip to "OLD Calendar Control Demos"
+                Object oSpecialDates is a cCJMenuItem
+                    Set psCaption to "Special Dates"
+                    
+                    Procedure OnExecute Variant vCommandBarControl
+                        Handle hoClient
+                        Get Client_Id to hoClient
+                        Send Activate_oSigCJCalendarDemo_Special_Dates_View of hoClient
+                    End_Procedure
+                End_Object
+                Object oCategories is a cCJMenuItem
+                    Set psCaption to "Categories"
+                    
+                    Procedure OnExecute Variant vCommandBarControl
+                        Handle hoClient
+                        Get Client_Id to hoClient
+                        Send Activate_oSigCjCalendarDemo_Categories_View of hoClient
+                    End_Procedure
+                End_Object
+                Object oResource is a cCJMenuItem
+                    Set psCaption to "Calendar Resources"
+                    
+                    Procedure OnExecute Variant vCommandBarControl
+                        Handle hoClient
+                        Get Client_Id to hoClient
+                        Send Activate_oCalendar_Resources of hoClient
+                    End_Procedure
+                End_Object
+                Object oStandard is a cCJMenuItem
+                    Set psCaption to "Standard Calendar"
+                    
+                    Procedure OnExecute Variant vCommandBarControl
+                        Handle hoClient
+                        Get Client_Id to hoClient
+                        Send Activate_oSigCJCalendarDemo_Standard_View of hoClient
+                    End_Procedure
+                End_Object
+                Object oBespoke is a cCJMenuItem
+                    Set psCaption to "Bespoke Calendar"
+                    
+                    Procedure OnExecute Variant vCommandBarControl
+                        Handle hoClient
+                        Get Client_Id to hoClient
+                        Send Activate_oSigCJCalendarDemo_Bespoke_View of hoClient
+                    End_Procedure
+                End_Object
+                Object oResource is a cCJMenuItem
+                    Set psCaption to "Resource Calendar"
+                    
+                    Procedure OnExecute Variant vCommandBarControl
+                        Handle hoClient
+                        Get Client_Id to hoClient
+                        Send Activate_oSigCJCalendarDemo_Resource_View of hoClient
+                    End_Procedure
+                End_Object
+            End_Object
+            #ENDIF
+            
+            #IFDEF C_Module_Treeview
+            Object oTreeViewMenuItem is a cCJMenuItem
+                Set psCaption to "TreeView Control"
+                Set psTooltip to "TreeView Control"
+                Set peControlType to xtpControlPopup
+
+                Object oSimpleTreeViewMenuItem is a cCJMenuItem
+                    Set psCaption to "Simple TreeView"
+                    Set psTooltip to "Simple TreeView"
+
+                    Procedure OnExecute Variant vCommandBarControl
+                        Handle hoClient
+                        Get Client_Id to hoClient
+                        Send Activate_oSigCJTreeViewDemo_Simple_View of hoClient
+                    End_Procedure
+                End_Object
+
+                Object oSalesOrdersTreeViewMenuItem is a cCJMenuItem
+                    Set psCaption to "Sales Orders TreeView"
+                    Set psTooltip to "Sales Orders TreeView"
+
+                    Procedure OnExecute Variant vCommandBarControl
+                        Handle hoClient
+                        Get Client_Id to hoClient
+                        Send Activate_oSigCJTreeViewDemo_SalesOrders_View of hoClient
+                    End_Procedure
+                End_Object
+            End_Object // oTreeViewMenuItem
+            #ENDIF
+
+        End_Object
+        
+        #IFDEF C_Module_DockingManager
+        Object oDockingPanes is a cSigCJRibbonTabGroup
+            Set psCaption to "Docking Panes"
+
+            Object oPropertyGrid_Menu is a cCJMenuItem
+                Set psCaption     to "Property Grid"
+                Set psToolTip     to "Property Grid"
+                Set psDescription to "Property Grid"
+                Set psImage       to "Configure_16.ico"
+                Set pbActiveUpdate to True
+                       
+                Procedure OnExecute Variant vCommandBarControl
+                    Send ShowPane of oDockingManager C_Pane_Property_Grid
+                End_Procedure
+                
+                Function IsEnabled Returns Boolean
+                    Boolean bStatus
+                    Get IsPaneClosed of oDockingManager C_Pane_Property_Grid to bStatus
+                    Function_Return bStatus
+                End_Function
+                
+            End_Object
+            
+            Object oTaskPanel_Menu is a cCJMenuItem
+                Set psCaption     to "Task Panel"
+                Set psToolTip     to "Task Panel"
+                Set psDescription to "Task Panel"
+                Set psImage       to "ActionTileVertically.ico"
+                Set pbActiveUpdate to True
+                       
+                Procedure OnExecute Variant vCommandBarControl
+                    Send ShowPane of oDockingManager C_Pane_Task_Panel
+                End_Procedure
+                
+                Function IsEnabled Returns Boolean
+                    Boolean bStatus
+                    Get IsPaneClosed of oDockingManager C_Pane_Task_Panel to bStatus
+                    Function_Return bStatus
+                End_Function
+            End_Object
+
+            Object oShortCutBar_Menu is a cCJMenuItem
+                Set psCaption     to "Short Cut Bar"
+                Set psToolTip     to "Short Cut Bar"
+                Set psDescription to "Short Cut Bar"
+                Set psImage       to "WindowSidebar_16.ico"
+                Set pbActiveUpdate to True
+                       
+                Procedure OnExecute Variant vCommandBarControl
+                    Send ShowPane of oDockingManager C_Pane_Short_Cut_Bar
+                End_Procedure
+                
+                Function IsEnabled Returns Boolean
+                    Boolean bStatus
+                    Get IsPaneClosed of oDockingManager C_Pane_Short_Cut_Bar to bStatus
+                    Function_Return bStatus
+                End_Function
+            End_Object
+
+        End_Object
+        #ENDIF
+        
+        Object oManageGroup is a cSigCJRibbonTabGroup
+            Set psCaption to "Users"
+            
+            Object oManage is a cCJMenuItem
+                Set psCaption to "Manage User"
+                Set peControlStyle to xtpButtonIconAndCaptionBelow
+                Set psImage to "User_32.ico"
+                Set psToolTip to "Manage User"
+            End_Object
+            Object oNew is a cCJMenuItem
+                Set pbControlBeginGroup to True
+                Set psCaption to "New"
+                Set peControlStyle to xtpButtonIconAndCaptionBelow
+                Set psImage to "user_new_32.ico"
+                Set psToolTip to "Create New User"
+            End_Object
+            Object oDelete is a cCJMenuItem
+                Set psCaption to "Delete"
+                Set peControlStyle to xtpButtonIconAndCaptionBelow
+                Set psImage to "user_delete_32.ico"
+                Set psToolTip to "Delete User"
+            End_Object
+            Object oDelete is a cCJMenuItem
+                Set psCaption to "Groups"
+                Set peControlStyle to xtpButtonIconAndCaptionBelow
+                Set psImage to "user_group_32.ico"
+                Set psToolTip to "User Groups"
+            End_Object  
+            Object oPin is a cCJMenuItem
+                Set pbControlBeginGroup to True
+                Set psCaption to "Apply Pin"
+                Set psImage to "pinned_16.ico"
+                Set psToolTip to "Apply Pin"
+            End_Object
+            Object oLock is a cCJMenuItem
+                Set psCaption to "Lock Record"
+                Set psImage to "lock_16.ico"
+                Set psToolTip to "Lock Record"
+            End_Object
+            Object oFilter is a cCJMenuItem
+                Set psCaption to "Apply Filter"
+                Set psImage to "filter_16.ico"
+                Set psToolTip to "Lock Record"
+            End_Object
+        
+        End_Object
+        
+    End_Object
+    
+    Object oToolBarTab is a cSigCJRibbonTab
+        Set psCaption to "Toolbar"
+        Object oFindingGroup is a cSigCJRibbonTabGroup
+            Set psCaption to "Finding Toolbar"
+            Object oFindFirstTool is a cCJFindFirstMenuItem
+            End_Object
+    
+            Object oFindPreviousTool is a cCJFindPreviousMenuItem
+            End_Object
+    
+            Object oFindMenuTool is a cCJFindMenuItem
+            End_Object
+    
+            Object oFindNextTool is a cCJFindNextMenuItem
+            End_Object
+    
+            Object oFindLastTool is a cCJFindLastMenuItem
+            End_Object
+            Object oPromptToolItem is a cCJPromptMenuItem
+                Set pbControlBeginGroup to True
+            End_Object
+        End_Object
+        Object oDataEntryGroup is a cSigCJRibbonTabGroup
+            Set psCaption to "Data Entry Toolbar"
+            Object oClearToolItem is a cCJClearMenuItem
+                Set peControlStyle to xtpButtonIconAndCaption
+            End_Object
+            
+            Object oClearAllToolItem2 is a cCJClearAllMenuItem
+                Set peControlStyle to xtpButtonIconAndCaption
+            End_Object
+                
+            Object oSaveToolItem is a cCJSaveMenuItem
+                Set peControlStyle to xtpButtonIconAndCaption
+                Set pbControlBeginGroup to True
+            End_Object
+    
+            Object oDeleteToolItem is a cCJDeleteMenuItem
+                Set peControlStyle to xtpButtonIconAndCaption
+            End_Object
+        End_Object
+        Object oEditGroup is a cSigCJRibbonTabGroup
+            Set psCaption to "Edit Toolbar"
+            Object oCutToolbarItem is a cCJCutMenuItem
+            End_Object
+    
+            Object oCopyToolbarItem is a cCJCopyMenuItem
+            End_Object
+    
+            Object oPasteToolbarItem is a cCJPasteMenuItem
+            End_Object
+    
+            Object oDeleteEditToolbarItem is a cCJDeleteEditMenuItem
+                Set pbControlBeginGroup to True
+            End_Object
+            
+        End_Object
+
+    End_Object
+
+            
+    Object oStatusBar is a cCJStatusBar
+
+        Object oStatusTime is a cCJStatusBarPane
+            Set piWidth to 120
+            Set pbStyleNoBorders    to True
+        End_Object
+
+        Object oStatusPane1 is a cCJStatusBarPane
+            Set piID to sbpIDIdlePane
+            Set pbStyleStretch to True
+        End_Object
+
+        Object oStatusPane2 is a cCJStatusBarPane
+            Set phoViewPane to Self
+            Set pbStyleStretch to True
+        End_Object
+
+        Object oStatusCapslockState is a cCJStatusBarPane
+            Set piId to sbpIDCapslock
+        End_Object
+
+        Object oStatusNumlockState is a cCJStatusBarPane
+            Set piId to sbpIDNumLock
+        End_Object
+
+        Object oTimer is a DFTimer
+            Set Timer_Active_State to True
+            Procedure OnTimer
+                Set psText of oStatusTime to (Mid(CurrentDateTime(),19,1))   
+            End_Procedure
+            
+        End_Object  // oTimer
+
+    End_Object // oStatusBar
+
+End_Object

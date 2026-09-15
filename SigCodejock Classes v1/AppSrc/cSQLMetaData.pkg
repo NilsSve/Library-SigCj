@@ -1,0 +1,286 @@
+//*************************************************************************
+//*                                                                       *
+//*  Confidential Trade Secret.                                           *
+//*  Copyright (c) 1997-2001 Mertech Data System, Miami Florida,          *
+//*  All rights reserved.                                                 *
+//*  DataFlex is a registered trademark of Data Access Corporation.       *
+//*                                                                       *
+//************************************************************************/
+
+
+#REM -----------------------------------------------
+#REM Mertech Data Systems Inc. - www.mertechdata.com
+#REM cMetaData.pkg Version 1.0.3
+#REM -----------------------------------------------
+
+//================================================================================================
+//
+// 1.0.2 - WvA 12/06/2000 - Function TableCount, ColumnTableName, TableName added.
+//
+//------------------------------------------------------------------------------------------------
+//
+
+
+
+
+Class cMetaData Is A cObject
+  Procedure Construct_Object
+    Forward Send Construct_Object
+
+    // Contains the respective Dataflex fieldnumber of the column, if applicable.
+    Object oFieldNumbers Is A Array
+    End_Object // oFieldNumbers
+
+    // Contains the list of columnnames that participates in the select query
+    Object oColumnNames  Is A Array
+    End_Object // oColumnNames
+
+    Object oColumnDataTypes Is A Array
+    End_Object // oColumnDataTypes
+
+    Object oColumnDataLengths Is A Array
+    End_Object // oColumnDataLengths
+
+    Object oColumnDataScale Is A Array
+    End_Object // oColumnDataScale
+
+    Object oColumnOptions Is A Array
+    End_Object // oColumnOptions
+
+    // Contains the tablenames.
+    Object oTables Is A Set
+    End_Object // oTables
+  End_Procedure // Construct_Object
+
+
+  Function ColumnCount Returns Integer
+    Function_Return (Item_Count(oColumnNames(Self)))
+  End_Function // ColumnCount
+
+
+  Function TableCount Returns Integer
+    Function_Return (Item_Count(oTables(Self)))
+  End_Function // TableCount
+
+
+  Function FieldCount Returns Integer
+    Function_Return (Item_Count(oFieldNumbers(Self)))
+  End_Function // FieldCount
+
+
+  Procedure DoAddColumnName String sName
+    Local Integer iCount
+    Get ColumnCount To iCount
+    Set Array_Value Of (oColumnNames(Self)) Item iCount To sName
+    Set ColumnEnabledState Item (iCount+1) To True // Default
+  End_Procedure // DoAddColumnName
+
+
+  Procedure DoAddTable String sTable
+    Local Integer iItem hoTables iTable
+    Move (oTables(Self)) To hoTables
+    If (hoTables > Desktop) Begin
+      Get Find_Element Of hoTables sTable To iTable
+      If (iTable = -1) Begin
+        Move (Uppercase(Trim(sTable))) To sTable
+        If (sTable <> "") Begin
+          Send Add_Element To hoTables sTable
+        End
+        Else Send SQLException SQLX_TABLENAME_MISSING
+      End
+    End
+    Else Send SQLException SQLX_NO_TABLES_OBJ
+  End_Procedure // DoAddTable
+
+
+  Procedure Set ColumnName Integer iNdx String sName
+    Set Array_Value Of (oColumnNames(Self)) Item (iNdx-1) To sName
+  End_Procedure // Set ColumnName
+
+
+  Procedure Set ColumnDataType Integer iNdx String sType
+    Move (Uppercase(sType)) To sType
+    Set Array_Value Of (oColumnDataTypes(Self)) Item (iNdx-1) To sType
+  End_Procedure // Set ColumnDataType
+
+  Procedure Set ColumnEnabledState Integer iNdx Integer bState
+    Set Array_Value Of (oColumnOptions(Self)) Item (iNdx-1) To bState
+  End_Procedure // Set ColumnEnabledState
+
+
+  // Returns the datatype of Column iNdx as it is defined by the SQL engine that is
+  // used.
+  // The type is always uppercased.
+  Function ColumnDataType Integer iNdx Returns String
+    Local Integer iCount
+    Local String  sType
+    Get Item_Count Of (oColumnDataTypes(Self)) To iCount
+    If (iCount > 0 And iNdx <= iCount And iNdx > 0) ;
+      Get Array_Value Of (oColumnDataTypes(Self)) Item (iNdx-1) To sType
+    Else Move "" To sType
+    Function_Return sType
+  End_Function // ColumnDataType
+
+
+  Function ColumnEnabledState Integer iNdx Returns Integer
+    Local Integer bState
+    Get Array_Value Of (oColumnOptions(Self)) Item (iNdx-1) To bState
+    Function_Return bState
+  End_Function // ColumnEnabledState
+
+
+  // Pre: This should only be called AFTER the method DoAddColumnName
+  Procedure DoAddColumnDataType String sDataType
+    Local Integer iCount
+    Get ColumnCount To iCount
+    Move (Uppercase(sDataType)) To sDataType
+    Set Array_Value Of (oColumnDataTypes(Self)) Item (iCount-1) To sDataType
+  End_Procedure // DoAddColumnDataType
+
+
+  Procedure Set ColumnDataLength Integer iNdx Integer iLength
+    Set Array_Value Of (oColumnDataLengths(Self)) Item (iNdx-1) To iLength
+  End_Procedure // Set ColumnDataLength
+
+
+  Function ColumnDataLength Integer iNdx Returns Integer
+    Local Integer iLength iCount
+    Get Item_Count Of (oColumnDataLengths(Self)) To iCount
+    If (iCount > 0 And iNdx <= iCount And iNdx > 0) ;
+      Get Array_Value Of (oColumnDataLengths(Self)) Item (iNdx-1) To iLength
+    Else Move -1 To iLength
+    Function_Return iLength
+  End_Function // ColumnDataLength
+
+
+  Procedure DoAddColumnDataLength Integer iLength
+    Local Integer iCount
+    Get ColumnCount To iCount
+    Set Array_Value Of (oColumnDataLengths(Self)) Item (iCount-1) To iLength
+  End_Procedure // DoAddColumnDataLength
+
+
+  Procedure Set ColumnDataScale Integer iNdx Integer iScale
+    Set Array_Value Of (oColumnDataScale(Self)) Item (iNdx-1) To iScale
+  End_Procedure // Set ColumnDataScale
+
+
+  Function ColumnDataScale Integer iNdx Returns Integer
+    Local Integer iScale iCount
+    Get Item_Count Of (oColumnDataScale(Self)) To iCount
+    If (iCount > 0 And iNdx <= iCount And iNdx > 0) ;
+      Get Array_Value Of (oColumnDataScale(Self)) Item (iNdx-1) To iScale
+    Else Move -1 To iScale
+    Function_Return iScale
+  End_Function // ColumnDataScale
+
+
+
+  Procedure DoAddColumnDataScale Integer iScale
+    Local Integer iCount
+    Get ColumnCount To iCount
+    Set Array_Value Of (oColumnDataScale(Self)) Item (iCount-1) To iScale
+  End_Procedure // DoAddColumnDataScale
+
+
+  Procedure Set FieldNum Integer iNdx Integer iField
+    Set Array_Value Of (oFieldNumbers(Self)) Item (iNdx-1) To iField
+  End_Procedure // Set FieldNum
+
+
+  Function FieldNum Integer iNdx Returns Integer
+    Local Integer iField iCount
+    Get Item_Count Of (oFieldNumbers(Self)) To iCount
+    If (iCount > 0 And iNdx <= iCount And iNdx > 0) ;
+      Get Array_Value Of (oFieldNumbers(Self)) Item (iNdx-1) To iField
+    Else Move -1 To iField
+    Function_Return iField
+  End_Function // FieldNum
+
+
+
+  // Returns the name of the column in the resultset.
+  // Example: The column Code in table Customer will return "CODE"
+  // The first column = 1, the second = 2, etc...
+  Function ColumnName Integer iNdx Returns String
+    Local String sColumn
+    Get Array_Value Of (oColumnNames(Self)) Item (iNdx-1) To sColumn
+    Move (Right(sColumn,(Length(sColumn))-(Pos(".",sColumn)))) To sColumn
+    Function_Return sColumn
+  End_Function // ColumnName
+
+
+
+  // Returns the name of the tables used to create the resultset.
+  // The first table has index 1, the second = 2, etc...
+  Function TableName Integer iNdx Returns String
+    Local String sTableName
+    Get Array_Value Of (oTables(Self)) Item (iNdx-1) To sTableName
+    Function_Return sTableName
+  End_Function // TableName
+
+
+  Procedure DeleteAllData
+    Send Delete_Data To (oColumnNames(Self))
+    Send Delete_Data To (oFieldNumbers(Self))
+    Send Delete_Data To (oColumnDataTypes(Self))
+    Send Delete_Data To (oColumnDataLengths(Self))
+    Send Delete_Data To (oColumnDataScale(Self))
+    Send Delete_Data To (oTables(Self))
+  End_Procedure // DeleteAllData
+
+
+  // Returns the full name of the column in the resultset.
+  // Example: The column Code in table Customer will return "CUSTOMER.CODE"
+  // The first column = 1, the second = 2, etc...
+  Function FullColumnName Integer iNdx Returns String
+    Local String sColumn
+    Get Array_Value Of (oColumnNames(Self)) Item (iNdx-1) To sColumn
+    Function_Return sColumn
+  End_Function // FullColumnName
+
+
+  // Returns the name of the table from the column in the resultset.
+  // Example: If column 2 is equal to Code column in the Customer table, then a
+  //          get tableName 2 will return "CUSTOMER"
+  // The first column = 1, the second = 2, etc...
+  Function ColumnTableName Integer iNdx Returns String
+    Local String sColumn sTable
+    Get Array_Value Of (oColumnNames(Self)) Item (iNdx-1) To sColumn
+    Move (Left(sColumn, Pos(".",sColumn)-1)) To sTable
+    Function_Return sTable
+  End_Function // ColumnTableName
+
+
+  // To Do :
+  // Gets a column's table's catalog name.
+  // Parameters:
+  // column - the first column is 1, the second is 2, ...
+  // Returns:
+  // column name or "" if not applicable.
+  // Throws:
+  // SQLException - if a database access error occurs
+  Function CatalogName Integer iNdx Returns String
+    Function_Return "To Do :"
+  End_Function // CatalogName
+
+
+  // The following method is included for internal debugging purposes only
+  // Do Not Use This Method, it will be removed in future releases of this class.
+  Procedure ShowAllValues
+    Local Integer iCCount iFCount iColumn
+    Get ColumnCount To iCCount
+    Get FieldCount  To iFCount
+    Move 1 To iColumn
+    Showln ("MetaData ColumnCount ="*trim(iCCount)*"FieldCount ="*trim(iFCount))
+    While (iColumn <= iCCount)
+      If (iFCount = 0) ;
+        Showln ("MetaData Column ["+trim(iColumn)+"] = ["+FullColumnName(Self,iColumn)+"]")
+      Else ;
+        Showln ("MetaData Column ["+trim(iColumn)+"] = ["+FullColumnName(Self,iColumn)+"] Dataflex Fieldnr = ["+trim(FieldNum(Self,iColumn))+"]")
+      Increment iColumn
+    Loop
+  End_Procedure // ShowAllValues
+
+End_Class // cMetaData
+

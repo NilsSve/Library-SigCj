@@ -1,0 +1,9 @@
+#REPLACE FILE51 c_System
+#REPLACE c_System.Recnum |FN51,0
+#REPLACE c_System.L_URN_Events |FN51,1
+#REPLACE c_System.L_URN_RecPat |FN51,2
+#REPLACE c_System.L_URN_Categ |FN51,3
+#REPLACE c_System.L_URN_Sched |FN51,4
+#REPLACE c_System.L_URN_Layout |FN51,5
+#REPLACE c_System.Refresh_Data |FN51,6
+#REPLACE c_System.Clear_sp_Cache |FN51,7

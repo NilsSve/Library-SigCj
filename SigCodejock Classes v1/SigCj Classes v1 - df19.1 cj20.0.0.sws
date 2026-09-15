@@ -1,0 +1,12 @@
+[Properties]
+Version=19.1
+HideSystemClasses=true
+[WorkspacePaths]
+ConfigFile=.\Programs\Config.ws
+[Projects]
+Project0=NotNeeded.src
+[Libraries]
+Lib1=..\SigCodejock Wrapper 20.0.0 - DF19.1\SigCj Wrapper - df19.1 cj20.0.0.sws
+
+[Conditionals]
+Is$WebApp=False

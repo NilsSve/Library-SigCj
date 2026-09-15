@@ -1,0 +1,37 @@
+-----------------------------------------------------------------------------
+  DATE: 27/02/2012      TIME: 09:51                                  PAGE:  1
+  FILE DEFINITION FOR FILE: Users (# 19)
+-----------------------------------------------------------------------------
+  DRIVER NAME               : DATAFLEX
+  FILE ROOT NAME            : Users
+  USER DISPLAY NAME         : Users
+  DATAFLEX FILE NAME        : Users
+-----------------------------------------------------------------------------
+  RECORD LENGTH             : 56        ( USED: 54 )
+  MAX NUMBER OF RECORDS     : 10000     ( USED: 1 )
+  FILE COMPRESSION          : NONE
+  RE-USE DELETED SPACE      : YES
+  LOCKING TYPE              : FILE
+  HEADER INTEGRITY CHECKING : YES
+  TRANSACTION TYPE          : CLIENT ATOMIC
+  RECORD IDENTITY INDEX     : 0 ( 0 , 0 )
+  FILE LOGIN PARAMETER      : 
+  SYSTEM FILE               : NO 
+-----------------------------------------------------------------------------
+
+NUM  FIELD NAME       TYPE SIZE  OFFST IX   RELATES TO FILE.FIELD
+---  ---------------  ---- ----- ----- --   ---------------------------------
+  1  LoginName        ASC     10     1  1   
+  2  Password         ASC     10    11  2   
+  3  Rights           NUM    2.0    21      
+  4  Full_Name        ASC     30    22      
+  5  Last_Login       DAT      6    52      
+
+
+INDEX# FIELDS          DES U/C    LENGTH LEVELS SEGMENTS MODE
+------ --------------- --- ---    ------ ------ -------- -------
+  1    LoginName       NO  YES      10     3       1     ON-LINE
+
+  2    LoginName       NO  YES      20     3       2     ON-LINE
+       Password        NO  YES
+

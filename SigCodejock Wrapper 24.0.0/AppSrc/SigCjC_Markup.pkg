@@ -1,0 +1,535 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : SigCjC_Markup.pkg
+// Description  : Common Define / Class for Codejock controls
+//
+// Created by   : Ian Smith
+// Revision     : $Rev$
+//                $Date$
+//                $Author$
+//
+// Requirements : Visual DataFlex 24.0
+//                Codejock SuitePro - Version 24.0.0
+//
+// Copyright    : Copyright c 2008-2025 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+//CompilerWarnings Suspend
+
+Use FlexCom20.pkg
+
+Define OLEMarkupCursor for Integer
+    Define OLExtpMarkupCursorNone for 0
+    Define OLExtpMarkupCursorNo for 32648
+    Define OLExtpMarkupCursorArrow for 32512
+    Define OLExtpMarkupCursorAppStarting for 32650
+    Define OLExtpMarkupCursorCross for 32515
+    Define OLExtpMarkupCursorIBeam for 32513
+    Define OLExtpMarkupCursorSizeAll for 32646
+    Define OLExtpMarkupCursorSizeNESW for 32643
+    Define OLExtpMarkupCursorSizeNS for 32645
+    Define OLExtpMarkupCursorSizeNWSE for 32642
+    Define OLExtpMarkupCursorSizeWE for 32644
+    Define OLExtpMarkupCursorUpArrow for 32516
+    Define OLExtpMarkupCursorWait for 32514
+    Define OLExtpMarkupCursorHand for 32649
+
+Define OLEXTPMarkupSmoothingMode for Integer
+    Define OLExtpMarkupSmoothingDefault for 0
+    Define OLExtpMarkupSmoothingNone for 1
+    Define OLExtpMarkupSmoothingHighSpeed for 2
+    Define OLExtpMarkupSmoothingHighQuality for 3
+    Define OLExtpMarkupSmoothingAntiAlias for 4
+
+Class cSigCjComMarkupObject is a cComAutomationObject
+End_Class
+
+Class cSigCjComMarkupRoutedEvent is a cComAutomationObject
+
+    { MethodType=Property DesignTime=False }
+    Function ComName Returns String
+        Handle hDispatchDriver
+        String retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 100 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+End_Class
+
+Class cSigCjComMarkupThickness is a cComAutomationObject
+
+    { MethodType=Property DesignTime=False }
+    Function ComLeft Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 100 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComTop Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 101 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComRight Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 102 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComBottom Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 103 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+End_Class
+
+Class cSigCjComMarkupSolidColorBrush is a cComAutomationObject
+
+    { MethodType=Property DesignTime=False }
+    Function ComColor Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 100 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComColor Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 100 OLE_VT_I4 to value
+    End_Procedure
+End_Class
+
+Class cSigCjComMarkupUIElement is a cComAutomationObject
+
+    { MethodType=Property DesignTime=False }
+    Function ComCursor Returns OLEMarkupCursor
+        OLEMarkupCursor retVal
+        Get ComProperty of (phDispatchDriver(Self)) 100 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComCursor OLEMarkupCursor value
+        Set ComProperty of (phDispatchDriver(Self)) 100 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComToolTip Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) 101 OLE_VT_VARIANT to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComToolTip Variant value
+        Set ComProperty of (phDispatchDriver(Self)) 101 OLE_VT_VARIANT to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComName Returns String
+        String retVal
+        Get ComProperty of (phDispatchDriver(Self)) 113 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComName String value
+        Set ComProperty of (phDispatchDriver(Self)) 113 OLE_VT_BSTR to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComMouseLeave Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1004 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComMouseLeave Variant value
+        Set ComProperty of (phDispatchDriver(Self)) 1004 OLE_VT_DISPATCH to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComMouseEnter Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1005 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComMouseEnter Variant value
+        Set ComProperty of (phDispatchDriver(Self)) 1005 OLE_VT_DISPATCH to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComMouseLeftButtonUp Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1006 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComMouseLeftButtonUp Variant value
+        Set ComProperty of (phDispatchDriver(Self)) 1006 OLE_VT_DISPATCH to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComMouseLeftButtonDown Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1007 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComMouseLeftButtonDown Variant value
+        Set ComProperty of (phDispatchDriver(Self)) 1007 OLE_VT_DISPATCH to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComMouseRightButtonUp Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1008 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComMouseRightButtonUp Variant value
+        Set ComProperty of (phDispatchDriver(Self)) 1008 OLE_VT_DISPATCH to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComMouseRightButtonDown Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1009 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComMouseRightButtonDown Variant value
+        Set ComProperty of (phDispatchDriver(Self)) 1009 OLE_VT_DISPATCH to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComMouseMove Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1010 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComMouseMove Variant value
+        Set ComProperty of (phDispatchDriver(Self)) 1010 OLE_VT_DISPATCH to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComLostMouseCapture Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1011 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComLostMouseCapture Variant value
+        Set ComProperty of (phDispatchDriver(Self)) 1011 OLE_VT_DISPATCH to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComIsMouseOver Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 102 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComAddHandler Variant llEvent String llMethod
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llEvent
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llMethod
+        Send InvokeComMethod to hDispatchDriver 103 OLE_VT_VOID
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComMouseLeaveEvent Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 104 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComMouseEnterEvent Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 105 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComMouseLeftButtonUpEvent Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 106 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComMouseLeftButtonDownEvent Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 107 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComMouseRightButtonUpEvent Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 108 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComMouseRightButtonDownEvent Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 109 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComMouseMoveEvent Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 110 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComLostMouseCaptureEvent Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 111 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Function ComFindName String llName Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llName
+        Get InvokeComMethod of hDispatchDriver 112 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComCaptureMouse
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 114 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComReleaseMouseCapture
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 115 OLE_VT_VOID
+    End_Procedure
+End_Class
+
+Class cSigCjComMarkupContext is a cComAutomationObject
+
+    { MethodType=Property DesignTime=False }
+    Function ComEnableGdiPlus Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 7 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComEnableGdiPlus Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 7 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComDpiAware Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 43 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComDpiAware Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 43 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComIcons Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) 40 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComIcons Variant value
+        Set ComProperty of (phDispatchDriver(Self)) 40 OLE_VT_DISPATCH to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComDefaultSmoothingMode Returns OLEXTPMarkupSmoothingMode
+        OLEXTPMarkupSmoothingMode retVal
+        Get ComProperty of (phDispatchDriver(Self)) 44 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComDefaultSmoothingMode OLEXTPMarkupSmoothingMode value
+        Set ComProperty of (phDispatchDriver(Self)) 44 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComDefaultTextSmoothingEnabled Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 45 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComDefaultTextSmoothingEnabled Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 45 OLE_VT_BOOL to value
+    End_Procedure
+
+    Procedure ComSetMethod Variant llHandler String llMethod
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llHandler
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llMethod
+        Send InvokeComMethod to hDispatchDriver 1 OLE_VT_VOID
+    End_Procedure
+
+    Function ComCreateObject String llClass Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llClass
+        Get InvokeComMethod of hDispatchDriver 2 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Function ComCreateSolidBrush Integer llColor Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llColor
+        Get InvokeComMethod of hDispatchDriver 3 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Function ComCreateThickness Integer llleft Integer lltop Integer llright Integer llbottom Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 4
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llleft
+        Send DefineParam to hDispatchDriver OLE_VT_I4 lltop
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llright
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llbottom
+        Get InvokeComMethod of hDispatchDriver 4 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Function ComParse String llText Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llText
+        Get InvokeComMethod of hDispatchDriver 5 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComSetHandler Variant llHandler
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llHandler
+        Send InvokeComMethod to hDispatchDriver 6 OLE_VT_VOID
+    End_Procedure
+
+    Function ComValidateXML String llText Returns String
+        Handle hDispatchDriver
+        String retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llText
+        Get InvokeComMethod of hDispatchDriver 8 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComToolTipContext Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 39 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComFreezeUpdates
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 41 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComUnfreezeUpdates
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 42 OLE_VT_VOID
+    End_Procedure
+End_Class
+
+//==============================================================================
+//End of package - SigCjC_Markup.pkg
+//==============================================================================
+

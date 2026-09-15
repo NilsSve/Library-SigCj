@@ -1,0 +1,33 @@
+Use DataDict.pkg
+
+Open C_Categ
+Open C_System
+
+Register_Object oCalendar_Categories_sl
+
+Class cC_CategDataDictionary is a DataDictionary
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set Main_file to C_Categ.File_Number
+
+        Set Add_System_File to C_System.File_Number DD_Lock_On_All
+
+        Set Foreign_Field_Option DD_KEYFIELD DD_NOPUT to True
+        Set Foreign_Field_Option DD_KEYFIELD DD_FINDREQ to True
+        Set Foreign_Field_Option DD_INDEXFIELD DD_NOPUT to True
+        Set Foreign_Field_Option DD_DEFAULT DD_DISPLAYONLY to True
+
+        Set Field_Auto_Increment Field C_Categ.ID to File_Field C_System.L_URN_Categ
+
+        Set Field_Option Field c_Categ.Description DD_REQUIRED to True
+        Set Field_Prompt_Object Field c_Categ.Description to oCalendar_Categories_sl
+
+    End_Procedure
+
+End_Class
+
+#IFDEF Is$WebApp
+#ELSE
+Use Calendar_v2\Calendar_Categories.sl
+#ENDIF

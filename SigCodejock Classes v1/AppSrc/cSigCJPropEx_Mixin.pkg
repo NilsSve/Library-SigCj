@@ -1,0 +1,145 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJPropEx_Mixin.pkg
+// Description  : VDF Class mixin for Codejock Property Exchange class
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$ Martin Pincott
+// 
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//==============================================================================
+
+Use VDFBase.pkg
+
+Class cSigCJPropEx_Mixin is a Mixin
+
+    // Initialise, create properties etc
+    Procedure Initialise_PropEx_Mixin 
+
+        { Category="CodeJock" InitialValue=True }
+        Property Boolean pbPX_Delete_OnNoSave True
+
+        { Category="CodeJock" }
+        Property Boolean pbPX_Save_Layout False
+
+        { Category="CodeJock" }
+        Property String psPX_Class ""
+
+        { Category="CodeJock" }
+        Property String psPX_Tag ""
+
+    End_Procedure
+
+    { MethodType=Method }
+    Function PX_Registry_Key Returns String
+        String sRegKey sPX_Class sPX_Tag
+        
+        Get psPX_Class to sPX_Class 
+        Get psPX_Tag   to sPX_Tag
+        
+        Move (Trim(sPX_Class)) to sPX_Class
+        Move (Trim(sPX_Tag))   to sPX_Tag
+        
+        Get RegistryKeyString of ghoApplication to sRegKey
+
+        If (sPX_Class <> "") Move (sRegKey - "\" - sPX_Class ) to sRegKey
+        Else                 Move (sRegKey - "\Unknown_Class") to sRegKey
+        
+        If (sPX_Tag <> "") Move (sRegKey - "\" - sPX_Tag ) to sRegKey
+        Else               Move (sRegKey - "\Unknown_Tag") to sRegKey
+        
+        Function_Return sRegKey
+    End_Function
+
+    { MethodType=Method }
+    Procedure PX_Delete_Key String sRegKey
+        Boolean bExists bVoid
+        Handle  hoRegistry
+
+        Get Create U_cRegistry to hoRegistry
+            Set pbLazyWrite of hoRegistry to False
+            Get KeyExists of hoRegistry sRegKey to bExists
+            If (bExists) Begin
+                Get DeleteKey of hoRegistry sRegKey to bVoid
+            End
+        Send Destroy of hoRegistry
+    End_Procedure
+
+    { MethodType=Method }
+    Procedure PX_Load
+        Boolean bOK bExists bLoad bDelete
+        String sRegKey
+        Handle hoRegistry
+        
+        Get pbPX_Delete_OnNoSave to bDelete
+        Get pbPX_Save_Layout     to bLoad
+
+        If (bLoad) Begin
+            Get PX_Registry_Key to sRegKey
+
+            Get Create U_cRegistry to hoRegistry
+            Get KeyExists of hoRegistry sRegKey to bExists
+            Send Destroy  of hoRegistry 
+            
+            Get ComCreateAsRegistry of ghoSigCjPropEx True ("HKEY_CURRENT_USER\" + sRegKey) to bOk
+            If (bOk and bExists) Begin
+                Send ComDoPropExchange (pvComObject(ghoSigCjPropEx))
+            End
+        End
+      
+        //Delete reg key if not loading. This provides an easy way to delete the registry
+        //entries. Turn off loading and rerun the program. Deleting can be disabled by 
+        //setting pbPX_Delete_OnNoSave to false. It can be necessary to delete the 
+        //registry entries if the object structure of the application changes.
+        If (not(bLoad) and bDelete) Begin
+            Get PX_Registry_Key to sRegKey
+            Send PX_Delete_Key sRegKey
+        End
+    End_Procedure
+
+    { MethodType=Method }
+    Procedure PX_Save
+        Boolean bOK bExists bVoid
+        Handle  hoRegistry
+        String sRegKey
+        
+        If (pbPX_Save_Layout(Self)) Begin
+            Get PX_Registry_Key to sRegKey
+            
+            Get ComCreateAsRegistry of ghoSigCjPropEx False ("HKEY_CURRENT_USER\" - sRegKey) to bOk
+            
+            If bOk Begin
+                Send PX_Delete_Key sRegKey
+                Send ComDoPropExchange (pvComObject(ghoSigCjPropEx))
+            End
+        End
+    End_Procedure
+End_Class 
+
+//==============================================================================
+//End of Package - cSigCJPropEx_Mixin.pkg
+//==============================================================================

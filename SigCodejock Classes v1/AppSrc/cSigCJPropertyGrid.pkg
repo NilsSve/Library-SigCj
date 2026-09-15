@@ -1,0 +1,2691 @@
+﻿//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJPropertyGrid.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$ Martin Pincott
+// 
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//==============================================================================
+
+Use SigCjW_PropertyGrid.pkg
+Use cSigCJMethods_Mixin.pkg
+Use cSigCJGlobalSettings.pkg
+Use StdFont.pkg
+Use brdcster.pkg
+
+Register_Procedure OnMoveItemDataIn
+Register_Procedure OnMoveItemDataOut
+Register_Procedure ReadItemFromDatabase
+Register_Function  pbCapslock_State Returns Boolean
+
+//Redefine (rename) Themes
+Define ePGThm_Default                 for OLExtpGridThemeDefault
+Define ePGThm_NativeWinXP             for OLExtpGridThemeNativeWinXP
+Define ePGThm_Office2003              for OLExtpGridThemeOffice2003
+Define ePGThm_Cool                    for OLExtpGridThemeCool
+Define ePGThm_Simple                  for OLExtpGridThemeSimple
+Define ePGThm_Delphi                  for OLExtpGridThemeDelphi
+Define ePGThm_Whidbey                 for OLExtpGridThemeWhidbey
+Define ePGThm_OfficeXP                for OLExtpGridThemeOfficeXP
+Define ePGThm_Resource                for OLExtpGridThemeResource
+Define ePGThm_VisualStudio2010        for OLExtpGridThemeVisualStudio2010
+Define ePGThm_VisualStudio2012Light   for OLExtpGridThemeVisualStudio2012Light
+Define ePGThm_VisualStudio2012Dark    for OLExtpGridThemeVisualStudio2012Dark
+Define ePGThm_Office2013              for OLExtpGridThemeOffice2013
+
+//Redefine (rename) Border Styles
+Define ePGBs_None               for OLExtpGridBorderNone
+Define ePGBs_Flat               for OLExtpGridBorderFlat
+Define ePGBs_StaticEdge         for OLExtpGridBorderStaticEdge
+Define ePGBs_ClientEdge         for OLExtpGridBorderClientEdge
+//Redfine (rename) Data Types
+Define ePGItype_String          for OLEPropertyItemString
+Define ePGItype_Number          for OLEPropertyItemNumber
+Define ePGItype_Boolean         for OLEPropertyItemBool
+Define ePGItype_Color           for OLEPropertyItemColor
+Define ePGItype_Font            for OLEPropertyItemFont
+Define ePGItype_Double          for OLEPropertyItemDouble
+Define ePGItype_Date            for OLEPropertyItemDate
+Define ePGItype_Picture         for OLEPropertyItemPicture
+Define ePGItype_Enum            for OLEPropertyItemEnum
+Define ePGItype_EnumFlags       for OLEPropertyItemEnumFlags
+Define ePGItype_Category        for OLEPropertyItemCategory
+Define ePGItype_MultiLineString for OLEPropertyItemMultilineString
+//InPlaceButton Styles
+Define ePGIBS_Expand            for 100   // '...'
+Define ePGIBS_Combo             for 101
+//Edit Styles
+Define ePGEditStyle_Left        for OLEEditStyleLeft
+Define ePGEditStyle_Center      for OLEEditStyleCenter
+Define ePGEditStyle_Right       for OLEEditStyleRight
+Define ePGEditStyle_MultiLine   for OLEEditStyleMultiLine
+Define ePGEditStyle_Uppercase   for OLEEditStyleUpperCase
+Define ePGEditStyle_Lowercase   for OLEEditStyleLowerCase
+Define ePGEditStyle_AutoVScroll for OLEEditStyleAutoVscroll
+Define ePGEditStyle_AutoHScroll for OLEEditStyleAutoHscroll
+Define ePGEditStyle_Number      for OLEEditStyleNumber
+Define ePGEditStyle_VScroll     for OLEEditStyleVScroll
+Define ePGEditStyle_Password    for 32
+
+Struct tdGridItemSelectionValue
+    String  sDescription
+    Variant vCode
+    Integer iIconIndex
+    Integer iItemData
+End_Struct
+
+Struct tdPropertyItemMask
+    Boolean bSetMask
+    String  sMask
+    String  sLiteral
+    Variant vPrompt
+End_Struct
+
+{DocStart = Class}
+//---------------------------------------------------
+//
+// Class        : cSigCJPropertyGrid
+//
+// Superclass   : cSigCjComPropertyGrid 
+//
+// Package      : cSigCJPropertyGrid.pkg
+//
+// Mixins       : cSigCJImage_Manager_Mixin
+//
+// Description  : Represents a PropertyGrid control. The property grid comes with a built in toolbar for easy sorting 
+//                and grouping, and a help panel to display information on each selected item. 
+//
+// Properties   : peVisualTheme                 (Integer)
+//                prSplitterPos                 (Real)
+//                pbVariableSplitterPos         (Boolean)
+//                pbHighlightChanged            (Boolean)
+//                pbHelpVisible                 (Bolean)
+//                piHelpHeight                  (Integer)
+//                pbToolbarVisible              (Boolean)
+//                pbVariableHelpHeight          (Boolean)
+//                pbVariableItemsHeight         (Boolean)
+//                pbShowInPlaceButtonsAlways    (Boolean)
+//                peBorderStyle                 (Integer)
+//
+// Events       : OnMoveDataIn
+//                OnMoveDataOut
+//                OnItemChanged                 (Handle hoItem)
+//
+// Methods      : Procedure DoMoveDataIn                 
+//                Procedure DoMoveDataOut
+//                Procedure Apply
+//                Procedure DoEnumerateAllPropertyGridItems
+//                Function  AddImage            (String sImage Integer iId Integer eImageType Returns Integer)
+//
+// Notes        :
+//
+// To Do        : Currently unable to get psFormat to work for item type 'double'. Need to look at this
+//                                
+//---------------------------------------------------
+{DocEnd} 
+
+{ OverrideProperty=Label                     DesignTime=False }
+{ OverrideProperty=Label_Col_Offset          DesignTime=False }
+{ OverrideProperty=Label_Justification_Mode  DesignTime=False }
+{ OverrideProperty=Label_Row_Offset          DesignTime=False }
+{ OverrideProperty=peAnchors                 DesignTime=False }
+{ OverrideProperty=piMinSize                 DesignTime=False }
+{ OverrideProperty=TextColor                 DesignTime=False }
+{ OverrideProperty=Color                     DesignTime=False }
+{ OverrideProperty=Border_Style              DesignTime=False }
+{ OverrideProperty=Enabled_State             DesignTime=False }
+{ OverrideProperty=Visible_State             DesignTime=False }
+{ OverrideProperty=Attach_Parent_State       DesignTime=False }
+{ OverrideProperty=Block_Mouse_State         DesignTime=False }
+{ OverrideProperty=Client_Area_State         DesignTime=False }
+{ OverrideProperty=Delegation_Mode           DesignTime=False }
+{ OverrideProperty=Focus_Mode                DesignTime=False }
+{ OverrideProperty=pbBindValue               DesignTime=False }
+{ OverrideProperty=peAutoCreate              DesignTime=False }
+{ OverrideProperty=peNeighborhood            DesignTime=False }
+{ OverrideProperty=Popup_State               DesignTime=False }
+{ OverrideProperty=Ring_State                DesignTime=False }
+{ OverrideProperty=Scope_State               DesignTime=False }
+{ OverrideProperty=Search_Case               DesignTime=False }
+{ OverrideProperty=Skip_State                DesignTime=False }
+{ OverrideProperty=Help_Id                   DesignTime=False }
+{ OverrideProperty=Help_Keyword              DesignTime=False }
+{ OverrideProperty=psHtmlHelpTopic           DesignTime=False }
+{ OverrideProperty=Status_Help               DesignTime=False }
+{ OverrideProperty=Use_Parent_Status_Help    DesignTime=False }
+{ OverrideProperty=psLicenseKey              DesignTime=False }
+{ OverrideProperty=psProgID                  DesignTime=False }
+{ DesignerClass=None }
+Class cSigCJPropertyGrid is a cSigCjComPropertyGrid
+    Import_Class_Protocol cSigCJMethods_Mixin
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        // Define new Properties:
+        { DesignTime=False Visibility=Private }
+#IF (SigCj_Codejock_Version < 220000)  
+        Property Integer Private.peVisualTheme              OLExtpGridThemeResource
+#ELSE
+        Property Integer Private.peVisualTheme              OLExtpPropertyGridThemeResource
+#ENDIF
+        { DesignTime=False Visibility=Private }
+        Property Real Private.prSplitterPos                 0.5
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbVariableSplitterPos      True
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbHighlightChanged         True
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbHelpVisible              True
+        { DesignTime=False Visibility=Private }
+        Property Integer Private.piHelpHeight               50
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbToolbarVisible           True
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbVariableHelpHeight       False
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbVariableItemsHeight      False
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbShowInPlaceButtonsAlways False
+        { DesignTime=False Visibility=Private }
+        Property Integer Private.peBorderStyle              ePGBs_Flat                
+
+        //Property phoMainContainerObjectID
+        //The object ID of the main container object (ie the view) that contains any DDs that this grid will use
+        //Set automatically (in Item_Data_Set) if not specified, but can be set by the developer
+        Property Handle  phoMainContainerObjectID           (Parent(Self))
+        
+        // Create child objects:
+        Object oAllPropertyGridItems is a Broadcaster
+        End_Object
+
+        Set peAnchors to anAll  
+    End_Procedure
+
+    // Create and augment procedures and functions
+    { Category="CodeJock" }
+    { MethodType=Property }
+    { EnumList="ePGThm_Default, ePGThm_NativeWinXP, ePGThm_Office2003, ePGThm_Cool, ePGThm_Simple, ePGThm_Delphi, ePGThm_Whidbey, ePGThm_OfficeXP, ePGThm_Office2007" }
+    { InitialValue=ePGThm_Office2003 }
+    Procedure Set peVisualTheme Integer eTheme
+        Set SigCJProperty Set_Private.peVisualTheme Set_ComVisualTheme to eTheme
+    End_Procedure
+
+    { Category="CodeJock" }
+    { MethodType=Property }
+    Function peVisualTheme Returns Integer
+        Function_Return (Private.peVisualTheme(Self))
+    End_Function
+    
+    { Category="CodeJock" }
+    { MethodType=Property }
+    { InitialValue=0.5}
+    Procedure Set prSplitterPos Real rSplitterPos     
+        Boolean bIsCreated
+        
+        Get IsComObjectCreated to bIsCreated
+        If (bIsCreated) Begin
+            Set ComSplitterPos to rSplitterPos
+        End
+        Set Private.prSplitterPos to rSplitterPos
+    End_Procedure
+
+    { Category="CodeJock" }
+    { MethodType=Property }    
+    Function prSplitterPos Returns Real
+        Function_Return (Private.prSplitterPos(Self))
+    End_Function
+
+    { Category="CodeJock" }
+    { MethodType=Property }
+    { PropertyType=Boolean}
+    { InitialValue=True}
+    Procedure Set pbVariableSplitterPos Boolean bState
+        Set SigCJProperty Set_Private.pbVariableSplitterPos Set_ComVariableSplitterPos to bState           
+    End_Procedure
+
+    { Category="CodeJock" }
+    { MethodType=Property }
+    Function pbVariableSplitterPos Returns Boolean
+        Function_Return (Private.pbVariableSplitterPos(Self))
+    End_Function
+
+    { Category="CodeJock" } 
+    { MethodType=Property }
+    { PropertyType=Boolean }
+    { InitialValue=True }
+    Procedure Set pbHighlightChanged Boolean bState
+        Set SigCJProperty Set_Private.pbHighlightChanged Set_ComHighlightChangedItems to bState         
+    End_Procedure
+
+    { Category="CodeJock" }
+    { MethodType=Property }
+    Function pbHighlightChanged Returns Boolean
+        Function_Return (Private.pbHighlightChanged(Self))
+    End_Function   
+
+    { Category="CodeJock" } 
+    { MethodType=Property }
+    { PropertyType=Boolean }
+    { InitialValue=True }
+    Procedure Set pbHelpVisible Boolean bState
+        Set SigCJProperty Set_Private.pbHelpVisible Set_ComHelpVisible to bState            
+    End_Procedure
+
+    { Category="CodeJock" }
+    { MethodType=Property }
+    Function pbHelpVisible Returns Boolean
+        Function_Return (Private.pbHelpVisible(Self))
+    End_Function  
+
+    { Category="CodeJock" }
+    { MethodType=Property }
+    { InitialValue=50}
+    Procedure Set piHelpHeight Integer iHeight
+        Set SigCJProperty Set_Private.piHelpHeight Set_ComHelpHeight to iHeight           
+    End_Procedure
+
+    { Category="CodeJock" }
+    { MethodType=Property }
+    Function piHelpHeight Returns Integer
+        Function_Return (Private.piHelpHeight(Self))
+    End_Function  
+
+    { Category="CodeJock" } 
+    { MethodType=Property }
+    { PropertyType=Boolean }
+    { InitialValue=True }
+    Procedure Set pbToolbarVisible Boolean bState
+        Set SigCJProperty Set_Private.pbToolbarVisible Set_ComToolBarVisible to bState               
+    End_Procedure
+
+    { Category="CodeJock" }
+    { MethodType=Property }
+    Function pbToolbarVisible Returns Boolean
+        Function_Return (Private.pbToolbarVisible(Self))
+    End_Function     
+
+    { Category="CodeJock" } 
+    { MethodType=Property }
+    { PropertyType=Boolean }
+    { InitialValue=False }
+    Procedure Set pbVariableHelpHeight Boolean bState
+        Set SigCJProperty Set_Private.pbVariableHelpHeight Set_ComVariableHelpHeight to bState       
+    End_Procedure
+
+    { Category="CodeJock" }
+    { MethodType=Property }
+    Function pbVariableHelpHeight Returns Boolean
+        Function_Return (Private.pbVariableHelpHeight(Self))
+    End_Function  
+
+    { Category="CodeJock" } 
+    { MethodType=Property }
+    { PropertyType=Boolean }
+    { InitialValue=False }
+    Procedure Set pbVariableItemsHeight Boolean bState
+        Set SigCJProperty Set_Private.pbVariableItemsHeight Set_ComVariableItemsHeight to bState           
+    End_Procedure
+
+    { Category="CodeJock" }
+    { MethodType=Property }
+    Function pbVariableItemsHeight Returns Boolean
+        Function_Return (Private.pbVariableItemsHeight(Self))
+    End_Function  
+
+    { Category="CodeJock" } 
+    { MethodType=Property }
+    { PropertyType=Boolean }
+    { InitialValue=False }
+    Procedure Set pbShowInPlaceButtonsAlways Boolean bState
+        Set SigCJProperty Set_Private.pbShowInPlaceButtonsAlways Set_ComShowInplaceButtonsAlways to bState          
+    End_Procedure
+
+    { Category="CodeJock" }
+    { MethodType=Property }
+    Function pbShowInPlaceButtonsAlways Returns Boolean
+        Function_Return (Private.pbShowInPlaceButtonsAlways(Self))
+    End_Function  
+
+    { Category="CodeJock" }
+    { MethodType=Property }
+    { EnumList="ePGBs_None, ePGBs_Flat, ePGBs_StaticEdge, ePGBs_ClientEdge" }
+    { InitialValue=ePGBs_Flat }
+    Procedure Set peBorderStyle Integer eStyle
+        Set SigCJProperty Set_Private.peBorderStyle Set_ComBorderStyle to eStyle
+    End_Procedure
+
+    { Category="CodeJock" }
+    { MethodType=Property }
+    Function peBorderStyle Returns Integer
+        Function_Return (Private.peBorderStyle(Self))
+    End_Function    
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : Item_Data_Set
+    //
+    // Scope        : Private 
+    //
+    // Paramaters   : iFile_Number
+    //
+    // Returns      : Handle
+    //
+    // Purpose      : Pass a file number and this function will return the object id of the DDO in the view whose main_file
+    //                matches the passed value. Uses internally when binding property grid items to a database (Procedure BindToDataBase)
+    //                
+    // Notes        : 
+    //               
+    //---------------------------------------------------
+    {DocEnd}     
+    { MethodType=Method Visibility=Private }
+    Function Item_Data_Set Integer iFile_Number Returns Handle
+        Handle hoDDO hoMainContainer
+        Integer iClient_ID
+        
+        Get phoMainContainerObjectID to hoMainContainer
+        If (hoMainContainer = 0) Begin
+            Get Client_Id to iClient_ID
+            If (iClient_ID <> 0) Begin
+                Move Self to hoMainContainer
+                While ((Parent(hoMainContainer) <> iClient_ID) and (hoMainContainer <> 0))
+                    Get Parent of hoMainContainer to hoMainContainer
+                Loop 
+                Set phoMainContainerObjectID to hoMainContainer
+            End
+        End
+        If (hoMainContainer <> 0) Begin
+            Broadcast Get Data_Set of hoMainContainer iFile_Number to hoDDO
+        End
+        Function_Return hoDDO
+    End_Function
+        
+    Procedure OnCreate
+        //Apply Property Grid Settings...
+        Set ComIcons to (ComIcons(ghoSigCjGlobalSetting))
+        
+        Set peVisualTheme to (Private.peVisualTheme(Self))         
+        Set prSplitterPos to (Private.prSplitterPos (Self))         
+        Set pbVariableSplitterPos to (Private.pbVariableSplitterPos(Self))    
+        Set pbHighlightChanged to (Private.pbHighlightChanged(Self))       
+        Set pbHelpVisible to (Private.pbHelpVisible(Self))             
+        Set piHelpHeight to (Private.piHelpHeight(Self))            
+        Set pbToolbarVisible to (Private.pbToolbarVisible(Self))           
+        Set pbVariableHelpHeight to (Private.pbVariableHelpHeight(Self))       
+        Set pbVariableItemsHeight to (Private.pbVariableItemsHeight(Self))     
+        Set pbShowInPlaceButtonsAlways to (Private.pbShowInPlaceButtonsAlways(Self)) 
+        Set peBorderStyle to (Private.peBorderStyle(Self))  
+        //Create Child Objects
+        Broadcast Send Private.Create Self True
+        //Upload Data
+        Send DoMoveDataIn
+    End_Procedure
+    
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : DoEnumerateAllPropertyGridItems
+    //
+    // Scope        : Public 
+    //
+    // Paramaters   : iMsg
+    //
+    // Returns      : None
+    //
+    // Purpose      : As objects of type cSigCJPropertyGridItem are created they are registered with a Broadcaster object
+    //                DoEnumerateAllPropertyGridItems simply sends the passed message to all registered objects
+    //                
+    // Notes        : 
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+    
+    { MethodType=Method Visibility=Public }
+    Procedure DoEnumerateAllPropertyGridItems Integer iMsg
+        Set broadcast_state of (oAllPropertyGridItems(Self)) to True
+        Send iMsg of (oAllPropertyGridItems(Self))
+        Set broadcast_state of (oAllPropertyGridItems(Self)) to False
+    End_Procedure
+
+    
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : OnMoveDataIn
+    //
+    // Scope        : Event
+    //
+    // Paramaters   : None
+    //
+    // Returns      : None
+    //
+    // Purpose      : Called from DoMoveDataIn. Simple hook that can used for moving data into the control (ie find a record in a dd)
+    //                
+    // Notes        : The message OnMoveItemDataIn will also be sent to all grid items 
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+    
+    {MethodType=Event}
+    Procedure OnMoveDataIn
+    End_Procedure
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : OnMoveDataOut
+    //
+    // Scope        : Event
+    //
+    // Paramaters   : None
+    //
+    // Returns      : None
+    //
+    // Purpose      : Called from DoMoveDataOut. Simple hook that can used for moving data out of the control
+    //                
+    // Notes        : The message OnMoveItemDataOut will also be sent to all grid items 
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+        
+    {MethodType=Event}
+    Procedure OnMoveDataOut
+    End_Procedure    
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : DoMoveDataIn
+    //
+    // Scope        : Public Method
+    //
+    // Paramaters   : None
+    //
+    // Returns      : None
+    //
+    // Purpose      : Calls OnMoveDataIn of the property grid object and also OnMoveItemDataIn of all property grid item objects
+    //                
+    // Notes        : Can be called as a means of loading the property grid items with data 
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+        
+    { MethodType=Method Visibility=Public }
+    Procedure DoMoveDataIn
+        Send OnMoveDataIn
+        Send DoEnumerateAllPropertyGridItems Msg_ReadItemFromDatabase
+        Send DoEnumerateAllPropertyGridItems msg_OnMoveItemDataIn
+    End_Procedure    
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : DoMoveDataOut
+    //
+    // Scope        : Public Method
+    //
+    // Paramaters   : None
+    //
+    // Returns      : None
+    //
+    // Purpose      : Calls OnMoveDataOut of the property grid object and also OnMoveItemDataOut of all property grid item objects
+    //                
+    // Notes        : Can be called as a means of saving the property grid's data (from Request_save for example)
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+        
+    { MethodType=Method Visibility=Public }
+    Procedure DoMoveDataOut
+        Send OnMoveDataOut
+        Send DoEnumerateAllPropertyGridItems msg_OnMoveItemDataOut
+    End_Procedure
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : Apply
+    //
+    // Scope        : Public Method
+    //
+    // Paramaters   : None
+    //
+    // Returns      : None
+    //
+    // Purpose      : Simply sends DoMoveDataOut
+    //                
+    // Notes        : If you have coded OnMoveDataOut and OnMoveItemDataOut to save data to the database, it can be triggered simply
+    //                by calling 'Apply' of the control
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+        
+    { MethodType=Method Visibility=Public }
+    Procedure Apply
+        Send DoMoveDataOut
+    End_Procedure
+    
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : OnComInplaceButtonDown
+    //
+    // Scope        : Private Event
+    //
+    // Paramaters   : llButton, llCancel
+    //
+    // Returns      : None
+    //
+    // Purpose      : Called when ever an items lookup button is clicked. 
+    //                Sends OnClick to the appropriate item object
+    //                
+    // Notes        : Called internally. Developer does not need to concern themself with this
+    //                Only objects of class cSigCJPropertyGridComboFormItem and cSigCJPropertyGridExpandbtnItem will receive OnClick
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+    
+    {MethodType=Event}
+    Procedure OnComInplaceButtonDown Variant llButton Variant llCancel
+        Handle hoButton hoItem hoObject_ID
+        Variant vGridItem
+        
+        Get Create U_cSigCjComPropertyGridInplaceButton to hoButton
+        Set pvComObject of hoButton to llButton
+        Get ComItem of hoButton to vGridItem
+        Get Create U_cSigCjComPropertyGridItem to hoItem
+        Set pvComObject of hoItem to vGridItem
+        Get ComID of hoItem to hoObject_ID
+        Send Destroy of hoItem
+        Send Destroy of hoButton
+        If (hoObject_ID <> 0) Begin
+            Send OnClick of hoObject_ID
+        End       
+    End_Procedure
+
+    {MethodType=Event}
+    //Fired when ever a combo is dropped down or expand button clicked
+    Procedure OnClick
+    End_Procedure    
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : OnItemChanged
+    //
+    // Scope        : Public Event
+    //
+    // Paramaters   : Handle hoItem
+    //
+    // Returns      : None
+    //
+    // Purpose      : Occurs when a value of any PropertyGridItem has changed.
+    //                
+    // Notes        : 
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+        
+    {MethodType=Event}
+    Procedure OnItemChanged Handle hoItem
+    End_Procedure
+    
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : OnComValueChanged
+    //
+    // Scope        : Private Event
+    //
+    // Paramaters   : llItem
+    //
+    // Returns      : None
+    //
+    // Purpose      : Occurs when the value of a PropertyGridItem has changed.
+    //                Sends OnChange message to item object
+    //                
+    // Notes        : Called internally. Developer does not need to concern themself with this
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+        
+    {MethodType=Event}
+    Procedure OnComValueChanged Variant llItem
+        Handle hoItem hoObject_ID
+        
+        Get Create U_cSigCjComPropertyGridItem to hoItem
+        Set pvComObject of hoItem to llItem
+        Get ComID of hoItem to hoObject_ID
+        Send Destroy of hoItem
+        If (hoObject_ID <> 0) Begin
+            Send MoveItemDataToDatabase of hoObject_ID  
+            Send OnChange of hoObject_ID
+            Send OnItemChanged hoObject_ID
+        End     
+    End_Procedure
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : OnComAfterEdit
+    //
+    // Scope        : Private Event
+    //
+    // Paramaters   : llItem, llNewValue (byRef), llCancel (byRef)
+    //
+    // Returns      : None
+    //
+    // Purpose      : Called when an edit operation is complete
+    //                Sends OnEditAfter message to item object
+    //                
+    // Notes        : Called internally. Developer does not need to concern themself with this
+    //               
+    //---------------------------------------------------
+    {DocEnd}     
+    
+    Procedure OnComAfterEdit Variant llItem String ByRef llNewValue Boolean ByRef llCancel
+        Handle hoItem hoObject_ID
+        
+        Get Create U_cSigCjComPropertyGridItem to hoItem
+        Set pvComObject of hoItem to llItem
+        Get ComID of hoItem to hoObject_ID
+        Send Destroy of hoItem
+        If (hoObject_ID <> 0) Begin
+            Send OnEditAfter of hoObject_ID (&llNewValue) (&llCancel)
+        End 
+    End_Procedure
+    
+    
+End_Class
+
+{DocStart = Class}
+//---------------------------------------------------
+// Mixin Class  : cSigCJPropertyGridItem_Mixin
+//---------------------------------------------------
+{DocEnd} 
+
+Class cSigCJPropertyGridItem_Mixin is a Mixin
+    Import_Class_Protocol cSigCJMethods_Mixin
+    
+    { MethodType=Method Visibility=Private }
+    Procedure Define_Standard_Item_Properties
+        { DesignTime=False }
+        Property String Private.psLabel     ''
+        { DesignTime=False }
+        Property String Private.psImage                 ''          
+        { DesignTime=False }
+        Property String Private.psHelpText  ''
+        { DesignTime=False }
+        Property String Private.psToolTip   ''        
+        { DesignTime=False }
+        Property Boolean Private.pbCreateExpanded       True  
+        { DesignTime=False }
+        Property Boolean Private.pbLabelEmboldened      False
+        
+        {DesignTime=False}
+        Property Handle  Private.phoPropertyCaptionMetrics  (Create(Self, U_cSigCjComPropertyGridItemMetrics))
+        {DesignTime=False}
+        Property Handle  Private.phoPropertyValueMetrics    (Create(Self, U_cSigCjComPropertyGridItemMetrics))     
+    End_Procedure
+    
+    {MethodType=Method Visibility=Private}
+    Procedure Bind_Metrics
+        Set pvComObject of (Private.phoPropertyCaptionMetrics(Self)) to (ComCaptionMetrics(Self))
+        Set pvComObject of (Private.phoPropertyValueMetrics(Self)) to (ComValueMetrics(Self))    
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock"}
+    Procedure Set psLabel String sLabel
+        Set SigCJProperty Set_Private.psLabel Set_ComCaption to sLabel
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock"}
+    Function psLabel Returns String
+        Function_Return (Private.psLabel(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set psImage String sImage
+        Integer iImageID
+        
+        If (not(IsNullComObject(pvComObject(Self)))) Begin
+            Get AddImage of ghoSigCjGlobalSetting sImage 0 0 to iImageID //Won't add it again if already uploaded once
+            If (not(IsNullComObject(pvComObject(Private.phoPropertyCaptionMetrics(Self))))) Begin        
+                Set ComIconIndex of (Private.phoPropertyCaptionMetrics(Self)) to iImageID    
+            End
+        End
+        Set Private.psImage to sImage
+    End_Procedure  
+    
+    { MethodType=Property Category="CodeJock" }
+    Function psImage Returns String
+        Function_Return (Private.psImage(Self))
+    End_Function  
+    
+    { MethodType=Property Category="CodeJock"}
+    Procedure Set psHelpText String sHelpText
+        Set SigCJProperty Set_Private.psHelpText Set_ComDescription to sHelpText
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock"}
+    Function psHelpText Returns String
+        Function_Return (Private.psHelpText(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock"}
+    Procedure Set psToolTip String sToolTip
+        Set SigCJProperty Set_Private.psToolTip Set_ComToolTip to sToolTip
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock"}
+    Function psToolTip Returns String
+        Function_Return (Private.psToolTip(Self))
+    End_Function
+    
+    { MethodType=Property Category="CodeJock"}
+    { PropertyType=Boolean InitialValue=True } 
+    Procedure Set pbCreateExpanded Boolean bExpanded
+        Boolean bExpandable
+
+        If (not(IsNullComObject(pvComObject(Self)))) Begin        
+            Get ComExpandable to bExpandable
+            If (bExpandable) Begin
+                Set ComExpanded to bExpanded    
+            End
+        End
+        Set Private.pbCreateExpanded to bExpanded
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock"}
+    Function pbCreateExpanded Returns Boolean
+        Function_Return (Private.pbCreateExpanded(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock"}
+    { PropertyType=Boolean InitialValue=True }    
+    Procedure Set pbLabelEmboldened Boolean bState
+        Handle hoFont
+        Variant vFont
+        Boolean bUnderlined
+        
+        If (not(IsNullComObject(pvComObject(Self)))) Begin
+            If (not(IsNullComObject(pvComObject(Private.phoPropertyCaptionMetrics(Self))))) Begin
+                Get Create U_cComStdFont to hoFont 
+                Get ComFont of (Private.phoPropertyCaptionMetrics(Self)) to vFont  
+                Set pvComObject of hoFont to vFont
+                Get ComUnderline of hoFont to bUnderlined
+                Set ComUnderline of hoFont to True
+                Set ComBold of hoFont to bState
+                Set ComUnderline of hoFont to bUnderlined
+                Send Destroy of hoFont  
+            End
+        End  
+        Set Private.pbLabelEmboldened to bState
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock"}
+    Function pbLabelEmboldened Returns Boolean
+        Function_Return (Private.pbLabelEmboldened(Self))
+    End_Function
+        
+End_Class
+
+{DocStart = Class}
+//---------------------------------------------------
+//
+// Class        : cSigCJPropertyGridCategory
+//
+// Superclass   : cSigCjComPropertyGridItem 
+//
+// Package      : cSigCJPropertyGrid.pkg
+//
+// Mixins       : cSigCJPropertyGridItem_Mixin
+//
+// Description  : Categories are used to group PropertyGritItems into groups within the PropertyGrid. Categories have an 
+//                expand/collapse button that can be used to Show/hide the PropertyGridItems that belong the the category.
+//
+// Properties   : psLabel               (String)
+//                psHelpText            (String)
+//                psToolTip             (String)
+//                pbCreateExpanded      (Boolean)
+//                pbLabelEmboldened     (Boolean)
+//
+// Events       : 
+//
+// Methods      :                 
+//
+// Notes        :
+//
+// To Do        :           
+//               
+//---------------------------------------------------
+{DocEnd} 
+
+{ OverrideProperty=psLicenseKey    DesignTime=False }
+{ OverrideProperty=psProgID        DesignTime=False }
+{ OverrideProperty=Delegation_Mode DesignTime=False }
+{ OverrideProperty=peAutoCreate    DesignTime=False }
+{ OverrideProperty=peNeighborhood  DesignTime=False }
+
+Class cSigCJPropertyGridCategory is a cSigCjComPropertyGridItem
+    Import_Class_Protocol cSigCJMethods_Mixin
+    Import_Class_Protocol cSigCJPropertyGridItem_Mixin
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        // Define new Properties:
+        Send Define_Standard_Item_Properties
+        
+        // Create child objects:
+
+        // Set property values:
+        Set Private.pbLabelEmboldened to True
+    End_Procedure
+
+    // Create and augment procedures and functions
+        
+    { MethodType=Method Visibility=Private }
+    Procedure Private.Create Handle hoParent Boolean bRecursive
+        Variant vCategory
+        
+        //check for parent
+        If (hoParent = 0) Begin
+            Procedure_Return
+        End
+        Get ComAddCategory (Private.psLabel(Self)) to vCategory
+        Set pvComObject to vCategory
+        Send Bind_Metrics  
+        Set pbLabelEmboldened to (Private.pbLabelEmboldened(Self))
+        Set pbCreateExpanded to (Private.pbCreateExpanded(Self))
+        Set psImage to (Private.psImage(Self))
+        Set psHelpText to (Private.psHelpText(Self))
+        If (bRecursive) Begin
+            Broadcast Send Private.Create Self True
+        End
+    End_Procedure
+        
+End_Class
+
+{DocStart = Class}
+//---------------------------------------------------
+//
+// Class        : cSigCJPropertyGridItem
+//
+// Superclass   : cSigCjComPropertyGridItem 
+//
+// Package      : cSigCJPropertyGrid.pkg
+//
+// Mixins       : cSigCJPropertyGridItem_Mixin
+//
+// Description  : Represents an item in the Property Grid.
+//
+// Properties   : psLabel                 (String)  
+//                psHelpText              (String)  
+//                psToolTip               (String)  
+//                pbCreateExpanded        (Boolean) 
+//                pbLabelEmboldened       (Boolean) 
+//                peItemType              (Integer)
+//                pvValue                 (Variant)
+//                pbDefaultAsInitialValue (Boolean) 
+//                pvDefaultValue          (Variant)
+//                pvInitialValue          (Variant)
+//                pvTag                   (Variant)
+//                pbHidden                (Boolean) 
+//                pbReadOnly              (Boolean) 
+//                pbPassword_State        (Boolean)
+//                pbCapslock_State        (Boolean)
+//                piForm_Margin           (Integer) 
+//                piValueBackgroundColor  (Integer)
+//                psImage                 (String)
+//                psFormat                (String)
+//
+//                READ-ONLY ***
+//                Item_Server             (Handle)
+//                Item_Data_Field         (Integer)
+//
+// Events       : OnChange          
+//                OnEditAfter       
+//                OnMoveItemDataIn  
+//                OnMoveItemDataOut 
+//
+// Methods      : Procedure Set PropertyItemMask (String llMask String llLiteral Variant llPrompt)   
+//                Procedure BindToDatabase (integer hFile integer iField) 
+//                MoveItemDataToDatabase
+//                ReadItemFromDatabase 
+//
+// Notes        : Example call of BindToDatabase: Send BindToDatabase File_Field Sysfile.Field_1
+//
+// To Do        :           
+//               
+//---------------------------------------------------
+{DocEnd} 
+
+{ OverrideProperty=psLicenseKey    DesignTime=False }
+{ OverrideProperty=psProgID        DesignTime=False }
+{ OverrideProperty=Delegation_Mode DesignTime=False }
+{ OverrideProperty=peAutoCreate    DesignTime=False }
+{ OverrideProperty=peNeighborhood  DesignTime=False }
+
+Class cSigCJPropertyGridItem is a cSigCjComPropertyGridItem
+    Import_Class_Protocol cSigCJMethods_Mixin
+    Import_Class_Protocol cSigCJPropertyGridItem_Mixin
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        // Define new Properties:
+        Send Define_Standard_Item_Properties
+        
+        { DesignTime=False }
+        Property Integer Private.peItemType             ePGItype_String
+        { DesignTime=False }
+        Property Variant Private.pvValue
+        { DesignTime=True }
+        Property Boolean pbDefaultAsInitialValue        True  
+        { DesignTime=False }
+        Property Variant Private.pvDefaultValue
+        { DesignTime=False }
+        Property Variant Private.pvTag  
+        { Visibility=Private }
+        Property tdPropertyItemMask ptPropertyItemMask
+        { DesignTime=False }
+        Property Boolean Private.pbHidden               False
+        { DesignTime=False }
+        Property Boolean Private.pbReadOnly             False
+        { DesignTime=False }
+        Property Boolean Private.pbIsPassword           False
+        { DesignTime=False }
+        Property Boolean Private.pbCapslock             False
+        { DesignTime=False }
+        Property Integer Private.piFormMargin           0
+        { DesignTime=False }
+        Property Integer Private.piValueBackgroundColor clWindow 
+        { DesignTime=False }
+        Property Integer Private.piValueForeColor clBlack
+        { DesignTime=False }
+        Property String  Private.psFormat               ''    
+        
+        //If this item is linked to a field in a database, we may like properties
+        //to store the server and field values
+        { DesignTime=False }
+        Property Handle  Private.phoPropertyGridItemServer      0
+        { DesignTime=False }
+        Property Integer Private.piPropertyGridItemDataField    0 
+        
+        // Create child objects:
+
+        // Set property values:
+        
+    End_Procedure
+
+    Procedure End_Construct_Object
+        Send Add_Element of (oAllPropertyGridItems(Self)) Self
+        Forward Send End_Construct_Object
+    End_Procedure
+
+    // Create and augment procedures and functions
+    
+    { MethodType=Property Category="CodeJock"}
+    Function Item_Server Returns Handle
+        Function_Return (Private.phoPropertyGridItemServer(Self))
+    End_Function
+    
+    { MethodType=Property Category="CodeJock"}
+    Function Item_Data_Field Returns Integer
+        Function_Return (Private.piPropertyGridItemDataField(Self))
+    End_Function    
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : MoveItemDataToDatabase
+    //
+    // Scope        : Public 
+    //
+    // Paramaters   : None
+    //
+    // Returns      : None
+    //
+    // Purpose      : If item is bound to the database (file and field) it will simply set the field_changed_value of the item's
+    //                server DDO with the value of the property grid item.
+    //                
+    // Notes        : Could be Broadcast as part of a save process.
+    //                Take care however. If the item has a combo form it MAY be that you DON'T want to save the value (decription)
+    //                but instead would want to save the itemdata or code value!
+    //                If this is the case, the method can be augmented in the item object to "Get CodeFromDescription" of whatever 
+    //                          
+    //---------------------------------------------------
+    {DocEnd}
+        
+    { MethodType = Method Visibility=Public }
+    Procedure MoveItemDataToDatabase
+        Handle  hoDD
+        Integer iField eType iValidationType
+        Variant vValue
+        String  sTrue sFalse sMask
+        
+        Get Item_Server to hoDD
+        Get Item_Data_Field to iField
+        If ((hoDD <> 0) and (iField <> 0)) Begin        
+            Get pvValue to vValue
+            Get peItemType to eType
+            If (eType = ePGItype_Boolean) Begin
+                Get Field_Validation_Type of hoDD iField to iValidationType
+                If (iValidationType = FA_VALIDATION_TYPE_CHECKBOX) Begin
+                    Get Field_CheckBox_Value of hoDD iField True to sTrue
+                    Get Field_CheckBox_Value of hoDD iField False to sFalse
+                    If (vValue="True") Begin
+                        Move sTrue to vValue
+                    End
+                    Else Begin
+                        Move sFalse to vValue
+                    End
+                End
+            End
+            Set Field_changed_Value of hoDD iField to vValue
+        End
+    End_Procedure
+    
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : ReadItemFromDatabase
+    //
+    // Scope        : Public 
+    //
+    // Paramaters   : None
+    //
+    // Returns      : None
+    //
+    // Purpose      : If item is bound to the database (file and field) it will simply get the field_current_value of the item's
+    //                server DDO and set the value of the property grid item.
+    //                
+    // Notes        : Could be Broadcast as part of an initialise process
+    //                Take care however. If the item has a combo form it MAY be that you DON'T want to set the value with the raw 
+    //                data but instead with a descriptive value. If this is the case, use Get DescriptionFromCode of the comboitem
+    //                and set the value with this instead.
+    //                             
+    //---------------------------------------------------
+    {DocEnd}
+        
+    { MethodType = Method Visibility=Public }
+    Procedure ReadItemFromDatabase
+        Handle  hoDD
+        Integer iField iValidationType iType
+        Variant vValue
+        String  sState
+        Date dDate
+        
+        Get Item_Server to hoDD
+        Get Item_Data_Field to iField
+        If ((hoDD <> 0) and (iField <> 0)) Begin
+            Get field_current_value of hoDD iField to vValue
+            //Is this a checkbox item that we need to translate to True/False
+            Get Field_Validation_Type of hoDD iField to iValidationType
+            If (iValidationType = FA_VALIDATION_TYPE_CHECKBOX) Begin
+                Get Field_CheckBox_Value of hoDD iField True to sState
+                If (sState=vValue) Begin
+                    Move "True" to vValue
+                End
+                Else Begin
+                    Move "False" to vValue
+                End
+            End
+            //If data type is DATE, then if we don't use a date variable, the item always shows up as changed (?)
+            Get_Attribute DF_FIELD_TYPE of (Main_File(hoDD)) iField to iType
+            If (iType=DF_DATE) Begin
+                Get field_current_value of hoDD iField to dDate
+                Set pvInitialValue to dDate
+            End
+            Else Begin
+                Set pvInitialValue to vValue    
+            End
+        End
+    End_Procedure    
+    
+        
+    { MethodType=Property Category="CodeJock"}
+    { EnumList="ePGItype_String, ePGItype_Number, ePGItype_Boolean, ePGItype_Color, ePGItype_Font, ePGItype_Double, ePGItype_Date, ePGItype_Picture, ePGItype_Enum, ePGItype_EnumFlags, ePGItype_Category, ePGItype_MultiLineString" }
+    { InitialValue=ePGItype_String }
+    Procedure Set peItemType Integer eType
+        Set Private.peItemType to eType
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock"}
+    Function peItemType Returns Integer
+        Function_Return (Private.peItemType(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock"}
+    Procedure Set pvValue Variant vValue
+        Set SigCJProperty Set_Private.pvValue Set_ComValue to vValue
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock"}
+    Function pvValue Returns String
+        Variant vValue
+        If (not(IsNullComObject(pvComObject(Self)))) Begin
+            Get ComValue to vValue     
+        End        
+        Function_Return vValue
+    End_Function
+
+    { MethodType=Property Category="CodeJock"}
+    Procedure Set pvDefaultValue Variant vValue
+        If (pbDefaultAsInitialValue(Self)) Begin
+            Procedure_Return //don't set the default
+        End        
+        If (not(IsNullComObject(pvComObject(Self)))) Begin
+            Set ComDefaultValue to vValue     
+        End
+        Set Private.pvDefaultValue to vValue
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock"}
+    Function pvDefaultValue Returns String
+        Variant vValue
+        If (not(IsNullComObject(pvComObject(Self)))) Begin
+            Get ComDefaultValue to vValue     
+        End        
+        Function_Return vValue
+    End_Function
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : Set pvInitialValue
+    //
+    // Scope        : Public 
+    //
+    // Paramaters   : Variant (vVal)
+    //
+    // Returns      : None
+    //
+    // Purpose      : Can be used to set both the value AND the default value (to be the same) at the same time
+    //                
+    // Notes        : If setting a value from event OnMoveItemDataIn then this is a useful way of setting both the value AND the default
+    //                Otherwise, because the initial value is set during Private.OnCreate, any value applied afterwards will be seen to be 
+    //                different (the default will be the intial value - undefined) 
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+    
+    { MethodType=Property Category="CodeJock"}
+    Procedure Set pvInitialValue Variant vValue
+        If (not(IsNullComObject(pvComObject(Self)))) Begin
+            Set ComDefaultValue to vValue
+            Set ComValue to vValue    
+        End
+        Set Private.pvValue to vValue
+        Set Private.pvDefaultValue to vValue
+    End_Procedure
+    
+    
+    { MethodType=Property Category="CodeJock"}
+    Procedure Set pvTag Variant vValue
+        Set SigCJProperty Set_Private.pvTag Set_ComTag to vValue
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock"}
+    Function pvTag Returns String       
+        Function_Return (Private.pvTag(Self))
+    End_Function      
+
+    { MethodType=Property Category="CodeJock"}
+    { PropertyType=Boolean InitialValue=False } 
+    Procedure Set pbHidden Boolean bHidden
+        Set SigCJProperty Set_Private.pbHidden Set_ComHidden to bHidden
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock"}
+    Function pbHidden Returns Boolean    
+        Function_Return (Private.pbHidden(Self))
+    End_Function
+    
+    { MethodType=Property Category="CodeJock"}
+    { PropertyType=Boolean InitialValue=False } 
+    Procedure Set pbReadOnly Boolean bReadOnly
+        Set SigCJProperty Set_Private.pbReadOnly Set_ComReadOnly to bReadOnly
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock"}
+    Function pbReadOnly Returns Boolean       
+        Function_Return (Private.pbReadOnly(Self))
+    End_Function
+    
+    { MethodType=Property Category="CodeJock"}
+    { PropertyType=Boolean InitialValue=False } 
+    Procedure Set pbPassword_State Boolean bState
+        Set SigCJProperty Set_Private.pbIsPassword Set_ComPasswordMask to bState
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock"}
+    Function pbPassword_State Returns Boolean       
+        Function_Return (Private.pbIsPassword(Self))
+    End_Function    
+    
+    { MethodType=Property Category="CodeJock"}
+    { PropertyType=Boolean InitialValue=False } 
+    Procedure Set pbCapslock_State Boolean bState
+        Set Private.pbCapslock to bState
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock"}
+    Function pbCapslock_State Returns Boolean
+        Function_Return (Private.pbCapslock(Self))
+    End_Function 
+      
+    { MethodType=Property Category="CodeJock"}
+    Procedure Set piForm_Margin Integer iWidth
+
+        If (not(IsNullComObject(pvComObject(Self)))) Begin
+            If (not(IsNullComObject(pvComObject(Private.phoPropertyValueMetrics(Self))))) Begin
+                Set ComMaxLength of (Private.phoPropertyValueMetrics(Self)) to iWidth
+            End
+        End
+        Set Private.piFormMargin to iWidth
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock"}
+    Function piForm_Margin Returns Integer
+        Function_Return (Private.piFormMargin(Self))
+    End_Function
+    
+    { MethodType=Property Category="CodeJock"}
+    Procedure Set piValueBackgroundColor Integer iColor
+        If (not(IsNullComObject(pvComObject(Self)))) Begin
+            If (not(IsNullComObject(pvComObject(Private.phoPropertyValueMetrics(Self))))) Begin
+                Set ComBackColor of (Private.phoPropertyValueMetrics(Self)) to iColor
+            End
+        End
+        Set Private.piValueBackgroundColor to iColor
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock"}
+    Function piValueBackgroundColor Returns Integer
+        Function_Return (Private.piValueBackgroundColor(Self))
+    End_Function 
+
+    { MethodType=Property Category="CodeJock"}
+    Procedure Set piValueForeColor Integer iColor
+        If (not(IsNullComObject(pvComObject(Self)))) Begin
+            If (not(IsNullComObject(pvComObject(Private.phoPropertyValueMetrics(Self))))) Begin
+                Set ComForeColor of (Private.phoPropertyValueMetrics(Self)) to iColor
+            End
+        End
+        Set Private.piValueForeColor to iColor
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock"}
+    Function piValueForeColor Returns Integer
+        Function_Return (Private.piValueForeColor(Self))
+    End_Function 
+    
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set psFormat String sFormat
+        Set SigCJProperty Set_Private.psFormat Set_ComFormat to sFormat
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function psFormat Returns String
+        Function_Return (Private.psFormat(Self))
+    End_Function  
+    
+    
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : Set PropertyItemMask
+    //
+    // Scope        : Public 
+    //
+    // Paramaters   : llMask, llLiteral, llPrompt
+    //
+    // Returns      : None
+    //
+    // Purpose      : Sets the mask of a property grid item 
+    //                
+    // Notes        : You can use any of these characters for defining your edit mask:
+    //                0 - Numeric (0-9)
+    //                9 - Numeric (0-9) or space (' ')
+    //                # - Numeric (0-9) or space (' ') or ('+') or ('-')
+    //                L - Alpha (a-Z)
+    //                ? - Alpha (a-Z) or space (' ')
+    //                a - Alpha numeric (0-9 and a-Z)
+    //                a - Alpha numeric (0-9 and a-Z) or space (' ')
+    //                & - All Print character only
+    //                H - Hex digit (0-9 and a-F)
+    //                X - Hex digit (0-9 and a-F) and space (' ')
+    //                > - Forces characters to upper Case (a-Z)
+    //                < - Forces characters to lower Case (a-z)
+    //
+    //                llLiteral defines the prompt area of the mask where text entry is allowed.  This should match the areas that 
+    //                you have already defined as mask fields. By default the prompt character is '_' . 
+    //                
+    //                llPrompt is optional, but allows you to define default characters that you want displayed when the user presses 
+    //                the backspace key. This usually represents data that has been previously saved then restored. This makes it easy 
+    //                for the user to restore some or all of the default text displayed when the control was initialized. 
+    //---------------------------------------------------
+    {DocEnd}     
+    
+    Procedure Set PropertyItemMask String llMask String llLiteral Variant llPrompt
+        tdPropertyItemMask tPropertyItemMask
+        
+        Move True      to tPropertyItemMask.bSetMask
+        Move llMask    to tPropertyItemMask.sMask
+        Move llLiteral to tPropertyItemMask.sLiteral
+        Move llPrompt  to tPropertyItemMask.vPrompt
+        Set ptPropertyItemMask to tPropertyItemMask
+    End_Procedure
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : DoApplyMask
+    //
+    // Scope        : Private 
+    //
+    // Paramaters   : None
+    //
+    // Returns      : None
+    //
+    // Purpose      : Called from Private.Create. Applies any mask set using 'Set PropertyItemMask'
+    //                
+    // Notes        : Called internally. Developer does not need to concern themself with this
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+        
+    Procedure DoApplyMask
+        tdPropertyItemMask tPropertyItemMask
+        
+        Get ptPropertyItemMask to tPropertyItemMask
+        If (tPropertyItemMask.bSetMask = True) Begin
+            If (not(IsNullComObject(pvComObject(Self)))) Begin
+                Send ComSetMask tPropertyItemMask.sMask tPropertyItemMask.sLiteral tPropertyItemMask.vPrompt
+            End
+        End      
+    End_Procedure
+
+    
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : BindToDataBase
+    //
+    // Scope        : Public 
+    //
+    // Paramaters   : iFile iField 
+    //
+    // Returns      : None
+    //
+    // Purpose      : Links a grid item with the db (file and field). Sets Private.phoPropertyGridItemServer 
+    //                and Private.piPropertyGridItemDataField  
+    //                                                                     
+    // Notes        : If an item is linked to the db, pbCapslock_State and piForm_Margin will be set automatically. If you don't
+    //                Set psLabel or psHelpText these too will be taken from the DD
+    //                Example Call: Send BindToDataBase File_Field Sysfile.Company_Name 
+    //               
+    //---------------------------------------------------
+    {DocEnd}   
+
+    Procedure BindToDataBase Integer hFile Integer iField
+        Handle  hoDDO 
+        Integer iLength iType iValidationType iPrecision
+        Boolean bOptionEnabled
+        String  sStatusHelp sLabel
+        
+        Get Item_Data_Set hFile to hoDDO 
+        Set Private.phoPropertyGridItemServer to hoDDO
+        Set Private.piPropertyGridItemDataField to iField
+        //Set properties based on field and DD settings...
+        If (hFile <> 0) Begin
+            Get_Attribute DF_FIELD_LENGTH of hFile iField to iLength
+            Set piForm_Margin to iLength
+            Get_Attribute DF_FIELD_TYPE of hFile iField to iType
+            If (iType=DF_ASCII) Begin
+                Set peItemType to ePGItype_String
+            End
+            Else If (iType=DF_BCD) Begin
+                Get_Attribute DF_FIELD_PRECISION of hFile iField to iPrecision
+                If (iPrecision=0) Begin
+                    Set peItemType to ePGItype_Number
+                End
+                Else Begin
+                    Set peItemType to ePGItype_Double
+                    Set psFormat to  ("%0."-String(iPrecision)-"f")  //Doesn't seem to work. Why?
+                End
+            End
+            Else If (iType=DF_DATE) Begin
+                Set peItemType to ePGItype_Date
+            End
+        End
+        If (hoDDO <> 0) Begin
+            //Should field by uppercase?
+            Get Field_Option of hoDDO iField DD_CAPSLOCK to bOptionEnabled
+            If (bOptionEnabled) Begin
+                Set pbCapslock_State to True
+            End
+            //Should field by boolean?
+            Get Field_Validation_Type of hoDDO iField to iValidationType
+            If (iValidationType = FA_VALIDATION_TYPE_CHECKBOX) Begin
+                Set peItemType to ePGItype_Boolean
+                Set pbCapslock_State to False  // we don't need True/False to be uppercase
+            End
+            //Label and helptext
+            Get Status_Help of hoDDO iField to sStatusHelp
+            Get Field_Label_Long of hoDDO iField to sLabel
+            If (psHelpText(Self)="") Begin
+                Set psHelpText to sStatusHelp
+            End
+            If (psLabel(Self)="") Begin
+                Set psLabel to sLabel
+            End
+        End
+    End_Procedure
+
+
+    { MethodType=Method Visibility=Private }
+    Procedure Private.Create Handle hoParent Boolean bRecursive
+        Variant vItem
+        Integer iEditStyle eType
+        Handle  hoItem
+        
+        //check for parent
+        If (hoParent = 0) Begin
+            Procedure_Return
+        End
+        //Add child item
+        Get ComAddChildItem of hoParent (Private.peItemType(Self)) (Private.psLabel(Self)) (Private.pvValue(Self)) to vItem
+        Set pvComObject to vItem
+        Send Bind_Metrics  
+        //Set the ComID value to 'self' so we can map back to the object (see Procedure OnComInplaceButtonDown)
+        Set ComId to Self
+        //Set Tag value
+        Set pvTag to (Private.pvTag(Self))
+        //If we have explicitly said that the default should NOT be the same as the initial value, set the default 
+        If (not(pbDefaultAsInitialValue(Self))) Begin
+            Set pvDefaultValue to (Private.pvDefaultValue(Self))
+        End  
+        //Set Help Text associated with the item
+        Set psHelpText to (Private.psHelpText(Self))
+        //Tootip
+        Set psToolTip to (Private.psToolTip(Self))
+        //Caption Image
+        Set psImage to (Private.psImage(Self))
+        //Set whether the item should be expanded (if it is expandable)
+        Set pbCreateExpanded to (Private.pbCreateExpanded(Self))
+        //Caption Emboldened State
+        Set pbLabelEmboldened to (Private.pbLabelEmboldened(Self))
+        //Apply any mask we may have set
+        Send DoApplyMask
+        //Set Hidden/ReadOnly states
+        Set pbHidden to (Private.pbHidden(Self))
+        Set pbReadOnly to (Private.pbReadOnly(Self))
+        //Password
+        Set pbPassword_State to (Private.pbIsPassword(Self))
+        //Capslock
+        If (pbCapslock_State(Self)) Begin
+            Add ePGEditStyle_Uppercase to iEditStyle
+        End  
+        Set ComEditStyle to (iEditStyle + ePGEditStyle_AutoHScroll)
+        //Format   
+        If (peItemType(Self)=ePGItype_Double) Begin
+            If (psFormat(Self)<>"") Begin
+                Set psFormat to (Private.psFormat(Self)) 
+            End
+        End
+        //Data Entry Width
+        If (piForm_Margin(Self)<>0) Begin 
+            Set piForm_Margin to (Private.piFormMargin(Self)) 
+        End
+        Set piValueBackgroundColor to (Private.piValueBackgroundColor(Self))        
+        //Create any child objects of this object...
+        If (bRecursive) Begin
+            Broadcast Send Private.Create Self True
+        End        
+    End_Procedure
+    
+    //OnChange
+    //Called whenever an item's value is changed and user exists the item
+    {MethodType=Event}
+    Procedure OnChange
+    End_Procedure   
+    
+    //OnEditAfter
+    //Called whenever an item's value has been editted. Setting llCancel to True will stop the edit
+    Procedure OnEditAfter String ByRef llNewValue Boolean ByRef llCancel
+    End_Procedure
+    
+    //OnMoveItemDataIn
+    //Called from DoMoveDataIn (of the property grid). This is called from OnCreate and can be used to set item data (appy from database,say)
+    {MethodType=Event}
+    Procedure OnMoveItemDataIn
+    End_Procedure
+    
+    //OnMoveItemDataOut
+    //Called from DoMoveDataOut (of the property grid). This can be used to save item data to the database, say
+    {MethodType=Event}
+    Procedure OnMoveItemDataOut
+    End_Procedure  
+       
+End_Class
+
+{DocStart = Class}
+//---------------------------------------------------
+//
+// Class        : cSigCJPropertyGridSubCategory
+//
+// Superclass   : cSigCJPropertyGridItem 
+//
+// Package      : cSigCJPropertyGrid.pkg
+//
+// Mixins       : 
+//
+// Description  : Property Grid Item in style of Category. Used for Sub Categorising items with Categories
+//
+// Properties   : psLabel               (String)   
+//                psHelpText            (String)  
+//                psToolTip             (String)  
+//                pbCreateExpanded      (Boolean) 
+//                pbLabelEmboldened     (Boolean) 
+//
+// Events       : 
+//
+// Methods      :      
+//
+// Notes        :
+//
+// To Do        :           
+//               
+//---------------------------------------------------
+{DocEnd} 
+
+Class cSigCJPropertyGridSubCategory is a cSigCJPropertyGridItem
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        
+        Set Private.peItemType to ePGItype_Category
+        Set Private.pbLabelEmboldened to True
+    End_Procedure
+End_Class
+
+{DocStart = Class}
+//---------------------------------------------------
+// Mixin Class  : cSigCJPropertyGridItemButton_Mixin
+//---------------------------------------------------
+{DocEnd} 
+
+Class cSigCJPropertyGridItemButton_Mixin is a Mixin
+    
+    Procedure Define_Item_Button_Properties
+        { DesignTime=False }
+        Property String  Private.psButtonCaption    "..."
+        { DesignTime=False }
+        Property Boolean Private.pbButtonEnabled    True
+        { DesignTime=False }
+        Property String  Private.psButtonImage
+        { DesignTime=False }
+        Property Integer Private.piButtonID
+        { DesignTime=False }
+        Property String  Private.psButtonToolTip
+        { DesignTime=False }
+        Property Integer Private.piButtonWidth      20
+        
+        { Visibility=Private }
+        Property Handle  Private.phoButtonObject    (Create(Self, U_cSigCjComPropertyGridInPlaceButton))              
+    End_Procedure
+    
+    Procedure Set_Item_Button_Properties
+        Set psButtonCaption   to (Private.psButtonCaption(Self))    
+        Set pbButtonEnabled   to (Private.pbButtonEnabled(Self))
+        Set psButtonImage     to (Private.psButtonImage(Self))
+        Set piButtonWidth     to (Private.piButtonWidth(Self))
+        Set psButtonTooltip   to (Private.psButtonTooltip(Self))         
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock"}
+    { InitialValue="..." }
+    Procedure Set psButtonCaption String sCaption
+        If (not(IsNullComObject(pvComObject(Self)))) Begin 
+            If (not(IsNullComObject(pvComObject(Private.phoButtonObject(Self))))) Begin
+                Set ComCaption of (Private.phoButtonObject(Self)) to sCaption
+            End
+        End
+        Set Private.psButtonCaption to sCaption
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock"}
+    Function psButtonCaption Returns String
+        Function_Return (Private.psButtonCaption(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock"}
+    { InitialValue=True }
+    Procedure Set pbButtonEnabled Boolean bEnabled
+        If (not(IsNullComObject(pvComObject(Self)))) Begin 
+            If (not(IsNullComObject(pvComObject(Private.phoButtonObject(Self))))) Begin
+                Set ComEnabled of (Private.phoButtonObject(Self)) to bEnabled
+            End
+        End
+        Set Private.pbButtonEnabled to bEnabled
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock"}
+    Function pbButtonEnabled Returns Boolean
+        Function_Return (Private.pbButtonEnabled(Self))
+    End_Function
+    
+    { MethodType=Property Category="CodeJock"}
+    Procedure Set psButtonTooltip String sTooltip
+        If (not(IsNullComObject(pvComObject(Self)))) Begin 
+            If (not(IsNullComObject(pvComObject(Private.phoButtonObject(Self))))) Begin
+                Set ComToolTip of (Private.phoButtonObject(Self)) to sTooltip
+            End
+        End
+        Set Private.psButtonTooltip to sTooltip
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock"}
+    Function psButtonTooltip Returns String
+        Function_Return (Private.psButtonTooltip(Self))
+    End_Function    
+    
+    { MethodType=Property Category="CodeJock"}
+    Procedure Set psButtonImage String sImage
+        Integer iIndex
+        
+        If (not(IsNullComObject(pvComObject(Self)))) Begin 
+            Get AddImage of ghoSigCjGlobalSetting sImage 0 0 to iIndex //Won't add it again if already uploaded once
+            If (not(IsNullComObject(pvComObject(Private.phoButtonObject(Self))))) Begin
+                Set ComIconIndex of (Private.phoButtonObject(Self)) to iIndex
+            End
+        End
+        Set Private.psButtonImage to sImage
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock"}
+    Function psButtonImage Returns String
+        Function_Return (Private.psButtonImage(Self))
+    End_Function         
+
+    { MethodType=Property Category="CodeJock"}
+    Procedure Set piButtonID Integer iID
+        If (not(IsNullComObject(pvComObject(Self)))) Begin 
+            If (not(IsNullComObject(pvComObject(Private.phoButtonObject(Self))))) Begin
+                Set ComId of (Private.phoButtonObject(Self)) to iID
+            End
+        End
+        Set Private.piButtonID to iID
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock"}
+    Function piButtonID Returns Integer
+        Function_Return (Private.piButtonID(Self))
+    End_Function     
+    
+    { MethodType=Property Category="CodeJock"}
+    Procedure Set piButtonWidth Integer iWidth
+        If (not(IsNullComObject(pvComObject(Self)))) Begin 
+            If (not(IsNullComObject(pvComObject(Private.phoButtonObject(Self))))) Begin
+                Set ComWidth of (Private.phoButtonObject(Self)) to iWidth
+            End
+        End
+        Set Private.piButtonWidth to iWidth
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock"}
+    Function piButtonWidth Returns Integer
+        Function_Return (Private.piButtonWidth(Self))
+    End_Function      
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Function     : piButtonIndex
+    //
+    // Scope        : Read Only 
+    //
+    // Paramaters   : None
+    //
+    // Returns      : Integer
+    //
+    // Purpose      : Retrieves index of button in array of item's buttons
+    //                
+    // Notes        : 
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+    
+    Function piButtonIndex Returns Integer
+        Integer iIndex
+        Move -1 to iIndex
+        If (not(IsNullComObject(pvComObject(Self)))) Begin 
+            If (not(IsNullComObject(pvComObject(Private.phoButtonObject(Self))))) Begin
+                Get ComIndex of (Private.phoButtonObject(Self)) to iIndex
+            End
+        End
+        Function_Return iIndex
+    End_Function
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Function     : pvItem
+    //
+    // Scope        : Read Only 
+    //
+    // Paramaters   : None
+    //
+    // Returns      : Variant (IdDispatch)
+    //
+    // Purpose      : Retrieves the parent property grid item for this button (item that this button is drawn in).
+    //                
+    // Notes        : 
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+        
+    Function pvItem Returns Variant
+        Variant vItem
+        
+        If (not(IsNullComObject(pvComObject(Self)))) Begin 
+            If (not(IsNullComObject(pvComObject(Private.phoButtonObject(Self))))) Begin
+                Get ComItem of (Private.phoButtonObject(Self)) to vItem
+            End
+        End
+        Function_Return vItem
+    End_Function
+    
+    {MethodType=Event}
+    //Fired when ever a combo is dropped down or expand button clicked
+    Procedure OnClick
+    End_Procedure    
+    
+End_Class
+
+{DocStart = Class}
+//---------------------------------------------------
+//
+// Class        : cSigCJPropertyGridExpandBtnItem
+//
+// Superclass   : cSigCJPropertyGridItem 
+//
+// Package      : cSigCJPropertyGrid.pkg
+//
+// Mixins       : cSigCJPropertyGridItemButton_Mixin
+//
+// Description  : Property Grid Item with Expand (lookup) button '...'
+//
+// Properties   : psLabel                 (String)               
+//                psHelpText              (String)               
+//                psToolTip               (String)               
+//                pbCreateExpanded        (Boolean)              
+//                pbLabelEmboldened       (Boolean)              
+//                peItemType              (Integer)              
+//                pvValue                 (Variant)              
+//                pbDefaultAsInitialValue (Boolean)              
+//                pvDefaultValue          (Variant)              
+//                pvInitialValue          (Variant)              
+//                pvTag                   (Variant)              
+//                pbHidden                (Boolean)              
+//                pbReadOnly              (Boolean)              
+//                pbPassword_State        (Boolean)              
+//                pbCapslock_State        (Boolean)              
+//                piForm_Margin           (Integer)              
+//                piValueBackgroundColor  (Integer)              
+//                psButtonCaption         (String) 
+//                pbButtonEnabled         (Boolean)  
+//                psButtonImage           (String)  
+//                piButtonWidth           (Integer)  
+//                psButtonTooltip         (String) 
+//
+// Events       : OnClick
+//                OnChange         
+//                OnEditAfter      
+//                OnMoveItemDataIn 
+//                OnMoveItemDataOut
+//
+// Methods      : Procedure Set PropertyItemMask (String llMask String llLiteral Variant llPrompt)         
+//
+// Notes        :
+//
+// To Do        :           
+//               
+//---------------------------------------------------
+{DocEnd} 
+
+Class cSigCJPropertyGridExpandBtnItem is a cSigCJPropertyGridItem
+    Import_Class_Protocol cSigCJPropertyGridItemButton_Mixin
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+    
+        Send Define_Item_Button_Properties
+    End_Procedure
+
+    { MethodType=Method Visibility=Private }
+    Procedure Private.Create Handle hoParent Boolean bRecursive
+        Variant vButton
+        
+        If (hoParent=0) Begin
+            Procedure_Return
+        End
+               
+        Forward Send Private.Create hoParent bRecursive
+        Get ComAddInplaceButton ePGIBS_Expand to vButton
+        Set pvComObject of (Private.phoButtonObject(Self)) to vButton  
+        Send Set_Item_Button_Properties
+    End_Procedure
+    
+End_Class
+
+{DocStart = Class}
+//---------------------------------------------------
+//
+// Class        : cSigCJPropertyGridComboFormItem
+//
+// Superclass   : cSigCJPropertyGridItem 
+//
+// Package      : cSigCJPropertyGrid.pkg
+//
+// Mixins       : cSigCJPropertyGridItemButton_Mixin
+//
+// Description  : Property Grid Item with Drop Down ComboForm
+//
+// Properties   : psLabel                 (String)               
+//                psHelpText              (String)               
+//                psToolTip               (String)               
+//                pbCreateExpanded        (Boolean)              
+//                pbLabelEmboldened       (Boolean)              
+//                peItemType              (Integer)              
+//                pvValue                 (Variant)              
+//                pbDefaultAsInitialValue (Boolean)              
+//                pvDefaultValue          (Variant)              
+//                pvInitialValue          (Variant)              
+//                pvTag                   (Variant)              
+//                pbHidden                (Boolean)              
+//                pbReadOnly              (Boolean)              
+//                pbPassword_State        (Boolean)              
+//                pbCapslock_State        (Boolean)              
+//                piForm_Margin           (Integer)              
+//                piValueBackgroundColor  (Integer)              
+//                psButtonCaption         (String) 
+//                pbButtonEnabled         (Boolean)  
+//                psButtonImage           (String)  
+//                piButtonWidth           (Integer)  
+//                psButtonTooltip         (String) 
+//
+// Events       : OnClick
+//                OnChange         
+//                OnEditAfter      
+//                OnMoveItemDataIn 
+//                OnMoveItemDataOut
+//                OnAddLookupItems
+//
+// Methods      : Procedure Set PropertyItemMask     (String llMask String llLiteral Variant llPrompt)  
+//                Procedure Set LookupItemImage      (Integer iItemIndex String sImage)
+//                Procedure Set LookupItemData       (Integer iItemIndex Integer iItemData)
+//                Procedure AddLookupItem            (String sDescription Integer iItemData String sImage Variant vCode)
+//                Function  CodeFromDescription      (String sDescription Boolean ByRef bFound Returns Variant)
+//                Function  ItemDataFromDescription  (String sDescription Boolean ByRef bFound Returns Integer)
+//                Function  DescriptionFromCode      (Variant vCode Boolean ByRef bFound Returns String)
+//                Procedure ComboDeleteItems        
+//
+// Notes        :
+//
+// To Do        :           
+//               
+//---------------------------------------------------
+{DocEnd} 
+
+Class cSigCJPropertyGridComboFormItem is a cSigCJPropertyGridItem
+    Import_Class_Protocol cSigCJPropertyGridItemButton_Mixin
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+    
+        Send Define_Item_Button_Properties
+        { DesignTime=False }
+        Property tdGridItemSelectionValue[] ptaGridItemSelectionValue  
+    End_Procedure
+    
+    Procedure End_Construct_Object
+        Send OnAddLookupItems
+        Forward Send End_Construct_Object
+    End_Procedure
+    
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : OnAddLookupItems
+    //
+    // Scope        : Public Event 
+    //
+    // Paramaters   : None
+    //
+    // Returns      : None
+    //
+    // Purpose      : Intended that you would call "Send AddLookupItem" from this event to populate the combo 
+    //                
+    // Notes        : If the item is bound to a data field that has a Field_Table_Object the combo will automatically 
+    //                be populated. If you want to add images you should forward Send OnAddLookupItems and then add the images
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+        
+    { MethodType=Event Visibility=Public }
+    Procedure OnAddLookupItems
+    End_Procedure
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : ComboDeleteItems
+    //
+    // Scope        : Public Method 
+    //
+    // Paramaters   : None
+    //
+    // Returns      : None
+    //
+    // Purpose      : Can be used to clear all of a comboforms data items
+    //                
+    // Notes        : 
+    //               
+    //---------------------------------------------------
+    {DocEnd}     
+    
+    Procedure ComboDeleteItems
+        Handle hoConstraint_s
+        Variant vConstraint_s
+        tdGridItemSelectionValue[] taGridItemSelectionValues
+
+        Get ComConstraints to vConstraint_s
+        Get Create U_cSigCjComPropertyGridItemConstraints to hoConstraint_s
+        Set pvComObject of hoConstraint_s to vConstraint_s
+        Send ComClear of hoConstraint_s  
+        Send Destroy of hoConstraint_s
+        //clear our internal array also
+        Set ptaGridItemSelectionValue to taGridItemSelectionValues     
+    End_Procedure
+    
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : DoAddLookupItems
+    //
+    // Scope        : Private 
+    //
+    // Paramaters   : None
+    //
+    // Returns      : None
+    //
+    // Purpose      : Called from Private.Create. Adds any lookup items to the list of constraints 
+    //                
+    // Notes        : Called internally. Developer does not need to concern themself with this
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+        
+    { MethodType=Method Visibility=Private }
+    Procedure DoAddLookupItems
+        Handle hoConstraint_s hoConstraint
+        Variant vConstraint_s vConstraint
+        Integer iItems iItemIndex
+        tdGridItemSelectionValue[] taGridItemSelectionValues
+        
+        If (not(IsNullComObject(pvComObject(Self)))) Begin
+            Get ptaGridItemSelectionValue to taGridItemSelectionValues
+            Move (SizeOfArray(taGridItemSelectionValues)) to iItems
+            Get ComConstraints to vConstraint_s
+            Get Create U_cSigCjComPropertyGridItemConstraints to hoConstraint_s
+            Set pvComObject of hoConstraint_s to vConstraint_s
+            Send ComClear of hoConstraint_s
+            Get Create U_cSigCjComPropertyGridItemConstraint to hoConstraint
+            For iItemIndex from 1 to iItems
+                Send ComAdd of hoConstraint_s taGridItemSelectionValues[iItemIndex-1].sDescription taGridItemSelectionValues[iItemIndex-1].iItemData
+                //now associate any iconindex
+                Get ComItem of hoConstraint_s iItemIndex to vConstraint
+                Set pvComObject of hoConstraint to vConstraint 
+                Set ComIconIndex of hoConstraint to taGridItemSelectionValues[iItemIndex-1].iIconIndex
+            Loop            
+            Send destroy of hoConstraint  
+            Send Destroy of hoConstraint_s
+        End
+    End_Procedure
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : AddLookupItem
+    //
+    // Scope        : Public 
+    //
+    // Paramaters   : sCaption, iData, sImage, vCode
+    //
+    // Returns      : None
+    //
+    // Purpose      : 'Registers' an item for inclusion in list of item constraints (lookup values) 
+    //                
+    // Notes        : vCode is added because it could be that the developer wants to display a descriptive value
+    //                whilst mapping to a code value in the background (the code being the value that ultimately
+    //                will be saved to the database)
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+        
+    { MethodType=Method Visibility=Public }
+    Procedure AddLookupItem String sDescription Integer iItemData String sImage Variant vCode
+        tdGridItemSelectionValue[] taGridItemSelectionValue
+        Integer iItems iIconIndex 
+        
+        Get AddImage of ghoSigCjGlobalSetting sImage 0 0 to iIconIndex //won't re-add it if already added
+        Get ptaGridItemSelectionValue to taGridItemSelectionValue
+        Move (SizeOfArray(taGridItemSelectionValue)) to iItems
+        Move sDescription to taGridItemSelectionValue[iItems].sDescription
+        Move iItemData to taGridItemSelectionValue[iItems].iItemData
+        Move iIconIndex to taGridItemSelectionValue[iItems].iIconIndex
+        Move vCode to taGridItemSelectionValue[iItems].vCode
+        Set ptaGridItemSelectionValue to taGridItemSelectionValue                    
+    End_Procedure
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : Set LookupItemImage
+    //
+    // Scope        : Public 
+    //
+    // Paramaters   : Integer iItemIndex String sImage
+    //
+    // Returns      : None
+    //
+    // Purpose      : Sets icon index for specified lookup item. 
+    //                
+    // Notes        : MUST be called AFTER AddLookupItem
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+        
+    Procedure Set LookupItemImage Integer iItemIndex String sImage
+        tdGridItemSelectionValue[] taGridItemSelectionValue
+        Integer iImageIndex
+        
+        Get AddImage of ghoSigCjGlobalSetting sImage 0 0 to iImageIndex
+        Get ptaGridItemSelectionValue to taGridItemSelectionValue
+        Move iImageIndex to taGridItemSelectionValue[iItemIndex-1].iIconIndex
+        Set ptaGridItemSelectionValue to taGridItemSelectionValue
+    End_Procedure
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : Set LookupItemData
+    //
+    // Scope        : Public 
+    //
+    // Paramaters   : Integer iItemIndex Integer iItemData
+    //
+    // Returns      : None
+    //
+    // Purpose      : Sets item data for specified lookup item. 
+    //                
+    // Notes        : MUST be called AFTER AddLookupItem
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+    
+    Procedure Set LookupItemData Integer iItemIndex Integer iItemData
+        tdGridItemSelectionValue[] taGridItemSelectionValue
+        
+        Get ptaGridItemSelectionValue to taGridItemSelectionValue
+        Move iItemData to taGridItemSelectionValue[iItemIndex-1].iItemData
+        Set ptaGridItemSelectionValue to taGridItemSelectionValue
+    End_Procedure    
+    
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Function     : ConstraintDescriptionComparison
+    //
+    // Scope        : Private 
+    //
+    // Paramaters   : tdGridItemSelectionValue x2 (for comparison)
+    //
+    // Returns      : Integer
+    //
+    // Purpose      : To compare the Description elements of 2 structs. 
+    //                
+    // Notes        : Used internally from CodeFromDescription and ItemDataFromDescription
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+        
+    { MethodType=Method Visibility=Private }
+    Function ConstraintDescriptionComparison tdGridItemSelectionValue tDesc1 tdGridItemSelectionValue tDesc2 Returns Integer
+        Integer iRetVal
+        If (tDesc1.sDescription = tDesc2.sDescription) Begin
+            Move (EQ) to iRetVal
+        End  
+        Function_Return iRetVal
+    End_Function
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Function     : CodeFromDescription
+    //
+    // Scope        : Public 
+    //
+    // Paramaters   : sDescription, bFound (byref)
+    //
+    // Returns      : Variant (vCode)
+    //
+    // Purpose      : If you have the current value of an property item and you know this is one of a list of constraints
+    //                you can call this function to return the 'Code' value that is associated with this 'Description' value 
+    //                
+    // Notes        : bFound is passed by reference and tells the developer if the value that they were looking for was found or not.
+    //                You can't rely on a return value of 0 (or blank) as an indication of whether it was found because these may be valid values  
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+        
+    { MethodType=Method Visibility=Public }
+    Function CodeFromDescription String sDescription Boolean ByRef bFound Returns Variant
+        Integer iSearchIndex
+        Variant vRetVal
+        tdGridItemSelectionValue[] taGridItemSelectionValues
+        tdGridItemSelectionValue tGridItemSelectionValue
+        
+        Move False to bFound
+        Get ptaGridItemSelectionValue to taGridItemSelectionValues
+        Move sDescription to tGridItemSelectionValue.sDescription
+        Move (SearchArray(tGridItemSelectionValue,taGridItemSelectionValues,Self,get_ConstraintDescriptionComparison)) to iSearchIndex
+        If (iSearchIndex <> -1) Begin
+            Move taGridItemSelectionValues[iSearchIndex].vCode to vRetVal
+            Move True to bFound
+        End
+        Function_Return vRetVal 
+    End_Function
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Function     : ItemDataFromDescription
+    //
+    // Scope        : Public 
+    //
+    // Paramaters   : sDescription, bFound (byref)
+    //
+    // Returns      : Integer (iItemData)
+    //
+    // Purpose      : If you have the current value of an property item and you know this is one of a list of constraints
+    //                you can call this function to return the iItemData value that is associated with this 'Description' value 
+    //                
+    // Notes        : bFound is passed by reference and tells the developer if the value that they were looking for was found or not.
+    //                You can't rely on a return value of 0 (or blank) as an indication of whether it was found because these may be valid values  
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+        
+    { MethodType=Method Visibility=Public }
+    Function ItemDataFromDescription String sDescription Boolean ByRef bFound Returns Integer
+        Integer iRetVal iSearchIndex 
+        tdGridItemSelectionValue[] taGridItemSelectionValues
+        tdGridItemSelectionValue tGridItemSelectionValue
+        
+        Move False to bFound
+        Get ptaGridItemSelectionValue to taGridItemSelectionValues
+        Move sDescription to tGridItemSelectionValue.sDescription
+        Move (SearchArray(tGridItemSelectionValue,taGridItemSelectionValues,Self,get_ConstraintDescriptionComparison)) to iSearchIndex
+        If (iSearchIndex <> -1) Begin
+            Move taGridItemSelectionValues[iSearchIndex].iItemData to iRetVal
+            Move True to bFound 
+        End
+        Function_Return iRetVal 
+    End_Function
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Function     : ConstraintCodeComparison
+    //
+    // Scope        : Private 
+    //
+    // Paramaters   : tdGridItemSelectionValue x2 (for comparison)
+    //
+    // Returns      : Integer
+    //
+    // Purpose      : To compare the Code elements of 2 structs. 
+    //                
+    // Notes        : Used internally from DescriptionFromCode
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+        
+    { MethodType=Method Visibility=Private }
+    Function ConstraintCodeComparison tdGridItemSelectionValue tCode1 tdGridItemSelectionValue tCode2 Returns Integer
+        Integer iRetVal
+        If (tCode1.vCode = tCode2.vCode) Begin
+            Move (EQ) to iRetVal
+        End  
+        Function_Return iRetVal
+    End_Function
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Function     : DescriptionFromCode
+    //
+    // Scope        : Public 
+    //
+    // Paramaters   : vCode, bFound (byref)
+    //
+    // Returns      : sDescription
+    //
+    // Purpose      : If a property grid item has a combo form with descriptions and associated code values then you can call this
+    //                function to determine the description value for a specified code. This is most useful when populating the grid
+    //                from a database where the raw data is a code value but you wish to show a descriptive value in the control (think dbcomforms)
+    //                
+    // Notes        : bFound is passed by reference and tells the developer if the value that they were looking for was found or not.
+    //                You can't rely on a return value of 0 (or blank) as an indication of whether it was found because these may be valid values  
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+        
+    { MethodType=Method Visibility=Public }
+    Function DescriptionFromCode Variant vCode Boolean ByRef bFound Returns String
+        String  sRetVal
+        Integer iSearchIndex 
+        tdGridItemSelectionValue[] taGridItemSelectionValues
+        tdGridItemSelectionValue tGridItemSelectionValue
+        
+        Move False to bFound
+        Get ptaGridItemSelectionValue to taGridItemSelectionValues
+        Move vCode to tGridItemSelectionValue.vCode
+        Move (SearchArray(tGridItemSelectionValue,taGridItemSelectionValues,Self,get_ConstraintCodeComparison)) to iSearchIndex
+        If (iSearchIndex <> -1) Begin
+            Move taGridItemSelectionValues[iSearchIndex].sDescription to sRetVal
+            Move True to bFound 
+        End
+        Function_Return sRetVal 
+    End_Function
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Function     : BindToDataBase
+    //
+    // Scope        : Public 
+    //
+    // Paramaters   : Integer hFile Integer iField
+    //
+    // Returns      : None
+    //
+    // Purpose      : Forward Send, but then because this is a combo item, see if there is a validation table for this field
+    //                If so, set the lookup items with the values from the validation table                
+    //
+    // Notes        : Set pbCapslock_State to False if there is a codevalidation table. It may be a capslock field, but this will
+    //                be for the code, not the description (that we will be displaying)
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+    
+    Procedure BindToDataBase Integer hFile Integer iField
+        Variant[][] vTableData
+        Integer iTableObject iItem
+        Handle hoDD
+        
+        Forward Send BindToDataBase hFile iField
+        Get Item_Server to hoDD
+        If (hoDD <> 0) Begin
+            Get Field_Table_Object of hoDD iField to iTableObject
+            If (iTableObject <> 0) Begin
+                Get TableData of iTableObject to vTableData
+                For iItem from 0 to (SizeOfArray(vTableData)-1)
+                    Send AddLookupItem vTableData[iItem][1] (iItem+1) '' vTableData[iItem][0]
+                Loop
+                //Finally, it may be that the field is capslock, but that this is for the code NOT the description...
+                Set pbCapslock_State to False
+            End
+        End
+    End_Procedure
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Function     : ReadItemFromDatabase
+    //
+    // Scope        : Public 
+    //
+    // Paramaters   : None
+    //
+    // Returns      : None
+    //
+    // Purpose      : Forward Send, but then because this is a combo item, see if we have a description that matches our value
+    //                If so, display this instead               
+    //               
+    //---------------------------------------------------
+    {DocEnd} 
+    
+    { MethodType = Method Visibility=Public }
+    Procedure ReadItemFromDatabase
+        Handle  hoDD
+        Integer iField 
+        Variant vValue
+        Boolean bFound
+        String  sDescription
+        
+        Forward Send ReadItemFromDatabase
+        Get Item_Server to hoDD
+        Get Item_Data_Field to iField
+        If ((hoDD <> 0) and (iField <> 0)) Begin
+            Get pvValue to vValue
+            Get DescriptionFromCode vValue (&bFound) to sDescription 
+            If (bFound) Begin
+                Set pvInitialValue to sDescription   
+            End
+        End
+    End_Procedure 
+    
+    { MethodType = Method Visibility=Public }
+    Procedure MoveItemDataToDatabase 
+        Handle  hoDD
+        Integer iField
+        Variant vValue vCode
+        Boolean bFound
+        
+        Get Item_Server to hoDD
+        Get Item_Data_Field to iField
+        If ((hoDD <> 0) and (iField <> 0)) Begin
+            Get pvValue to vValue
+            Get CodeFromDescription vValue (&bFound) to vCode
+            If (bFound) Begin
+                Move vCode to vValue
+            End
+            Set Field_changed_Value of hoDD iField to vValue
+        End
+    End_Procedure
+    
+    { MethodType=Method Visibility=Private }
+    Procedure Private.Create Handle hoParent Boolean bRecursive
+        Variant vButton
+        Handle  hoButtons
+        
+        If (hoParent=0) Begin
+            Procedure_Return
+        End
+               
+        Forward Send Private.Create hoParent bRecursive
+        //If this is of peItemType ePGItype_Enum then we do not need to add a button - it will be added automatically
+        If (peItemType(Self) = ePGItype_Enum) Begin
+            Get Create U_cSigCjComPropertyGridInPlaceButtons to hoButtons
+            Set pvComObject of hoButtons to (ComInplaceButtons(Self))
+            Get ComItem of hoButtons 1 to vButton
+            Send Destroy of hoButtons
+        End
+        Else Begin
+            Get ComAddInplaceButton ePGIBS_Combo to vButton    
+        End        
+        Set pvComObject of (Private.phoButtonObject(Self)) to vButton  
+        Send DoAddLookupItems
+        Send Set_Item_Button_Properties
+    End_Procedure
+    
+End_Class
+
+{DocStart = Class}
+//---------------------------------------------------
+// Mixin Class  : cSigCJPropertyGridItemSpinAndSlider_Mixin
+//---------------------------------------------------
+{DocEnd} 
+
+Class cSigCJPropertyGridItemSpinAndSlider_Mixin is a Mixin
+    
+    Procedure Define_SpinForm_and_Slider_Properties
+        { DesignTime=False }
+        Property Integer Private.piMax      100 
+        { DesignTime=False }
+        Property Integer Private.piMin        1
+        { DesignTime=False }
+        Property Integer Private.piWidth     20   
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock"}
+    { InitialValue=100 }    
+    Procedure Set piMaximum Integer iMax                      
+        If (not(IsNullComObject(pvComObject(Self)))) Begin 
+            If (not(IsNullComObject(pvComObject(Private.phoButtonObject(Self))))) Begin
+                Set ComMax of (Private.phoButtonObject(Self)) to iMax
+            End
+        End
+        Set Private.piMax to iMax
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock"}
+    Function piMaximum Returns Integer
+        Function_Return (Private.piMax(Self))
+    End_Function
+        
+    { MethodType=Property Category="CodeJock"}
+    { InitialValue=1 }    
+    Procedure Set piMinimum Integer iMin                     
+        If (not(IsNullComObject(pvComObject(Self)))) Begin 
+            If (not(IsNullComObject(pvComObject(Private.phoButtonObject(Self))))) Begin
+                Set ComMin of (Private.phoButtonObject(Self)) to iMin
+            End
+        End
+        Set Private.piMin to iMin
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock"}
+    Function piMinimum Returns Integer
+        Function_Return (Private.piMin(Self))
+    End_Function
+    
+    { MethodType=Property Category="CodeJock"}  
+    Procedure Set piWidth Integer iWidth 
+        If (not(IsNullComObject(pvComObject(Self)))) Begin 
+            If (not(IsNullComObject(pvComObject(Private.phoButtonObject(Self))))) Begin
+                Set ComWidth of (Private.phoButtonObject(Self)) to iWidth
+            End
+        End
+        Set Private.piWidth to iWidth
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock"}
+    Function piWidth Returns Integer
+        Function_Return (Private.piWidth(Self))
+    End_Function    
+    
+    Procedure ApplySettings
+        Set piMinimum to (Private.piMin(Self))
+        Set piMaximum to (Private.piMax(Self))
+        Set piWidth   to (Private.piWidth(Self))
+    End_Procedure
+    
+End_Class
+
+{ OverrideProperty=pbCapslock_State          DesignTime=False }
+{ OverrideProperty=pbPassword_State          DesignTime=False }
+{ OverrideProperty=peItemType                DesignTime=False }
+{DocStart = Class}
+//---------------------------------------------------
+//
+// Class        : cSigCJPropertyGridSpinFormItem
+//
+// Superclass   : cSigCJPropertyGridItem 
+//
+// Package      : cSigCJPropertyGrid.pkg
+//
+// Mixins       : cSigCJPropertyGridItemSpinAndSlider_Mixin
+//
+// Description  : Property Grid Item with built in SpinForm Object
+//
+// Properties   : psLabel                 (String) 
+//                psHelpText              (String) 
+//                psToolTip               (String) 
+//                pbCreateExpanded        (Boolean)
+//                pbLabelEmboldened       (Boolean)
+//                peItemType              (Integer)
+//                pvValue                 (Variant)
+//                pbDefaultAsInitialValue (Boolean)
+//                pvDefaultValue          (Variant)
+//                pvInitialValue          (Variant)
+//                pvTag                   (Variant)
+//                pbHidden                (Boolean)
+//                pbReadOnly              (Boolean)
+//                pbPassword_State        (Boolean)
+//                pbCapslock_State        (Boolean)
+//                piForm_Margin           (Integer)
+//                piValueBackgroundColor  (Integer)
+//                piMin                   (Integer)
+//                piMax                   (Integer)
+//                piWidth                 (Integer)
+//
+// Events       : OnChange          
+//                OnEditAfter      
+//                OnMoveItemDataIn 
+//                OnMoveItemDataOut
+//
+// Methods      : Procedure Set PropertyItemMask (String llMask String llLiteral Variant llPrompt)  
+//
+// Notes        :
+//
+// To Do        :           
+//               
+//---------------------------------------------------
+{DocEnd}  
+Class cSigCJPropertyGridSpinFormItem is a cSigCJPropertyGridItem
+    Import_Class_Protocol cSigCJPropertyGridItemSpinAndSlider_Mixin
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        { Visibility=Private }
+        Property Handle Private.phoButtonObject     (Create(Self, U_cSigCjComPropertyGridInPlaceSpinButton))
+        
+        Send Define_SpinForm_and_Slider_Properties 
+    End_Procedure
+    
+    { MethodType=Method Visibility=Private }
+    Procedure Private.Create Handle hoParent Boolean bRecursive
+        Variant vButton
+        
+        Forward Send Private.Create hoParent bRecursive
+        Get ComAddSpinButton to vButton
+        Set pvComObject of (Private.phoButtonObject(Self)) to vButton
+        Send ApplySettings
+    End_Procedure    
+End_Class
+
+{ OverrideProperty=pbCapslock_State          DesignTime=False }
+{ OverrideProperty=pbPassword_State          DesignTime=False }
+{ OverrideProperty=peItemType                DesignTime=False }
+{DocStart = Class}
+//---------------------------------------------------
+//
+// Class        : cSigCJPropertyGridSliderCtlItem
+//
+// Superclass   : cSigCJPropertyGridItem 
+//
+// Package      : cSigCJPropertyGrid.pkg
+//
+// Mixins       : cSigCJPropertyGridItemSpinAndSlider_Mixin
+//
+// Description  : Property Grid Item with built in Slider Control
+//
+// Properties   : psLabel                 (String) 
+//                psHelpText              (String) 
+//                psToolTip               (String) 
+//                pbCreateExpanded        (Boolean)
+//                pbLabelEmboldened       (Boolean)
+//                peItemType              (Integer)
+//                pvValue                 (Variant)
+//                pbDefaultAsInitialValue (Boolean)
+//                pvDefaultValue          (Variant)
+//                pvInitialValue          (Variant)
+//                pvTag                   (Variant)
+//                pbHidden                (Boolean)
+//                pbReadOnly              (Boolean)
+//                pbPassword_State        (Boolean)
+//                pbCapslock_State        (Boolean)
+//                piForm_Margin           (Integer)
+//                piValueBackgroundColor  (Integer)
+//                piMin                   (Integer)
+//                piMax                   (Integer)
+//                piWidth                 (Integer)
+//
+// Events       : OnChange          
+//                OnEditAfter      
+//                OnMoveItemDataIn 
+//                OnMoveItemDataOut
+//
+// Methods      : Procedure Set PropertyItemMask (String llMask String llLiteral Variant llPrompt)  
+//
+// Notes        :
+//
+// To Do        :           
+//               
+//---------------------------------------------------
+{DocEnd} 
+Class cSigCJPropertyGridSliderCtlItem is a cSigCJPropertyGridItem
+    Import_Class_Protocol cSigCJPropertyGridItemSpinAndSlider_Mixin
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        { Visibility=Private }
+        Property Handle Private.phoButtonObject     (Create(Self, U_cSigCjComPropertyGridInPlaceSliderControl))
+        
+        Send Define_SpinForm_and_Slider_Properties 
+    End_Procedure
+    
+    { MethodType=Method Visibility=Private }
+    Procedure Private.Create Handle hoParent Boolean bRecursive
+        Variant vButton
+        
+        If (hoParent=0) Begin
+            Procedure_Return
+        End
+        
+        Forward Send Private.Create hoParent bRecursive
+        Get ComAddSliderControl to vButton
+        Set pvComObject of (Private.phoButtonObject(Self)) to vButton
+        Send ApplySettings
+    End_Procedure
+End_Class
+
+//==============================================================================
+//End of Package - cSigCJSlider.pkg
+//==============================================================================

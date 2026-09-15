@@ -1,0 +1,1424 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : SigCjC_TabManager.pkg
+// Description  : Common Define / Class for Codejock controls
+//
+// Created by   : Ian Smith
+// Revision     : $Rev$
+//                $Date$
+//                $Author$
+//
+// Requirements : Visual DataFlex 24.0
+//                Codejock SuitePro - Version 24.0.0
+//
+// Copyright    : Copyright c 2008-2025 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+//CompilerWarnings Suspend
+
+Use FlexCom20.pkg
+
+Define OLEXTPTabAppearanceStyle for Integer
+    Define OLExtpTabAppearancePropertyPage for 0
+    Define OLExtpTabAppearancePropertyPageSelected for 1
+    Define OLExtpTabAppearancePropertyPageFlat for 2
+    Define OLExtpTabAppearancePropertyPage2003 for 3
+    Define OLExtpTabAppearanceStateButtons for 4
+    Define OLExtpTabAppearanceFlat for 6
+    Define OLExtpTabThemeExcel2003 for 7
+    Define OLExtpTabAppearanceVisio for 8
+    Define OLExtpTabAppearancePropertyPage2007 for 10
+    Define OLExtpTabAppearancePropertyPageAccess2007 for 11
+    Define OLExtpTabThemeVisualStudio2003 for 5
+    Define OLExtpTabThemeVisualStudio2005 for 9
+    Define OLExtpTabThemeVisualStudio2010 for 12
+    Define OLExtpTabThemeVisualStudio2012 for 13
+    Define OLExtpTabThemeVisualStudio2015 for 15
+    Define OLExtpTabThemeNativeWindows10 for 16
+    Define OLExtpTabThemeVisualStudio2017 for 17
+    Define OLExtpTabThemeVisualStudio2019 for 18
+    Define OLExtpTabThemeVisualStudio2022 for 19
+    Define OLExtpTabThemeOffice2013 for 14
+    Define OLExtpTabThemeOffice2016 for 14
+    Define OLExtpTabAppearanceVisualStudio for 5
+    Define OLExtpTabAppearanceVisualStudio2003 for 5
+    Define OLExtpTabAppearanceVisualStudio2005 for 9
+    Define OLExtpTabAppearanceVisualStudio2010 for 12
+    Define OLExtpTabAppearanceVisualStudio2012 for 13
+    Define OLExtpTabAppearanceVisualStudio2015 for 15
+    Define OLExtpTabAppearanceNativeWindows10 for 16
+    Define OLExtpTabAppearanceExcel for 7
+
+Define OLEXTPTabClientFrame for Integer
+    Define OLExtpTabFrameBorder for 0
+    Define OLExtpTabFrameSingleLine for 1
+    Define OLExtpTabFrameNone for 2
+
+Define OLEXTPTabColorStyle for Integer
+    Define OLExtpTabColorDefault for 1
+    Define OLExtpTabColorOffice2003 for 4
+    Define OLExtpTabColorWinNative for 8
+    Define OLExtpTabColorResource for 32
+    Define OLExtpTabColorOffice2007Access for 128
+    Define OLExtpTabColorVisualStudio2003 for 2
+    Define OLExtpTabColorVisualStudio2005 for 16
+    Define OLExtpTabColorVisualStudio2008 for 64
+    Define OLExtpTabColorVisualStudio2010 for 256
+    Define OLExtpTabColorVisualStudio2012 for 512
+    Define OLExtpTabColorVisualStudio2012Dark for 1024
+    Define OLExtpTabColorOffice2013 for 2048
+    Define OLExtpTabColorOffice2016 for 2048
+    Define OLExtpTabColorVisualStudio2015 for 4096
+    Define OLExtpTabColorNativeWindows10 for 8192
+    Define OLExtpTabColorVisualStudio2017 for 16384
+    Define OLExtpTabColorVisualStudio2019 for 32768
+    Define OLExtpTabColorVisualStudio2022 for 65536
+    Define OLExtpTabColorAll for -1
+    Define OLExtpTabColorVisualStudio for 2
+    Define OLExtpTabColorWinXP for 8
+    Define OLExtpTabColorWhidbey for 16
+    Define OLExtpTabColorAccess2007 for 128
+    Define OLExtpTabColorOffice2007 for 32
+
+Define OLEXTPTabDrawTextFormat for Integer
+    Define OLExtpTabDrawTextLeft for 0
+    Define OLExtpTabDrawTextCenter for 1
+    Define OLExtpTabDrawTextRight for 2
+    Define OLExtpTabDrawTextVCenter for 4
+
+Define OLEXTPTabLayoutStyle for Integer
+    Define OLExtpTabLayoutAutoSize for 0
+    Define OLExtpTabLayoutSizeToFit for 1
+    Define OLExtpTabLayoutFixed for 2
+    Define OLExtpTabLayoutCompressed for 3
+    Define OLExtpTabLayoutMultiRow for 4
+    Define OLExtpTabLayoutRotated for 5
+
+Define OLEXTPTabOneNoteColor for Integer
+    Define OLExtpTabColorBlue for 16777216
+    Define OLExtpTabColorYellow for 16777217
+    Define OLExtpTabColorGreen for 16777218
+    Define OLExtpTabColorRed for 16777219
+    Define OLExtpTabColorPurple for 16777220
+    Define OLExtpTabColorCyan for 16777221
+    Define OLExtpTabColorOrange for 16777222
+    Define OLExtpTabColorMagenta for 16777223
+
+Define OLEXTPTabPosition for Integer
+    Define OLExtpTabPositionTop for 0
+    Define OLExtpTabPositionLeft for 1
+    Define OLExtpTabPositionBottom for 2
+    Define OLExtpTabPositionRight for 3
+
+Define OLEXTPTabToolTipBehaviour for Integer
+    Define OLExtpTabToolTipNever for 0
+    Define OLExtpTabToolTipAlways for 1
+    Define OLExtpTabToolTipShrinkedOnly for 2
+
+Class cSigCjComITabManagerMargin is a Mixin
+
+    { MethodType=Property DesignTime=False }
+    Function ComLeft Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComLeft Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTop Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTop Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComRight Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComRight Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComBottom Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComBottom Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_I4 to value
+    End_Procedure
+
+    Procedure ComSetRect Integer llLeft Integer llTop Integer llRight Integer llBottom
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 4
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llLeft
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llTop
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llRight
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llBottom
+        Send InvokeComMethod to hDispatchDriver 5 OLE_VT_VOID
+    End_Procedure
+End_Class
+
+Class cSigCjComTabManagerMargin is a cComAutomationObject
+    Import_Class_Protocol cSigCjComITabManagerMargin
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set peAutoCreate to acNoAutoCreate
+    End_Procedure
+End_Class
+
+Class cSigCjComITabPaintManagerColorSet is a Mixin
+
+    { MethodType=Property DesignTime=False }
+    Function ComHeaderFaceLight Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComHeaderFaceLight OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComHeaderFaceDark Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComHeaderFaceDark OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComFrameBorder Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComFrameBorder OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComControlFace Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComControlFace OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComBorderHighlight Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 5 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComBorderHighlight OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 5 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComButtonSelected Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 6 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComButtonSelected OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 6 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComButtonNormal Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 7 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComButtonNormal OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 7 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComNormalText Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 8 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComNormalText OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 8 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComPressedText Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 9 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComPressedText OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 9 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComSelectedText Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 10 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComSelectedText OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 10 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComHighlightText Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 11 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComHighlightText OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 11 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComDisabledText Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 12 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComDisabledText OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 12 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabExcelSelectedLeftInnerBorder Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 13 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabExcelSelectedLeftInnerBorder OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 13 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabExcelSelectedTopInnerBorder Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 14 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabExcelSelectedTopInnerBorder OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 14 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabExcelSelectedRightInnerBorder Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 15 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabExcelSelectedRightInnerBorder OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 15 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabExcelSelectedLeftOuterBorder Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 16 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabExcelSelectedLeftOuterBorder OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 16 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabExcelSelectedRightOuterBorder Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 17 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabExcelSelectedRightOuterBorder OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 17 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabExcelSelectedTopOuterBorder Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 18 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabExcelSelectedTopOuterBorder OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 18 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabExcelNormalLeftInnerBorder Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 19 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabExcelNormalLeftInnerBorder OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 19 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabExcelNormalTopInnerBorder Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 20 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabExcelNormalTopInnerBorder OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 20 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabExcelNormalRightInnerBorder Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 21 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabExcelNormalRightInnerBorder OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 21 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabExcelNormalLeftOuterBorder Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 22 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabExcelNormalLeftOuterBorder OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 22 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabExcelNormalRightOuterBorder Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 23 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabExcelNormalRightOuterBorder OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 23 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabExcelNormalTopOuterBorder Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 24 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabExcelNormalTopOuterBorder OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 24 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabPropertyPageHighlight Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 25 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabPropertyPageHighlight OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 25 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabPropertyPageShadow Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 26 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabPropertyPageShadow OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 26 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabPropertyPageDarkShadow Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 27 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabPropertyPageDarkShadow OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 27 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabPropertyPage2003DarkShadow Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 28 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabPropertyPage2003DarkShadow OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 28 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabPropertyPage2003FrameBorder Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 29 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabPropertyPage2003FrameBorder OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 29 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabPropertyPage2003BorderLeftHighlight Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 30 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabPropertyPage2003BorderLeftHighlight OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 30 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabPropertyPage2003BorderTopHighlight Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 31 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabPropertyPage2003BorderTopHighlight OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 31 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabStateButtonFaceLight Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 32 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabStateButtonFaceLight OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 32 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabStateButtonFaceDark Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 33 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabStateButtonFaceDark OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 33 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabStateButtonBorderTopLeft Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 34 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabStateButtonBorderTopLeft OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 34 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTabStateButtonBorderBottomRight Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 35 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTabStateButtonBorderBottomRight OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 35 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComPaneFace Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 36 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComPaneFace OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 36 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComButtonHighlighted Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 37 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComButtonHighlighted OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 37 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComPressedButton Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 38 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComPressedButton OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 38 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComHighlightedCloseButton Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 39 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComHighlightedCloseButton OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 39 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComSelectedPressedButton Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 40 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComSelectedPressedButton OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 40 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComSelectedHighlightedButton Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 41 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComSelectedHighlightedButton OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 41 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComButtonBorder Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 42 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComButtonBorder OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 42 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComButtonBorderHot Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 43 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComButtonBorderHot OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 43 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComHighlightCloseText Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 44 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComHighlightCloseText OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 44 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComSelectedPressedText Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 45 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComSelectedPressedText OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 45 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComSelectedHighlightedText Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 46 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComSelectedHighlightedText OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 46 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComActiveFilesGlyph Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 47 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComActiveFilesGlyph OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 47 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComActiveFilesGlyphHighlighted Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 48 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComActiveFilesGlyphHighlighted OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 48 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComActiveFilesGlyphPressed Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 49 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComActiveFilesGlyphPressed OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 49 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComActiveFilesBack Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 50 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComActiveFilesBack OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 50 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComActiveFilesBackHighlighted Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 51 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComActiveFilesBackHighlighted OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 51 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComActiveFilesBackPressed Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 52 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComActiveFilesBackPressed OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 52 OLE_VT_I4 to value
+    End_Procedure
+End_Class
+
+Class cSigCjComTabPaintManagerColorSet is a cComAutomationObject
+    Import_Class_Protocol cSigCjComITabPaintManagerColorSet
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set peAutoCreate to acNoAutoCreate
+    End_Procedure
+End_Class
+
+Class cSigCjComITabPaintManager is a Mixin
+
+    { MethodType=Property DesignTime=False }
+    Function ComAppearance Returns OLEXTPTabAppearanceStyle
+        OLEXTPTabAppearanceStyle retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComAppearance OLEXTPTabAppearanceStyle value
+        Set ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComColor Returns OLEXTPTabColorStyle
+        OLEXTPTabColorStyle retVal
+        Get ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComColor OLEXTPTabColorStyle value
+        Set ComProperty of (phDispatchDriver(Self)) 2 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComLayout Returns OLEXTPTabLayoutStyle
+        OLEXTPTabLayoutStyle retVal
+        Get ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComLayout OLEXTPTabLayoutStyle value
+        Set ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComPosition Returns OLEXTPTabPosition
+        OLEXTPTabPosition retVal
+        Get ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComPosition OLEXTPTabPosition value
+        Set ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComBoldSelected Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 5 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComBoldSelected Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 5 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComHotTracking Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 6 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComHotTracking Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 6 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComShowIcons Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 7 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComShowIcons Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 7 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComDisableLunaColors Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 8 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComDisableLunaColors Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 8 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComOneNoteColors Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 9 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComOneNoteColors Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 9 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComClientFrame Returns OLEXTPTabClientFrame
+        OLEXTPTabClientFrame retVal
+        Get ComProperty of (phDispatchDriver(Self)) 11 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComClientFrame OLEXTPTabClientFrame value
+        Set ComProperty of (phDispatchDriver(Self)) 11 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComStaticFrame Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 12 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComStaticFrame Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 12 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComDrawTextPathEllipsis Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 17 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComDrawTextPathEllipsis Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 17 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComDrawTextNoPrefix Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 18 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComDrawTextNoPrefix Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 18 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComFont Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) -512 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComFont Variant value
+        Set ComProperty of (phDispatchDriver(Self)) -512 OLE_VT_DISPATCH to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComMultiRowFixedSelection Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 21 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComMultiRowFixedSelection Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 21 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComMultiRowJustified Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 22 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComMultiRowJustified Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 22 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComToolTipBehaviour Returns OLEXTPTabToolTipBehaviour
+        OLEXTPTabToolTipBehaviour retVal
+        Get ComProperty of (phDispatchDriver(Self)) 23 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComToolTipBehaviour OLEXTPTabToolTipBehaviour value
+        Set ComProperty of (phDispatchDriver(Self)) 23 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComSelectTabOnDragOver Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 24 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComSelectTabOnDragOver Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 24 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComFillBackground Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 25 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComFillBackground Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 25 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComRotateImageOnVerticalDraw Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 26 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComRotateImageOnVerticalDraw Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 26 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComFixedTabWidth Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 27 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComFixedTabWidth Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 27 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComMinTabWidth Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 28 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComMinTabWidth Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 28 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComMaxTabWidth Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 29 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComMaxTabWidth Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 29 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComDrawTextFormat Returns OLEXTPTabDrawTextFormat
+        OLEXTPTabDrawTextFormat retVal
+        Get ComProperty of (phDispatchDriver(Self)) 30 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComDrawTextFormat OLEXTPTabDrawTextFormat value
+        Set ComProperty of (phDispatchDriver(Self)) 30 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComShowTabs Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 31 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComShowTabs Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 31 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComClearTypeTextQuality Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 32 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComClearTypeTextQuality Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 32 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComVerticalTextTopToBottom Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 33 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComVerticalTextTopToBottom Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 33 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComMultiRowTabsOptimization Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 34 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComMultiRowTabsOptimization Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 34 OLE_VT_BOOL to value
+    End_Procedure
+
+    Function ComIsColorSupported OLEXTPTabColorStyle llColor Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llColor
+        Get InvokeComMethod of hDispatchDriver 10 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComClientMargin Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 13 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComControlMargin Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 14 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComHeaderMargin Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 15 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComButtonMargin Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 16 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComColorSet Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 19 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComSetIconSize Integer llcx Integer llcy
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llcx
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llcy
+        Send InvokeComMethod to hDispatchDriver 20 OLE_VT_VOID
+    End_Procedure
+End_Class
+
+Class cSigCjComTabPaintManager is a cComAutomationObject
+    Import_Class_Protocol cSigCjComITabPaintManager
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set peAutoCreate to acNoAutoCreate
+    End_Procedure
+End_Class
+
+Class cSigCjComITabControlItem is a Mixin
+
+    { MethodType=Property DesignTime=False }
+    Function ComCaption Returns String
+        String retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComCaption String value
+        Set ComProperty of (phDispatchDriver(Self)) 1 OLE_VT_BSTR to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTag Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_VARIANT to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTag Variant value
+        Set ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_VARIANT to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComSelected Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComSelected Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComImage Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 5 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComImage Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 5 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComColor Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 6 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComColor OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 6 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComVisible Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 8 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComVisible Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 8 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComEnabled Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 9 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComEnabled Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 9 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComToolTip Returns String
+        String retVal
+        Get ComProperty of (phDispatchDriver(Self)) 10 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComToolTip String value
+        Set ComProperty of (phDispatchDriver(Self)) 10 OLE_VT_BSTR to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComClosable Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 12 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComClosable Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 12 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComHandle Returns OLE_HANDLE
+        OLE_HANDLE retVal
+        Get ComProperty of (phDispatchDriver(Self)) 7 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComHandle OLE_HANDLE value
+        Set ComProperty of (phDispatchDriver(Self)) 7 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComIndex Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 2 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComMove Integer llIndex
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llIndex
+        Send InvokeComMethod to hDispatchDriver 11 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComGetRect Integer ByRef llLeft Integer ByRef llTop Integer ByRef llRight Integer ByRef llBottom
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 4
+        Send DefineParam to hDispatchDriver (OLE_VT_BYREF ior OLE_VT_I4) llLeft
+        Send DefineParam to hDispatchDriver (OLE_VT_BYREF ior OLE_VT_I4) llTop
+        Send DefineParam to hDispatchDriver (OLE_VT_BYREF ior OLE_VT_I4) llRight
+        Send DefineParam to hDispatchDriver (OLE_VT_BYREF ior OLE_VT_I4) llBottom
+        Send InvokeComMethod to hDispatchDriver 13 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComEnsureVisible
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 14 OLE_VT_VOID
+    End_Procedure
+End_Class
+
+Class cSigCjComTabControlItem is a cComAutomationObject
+    Import_Class_Protocol cSigCjComITabControlItem
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set peAutoCreate to acNoAutoCreate
+    End_Procedure
+End_Class
+
+//==============================================================================
+//End of package - SigCjC_TabManager.pkg
+//==============================================================================
+

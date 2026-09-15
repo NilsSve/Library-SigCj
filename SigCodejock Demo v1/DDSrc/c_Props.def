@@ -1,0 +1,31 @@
+-----------------------------------------------------------------------------
+  DATE: 27/02/2012      TIME: 09:51                                  PAGE:  1
+  FILE DEFINITION FOR FILE: c_Props (# 58)
+-----------------------------------------------------------------------------
+  DRIVER NAME               : DATAFLEX
+  FILE ROOT NAME            : c_Props
+  USER DISPLAY NAME         : Calendar v2 c_Props
+  DATAFLEX FILE NAME        : c_Props
+-----------------------------------------------------------------------------
+  RECORD LENGTH             : 38        ( USED: 27 )
+  MAX NUMBER OF RECORDS     : 1         ( USED: 1 )
+  FILE COMPRESSION          : NONE
+  RE-USE DELETED SPACE      : YES
+  LOCKING TYPE              : FILE
+  HEADER INTEGRITY CHECKING : NO 
+  TRANSACTION TYPE          : CLIENT ATOMIC
+  RECORD IDENTITY INDEX     : 0 ( 0 , 0 )
+  FILE LOGIN PARAMETER      : 
+  SYSTEM FILE               : YES
+-----------------------------------------------------------------------------
+
+NUM  FIELD NAME       TYPE SIZE  OFFST IX   RELATES TO FILE.FIELD
+---  ---------------  ---- ----- ----- --   ---------------------------------
+  1  WkDayStartTime   ASC      5     1      
+  2  WkDayEndTime     ASC      5     6      
+  3  ShadeLunchTime   ASC      1    11      
+  4  LunchStartTime   ASC      5    12      
+  5  LunchEndTime     ASC      5    17      
+  6  ShorterLastDay   ASC      1    22      
+  7  LastWkDayEndTim  ASC      5    23      
+

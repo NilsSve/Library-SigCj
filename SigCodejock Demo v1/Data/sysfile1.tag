@@ -1,0 +1,13 @@
+Organisation
+Address1
+Address2
+Address3
+Address4
+Postcode
+Telephone_No
+System_Date
+Country
+Amend_Date
+Counter1
+Counter2
+Default_Price

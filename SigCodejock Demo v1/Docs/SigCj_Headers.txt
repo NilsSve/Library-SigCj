@@ -1,0 +1,78 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCjPushButton.pkg
+// Description  : VDF Class for Codejock PushButton control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$
+// 
+// Requirements : Visual DataFlex 12.1
+//                Codejock SuitePro 2007 - Version 11.2.2
+//
+// Copyright    : (c) 2008 VDF SIG UK
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//==============================================================================
+
+//==============================================================================
+// End of file : cSigCjPushButton.pkg
+//==============================================================================
+
+{DocStart = Class}
+//-----------------------------------------------------------------------------
+// Class       : 
+//
+// Superclass  :  
+//
+// Package     : 
+//
+// Mixins      :
+//
+// Description :
+//
+// Properties  : 
+//
+// Events      : 
+//
+// Methods     :                 
+//               
+//-----------------------------------------------------------------------------
+{DocEnd}
+
+
+    {DocStart = Method}
+    //-------------------------------------------------------------------------
+    // Procedure  : 
+    //
+    // Scope      : 
+    //
+    // Paramaters : 
+    //
+    // Returns    : 
+    //
+    // Purpose    :  
+    //
+    // Notes      : 
+    //               
+    //-------------------------------------------------------------------------
+    {DocEnd}
+

@@ -1,0 +1,93 @@
+//=============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : SigCjCalendar_TimeScale.dg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev: $
+//                $Date: $
+//                $Author: $
+//
+// Requirements : Visual DataFlex 14.1+
+//                Codejock SuitePro - Version 13.4.0+
+//
+// Copyright    : Copyright © 2009-2012 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//=============================================================================
+Use Windows.pkg
+Use Dfspnfrm.pkg
+
+Object oSigCjCalendar_TimeScale_Panel is a ModalPanel
+    Set Size to 60 115
+    Set Label to "Time Scale Interval"
+    Set piMinSize to 60 115
+    Set Location to 2 2
+    Set Border_Style to Border_Thick
+    
+    Property Integer piTimeScale
+
+    Object oScale is a SpinForm
+        Set Size to 13 30
+        Set Location to 10 60
+        Set Label_Col_Offset to 2
+        Set Label_Justification_Mode to JMode_Right
+        Set Label to "Scale Interval"
+        Set Maximum_Position to 60
+        Set Minimum_Position to 1
+        Set Wrap_State to True
+    End_Object
+    
+    Object oOK_Btn is a Button
+        Set Label    to "&OK"
+        Set Location to 42 6
+        Set peAnchors To anBottomRight
+
+        Procedure OnClick
+            Integer iValue
+            Get Spin_Value of oScale to iValue
+            
+            Set piTimeScale to iValue
+            Send Close_Panel
+        End_Procedure
+    End_Object
+
+    Object oCancel_Btn is a Button
+        Set Label    to "&Cancel"
+        Set Location to 42 61
+        Set peAnchors to anBottomRight
+
+        Procedure OnClick
+            Set piTimeScale to -1
+            Send Close_Panel
+        End_Procedure
+    End_Object
+
+    On_Key Key_Alt+Key_O Send KeyAction of oOK_Btn
+    On_Key Key_Alt+Key_C Send KeyAction of oCancel_Btn
+
+    Function Show_Dialog Integer iMinutes Returns Integer
+        Set Spin_Value of oScale to iMinutes
+
+        Send Popup
+
+        Function_Return (piTimeScale(Self))
+    End_Function
+
+End_Object

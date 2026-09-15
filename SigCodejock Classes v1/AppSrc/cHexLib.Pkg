@@ -1,0 +1,142 @@
+//==============================================================================
+// Contributions
+// =============
+//
+// When       Who          What
+// ========== ============ =====================================================
+// 2009-01-09 Nick Wright  Original Implementation
+//
+//==============================================================================
+
+//From DAC Knowledge Base Article 2196
+// Modified Nick Wright to include Function HexColour
+
+Class cHexLib is a cObject
+    Function IsHex String sHex Returns Boolean
+        Integer iCounter iLength
+        String sChar
+
+        Move (Uppercase (sHex)) To sHex
+        Move (Length (sHex)) To iLength
+        
+        For iCounter From 1 To iLength
+            Move (Mid (sHex, 1, iCounter)) To sChar
+            If (Pos (sChar, "0123456789ABCDEF") = 0) Begin
+                Function_Return False
+            End
+        Loop
+
+        Function_Return True
+    End_Function // IsHex
+
+    Function CharToHex Integer iChar Returns String
+        String sHex
+
+        Move (Uppercase (iChar)) To iChar
+        Move (Mid ("0123456789ABCDEF", 1, Integer (iChar / 16 + 1))) To sHex
+        Move (sHex - Mid ("0123456789ABCDEF", 1, Mod (iChar, 16) + 1)) To sHex
+        
+        Function_Return sHex
+    End_Function // CharToHex
+
+    Function HexToChar String sHex Returns Integer
+        Integer iCounter iChar iValue iLength iMax
+        String sChar
+        
+        Move (Uppercase (sHex)) To sHex
+        Move (Length (sHex)) To iLength
+        Move (iLength - 1) To iMax
+
+        For iCounter From 0 To iMax
+            Move (Mid (sHex, 1, iLength - iCounter)) To sChar
+            If (Pos (sChar, "ABCDEF") <> 0) Begin
+                Move (Ascii (sChar) - 55) To iChar
+            End
+            Else Begin
+                Move (Integer (sChar)) To iChar
+            End
+            If (iCounter = 0) Begin
+                Move iChar To iValue
+            End
+            Else Begin
+                Move (iValue + (iChar * (iCounter * 16))) To iValue
+            End
+        Loop
+
+        Function_Return iValue
+    End_Function // HexToChar
+
+    Function StrToHex String sString Returns String
+        Integer iCounter iLength iChar
+        String sHex sChar sHexChar
+
+        Move (Length (sString)) To iLength
+
+        For iCounter From 1 To iLength
+            Move (Mid (sString, 1, iCounter)) To sChar
+            Move (Ascii (sChar)) To iChar
+            Get CharToHex iChar To sHexChar
+            Move (sHex + sHexChar) To sHex
+        Loop
+
+        Function_Return sHex
+    End_Function // StrToHex
+
+    Function HexToStr String sHex Returns String
+        Integer iCounter iChar iLength
+        String sString sHexValue sChar
+
+        Move (Length (sHex) / 2) To iLength
+
+        For iCounter From 1 To iLength
+            Move (Mid (sHex, 2, iCounter * 2 - 1)) To sHexValue
+            Get HexToChar sHexValue To iChar
+            Move (Character (iChar)) To sChar
+            Move (sString + sChar) To sString
+        Loop
+
+        Function_Return sString
+    End_Function // HexToStr
+
+    Function DecToHex Integer iDec Returns String
+        String sHex
+
+        Move "" To sHex
+        Repeat
+            Move (Mid ("0123456789ABCDEF", 1, ((iDec iAnd |CI$0F) + 1)) + sHex) To sHex
+            Move (iDec / |CI$10) To iDec
+        Until (iDec = 0)
+
+        Function_Return sHex
+    End_Function // DecToHex
+
+    Function HexToDec String sHex Returns Integer
+        Integer iValue
+
+        Move ('$' + Trim (sHex)) To iValue
+
+        Function_Return iValue
+    End_Function // HexToDec
+    
+    Function HexColor Integer rgbColor Returns String
+        Integer iRed iGreen iBlue
+        String sRet sRed sGreen sBlue
+        
+        Move (R_From_RGB(rgbColor)) to iRed
+        Move (G_From_RGB(rgbColor)) to iGreen 
+        Move (B_From_RGB(rgbColor)) to iBlue
+    
+        Get DecToHex iRed to sRed
+        Get DecToHex iGreen to sGreen
+        Get DecToHex iBlue to sBlue
+        
+        If (Length(sRed)=1)     Move ('0'+sRed) to sRed
+        If (Length(sGreen)=1)   Move ('0'+sGreen) to sGreen
+        If (Length(sBlue)=1)    Move ('0'+sBlue) to sBlue
+        
+        Move ("#"+sRed+sGreen+sBlue) to sRet
+        
+        Function_Return sRet
+    End_Function
+
+End_Class // cHexLib

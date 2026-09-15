@@ -1,0 +1,814 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJRibbonBar.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$ Martin Pincott
+// 
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//==============================================================================
+Use VdfBase.pkg
+Use cCJStandardCommandBarSystem.pkg
+Use cSigCJMethods_Mixin.pkg
+
+Struct tdUnassignedControl
+    Handle  hoObject
+    Variant vControl
+End_Struct
+
+Define C_MessageBarButtonId for 50
+
+{DocStart = Class}
+//-----------------------------------------------------------------------------
+//
+// Class       : cSigCJRibbonBar
+//
+// Superclass  : cCJCommandBarSystem 
+//
+// Package     : cSigCJRibbonBar.pkg
+//
+// Mixins      : 
+//
+// Description :
+//
+// Properties  : pbShowHelpMenu      
+//               psHelpCaption       
+//               psHelpToolTip       
+//               psHelpDescription   
+//               psHelpImage  
+//               pbTabWorkspace
+//               pbAllowQuickAccessCustomization 
+//               pbShowQuickAccess  
+//               pbShowQuickAccessBelowRibbon    
+//               
+// Events      : OnCreateQuickAccessToolbar
+//               OnCommandBarsCreated
+//               OnButtonClicked
+//               OnMessageBarButtonClicked
+//               OnTabWorkspaceCreated
+//               OnSetTabPaintManagerProperties
+//              
+// Methods     : AddToQuickAccessToolbar        Handle hoItem    
+//               Set pbAddToQuickAccessToolbar  Handle hoItem Boolean bState           
+//               
+//-----------------------------------------------------------------------------
+{DocEnd}
+
+Use cSigCJCommandBarSystem.pkg
+    
+Class cSigCJRibbonBar is a cSigCJCommandBarSystem
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        {Visibility=Private} 
+        Property tdUnassignedControl[]                      ptaUnassignedControls                      
+        {Visibility=Private}
+        Property Handle phoPrivateRibbonBar                 (Create(Self,RefClass(cCJRibbonBar)))  
+        {Visibility=Private}
+        Property Handle phoSystemButton                     
+        {Visibility=Private}
+        Property Handle[] phaQuickAccessItems
+        
+        Property Boolean pbShowHelpMenu                     True
+        Property String  psHelpCaption                      "&Help" 
+        Property String  psHelpToolTip                      "Help"
+        Property String  psHelpDescription                  "Access Information for learning and using this DataFlex application."
+        Property String  psHelpImage                        "ActionHelp.ico"
+        {Visibility=Private}
+        Property Boolean pbPrivateAllowQuickAccessCustomization    True
+        {Visibility=Private}
+        Property Boolean pbPrivateShowQuickAccess                   True
+        {Visibility=Private}
+        Property Boolean pbPrivateShowQuickAccessBelowRibbon        True
+
+        Property Handle  phoCommandBarControls  (Create(Self,RefClass(cCJCommandBarControls)))
+        Property Handle  phoTabWorkspace        (Create(Self,RefClass(cSigCJTabWorkspace)))
+        Property Handle  phoCommandBar          (Create(Self,RefClass(cCJCommandbar)))        
+        Property Handle  phoTabPaintManager     (Create(Self,RefClass(cCJTabPaintManager)))        
+        
+        Property Boolean pbTabWorkspace True
+    End_Procedure
+    
+    Function phoRibbonBar Returns Handle
+        Function_Return (phoPrivateRibbonBar(Self))
+    End_Function 
+    
+    {Visibility=Private}
+    Procedure RegisterUnAssignedControl Handle hoControl Variant vControl
+        tdUnassignedControl[] taUnassignedControls
+        Integer iControls
+        
+        Get ptaUnassignedControls to taUnassignedControls
+        Move (SizeOfArray(taUnassignedControls)) to iControls
+        Move hoControl to taUnassignedControls[iControls].hoObject
+        Move vControl  to taUnassignedControls[iControls].vControl
+        Set ptaUnassignedControls to taUnassignedControls
+    End_Procedure
+    
+    {Visibility=Private}
+    Function FindUnassignedObjectID Variant vControl Returns Handle
+        Handle hoObject
+        Integer iSearch
+        
+        tdUnassignedControl[] taUnassignedControls
+        Get ptaUnassignedControls to taUnassignedControls
+        For iSearch from 0 to (SizeOfArray(taUnassignedControls)-1) 
+            If (IsSameComObject(vControl,taUnassignedControls[iSearch].vControl)) Begin
+                Move taUnassignedControls[iSearch].hoObject to hoObject
+                Move (SizeOfArray(taUnassignedControls)-1) to iSearch
+            End
+        Loop        
+        Function_Return hoObject
+    End_Function
+    
+    {MethodType=Property Category="Behaviour"}
+    {PropertyType=Boolean InitialValue=True}
+    Procedure Set pbShowQuickAccessBelowRibbon Boolean bValue
+        Set pbPrivateShowQuickAccessBelowRibbon to bValue
+        If (IsComObjectCreated(phoRibbonBar(Self))) Begin
+            Set ComShowQuickAccessBelowRibbon of (phoRibbonBar(Self)) to bValue
+        End
+    End_Procedure
+    
+    Function pbShowQuickAccessBelowRibbon Returns Boolean
+        Function_Return (pbPrivateShowQuickAccessBelowRibbon(Self))
+    End_Function
+
+    {MethodType=Property Category="Behaviour"}
+    {PropertyType=Boolean InitialValue=True}
+    Procedure Set pbShowQuickAccess Boolean bValue
+        Set pbPrivateShowQuickAccess to bValue
+        If (IsComObjectCreated(phoRibbonBar(Self))) Begin
+            Set ComShowQuickAccess of (phoRibbonBar(Self)) to bValue
+        End
+    End_Procedure
+    
+    Function pbShowQuickAccess Returns Boolean
+        Function_Return (pbPrivateShowQuickAccess(Self))
+    End_Function
+
+    {MethodType=Property Category="Behaviour"}
+    {PropertyType=Boolean InitialValue=False}
+    Procedure Set pbAllowQuickAccessCustomization Boolean bAllow
+        Set pbPrivateAllowQuickAccessCustomization to bAllow
+        If (IsComObjectCreated(phoRibbonBar(Self))) Begin
+            Set ComAllowQuickAccessCustomization of (phoRibbonBar(Self)) to bAllow
+        End
+    End_Procedure
+    
+    {MethodType=Property Category="Behaviour"}
+    Function pbAllowQuickAccessCustomization Returns Boolean
+        Function_Return (pbPrivateAllowQuickAccessCustomization(Self))
+    End_Function
+    
+    {MethodType=Method}
+    Procedure AddToQuickAccessToolbar Handle hoItem
+        Integer eStyle
+        Boolean bBeginGroup
+        Handle  hoControls
+        
+        If (IsComObjectCreated(hoItem)) Begin
+            Get phoCommandBarControls to hoControls
+            Set pvComObject of hoControls to (ComQuickAccessControls(phoRibbonBar(Self)))
+            //Store Settings 
+            Get peControlStyle of hoItem to eStyle
+            Get pbControlBeginGroup of hoItem to bBeginGroup
+            //Apply Settings...
+            Set peControlStyle of hoItem to xtpButtonIcon
+            Set pbControlBeginGroup of hoItem to False
+            //Add item to Quick Access Toolbar
+            Send CreateComInstance of hoItem hoControls
+            //Reset...
+            Set peControlStyle of hoItem to eStyle
+            Set pbControlBeginGroup of hoItem to bBeginGroup 
+        End
+    End_Procedure
+    
+    {MethodType=Method}
+    Procedure Set pbAddToQuickAccessToolbar Handle hoItem Boolean bState
+        Handle[] haItems
+        Integer iItems
+        
+        If (bState) Begin
+            Get phaQuickAccessItems to haItems
+            Move (SizeOfArray(haItems)) to iItems
+            Move hoItem to haItems[iItems]
+            Set phaQuickAccessItems to haItems
+            Send AddToQuickAccessToolbar hoItem
+        End
+    End_Procedure
+       
+    {MethodType=Event}
+    Procedure OnCreateQuickAccessToolbar
+        Handle hoItem
+        Integer iItems iAdd
+        Handle[] haQuickAccessItems
+
+        
+        Get phaQuickAccessItems to haQuickAccessItems
+        Move (SizeOfArray(haQuickAccessItems)) to iItems
+        For iAdd from 0 to (iItems-1)
+            Send AddToQuickAccessToolbar haQuickAccessItems[iAdd]
+        Loop
+    End_Procedure
+    
+    {Visibility=Private}
+    Procedure ShowTabWorkspace Boolean bShow
+        Variant vTabWorkspace
+        Handle  hoTabWorkspace
+        
+        If (IsComObjectCreated(Self)) Begin
+            Get ComShowTabWorkspace bShow to vTabWorkspace
+            Get phoTabWorkspace to hoTabWorkspace 
+            If (hoTabWorkspace<>0) Begin
+                Set pvComObject of hoTabWorkspace to vTabWorkspace
+                If (IsComObjectCreated(hoTabWorkspace)) Begin
+                    Set pvComObject of (phoTabPaintManager(Self)) to (ComPaintManager(hoTabWorkspace))
+                    Send OnTabWorkspaceCreated hoTabWorkspace 
+//pb-igs                    Send OnSetTabWorkspaceProperties of hoTabWorkspace 
+                    Send OnSetTabPaintManagerProperties (phoTabPaintManager(Self)) 
+                End
+            End
+        End
+    End_Procedure
+
+    Procedure Initialise_Tab_Control
+        If (IsComObjectCreated(Self)) Begin
+            Send ShowTabWorkspace (pbTabWorkspace(Self))
+        End
+    End_Procedure
+    
+    {MethodType=Event}
+    Procedure OnCreateCommandBars
+        Handle hoRibbonBar 
+        
+        Forward Send OnCreateCommandBars
+        
+        Get phoRibbonBar to hoRibbonBar
+        Set pvComObject of hoRibbonBar to (ComAddRibbonBar(Self,""))
+        Send ComEnableDocking of hoRibbonBar xtpFlagStretched        
+        Send ComEnableFrameTheme of hoRibbonBar
+        
+        Set pbAllowQuickAccessCustomization of hoRibbonBar to (pbPrivateAllowQuickAccessCustomization(Self))
+        Set pbShowQuickAccess of hoRibbonBar to (pbPrivateShowQuickAccess(Self))
+        Set pbShowQuickAccessBelowRibbon of hoRibbonBar to (pbPrivateShowQuickAccessBelowRibbon(Self))
+
+        Broadcast Send PrivateCreate (Self)   
+        Send OnCreateQuickAccessToolbar
+    End_Procedure   
+    
+    {MethodType=Method Visibility=Private}
+    Procedure CreateCommandBars
+        Forward Send CreateCommandBars
+        Send OnCommandBarsCreated
+    End_Procedure
+    
+    {MethodType=Event}
+    Procedure OnCommandBarsCreated
+        Handle hoControls hoHelpMenu hoHelp hoAbout hoMessageBar
+        
+        If (pbShowHelpMenu(Self)) Begin
+            Get phoCommandBarControls to hoControls            
+            Set pvComObject of hoControls to (ComControls(phoRibbonBar(Self)))
+            Get phoMessageBar to hoMessageBar 
+            Set pvComObject of hoMessageBar to (ComMessageBar(Self))
+            
+            Get Create (RefClass(cCJMenuItem)) to hoHelpMenu
+            Set pbControlFlagRightAlign of hoHelpMenu to True
+            Set peControlType of hoHelpMenu to xtpControlPopup
+            Set peControlStyle of hoHelpMenu to xtpButtonIconAndCaption
+            //Set Caption, Description, Tooltip and Image for Help menu item
+            If (psHelpCaption(Self)<>"") Begin
+                Set psCaption of hoHelpMenu to (psHelpCaption(Self))
+            End
+            Else Begin
+                Set psCaption of hoHelpMenu to "&Help"
+            End
+            If (psHelpToolTip(Self)<>"") Begin
+                Set psToolTip of hoHelpMenu to (psHelpToolTip(Self))
+            End
+            Else Begin
+                Set psToolTip of hoHelpMenu to "Help"
+            End
+            If (psHelpDescription(Self)<>"") Begin
+                Set psDescription of hoHelpMenu to (psHelpDescription(Self))
+            End
+            Else Begin
+                Set psDescription of hoHelpMenu to "Access Information for learning and using this Visual DataFlex application."
+            End
+            If (psHelpImage(Self)<>"") Begin
+                Set psImage of hoHelpMenu to (psHelpImage(Self))
+            End
+            Else Begin
+                Set psImage of hoHelpMenu to "ActionHelp.ico"
+            End            
+            Get Create of hoHelpMenu (RefClass(cCJHelpMenuItem))  to hoHelp
+            Get Create of hoHelpMenu (RefClass(cCJAboutMenuItem)) to hoAbout
+            Send CreateComInstance of hoHelpMenu hoControls
+        End
+    End_Procedure
+    
+    { MethodType=Event }
+    Procedure OnUnhandledInitCommandsPopup Variant llCommandBar
+        Handle hoCommandBar hoCommandBarControls
+        Variant vCommandBarControl vCommandBarControls
+        
+        Forward Send OnUnhandledInitCommandsPopup llCommandBar
+
+        Get phoCommandBar to hoCommandBar
+        Get phoCommandBarControls to hoCommandBarControls
+
+        Set pvComObject of hoCommandBar to llCommandBar
+        Get ComControls of hoCommandBar to vCommandBarControls
+        Set pvComObject of hoCommandBarControls to vCommandBarControls
+
+        Get ComParent of hoCommandBar to vCommandBarControl
+        If (IsSameComObject(vCommandBarControl,ComControlSystemButton(phoRibbonBar(Self)))) Begin
+            If (phoSystemButton(Self)<>0) Begin
+                Send OnPopupSystemMenuInit of (phoSystemButton(Self)) vCommandBarControl hoCommandBarControls
+            End
+        End
+    End_Procedure
+
+    Function ShowMessageBar String sMessage String sMessageTitle String sImage Returns Handle
+        If (num_arguments=3) Begin        
+            Send ShowMessageBar sMessage sMessageTitle sImage
+        End
+        Else Begin
+            Send ShowMessageBar sMessage sMessageTitle      
+        End
+        Function_Return (phoMessageBar(Self))
+    End_Function
+    
+    Procedure OnUnhandledExecute Variant llControl
+        Handle hoObject
+        Integer iId
+        
+        Get FindUnassignedObjectID llControl to hoObject
+        If (hoObject<>0) Begin
+            Send OnExecute of hoObject llControl
+        End
+        Else Begin
+            Get Create (RefClass(cCJCommandBarButton)) to hoObject
+            Set pvComObject of hoObject to llControl
+            Get ComId of hoObject to iId
+            Send Destroy of hoObject
+            If (iId=C_MessageBarButtonId) Begin
+                Send OnMessageBarButtonClicked
+            End
+            Else Begin
+                Send OnButtonClicked iId
+            End
+        End
+    End_Procedure
+
+    {MethodType=Event}
+    Procedure OnButtonClicked Integer iButtonId
+    End_Procedure
+    
+    {MethodType=Event}
+    Procedure OnMessageBarButtonClicked
+    End_Procedure
+    
+    {MethodType=Event}
+    Procedure OnTabWorkspaceCreated Handle hoTabWorkspace
+    End_Procedure 
+    
+    {MethodType=Event}
+    Procedure OnSetTabPaintManagerProperties Handle hoTabPaintManager
+    End_Procedure
+End_Class
+
+{DocStart = Class}
+//-----------------------------------------------------------------------------
+//
+// Class       : cSigCJSystemButton
+//
+// Superclass  : cCJCommandBarPopup 
+//
+// Package     : cSigCJRibbonBar.pkg
+//
+// Mixins      : 
+//
+// Description :
+//
+// Properties  : psImage
+//               piSystemMenuIconSize
+//               pbSystemMenuShowGripper
+//               
+// Events      : OnPopupSystemMenuInit  (Variant vCommandBarControl Handle hoCommandBarControls)
+//                             
+//               
+// Methods     : AddToSystemMenu        (handle hoControl returns variant) 
+//               DeleteAllDynamicObjects              
+//               
+//-----------------------------------------------------------------------------
+{DocEnd}
+
+Class cSigCJSystemButton is a cCJCommandBarPopup  
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        {Visibility=Private}
+        Property Handle phoPrivateControls      (Create(Self,RefClass(cCJCommandBarControls)))
+        {Visibility=Private}
+        Property String psPrivateImage          "" 
+        {Visibility=Private}
+        Property Integer piPrivateMenuIconSize       
+        {Visibility=Private}
+        Property Boolean pbPrivateMenuGripper   True
+        {Visibility=Private}
+        Property Handle[] phaAllDynamicControls    
+        
+        Delegate Set phoSystemButton to Self
+    End_Procedure
+    
+    {MethodType=Property Category=Appearance}
+    Procedure Set psImage String sImage
+        Set psPrivateImage to sImage
+    End_Procedure
+    
+    {MethodType=Property Category=Appearance}
+    Function psImage Returns String
+        Function_Return (psPrivateImage(Self))
+    End_Function
+    
+    {MethodType=Property Category=Appearance}
+    {InitialValue=16,16}
+    Procedure Set piSystemMenuIconSize Integer iHeight Integer iWidth
+        Set piPrivateMenuIconSize to ((iHeight*65536)+iWidth)
+    End_Procedure  
+    
+    {MethodType=Property Category=Appearance}
+    Function piSystemMenuIconSize Returns Integer
+        Function_Return (piPrivateMenuIconSize(Self))
+    End_Function
+    
+    {MethodType=Property Category=Appearance}
+    {PropertyType=Boolean InitialValue=True}
+    Procedure Set pbSystemMenuShowGripper Boolean bShow
+        Set pbPrivateMenuGripper to bShow
+    End_Procedure
+    
+    {MethodType=Property Category=Appearance}
+    Function pbSystemMenuShowGripper Returns Boolean
+        Function_Return (pbPrivateMenuGripper(Self))
+    End_Function
+    
+    {Visibility=Private}
+    Procedure PrivateCreate Handle hoParent
+        Handle hoCommandBar hoControls
+        
+        Get phoPrivateControls to hoControls
+        Set pvComObject to (ComAddSystemButton(phoRibbonBar(hoParent)))
+        
+        If (psImage(Self)<>"") Begin
+            Set ComIconId to (AddImage(Self,psImage(Self),0,0))
+        End        
+        Get Create (RefClass(cCJCommandBar)) to hoCommandBar
+        Set pvComObject of hoCommandBar to (ComCommandBar(Self))
+        Set pvComObject of hoControls to (ComControls(hoCommandBar))
+        
+        Send ComSetIconSize of hoCommandBar (Low(piSystemMenuIconSize(Self))) (Hi(piSystemMenuIconSize(Self)))
+        Set ComShowGripper of hoCommandBar to (pbSystemMenuShowGripper(Self))
+        
+        Send Destroy of hoCommandBar
+        Broadcast Send CreateComInstance hoControls
+    End_Procedure
+
+    {DocStart = Method}
+    //-------------------------------------------------------------------------
+    //
+    // Function   : AddToSystemMenu
+    //
+    // Scope      : Public
+    //
+    // Paramaters : hoControl
+    //
+    // Returns    : Variant
+    //
+    // Purpose    : Can be called to dynamically add a control to the system button menu 
+    //
+    // Notes      : 
+    //               
+    //-------------------------------------------------------------------------
+    {DocEnd}
+    
+    {MethodType=Method Visibility=Public}
+    Function AddToSystemMenu Handle hoControl Returns Variant
+        Handle[] haAllDynamicControls
+        Integer iControls
+        
+        Get phaAllDynamicControls to haAllDynamicControls
+        Move (SizeOfArray(haAllDynamicControls)) to iControls
+        Move hoControl to haAllDynamicControls[iControls]
+        Set phaAllDynamicControls to haAllDynamicControls
+        Function_Return (AddDynamicControl(hoControl,phoPrivateControls(Self)))
+    End_Function
+    
+    {MethodType=Method Visibility=Public}
+    Procedure DeleteAllDynamicObjects 
+        Handle[] haAllDynamicControls
+        Integer iControl
+        
+        Get phaAllDynamicControls to haAllDynamicControls
+        For iControl from 0 to (SizeOfArray(haAllDynamicControls)-1)
+            Send Destroy of haAllDynamicControls[iControl]
+        Loop
+        Move (ResizeArray(haAllDynamicControls,0)) to haAllDynamicControls
+        Set phaAllDynamicControls to haAllDynamicControls
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnPopupSystemMenuInit Variant vCommandBarControl Handle hoCommandBarControls
+    End_Procedure
+    
+    Procedure CreateComInstance Handle hoControls
+    End_Procedure
+
+End_Class
+
+{DocStart = Class}
+//-----------------------------------------------------------------------------
+//
+// Class       : cSigCJQuickAccessToolbar
+//
+// Superclass  : cCJCommandBarControls 
+//
+// Package     : cSigCJRibbonBar.pkg
+//
+// Mixins      : 
+//
+// Description : Allows developer to create an object instance into which they can add menu item objects
+//
+// Properties  : 
+//               
+//               
+// Events      : 
+//                             
+//               
+// Methods     :                
+//               
+//-----------------------------------------------------------------------------
+{DocEnd}
+
+Class cSigCJQuickAccessToolbar is a cCJCommandBarControls
+    
+    {Visibility=Private}
+    Procedure PrivateCreate Handle hoParent        
+        Handle hoCommandBar hoControls
+        
+        Set pvComObject to (ComQuickAccessControls(phoRibbonBar(hoParent)))
+        Broadcast Send CreateComInstance (Self)
+    End_Procedure
+
+End_Class
+
+{DocStart = Class}
+//-----------------------------------------------------------------------------
+//
+// Class       : cSigCJRibbonTab
+//
+// Superclass  : cCJRibbonTab 
+//
+// Package     : cSigCJRibbonBar.pkg
+//
+// Mixins      : 
+//
+// Description :
+//
+// Properties  : psCaption
+//               
+//               
+// Events      : 
+//                             
+//               
+// Methods     :                
+//               
+//-----------------------------------------------------------------------------
+{DocEnd}
+
+Class cSigCJRibbonTab is a cCJRibbonTab
+    Import_Class_Protocol cSigCJMethods_mixin
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        
+        {Visibility=Private}
+        Property String psPrivateCaption            ""
+        {Visibility=Private}
+        Property Handle phoPrivateGroups            (Create(Self,RefClass(cCJRibbonGroups)))
+        {Visibility=Private}
+        Property Boolean pbPrivateIsVisible         True
+    End_Procedure
+    
+    Function phoRibbonGroups Returns Handle
+        Function_Return (phoPrivateGroups(Self))
+    End_Function
+
+    {MethodType=Property Category="Appearance"}
+    Procedure Set psCaption String sCaption
+        Set SigCJProperty (RefProcSet(psPrivateCaption)) (RefProcSet(ComCaption)) to sCaption
+    End_Procedure
+    
+    {MethodType=Property Category="Appearance"}
+    Function psCaption Returns String
+        Function_Return (psPrivateCaption(Self))
+    End_Function
+    
+    {MethodType=Property Category="Appearance"}
+    {PropertyType=Boolean InitialValue=True}
+    Procedure Set pbIsVisible Boolean bIsVisible
+        Set SigCJProperty Set_pbPrivateIsVisible Set_ComVisible to bIsVisible
+    End_Procedure
+    
+    {MethodType=Property Category="Appearance"}
+    Function pbIsVisible Returns Boolean
+        Function_Return (pbPrivateIsVisible(Self))
+    End_Function
+    
+    {Visibility=Private}
+    Procedure PrivateCreate Handle hoParent
+        Integer iTabCount
+        Handle  hoRibbonBar
+        
+        If (hoParent=0) Begin
+            Procedure_Return
+        End
+        Get phoRibbonBar of hoParent to hoRibbonBar
+        Get ComTabCount of hoRibbonBar to iTabCount
+        Set pvComObject to (ComInsertTab(hoRibbonBar,iTabCount,""))
+        Set pvComObject of (phoRibbonGroups(Self)) to (ComGroups(Self))
+        //Apply Settings
+        Set psCaption to (psPrivateCaption(Self))
+        Set pbIsVisible to (pbPrivateIsVisible(Self))
+        
+        Broadcast Send PrivateCreate (Self)   
+    End_Procedure
+
+End_Class
+
+{DocStart = Class}
+//-----------------------------------------------------------------------------
+//
+// Class       : cSigCJRibbonTabGroup
+//
+// Superclass  : cCJRibbonGroup 
+//
+// Package     : cSigCJRibbonBar.pkg
+//
+// Mixins      : 
+//
+// Description :
+//
+// Properties  : psCaption
+//               
+//               
+// Events      : 
+//                             
+//               
+// Methods     :                
+//               
+//-----------------------------------------------------------------------------
+{DocEnd}
+
+Class cSigCJRibbonTabGroup is a cCJRibbonGroup
+    Import_Class_Protocol cSigCJMethods_mixin
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        
+        {Visibility=Private}
+        Property String psPrivateCaption            ""
+        {Visibility=Private}
+        Property Boolean pbPrivateControlsCentered  True
+    End_Procedure
+    
+    {MethodType=Property Category="Appearance"}
+    Procedure Set psCaption String sCaption
+        Set SigCJProperty (RefProcSet(psPrivateCaption)) (RefProcSet(ComCaption)) to sCaption
+    End_Procedure
+    
+    {MethodType=Property Category="Appearance"}
+    Function psCaption Returns String
+        Function_Return (psPrivateCaption(Self))
+    End_Function
+    
+    {MethodType=Property Category="Behaviour"}
+    {PropertyType=Boolean InitialValue=False}
+    Procedure Set pbControlsCentered Boolean bCentered
+        Set SigCJProperty (RefProcSet(pbPrivateControlsCentered)) (RefProcSet(ComControlsCentering)) to bCentered
+    End_Procedure
+    
+    {MethodType=Property Category="Behaviour"}
+    Function pbControlsCentered Returns Boolean
+        Function_Return (pbPrivateControlsCentered(Self))
+    End_Function
+    
+    {Visibility=Private}
+    Procedure PrivateCreate Handle hoParent
+        Handle hoGroups
+        
+        If (hoParent=0) Begin
+            Procedure_Return
+        End
+        Get phoRibbonGroups of hoParent to hoGroups
+        Set pvComObject to (ComAddGroup(hoGroups,'',0)) 
+        //Apply Settings
+        Set psCaption to (psPrivateCaption(Self))
+        Set pbControlsCentered to (pbPrivateControlsCentered(Self))
+        
+        Broadcast Send CreateComInstance (Self)  
+    End_Procedure
+End_Class
+
+Class cSigCJPopupColorMenuItem is a cCJMenuItem
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set peControlType to xtpControlSplitButtonPopup
+        Set pbControlPopupToolBar to True
+    End_Procedure
+    
+    Function CreateCommandBarControl Handle hoControls Integer eType Integer iId Boolean bInCreateTempInstance Returns Variant
+        Variant vControl 
+        Handle hoControl 
+            
+        Get ComCreateCommandBarControl "CXTPControlPopupColor" to vControl
+        Send ComAddControl of hoControls vControl Nothing
+        Get Create (RefClass(cCJCommandBarPopupColor)) to hoControl
+        Set pvComObject of hoControl to vControl
+        Set ComStyle of hoControl to xtpButtonIcon
+        Set ComId of hoControl to iId
+        Send Destroy of hoControl
+        
+        Function_Return vControl
+    End_Function
+
+    Function ClassForControlType Integer eType Returns Integer
+        Function_Return (RefClass(cCJCommandBarPopupColor))
+    End_Function
+    
+End_Class
+
+// for backward compatibility
+Class cCJPopupColorMenuItem is a cSigCJPopupColorMenuItem
+End_Class
+
+Class cSigCJControlColorSelectorMenuItem is a cCJMenuItem
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set peControlType to xtpControlButton
+    End_Procedure
+    
+    Function CreateCommandBarControl Handle hoControls Integer eType Integer iId Boolean bInCreateTempInstance Returns Variant
+        Variant vControl
+        Handle hoControl
+        
+        Get ComCreateCommandBarControl "CXTPControlColorSelector" to vControl
+        Send ComAddControl of hoControls vControl Nothing
+        Get Create (RefClass(cCJCommandBarControlColorSelector)) to hoControl
+        Set pvComObject of hoControl to vControl
+        Set ComId of hoControl to iId
+        Send Destroy of hoControl
+        Send RegisterUnAssignedControl Self vControl
+        Function_Return vControl
+    End_Function
+
+    Function ClassForControlType Integer eType Returns Integer
+        Function_Return (RefClass(cCJCommandBarControlColorSelector))
+    End_Function                   
+End_Class
+
+// for backward compatibility
+Class cCJControlColorSelectorMenuItem is a cSigCJControlColorSelectorMenuItem
+End_Class
+
+//==============================================================================
+//End of Package - cSigCJRibbonBar.pkg
+//==============================================================================

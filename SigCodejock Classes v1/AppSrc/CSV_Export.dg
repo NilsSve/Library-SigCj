@@ -1,0 +1,133 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : CSV_Export.pkg
+// Description  : VDF Class for Codejock report control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$ Martin Pincott
+//
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+
+Use DfAllEnt.pkg
+Use File_dlg.pkg
+
+Cd_Popup_Object oCSV_Export_Dialog is a ModalPanel
+
+    Property Handle phoInvoking_Object 
+    Set Destroy_Object_State   To True
+
+    Set Label to "CSV Export Details"
+    Set Location to 46 107
+    Set Size to 70 251
+    Set piMinSize to 70 251
+    Set piMaxSize to 70 251
+    
+    Procedure File_Create String sFileName
+        Integer iChannel
+        
+        Move (Seq_New_Channel()) to iChannel
+        
+        Direct_Output channel iChannel sFileName
+        Close_Output  channel iChannel sFileName
+    
+        Send Seq_Release_Channel iChannel    
+    End_Procedure
+
+    Object oSaveAsDialog1 is a SaveAsDialog
+        Set Initial_Folder  to ((PathAtIndex(phoWorkSpace(ghoApplication), psHome(phoWorkSpace(ghoApplication)),1))+"")
+        Set Filter_String   To 'Csv (*.csv)|*.csv|All (*.*)|*.*'
+    End_Object    // oSaveAsDialog1
+
+    Object oSaveFile_fm is a Form
+        Set Label to "File Name:"
+        Set Size to 13 180
+        Set Location to 13 47
+        Set Prompt_Button_Mode to pb_PromptOn
+        Set Label_Col_Offset to 2
+        Set Label_Justification_Mode to JMode_Right
+
+        Procedure Prompt
+            Integer bSave bFileExists
+            String  sFileTitle sFileName
+            Get Show_Dialog Of oSaveAsDialog1 To bSave
+            If bSave Begin
+                Get File_Name  of (oSaveAsDialog1(self)) To sFileName
+                Set Value To sFileName
+        
+                File_Exist sFileName bFileExists
+                If (not(bFileExists)) Send File_Create sFileName
+            End
+            Else Send Info_Box "You choose NOT to save"
+        
+        End_Procedure  // Prompt
+
+    End_Object    // oSaveFile_fm
+
+    Object oOK_bn is a Button
+        Set Size to 14 14
+        Set Location to 35 209
+        Set Bitmap to "btn-ok_16.bmp"
+    
+        Procedure OnClick
+            Boolean bFileExists
+            String  sFileName
+            
+            Get Value of oSaveFile_fm to sFileName
+            File_Exist sFileName bFileExists
+            If (bFileExists) Begin 
+                Set psExport_File of (phoInvoking_Object(Self)) to (Trim(sFileName))
+                Send Close_Panel
+            End
+            Else Send Info_Box "Failed to find file"
+        End_Procedure
+    
+    End_Object
+
+    Object oCancel_bn is a Button
+        Set Size to 14 14
+        Set Location to 35 227
+        Set Bitmap to "btn-cancel_16.bmp"
+    
+        Procedure OnClick
+            Send Close_Panel
+        End_Procedure
+    End_Object
+
+    Procedure Activating Returns Integer
+        Integer iRetval 
+        Forward Get Msg_Activating to iRetval
+
+        Set phoInvoking_Object to (Focus(Desktop))
+
+        Procedure_Return iRetval
+     End_Procedure
+Cd_End_Object    
+
+//==============================================================================
+//End of Package - CSV_Export.pkg
+//==============================================================================

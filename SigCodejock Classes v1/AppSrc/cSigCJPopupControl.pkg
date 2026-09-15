@@ -1,0 +1,378 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJPopupControl.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$ Martin Pincott
+// 
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//==============================================================================
+
+Use SigCjW_Controls.pkg
+Use cSigCJMethods_Mixin.pkg
+Use cSigCJImage_Manager_Mixin.pkg
+Use StdFont.pkg
+
+Class cSigCjPopupControlItem is a cSigCjComPopupControlItem 
+    Import_Class_Protocol cSigCJMethods_Mixin
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        // Font Properties
+        { DesignTime=False }
+        Property Boolean Private_pbBold False
+
+        { DesignTime=False }
+        Property Boolean Private_pbItalic False
+
+        { DesignTime=False }
+        Property Boolean Private_pbStrikethrough False
+
+        { DesignTime=False }
+        Property Boolean Private_pbUnderline False
+
+        { DesignTime=False }
+        Property String Private_psFontName "MS Sans Serif"
+
+        { DesignTime=False }
+        Property Number Private_pnFontSize 8.25
+
+        { DesignTime=False }
+        Property Handle Private_phoFont  (Create(Self, U_cComStdFont))
+        
+    End_Procedure
+    
+    Procedure Load_Fonts
+        Handle hoFont
+
+        Get Private_phoFont  to hoFont
+        Set pvComObject      of hoFont to (ComFont(Self))
+        
+        // Load defaults 
+        Set ComBold          of hoFont to (Private_pbBold(Self))
+        Set ComItalic        of hoFont to (Private_pbItalic(Self))
+        Set ComStrikethrough of hoFont to (Private_pbStrikethrough(Self))
+        Set ComUnderline     of hoFont to (Private_pbUnderline(Self))
+        // We want to use the standrad windows or df font here
+        //Set ComName          of hoFont to (Private_psFontName(Self))
+        //Set ComSize          of hoFont to (Private_pnFontSize(Self))
+    End_Procedure
+    
+    { MethodType=Property Category="Font" InitialValue=False }
+    Procedure Set pbBold Boolean bState
+        Set ComBold of (Private_phoFont(Self)) to bState
+    End_Procedure
+
+    Function pbBold Returns Boolean
+        Function_Return (ComBold(Private_phoFont(Self)))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="Font" InitialValue=False }
+    Procedure Set pbItalic Boolean bState
+        Set ComItalic of (Private_phoFont(Self)) to bState
+    End_Procedure
+
+    Function pbItalic Returns Boolean
+        Function_Return (ComItalic(Private_phoFont(Self)))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="Font" InitialValue=False }
+    Procedure Set pbStrikethrough Boolean bState
+        Set ComStrikethrough of (Private_phoFont(Self)) to bState
+    End_Procedure
+
+    Function pbStrikethrough Returns Boolean
+        Function_Return (ComStrikethrough(Private_phoFont(Self)))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="Font" InitialValue=False }
+    Procedure Set pbUnderline Boolean bState
+        Set ComUnderline of (Private_phoFont(Self)) to bState
+    End_Procedure
+
+    Function pbUnderline Returns Boolean
+        Function_Return (ComUnderline(Private_phoFont(Self)))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="Font" InitialValue="MS Sans Serif" }
+    Procedure Set psFontName String sName
+        Set ComName of (Private_phoFont(Self) )to sName
+    End_Procedure
+
+    Function psFontName Returns String
+        Function_Return (ComName(Private_phoFont(Self)))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="Font" InitialValue=8.25 }
+    Procedure Set pnFontSize Number nSize
+        Set ComSize of (Private_phoFont(Self)) to nSize
+    End_Procedure
+
+    Function pnFontSize Returns Number
+        Function_Return (ComSize(Private_phoFont(Self)))
+    End_Function
+
+    //--------------------------------------------------------------------------------------------------
+    
+    
+End_Class
+
+{ OverrideProperty=Label                     DesignTime=False }
+{ OverrideProperty=Label_Col_Offset          DesignTime=False }
+{ OverrideProperty=Label_Justification_Mode  DesignTime=False }
+{ OverrideProperty=Label_Row_Offset          DesignTime=False }
+{ OverrideProperty=Location                  DesignTime=False }
+{ OverrideProperty=peAnchors                 DesignTime=False }
+{ OverrideProperty=piMinSize                 DesignTime=False }
+{ OverrideProperty=Size                      DesignTime=False }
+{ OverrideProperty=TextColor                 DesignTime=False }
+{ OverrideProperty=Color                     DesignTime=False }
+{ OverrideProperty=Border_Style              DesignTime=False }
+{ OverrideProperty=Enabled_State             DesignTime=False }
+{ OverrideProperty=Visible_State             DesignTime=False }
+{ OverrideProperty=Attach_Parent_State       DesignTime=False }
+{ OverrideProperty=Block_Mouse_State         DesignTime=False }
+{ OverrideProperty=Client_Area_State         DesignTime=False }
+{ OverrideProperty=Delegation_Mode           DesignTime=False }
+{ OverrideProperty=Focus_Mode                DesignTime=False }
+{ OverrideProperty=pbBindValue               DesignTime=False }
+{ OverrideProperty=peAutoCreate              DesignTime=False }
+{ OverrideProperty=peNeighborhood            DesignTime=False }
+{ OverrideProperty=Popup_State               DesignTime=False }
+{ OverrideProperty=Ring_State                DesignTime=False }
+{ OverrideProperty=Scope_State               DesignTime=False }
+{ OverrideProperty=Search_Case               DesignTime=False }
+{ OverrideProperty=Skip_State                DesignTime=False }
+{ OverrideProperty=Help_Id                   DesignTime=False }
+{ OverrideProperty=Help_Keyword              DesignTime=False }
+{ OverrideProperty=psHtmlHelpTopic           DesignTime=False }
+{ OverrideProperty=Status_Help               DesignTime=False }
+{ OverrideProperty=Use_Parent_Status_Help    DesignTime=False }
+{ OverrideProperty=psLicenseKey              DesignTime=False }
+{ OverrideProperty=psProgID                  DesignTime=False }
+Class cSigCJPopupControl is a cSigCjComPopupControl
+    Import_Class_Protocol cSigCJMethods_Mixin
+    Import_Class_Protocol cSigCJImage_Manager_Mixin
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        { Visibility=Private }
+        { MethodType=Property }
+        Property Variant[] pvItemHandles
+
+        { Visibility=Private }
+        { MethodType=Property }
+        Property Integer  Private.pTheme
+
+        { DesignTime=False }
+        Property Handle phoItem  (Create(Self,U_cSigCjPopupControlItem))
+    
+        Send Initialise_Image_Manager_Mixin
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnCreate
+        Handle hoImageList 
+        
+        Forward Send OnCreate
+    
+        // Connect to Imagelist
+        Get phoImagelist to hoImageList
+        If (hoImageList <> 0) Begin
+            Send Create_Image_Manager // cSigCJImage_Manager_Mixin 
+        End
+        
+        Send Load_Images        
+        Set ComAnimation   to OLExtpPopupAnimationSlide
+        Set ComVisualTheme to (Private.pTheme(Self))
+    End_Procedure  // OnCreate
+    
+    { MethodType=Property }
+    { Category="CodeJock" }
+    #IF (SigCj_Codejock_Version < 150001) 
+        { EnumList="OLExtpPopupThemeOffice2000, OLExtpPopupThemeOfficeXP, OLExtpPopupThemeOffice2003, OLExtpPopupThemeMSN, OLExtpPopupThemeOffice2007" }
+        { InitialValue=OLExtpPopupThemeOffice2000 }
+    #ELSE    
+        { EnumList="OLExtpPopupThemeOffice2000, OLExtpPopupThemeOfficeXP, OLExtpPopupThemeOffice2003, OLExtpPopupThemeMSN, OLExtpPopupThemeResource, OLExtpPopupThemeCustom" }
+        { InitialValue=OLExtpPopupThemeResource }
+    #ENDIF 
+    Procedure Set pPopupControlTheme Integer iTheme
+        If (IsComObjectCreated(Self)) Set ComVisualTheme to iTheme
+        Else Set Private.pTheme to iTheme
+    End_Procedure  // Set pPopupControlTheme
+    
+    { MethodType=Property }
+    { Category="CodeJock" }
+    Function pPopupControlTheme Returns Integer
+        Function_Return (ComVisualTheme(Self))
+    End_Function  // pPopupControlTheme
+
+    // Store list of Variant handles (IDispatch)
+    { Visibility=Private }
+    { MethodType=Property } 
+    Procedure Set pvItemHandle Variant vHandle
+        Variant[] vItemHandles
+        Get pvItemHandles to vItemHandles
+        Move vHandle to vItemHandles[(SizeOfArray(vItemHandles))]
+        Set pvItemHandles to vItemHandles
+    End_Procedure
+
+    // Used to find which item the user clicked on 
+    { Visibility=Private }
+    { MethodType=Property }
+    Function pvItemHandle Variant vItemHandle Returns Integer
+        Variant[] vItemHandles
+        Integer iCount iRetval
+        Get pvItemHandles to vItemHandles
+        For iCount from 0 to (SizeOfArray(vItemHandles)-1)
+            If (IsSameComObject(vItemHandle, vItemHandles[iCount])) Begin
+                Move iCount to iRetval
+            End     
+        Loop
+        Function_Return (iRetval+1)
+    End_Function
+    
+    { Visibility=Private }
+    { MethodType=Event }
+    Procedure OnComItemClick Variant vItem
+        Integer iItem
+        
+        // Find which item the user clicked on and send it
+        Get pvItemHandle vItem to iItem
+        
+        Send OnClick iItem
+    End_Procedure  // OnComItemClick
+   
+    { MethodType=Event }
+    Procedure OnClick Integer iItem
+    End_Procedure //OnClick
+    
+    { MethodType=Method }
+    Procedure Reset
+        Send ComClose          
+        Send ComRemoveAllItems
+    End_Procedure
+    
+    { MethodType=Method }
+    Procedure Popup
+        Send ComShow
+    End_Procedure
+
+    { MethodType=Method }
+    Function Add_Image_Item Integer iLocX Integer iLocY Integer iSizeX Integer iSizeY Integer iImage  Returns Handle
+        Variant vRetval
+        Handle  hoItem
+        
+        Get phoItem to hoItem
+        
+        Get ComAddItem iLocX iLocY iSizeX iSizeY "" "" "" to vRetval
+        Set pvItemHandle to vRetval
+        Set pvComObject  of hoItem to vRetval
+        
+        Send Load_Fonts  of hoItem 
+        Set ComIconIndex of hoItem to iImage
+            
+        Function_Return hoItem
+    End_Function // Add_Image_Item
+
+    { MethodType=Method }
+    Function Add_Text_Item Integer iLocX Integer iLocY Integer iSizeX Integer iSizeY String sValue Boolean bBold  Returns Handle
+        Variant vRetval
+        Handle  hoItem hoFont
+        
+        Get phoItem to hoItem
+        
+        Get ComAddItem iLocX iLocY iSizeX iSizeY sValue "" "" to vRetval
+        Set pvItemHandle to vRetval
+        Set pvComObject      of hoItem to vRetval
+
+        Send Load_Fonts      of hoItem 
+        Set ComIconIndex     of hoItem to 0
+        Set ComTextAlignment of hoItem to 17
+            
+        Function_Return hoItem
+    End_Function // Add_Item
+
+    {MethodType=Event Visibility=Private}
+    Procedure OnComStateChanged 
+        Integer eState
+        
+        If (not(IsComObjectCreated(Self))) Begin
+            Procedure_Return
+        End
+        Get ComState to eState
+        Case Begin
+            Case (eState=OLExtpPopupStateClosed)
+                Send OnCollapsed
+                Case Break
+            Case (eState=OLExtpPopupStateExpanding)
+                Send OnExpanding
+                Case Break
+            Case (eState=OLExtpPopupStateShow)
+                Send OnExpanded
+                Case Break
+            Case (eState=OLExtpPopupStateCollapsing)
+                Send OnCollapsing
+                Case Break            
+        Case End
+        
+    End_Procedure
+    
+    {MethodType=Event}
+    Procedure OnCollapsed
+    End_Procedure
+    
+    {MethodType=Event}
+    Procedure OnExpanding
+    End_Procedure
+    
+    {MethodType=Event}
+    Procedure OnCollapsing
+    End_Procedure
+    
+    {MethodType=Event}
+    Procedure OnExpanded
+    End_Procedure
+    
+End_Class
+
+//==============================================================================
+//End of Package - cSigCJPopupControl.pkg
+//==============================================================================

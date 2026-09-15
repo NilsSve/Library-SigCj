@@ -1,0 +1,872 @@
+//=============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : SigCjCalendar_RecPattern.dg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev: $
+//                $Date: $
+//                $Author: $
+//
+// Requirements : Visual DataFlex 14.1+
+//                Codejock SuitePro - Version 13.4.0+
+//
+// Copyright    : Copyright © 2009-2012 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//=============================================================================
+//=============================================================================
+//                              C_RecPat /
+//  Codejock                    tdSigCjCal_RecPattern   oSigCj_Cal_RecPattern
+//  =========================== ======================= ====================== 
+//  rp  ID                      iID                     {n/a}
+//  rp  CustomProperties        sCustomProp_XML         {n/a}
+//  rp  DurationMinutes         iDurationMinutes        {n/a} - Cal from start & end date / times
+//  rp  EndAfterOccurrences     iEndAfterOcc            oEndType_EndAfterCount
+//  rp  EndDate                 dEndDate                oEndType_EndByDate
+//  rp  {n/a}                   tmEndTime               oEndTime
+//  rp  EndMethod               eEndMethod              oEndType
+//  rp  MasterEventId           iMasterEventId          {n/a}
+//  rp  StartDate               dStartDate              oStartDate
+//  rp  StartTime               tmStartTime             oStartTime
+//  rpo DailyEveryWeekDayOnly   bRoD_WeekDayOnly        oDaily_How
+//  rpo DailyIntervalDays       iRoD_Int_Days           oDaily_Every
+//  rpo Data1                   iRoData1                {n/a}
+//  rpo Data2                   iRoData2                {n/a}
+//  rpo Data3                   iRoData3                {n/a}
+//  rpo Data4                   iRoData4                {n/a}
+//  rpo MonthlyDayOfMonth       iRoM_DayOfMonth         oMonthly_OnDay      - 19 23 
+//  rpo MonthlyIntervalMonths   iRoM_Int_Months         oMonthly_RecurEvery - every n months 
+//  rpo MonthNthIntervalMonths  iRoM_NthInt_Mths        oMonthly_RecurEvery - every n months
+//  rpo MonthNthWhichDay        iRoM_Nth_Day            oMonthly_Which      - 1st 2nd
+//  rpo MonthNthWhichDayMask    eRoM_Nth_DayMask        oMonthly_Day        - Mon Tue
+//  rpo RecurrenceType          eRoRecurr_Type          oRecurType          - Daily Weekly Month etc
+//  rpo WeeklyDayOfWeekMask     eRoW_DayWeekMask        oWeekly_Options     - (Mask Method)
+//  rpo WeeklyIntervalWeeks     iRoW_Int_Weeks          oWeekly_RecurEvery  - every n weeks
+//  rpo YearlyDayOfMonth        iRoY_DayOfMonth         oYearly_Day         - 19 23
+//  rpo YearlyMonthOfYear       iRoY_MonthOfYear        oYearly_DayMonth    - Jan Feb
+//  rpo YearNthMonthOfYear      iRoY_NthM_OfYear        oYearly_OnTheMonth  - Jan Feb
+//  rpo YearNthWhichDay         iRoY_Nth_Day            oYearly_OnTheWhich  - 1st 2nd
+//  rpo YearNthWhichDayMask     iRoY_Nth_DayMask        oYearly_OnTheDay    - Mon Tue
+//
+//=============================================================================
+//
+//StartDate           - Gets\sets the Starting date of the recurring event. 
+//StartTime           - Gets\sets the start Time of a recurring event.
+//DurationMinutes     - Gets\sets the duration in minutes of a recurring event. 
+//EndMethod           - Specifies when and how the recurring event will End. 
+//        xtpCalendarPatternEndAfterOccurrences   - EndAfterOccurrences : The recurrence pattern will End after a specified Number of occurrences.  
+//        xtpCalendarPatternEndDate               - EndDate : The recurrence pattern will End by a specified Date.
+//        xtpCalendarPatternEndNoDate             - {none}  : The recurrence pattern will never End (recur forever).
+//EndAfterOccurrences - Specifies the Number of occurrences before the event ends. 
+//EndDate             - Gets\sets the End Date of the recurring event. 
+//
+//Options             - Options for this recurrence pattern. 
+//
+//-----------------------------------------------------------------------------
+//Common Fields
+//-------------
+//StartDate 
+//StartTime 
+//DurationMinutes 
+//EndMethod           - xtpCalendarPatternEndNoDate           : { none }
+//                    - xtpCalendarPatternEndAfterOccurrences : EndAfterOccurrences 
+//                    - xtpCalendarPatternEndDate             : EndDate 
+//
+//-----------------------------------------------------------------------------
+//Daily    
+//-----
+//RecurrenceType          - xtpCalendarRecurrenceDaily
+//DailyEveryWeekDayOnly   - True
+//                        - False : DailyIntervalDays 
+//        
+//-----------------------------------------------------------------------------
+//Weekly    
+//------
+//RecurrenceType          - xtpCalendarRecurrenceWeekly
+//WeeklyIntervalWeeks 
+//WeeklyDayOfWeekMask 
+//                
+//        
+//-----------------------------------------------------------------------------
+//Monthly    
+//-------
+//    Specific Date
+//    -------------        
+//    RecurrenceType      - xtpCalendarRecurrenceMonthly
+//    MonthlyDayOfMonth 
+//    MonthlyIntervalMonths 
+//        
+//    Specific Day
+//    ------------        
+//    RecurrenceType      - xtpCalendarRecurrenceMonthNth
+//    MonthNthWhichDay 
+//    MonthNthWhichDayMask
+//    MonthNthIntervalMonths
+//
+//-----------------------------------------------------------------------------
+//Yearly    
+//------
+//    Specific Date
+//    -------------        
+//    RecurrenceType      - xtpCalendarRecurrenceYearly
+//    YearlyMonthOfYear 
+//    YearlyDayOfMonth 
+//
+//    Specific Day
+//    ------------        
+//    RecurrenceType      - xtpCalendarRecurrenceYearNth
+//    YearNthWhichDay 
+//    YearNthWhichDayMask 
+//    YearNthMonthOfYear 
+//
+//=============================================================================
+
+Use Windows.pkg
+Use Dfline.pkg
+Use Calendar_v2\cSigCJCalendar_DialogClasses.pkg
+Use cSigCjCalendar_Public.pkg
+
+Object oSigCjCalendar_RecPattern_Panel is a ModalPanel
+    Set Size to 140 317
+    Set Label to "Recurring"
+    Set piMinSize to 89 211
+    Set Location to 2 3
+    Set Border_Style To Border_Thick
+
+    Property tdSigCjCal_Dialog_RecPattern ptDialog_RecPattern
+
+    Object oStartTime is a cSigCJCalendar_TimePicker
+        Set Size to 13 47
+        Set Location to 5 40
+        Set peFormat to eDTP_HM00
+        Set Label to "Start Time"
+        Set Label_Col_Offset to 2
+        Set Label_Justification_Mode to JMode_Right
+    End_Object
+
+    Object oEndTime is a cSigCJCalendar_TimePicker
+        Set Size to 13 47
+        Set Location to 20 40
+        Set peFormat to eDTP_HM59
+        Set Label to "End Time"
+        Set Label_Justification_Mode to JMode_Right
+        Set Label_Col_Offset to 2
+    End_Object
+
+    Object oStartDate is a Form
+        Set Size to 13 60
+        Set Location to 35 40
+        Set Label_Col_Offset to 2
+        Set Label_Justification_Mode to JMode_Right
+        Set Label to "Start Date"
+        Set Prompt_Button_Mode   to PB_PromptOn
+        Set Form_Button_Bitmap 0 to "CalendarPrompt.Bmp"
+        Set Prompt_Object        to (oSigCJMonthCalendar_Lookup(Self))
+    End_Object
+
+    Object oV_Line1 is a LineControl
+        Set Size to 40 1
+        Set Location to 5 107
+        Set Horizontal_State to False
+    End_Object
+
+    Object oEndType is a cSigCJCalendar_RadioGroup_NB
+        Set Location to 0 110
+        Set Size to 51 69
+        Set Border_Style to Border_None
+    
+        Object oNoEnd is a Radio
+            Set Auto_Size_State to False
+            Set Label to "No End date"
+            Set Size to 10 60
+            Set Location to 7 5
+            Set AlignmentMode to taLeftJustify
+        End_Object
+    
+        Object oEndAfterCount is a Radio
+            Set Auto_Size_State to False
+            Set Label to "End After"
+            Set Size to 10 60
+            Set Location to 22 5
+            Set AlignmentMode to taLeftJustify
+        End_Object
+    
+        Object oEndByDate is a Radio
+            Set Auto_Size_State to False
+            Set Label to "End By"
+            Set Size to 10 60
+            Set Location to 37 5
+            Set AlignmentMode to taLeftJustify
+        End_Object
+    
+        Procedure Notify_Select_State Integer iToItem Integer iFromItem
+            Forward Send Notify_Select_State iToItem iFromItem
+            
+            Set Enabled_State of oEndType_EndAfterCount to (iToItem = 1)
+            Set Enabled_State of oEndType_EndByDate     to (iToItem = 2)
+        End_Procedure
+        
+        Procedure Set Selected_Value Integer iValue
+            If (iValue = eCal_Recur_EndAfterOcc) Set Current_Radio to 1
+            If (iValue = eCal_Recur_EndOnDate  ) Set Current_Radio to 2
+            If (iValue = eCal_Recur_EndNoEnd   ) Set Current_Radio to 0
+        End_Procedure
+
+        Function Selected_Value Returns Integer 
+            Integer iRadio iRetVal
+
+            Get Current_Radio to iRadio
+
+            If (iRadio = 0) Move eCal_Recur_EndNoEnd    to iRetVal
+            If (iRadio = 1) Move eCal_Recur_EndAfterOcc to iRetVal
+            If (iRadio = 2) Move eCal_Recur_EndOnDate   to iRetVal
+            Function_Return iRetVal
+        End_Function
+    End_Object
+
+    Object oEndType_EndAfterCount is a Form
+        Set Size to 13 30
+        Set Location to 20 180
+        Set Label_Col_Offset to -35
+        Set Label to "occurrences"
+    End_Object
+
+    Object oEndType_EndByDate is a Form
+        Set Size to 13 60
+        Set Location to 35 180
+        Set Prompt_Button_Mode   to PB_PromptOn
+        Set Form_Button_Bitmap 0 to "CalendarPrompt.Bmp"
+        Set Prompt_Object        to (oSigCJMonthCalendar_Lookup(Self))
+    End_Object
+
+    Object oH_Line1 is a LineControl
+        Set Size to 2 307
+        Set Location to 50 3
+    End_Object
+
+    Object oRecurType is a cSigCJCalendar_RadioGroup_NB
+        Set Location to 54 0
+        Set Size to 65 57
+        Set Border_Style to Border_None
+    
+        Object oDaily is a Radio
+            Set Auto_Size_State to False
+            Set Label to "Daily"
+            Set Size to 10 45
+            Set Location to 2 5
+            Set AlignmentMode to taLeftJustify
+        End_Object
+    
+        Object oWeekly is a Radio
+            Set Auto_Size_State to False
+            Set Label to "Weekly"
+            Set Size to 10 45
+            Set Location to 17 5
+            Set AlignmentMode to taLeftJustify
+        End_Object
+
+        Object oMonthly is a Radio
+            Set Auto_Size_State to False
+            Set Label to "Monthly"
+            Set Size to 10 45
+            Set Location to 32 5
+            Set AlignmentMode to taLeftJustify
+        End_Object
+
+        Object oYearly is a Radio
+            Set Auto_Size_State to False
+            Set Label to "Yearly"
+            Set Size to 10 45
+            Set Location to 47 5
+            Set AlignmentMode to taLeftJustify
+        End_Object
+    
+        Procedure Notify_Select_State Integer iToItem Integer iFromItem
+            Handle hoFrom hoTo
+            
+            Forward Send Notify_Select_State iToItem iFromItem
+
+            If (iFromItem <> -1) Begin
+                If (iFromItem = 0) Move (oDaily_Options  (Self)) to hoFrom
+                If (iFromItem = 1) Move (oWeekly_Options (Self)) to hoFrom
+                If (iFromItem = 2) Move (oMonthly_Options(Self)) to hoFrom
+                If (iFromItem = 3) Move (oYearly_Options (Self)) to hoFrom
+
+                Set Enabled_State of hoFrom to False
+                Set Visible_State of hoFrom to False
+            End
+
+            If (iToItem = 0) Move (oDaily_Options  (Self)) to hoTo
+            If (iToItem = 1) Move (oWeekly_Options (Self)) to hoTo
+            If (iToItem = 2) Move (oMonthly_Options(Self)) to hoTo
+            If (iToItem = 3) Move (oYearly_Options (Self)) to hoTo
+
+            Set Enabled_State of hoTo to True
+            Set Visible_State of hoTo to True
+        End_Procedure
+    End_Object
+
+    Object oV_Line1 is a LineControl
+        Set Size to 55 1
+        Set Location to 56 59
+        Set Horizontal_State to False
+    End_Object
+
+    Object oDaily_Options is a Container3d
+        Set Location to 54 61
+        Set Size to 60 250
+        Set Border_Style to Border_None
+        Set Enabled_State to False
+        Set Visible_State to False
+    
+        Object oDaily_How is a cSigCJCalendar_RadioGroup_NB
+            Set Size to 33 58
+            Set Border_Style to Border_None
+        
+            Object oEvery is a Radio
+                Set Auto_Size_State to False
+                Set Label to "Every"
+                Set Size to 10 50
+                Set Location to 2 5
+                Set AlignmentMode to taLeftJustify
+            End_Object
+        
+            Object oWorkDays is a Radio
+                Set Auto_Size_State to False
+                Set Label to "Work Days"
+                Set Size to 10 50
+                Set Location to 17 5
+                Set AlignmentMode to taLeftJustify
+            End_Object
+        
+            Procedure Notify_Select_State Integer iToItem Integer iFromItem
+                Forward Send Notify_Select_State iToItem iFromItem
+                
+                Set Enabled_State of oDaily_Every to (iToItem = 0)
+            End_Procedure
+    
+        End_Object
+
+        Object oDaily_Every is a Form
+            Set Size to 13 30
+            Set Location to 0 60
+            Set Label_Col_Offset to -35
+            Set Label to "day(s)"
+        End_Object
+
+    End_Object
+
+    Object oWeekly_Options is a Container3d
+        Set Location to 54 61
+        Set Size to 60 250
+        Set Border_Style to Border_None
+        Set Enabled_State to False
+        Set Visible_State to False
+
+        Object oWeekly_RecurEvery is a Form
+            Set Size to 13 30
+            Set Location to 0 45
+            Set Label_Col_Offset to 2
+            Set Label to "Recur Every"
+            Set Label_Justification_Mode to JMode_Right
+        End_Object
+
+        Object oTextBox1 is a TextBox
+            Set Size to 10 50
+            Set Location to 2 80
+            Set Label to "week(s) on"
+        End_Object
+
+        Object oMonday is a CheckBox
+            Set Auto_Size_State to False
+            Set Size to 10 53
+            Set Location to 17 1
+            Set Label to "Monday"
+            Set AlignmentMode to taLeftJustify
+        End_Object
+
+        Object oTuesday is a CheckBox
+            Set Auto_Size_State to False
+            Set Size to 10 53
+            Set Location to 32 1
+            Set Label to "Tuesday"
+            Set AlignmentMode to taLeftJustify
+        End_Object
+
+        Object oWednesday is a CheckBox
+            Set Auto_Size_State to False
+            Set Size to 10 53
+            Set Location to 47 1
+            Set Label to "Wednesday"
+            Set AlignmentMode to taLeftJustify
+        End_Object
+
+        Object oThursday is a CheckBox
+            Set Auto_Size_State to False
+            Set Size to 10 53
+            Set Location to 17 71
+            Set Label to "Thursday"
+            Set AlignmentMode to taLeftJustify
+        End_Object
+
+        Object oFriday is a CheckBox
+            Set Auto_Size_State to False
+            Set Size to 10 53
+            Set Location to 32 71
+            Set Label to "Friday"
+            Set AlignmentMode to taLeftJustify
+        End_Object
+
+        Object oSaturday is a CheckBox
+            Set Auto_Size_State to False
+            Set Size to 10 53
+            Set Location to 17 141
+            Set Label to "Saturday"
+            Set AlignmentMode to taLeftJustify
+        End_Object
+
+        Object oSunday is a CheckBox
+            Set Auto_Size_State to False
+            Set Size to 10 53
+            Set Location to 32 141
+            Set Label to "Sunday"
+            Set AlignmentMode to taLeftJustify
+        End_Object
+        
+        Procedure Set WeekDays Integer iMask
+            Set Checked_State of oMonday    to (iMask iand eCal_WW_Monday   )
+            Set Checked_State of oTuesday   to (iMask iand eCal_WW_Tuesday  )
+            Set Checked_State of oWednesday to (iMask iand eCal_WW_Wednesday)
+            Set Checked_State of oThursday  to (iMask iand eCal_WW_Thursday )
+            Set Checked_State of oFriday    to (iMask iand eCal_WW_Friday   )
+            Set Checked_State of oSaturday  to (iMask iand eCal_WW_Saturday )
+            Set Checked_State of oSunday    to (iMask iand eCal_WW_Sunday   )
+        End_Procedure
+
+        Function WeekDays Returns Integer
+            Integer iRetVal
+            
+            If (Checked_State(oMonday   )) Move (iRetVal + eCal_WW_Monday   ) to iRetVal
+            If (Checked_State(oMonday   )) Move (iRetVal + eCal_WW_Monday   ) to iRetVal
+            If (Checked_State(oTuesday  )) Move (iRetVal + eCal_WW_Tuesday  ) to iRetVal
+            If (Checked_State(oWednesday)) Move (iRetVal + eCal_WW_Wednesday) to iRetVal
+            If (Checked_State(oThursday )) Move (iRetVal + eCal_WW_Thursday ) to iRetVal
+            If (Checked_State(oFriday   )) Move (iRetVal + eCal_WW_Friday   ) to iRetVal
+            If (Checked_State(oSaturday )) Move (iRetVal + eCal_WW_Saturday ) to iRetVal
+            If (Checked_State(oSunday   )) Move (iRetVal + eCal_WW_Sunday   ) to iRetVal
+            
+            Function_Return iRetVal
+        End_Function
+    End_Object
+
+    Object oMonthly_Options is a Container3d
+        Set Location to 54 61
+        Set Size to 60 250
+        Set Border_Style to Border_None
+        Set Enabled_State to False
+        Set Visible_State to False
+
+        Object oMonthly_RecurEvery is a Form
+            Set Size to 13 30
+            Set Location to 0 45
+            Set Label_Col_Offset to 2
+            Set Label to "Recur Every"
+            Set Label_Justification_Mode to JMode_Right
+        End_Object
+
+        Object oTextBox1 is a TextBox
+            Set Size to 10 50
+            Set Location to 2 80
+            Set Label to "month(s)"
+        End_Object
+
+        Object oMonthly_How is a cSigCJCalendar_RadioGroup_NB
+            Set Location to 15 0
+            Set Size to 33 58
+            Set Border_Style to Border_None
+        
+            Object OnMonthly_Every is a Radio
+                Set Auto_Size_State to False
+                Set Label to "On Day"
+                Set Size to 10 50
+                Set Location to 2 5
+                Set AlignmentMode to taLeftJustify
+            End_Object
+        
+            Object oMonthly_OnThe is a Radio
+                Set Auto_Size_State to False
+                Set Label to "On The"
+                Set Size to 10 50
+                Set Location to 17 5
+                Set AlignmentMode to taLeftJustify
+            End_Object
+        
+            Procedure Notify_Select_State Integer iToItem Integer iFromItem
+                Forward Send Notify_Select_State iToItem iFromItem
+                
+                Set Enabled_State of oMonthly_OnDay to (iToItem = 0)
+                Set Enabled_State of oMonthly_Which to (iToItem = 1)
+                Set Enabled_State of oMonthly_Day   to (iToItem = 1)
+            End_Procedure
+    
+        End_Object
+
+        Object oMonthly_OnDay is a Form
+            Set Size to 13 30
+            Set Location to 15 60
+            Set Label_Col_Offset to 0
+        End_Object
+
+        Object oMonthly_Which is a cSigCJCalendar_ComboForm
+            Set Size to 13 45
+            Set Location to 30 60
+            Set Entry_State to False
+            Set Combo_Sort_State to False
+            
+            Procedure Combo_Fill_List
+                Send Combo_Add_Item "First"  1
+                Send Combo_Add_Item "Second" 2
+                Send Combo_Add_Item "Third"  3
+                Send Combo_Add_Item "Forth"  4
+                Send Combo_Add_Item "Last"   5
+            End_Procedure
+        End_Object
+
+        Object oMonthly_Day is a cSigCJCalendar_ComboForm
+            Set Size to 13 60
+            Set Location to 30 110
+            Set Entry_State to False
+            Set Combo_Sort_State to False
+            
+            Procedure Combo_Fill_List
+                Send Combo_Add_Item "Monday"    eCal_WW_Monday
+                Send Combo_Add_Item "Tuesday"   eCal_WW_Tuesday
+                Send Combo_Add_Item "Wednesday" eCal_WW_Wednesday
+                Send Combo_Add_Item "Thursday"  eCal_WW_Thursday
+                Send Combo_Add_Item "Friday"    eCal_WW_Friday
+                Send Combo_Add_Item "Saturday"  eCal_WW_Saturday
+                Send Combo_Add_Item "Sunday"    eCal_WW_Sunday
+            End_Procedure
+        End_Object
+    End_Object
+
+    Object oYearly_Options is a Container3d
+        Set Location to 54 61
+        Set Size to 60 250
+        Set Border_Style to Border_None
+        Set Enabled_State to False
+        Set Visible_State to False
+
+        Object oYearly_How is a cSigCJCalendar_RadioGroup_NB
+            Set Location to 0 0
+            Set Size to 33 58
+            Set Border_Style to Border_None
+        
+            Object OnYearly_Every is a Radio
+                Set Auto_Size_State to False
+                Set Label to "On Day"
+                Set Size to 10 50
+                Set Location to 2 5
+                Set AlignmentMode to taLeftJustify
+            End_Object
+        
+            Object oYearly_OnThe is a Radio
+                Set Auto_Size_State to False
+                Set Label to "On The"
+                Set Size to 10 50
+                Set Location to 17 5
+                Set AlignmentMode to taLeftJustify
+            End_Object
+        
+            Procedure Notify_Select_State Integer iToItem Integer iFromItem
+                Forward Send Notify_Select_State iToItem iFromItem
+                
+                Set Enabled_State of oYearly_Day        to (iToItem = 0)
+                Set Enabled_State of oYearly_DayMonth   to (iToItem = 0)
+                Set Enabled_State of oYearly_OnTheWhich to (iToItem = 1)
+                Set Enabled_State of oYearly_OnTheDay   to (iToItem = 1)
+                Set Enabled_State of oYearly_OnTheMonth to (iToItem = 1)
+            End_Procedure
+    
+        End_Object
+
+        Object oYearly_Day is a Form
+            Set Size to 13 30
+            Set Location to 0 60
+            Set Label_Col_Offset to 0
+        End_Object
+
+        Object oYearly_DayMonth is a cSigCJCalendar_ComboForm
+            Set Size to 13 60
+            Set Location to 0 95
+            Set Entry_State to False
+            Set Combo_Sort_State to False
+            
+            Procedure Combo_Fill_List
+                Send Combo_Add_Item "January"    1
+                Send Combo_Add_Item "February"   2
+                Send Combo_Add_Item "March"      3
+                Send Combo_Add_Item "April"      4
+                Send Combo_Add_Item "May"        5
+                Send Combo_Add_Item "June"       6
+                Send Combo_Add_Item "July"       7
+                Send Combo_Add_Item "August"     8
+                Send Combo_Add_Item "September"  9
+                Send Combo_Add_Item "October"   10
+                Send Combo_Add_Item "November"  11
+                Send Combo_Add_Item "December"  12
+            End_Procedure
+        End_Object
+        
+        Object oYearly_OnTheWhich is a cSigCJCalendar_ComboForm
+            Set Size to 13 45
+            Set Location to 15 60
+            Set Entry_State to False
+            Set Combo_Sort_State to False
+            
+            Procedure Combo_Fill_List
+                Send Combo_Add_Item "First"  1
+                Send Combo_Add_Item "Second" 2
+                Send Combo_Add_Item "Third"  3
+                Send Combo_Add_Item "Forth"  4
+                Send Combo_Add_Item "Last"   5
+            End_Procedure
+        End_Object
+        
+        Object oYearly_OnTheDay is a cSigCJCalendar_ComboForm
+            Set Size to 13 60
+            Set Location to 15 110
+            Set Entry_State to False
+            Set Combo_Sort_State to False
+            
+            Procedure Combo_Fill_List
+                Send Combo_Add_Item "Monday"    eCal_WW_Monday
+                Send Combo_Add_Item "Tuesday"   eCal_WW_Tuesday
+                Send Combo_Add_Item "Wednesday" eCal_WW_Wednesday
+                Send Combo_Add_Item "Thursday"  eCal_WW_Thursday
+                Send Combo_Add_Item "Friday"    eCal_WW_Friday
+                Send Combo_Add_Item "Saturday"  eCal_WW_Saturday
+                Send Combo_Add_Item "Sunday"    eCal_WW_Sunday
+            End_Procedure
+        End_Object
+
+        Object oYearly_OnTheMonth is a cSigCJCalendar_ComboForm
+            Set Size to 13 60
+            Set Location to 15 183
+            Set Entry_State to False
+            Set Combo_Sort_State to False
+            
+            Set Label_Col_Offset to 2
+            Set Label_Justification_Mode to JMode_Right
+            Set Label to "of"
+        
+            Procedure Combo_Fill_List
+                Send Combo_Add_Item "January"    1
+                Send Combo_Add_Item "February"   2
+                Send Combo_Add_Item "March"      3
+                Send Combo_Add_Item "April"      4
+                Send Combo_Add_Item "May"        5
+                Send Combo_Add_Item "June"       6
+                Send Combo_Add_Item "July"       7
+                Send Combo_Add_Item "August"     8
+                Send Combo_Add_Item "September"  9
+                Send Combo_Add_Item "October"   10
+                Send Combo_Add_Item "November"  11
+                Send Combo_Add_Item "December"  12
+            End_Procedure
+        End_Object
+    End_Object
+
+    Object oH_Line2 is a LineControl
+        Set Size to 2 307
+        Set Location to 115 5
+    End_Object
+
+    Object oOK_Btn is a Button
+        Set Label    to "&OK"
+        Set Location to 123 208
+        Set peAnchors To anBottomRight
+
+        Procedure OnClick
+            tdSigCjCal_Dialog_RecPattern tDialog_RecPattern
+
+            Send Update_Dialog_Data 
+
+            Get ptDialog_RecPattern to tDialog_RecPattern
+                Move eCal_Dialog_Action_Edit to tDialog_RecPattern.eAction
+            Set ptDialog_RecPattern to tDialog_RecPattern
+
+            Send Close_Panel
+        End_Procedure
+    End_Object
+
+    Object oCancel_Btn is a Button
+        Set Label    to "&Cancel"
+        Set Location to 123 263
+        Set peAnchors to anBottomRight
+
+        Procedure OnClick
+            tdSigCjCal_Dialog_RecPattern tDialog_RecPattern
+        
+            Get ptDialog_RecPattern to tDialog_RecPattern
+                Move eCal_Dialog_Action_None to tDialog_RecPattern.eAction
+            Set ptDialog_RecPattern to tDialog_RecPattern
+
+            Send Close_Panel
+        End_Procedure
+    End_Object
+
+    On_Key Key_Alt+Key_O Send KeyAction of oOK_Btn
+    On_Key Key_Alt+Key_C Send KeyAction of oCancel_Btn
+
+    Procedure Set Recurring_Type Integer iValue
+        If  (iValue = eCal_Recur_Daily   )  Set Current_Radio of oRecurType to 0
+        If  (iValue = eCal_Recur_Weekly  )  Set Current_Radio of oRecurType to 1
+        If ((iValue = eCal_Recur_Monthly )  or ;
+            (iValue = eCal_Recur_MonthNth)) Set Current_Radio of oRecurType to 2
+        If ((iValue = eCal_Recur_Yearly  )  or ;
+            (iValue = eCal_Recur_YearNth )) Set Current_Radio of oRecurType to 3
+
+        If (iValue = eCal_Recur_Monthly ) Set Current_Radio of oMonthly_How to 0
+        If (iValue = eCal_Recur_MonthNth) Set Current_Radio of oMonthly_How to 1
+        
+        If (iValue = eCal_Recur_Yearly  ) Set Current_Radio of oYearly_How  to 0
+        If (iValue = eCal_Recur_YearNth ) Set Current_Radio of oYearly_How  to 1
+    End_Procedure
+
+    Function Recurring_Type Returns Integer 
+        Integer iType iHow iRetVal
+
+        Get Current_Radio of oRecurType to iType
+        If (iType = 2) Get Current_Radio of oMonthly_How to iHow
+        If (iType = 3) Get Current_Radio of oYearly_How  to iHow
+        
+        If  (iType = 0)                 Move eCal_Recur_Daily    to iRetVal
+        If  (iType = 1)                 Move eCal_Recur_Weekly   to iRetVal
+        If ((iType = 2) and (iHow = 0)) Move eCal_Recur_Monthly   to iRetVal
+        If ((iType = 2) and (iHow = 1)) Move eCal_Recur_MonthNth to iRetVal
+        If ((iType = 3) and (iHow = 0)) Move eCal_Recur_Yearly   to iRetVal
+        If ((iType = 3) and (iHow = 1)) Move eCal_Recur_YearNth  to iRetVal
+
+        Function_Return iRetVal
+    End_Function
+
+    Procedure Populate_Dialog tdSigCjCal_Dialog_RecPattern tDialog_RecPattern
+        Set ptDialog_RecPattern to tDialog_RecPattern
+
+        Set Time_Value      of oStartTime               to tDialog_RecPattern.tRecPattern.tmStartTime
+        Set Time_Value      of oEndTime                 to tDialog_RecPattern.tRecPattern.tmEndTime
+        Set Value           of oStartDate               to tDialog_RecPattern.tRecPattern.dStartDate
+        Set Selected_Value  of oEndType                 to tDialog_RecPattern.tRecPattern.eEndMethod
+        Set Value           of oEndType_EndAfterCount   to tDialog_RecPattern.tRecPattern.iEndAfterOcc
+        Set Value           of oEndType_EndByDate       to tDialog_RecPattern.tRecPattern.dEndDate
+        Set Current_Radio   of oDaily_How               to tDialog_RecPattern.tRecPattern.bRoD_WeekDayOnly
+        Set Value           of oDaily_Every             to tDialog_RecPattern.tRecPattern.iRoD_Int_Days
+        Set WeekDays        of oWeekly_Options          to tDialog_RecPattern.tRecPattern.eRoW_DayWeekMask
+        Set Value           of oWeekly_RecurEvery       to tDialog_RecPattern.tRecPattern.iRoW_Int_Weeks
+        Set Value           of oMonthly_OnDay           to tDialog_RecPattern.tRecPattern.iRoM_DayOfMonth
+        Set piInitalValue   of oMonthly_Which           to tDialog_RecPattern.tRecPattern.iRoM_Nth_Day
+        Set piInitalValue   of oMonthly_Day             to tDialog_RecPattern.tRecPattern.eRoM_Nth_DayMask
+        Set Value           of oYearly_Day              to tDialog_RecPattern.tRecPattern.iRoY_DayOfMonth
+        Set piInitalValue   of oYearly_DayMonth         to tDialog_RecPattern.tRecPattern.iRoY_MonthOfYear
+        Set piInitalValue   of oYearly_OnTheWhich       to tDialog_RecPattern.tRecPattern.iRoY_Nth_Day     
+        Set piInitalValue   of oYearly_OnTheDay         to tDialog_RecPattern.tRecPattern.iRoY_Nth_DayMask
+        Set piInitalValue   of oYearly_OnTheMonth       to tDialog_RecPattern.tRecPattern.iRoY_NthM_OfYear 
+                                                         
+        Set Recurring_Type  to tDialog_RecPattern.tRecPattern.eRoRecurr_Type
+
+        If (tDialog_RecPattern.tRecPattern.eRoRecurr_Type = eCal_Recur_MonthNth) ;
+             Set Value of oMonthly_RecurEvery to tDialog_RecPattern.tRecPattern.iRoM_NthInt_Mths
+        Else Set Value of oMonthly_RecurEvery to tDialog_RecPattern.tRecPattern.iRoM_Int_Months
+    End_Procedure
+
+    Function Duration Returns Integer
+        Integer iDuration 
+        String sStartTime sEndTime
+        Date     dToday
+        DateTime dtStart dtEnd 
+        TimeSpan tsDiff
+
+        Sysdate dToday
+
+        Get Time_Value of oStartTime to sStartTime
+        Get Time_Value of oEndTime   to sEndTime
+
+        Move dToday to dtStart
+        If (sStartTime > sEndTime) Move (dToday + 1) to dtEnd
+        Else                       Move dToday       to dtEnd
+
+        Move (DateSetHour  (dtStart, Left (sStartTime,2  ))) to dtStart
+        Move (DateSetMinute(dtStart, Mid  (sStartTime,2,4))) to dtStart
+        Move (DateSetSecond(dtStart, Right(sStartTime,2  ))) to dtStart
+        
+        Move (DateSetHour  (dtEnd, Left (sEndTime,2  ))) to dtEnd
+        Move (DateSetMinute(dtEnd, Mid  (sEndTime,2,4))) to dtEnd
+        Move (DateSetSecond(dtEnd, Right(sEndTime,2  ))) to dtEnd
+
+        Move (dtEnd - dtStart) to tsDiff
+        Move (SpanTotalMinutes(tsDiff)) to iDuration
+        
+        Function_Return iDuration
+    End_Function
+
+    Procedure Update_Dialog_Data 
+        tdSigCjCal_Dialog_RecPattern tDialog_RecPattern
+        
+        Get ptDialog_RecPattern to tDialog_RecPattern
+        
+        Get Time_Value      of oStartTime               to tDialog_RecPattern.tRecPattern.tmStartTime
+        Get Time_Value      of oEndTime                 to tDialog_RecPattern.tRecPattern.tmEndTime
+        Get Value           of oStartDate               to tDialog_RecPattern.tRecPattern.dStartDate
+        Get Selected_Value  of oEndType                 to tDialog_RecPattern.tRecPattern.eEndMethod
+        Get Value           of oEndType_EndAfterCount   to tDialog_RecPattern.tRecPattern.iEndAfterOcc
+        Get Value           of oEndType_EndByDate       to tDialog_RecPattern.tRecPattern.dEndDate
+        Get Current_Radio   of oDaily_How               to tDialog_RecPattern.tRecPattern.bRoD_WeekDayOnly
+        Get Value           of oDaily_Every             to tDialog_RecPattern.tRecPattern.iRoD_Int_Days
+        Get WeekDays        of oWeekly_Options          to tDialog_RecPattern.tRecPattern.eRoW_DayWeekMask
+        Get Value           of oWeekly_RecurEvery       to tDialog_RecPattern.tRecPattern.iRoW_Int_Weeks
+        Get Value           of oMonthly_OnDay           to tDialog_RecPattern.tRecPattern.iRoM_DayOfMonth
+        Get Selected_Value  of oMonthly_Which           to tDialog_RecPattern.tRecPattern.iRoM_Nth_Day
+        Get Selected_Value  of oMonthly_Day             to tDialog_RecPattern.tRecPattern.eRoM_Nth_DayMask
+        Get Value           of oYearly_Day              to tDialog_RecPattern.tRecPattern.iRoY_DayOfMonth
+        Get Selected_Value  of oYearly_DayMonth         to tDialog_RecPattern.tRecPattern.iRoY_MonthOfYear
+        Get Selected_Value  of oYearly_OnTheWhich       to tDialog_RecPattern.tRecPattern.iRoY_Nth_Day     
+        Get Selected_Value  of oYearly_OnTheDay         to tDialog_RecPattern.tRecPattern.iRoY_Nth_DayMask
+        Get Selected_Value  of oYearly_OnTheMonth       to tDialog_RecPattern.tRecPattern.iRoY_NthM_OfYear 
+                                                         
+        Get Recurring_Type  to tDialog_RecPattern.tRecPattern.eRoRecurr_Type
+
+        If (tDialog_RecPattern.tRecPattern.eRoRecurr_Type = eCal_Recur_MonthNth) ;
+             Get Value of oMonthly_RecurEvery to tDialog_RecPattern.tRecPattern.iRoM_NthInt_Mths
+        Else Get Value of oMonthly_RecurEvery to tDialog_RecPattern.tRecPattern.iRoM_Int_Months
+        
+        Get Duration to tDialog_RecPattern.tRecPattern.iDurationMinutes
+                
+        Set ptDialog_RecPattern to tDialog_RecPattern
+    End_Procedure
+
+    Function Show_Dialog tdSigCjCal_Dialog_RecPattern tDialog_RecPattern Returns tdSigCjCal_Dialog_RecPattern
+        Send Populate_Dialog tDialog_RecPattern
+        Send Popup
+        Get ptDialog_RecPattern to tDialog_RecPattern
+
+        Function_Return tDialog_RecPattern
+    End_Function
+End_Object

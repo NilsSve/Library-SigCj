@@ -1,0 +1,965 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJDockingPanes.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$
+//
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2009-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                Some of this code and ideas may have come from a package that Emil wrote!
+//                Thanks to John T for his help too.
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+
+Use SigCjW_DockingPane.pkg
+Use cSigCJGlobalSettings.pkg
+Use cSigCJPropEx_Mixin.pkg
+Use cSigCJMethods_Mixin.pkg
+
+//=============================================================================
+
+Enum_List   //eDP_Client_Type
+    Define eDP_Normal
+    Define eDP_ActiveX
+End_Enum_List
+
+Enum_List   //eDP_Event_Director
+    Define eDP_No_Events
+    Define eDP_Direct_To_Manager
+    Define eDP_Direct_To_Panes
+    Define eDP_Direct_To_Both
+End_Enum_List
+
+//=============================================================================
+
+Class cSigCjDockingPaneLayout is a cSigCjComDockingPaneLayout
+    Import_Class_Protocol cSigCJPropEx_Mixin
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        Send Initialise_PropEx_Mixin
+        Set psPX_Class to "SigCJDockingPanesControl"
+    End_Procedure
+End_Class
+
+//=============================================================================
+
+{ OverrideProperty=psLicenseKey              DesignTime=False }
+{ OverrideProperty=psProgID                  DesignTime=False }
+{ OverrideProperty=peAutoCreate              DesignTime=False }
+{ OverrideProperty=peNeighborhood            DesignTime=False }
+{ OverrideProperty=Delegation_Mode           DesignTime=False }
+Class cSigCjDockingPane is a cSigCjComPane
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        { Category="CodeJock" InitialValue=0 }
+        Property Integer piID 0
+
+        { Category="CodeJock" InitialValue=150 }
+        Property Integer piHeight 150
+
+        { Category="CodeJock" InitialValue=150 }
+        Property Integer piWidth 150
+
+        { Category="CodeJock" InitialValue=OLEDockLeftOf }
+        { EnumList="OLEDockLeftOf, OLEDockRightOf, OLEDockTopOf, OLEDockBottomOf" }
+        Property Integer peLocation OLEDockLeftOf
+
+        { Category="CodeJock" InitialValue=0 }
+        Property Integer piNeighbour 0
+
+        { Category="CodeJock" InitialValue=-1 }
+        Property Integer piAttachTo -1 
+        
+        { Category="CodeJock" InitialValue="" }
+        Property String  psTitle ""
+
+        { Category="CodeJock" InitialValue=0 }
+        Property Handle  phoClientObject 0
+
+        { Category="CodeJock" InitialValue=-1 }
+        Property Integer piSideDockingOffset -1
+
+        { Category="CodeJock" InitialValue=False }
+        Property Boolean pbInitiallyHidden False
+
+        { Category="CodeJock" InitialValue=eDP_Normal }
+        { EnumList="eDP_Normal, eDP_ActiveX" }
+        Property Integer peClientType eDP_Normal
+
+        //-------------------------------------------------------------------------
+
+        { Category="CodeJock" InitialValue=True }
+        Property Boolean pbCloseable True
+
+        { Category="CodeJock" InitialValue=True }
+        Property Boolean pbHideable True
+
+        { Category="CodeJock" InitialValue=True }
+        Property Boolean pbFloatable True
+
+        { Category="CodeJock" InitialValue=True }
+        Property Boolean pbCaption True
+
+        { Category="CodeJock" InitialValue=False }
+        Property Boolean pbMenuButton False
+
+        { Category="CodeJock" InitialValue=True }
+        Property Boolean pbDockable True
+
+        //-------------------------------------------------------------------------
+
+        { DesignTime=False }
+        Property Integer Private_piImage 0
+        { DesignTime=False }
+        Property String  Private_psImage ""
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+    
+    Procedure Set psImage String sImage
+        Integer iImageId
+
+        Set Private_psImage to sImage
+
+        Get AddImage of ghoSigCjGlobalSetting sImage 0 OLExtpImageNormal to iImageId
+        Set Private_piImage to iImageId
+
+        If (IsComObjectCreated(Self)) Begin
+            Set ComIconID  to iImageId
+        End
+    End_Procedure
+
+    Function psImage Returns String
+        Function_Return (Private_psImage(Self))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Procedure Setup_Pane
+        Handle hoWnd hoClient 
+        Variant vPane
+        Integer iOptions
+
+        Get Create_Pane (piId(Self))       (piHeight(Self))    (piWidth(Self)) ;
+                        (peLocation(Self)) (piNeighbour(Self)) (Self) to vPane //Docking Manager
+        Set pvComObject to vPane
+        Set ComTitle    to (psTitle(Self))
+        Set ComIconId   to (Private_piImage(Self))
+
+        If (piSideDockingOffset(Self) > -1) Begin
+            Send ComDockSidePane vPane (piSideDockingOffset(Self)) (peLocation(Self))   //Docking Manager
+        End
+
+        Set ComHidden to (pbInitiallyHidden(Self))
+
+        //Set Options
+        Move 0 to iOptions
+        If (not(pbCloseable (Self))) Move (iOptions ior OLEPaneNoCloseable  ) to iOptions
+        If (not(pbHideable  (Self))) Move (iOptions ior OLEPaneNoHideable   ) to iOptions
+        If (not(pbFloatable (Self))) Move (iOptions ior OLEPaneNoFloatable  ) to iOptions
+        If (not(pbCaption   (Self))) Move (iOptions ior OLEPaneNoCaption    ) to iOptions
+        If (    pbMenuButton(Self))  Move (iOptions ior OLEPaneHasMenuButton) to iOptions
+        If (not(pbDockable  (Self))) Move (iOptions ior OLEPaneNoDockable   ) to iOptions
+        Set ComOptions to iOptions
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+    //Events
+    //-------------------------------------------------------------------------
+
+    { MethodType=Event }
+    Procedure OnClosed Boolean ByRef bCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnClosing Boolean ByRef bCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnCollapsed Boolean ByRef bCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnCollapsing Boolean ByRef bCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnDocked Boolean ByRef bCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnExpanded Boolean ByRef bCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnExpanding Boolean ByRef bCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnFloated Boolean ByRef bCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnPinned Boolean ByRef bCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnUnPinned Boolean ByRef bCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnActivated Boolean ByRef bCancel
+    End_Procedure  
+    
+    { MethodType=Event }
+    Procedure OnDeactivated Boolean ByRef bCancel
+    End_Procedure
+End_Class
+
+//=============================================================================
+
+{ OverrideProperty=Attach_Parent_State       DesignTime=False }
+{ OverrideProperty=Block_Mouse_State         DesignTime=False }
+{ OverrideProperty=Client_Area_State         DesignTime=False }
+{ OverrideProperty=Delegation_Mode           DesignTime=False }
+{ OverrideProperty=Focus_Mode                DesignTime=False }
+{ OverrideProperty=pbBindValue               DesignTime=False }
+{ OverrideProperty=peAutoCreate              DesignTime=False }
+{ OverrideProperty=peNeighborhood            DesignTime=False }
+{ OverrideProperty=Popup_State               DesignTime=False }
+{ OverrideProperty=Ring_State                DesignTime=False }
+{ OverrideProperty=Scope_State               DesignTime=False }
+{ OverrideProperty=Search_Case               DesignTime=False }
+{ OverrideProperty=Skip_State                DesignTime=False }
+{ OverrideProperty=Label                     DesignTime=False }
+{ OverrideProperty=Label_Col_Offset          DesignTime=False }
+{ OverrideProperty=Label_Justification_Mode  DesignTime=False }
+{ OverrideProperty=Label_Row_Offset          DesignTime=False }
+{ OverrideProperty=Location                  DesignTime=False }
+{ OverrideProperty=peAnchors                 DesignTime=False }
+{ OverrideProperty=piMinSize                 DesignTime=False }
+{ OverrideProperty=Size                      DesignTime=False }
+{ OverrideProperty=TextColor                 DesignTime=False }
+{ OverrideProperty=Color                     DesignTime=False }
+{ OverrideProperty=Border_Style              DesignTime=False }
+{ OverrideProperty=Enabled_State             DesignTime=False }
+{ OverrideProperty=Visible_State             DesignTime=False }
+{ OverrideProperty=Help_Id                   DesignTime=False }
+{ OverrideProperty=Help_Keyword              DesignTime=False }
+{ OverrideProperty=psHtmlHelpTopic           DesignTime=False }
+{ OverrideProperty=Status_Help               DesignTime=False }
+{ OverrideProperty=Use_Parent_Status_Help    DesignTime=False }
+{ OverrideProperty=psLicenseKey              DesignTime=False }
+{ OverrideProperty=psProgID                  DesignTime=False }
+Class cSigCjDockingManager is a cSigCjComDockingPane
+    Import_Class_Protocol cSigCJMethods_Mixin
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        Set peAutoCreate  to acDeferredAutoCreate
+
+        //---------------------------------------------------------------------
+        //Private Properties
+        { DesignTime=False}
+        Property Handle Private_phoLayout           (Create(Self, U_cSigCjDockingPaneLayout))
+        { DesignTime=False}
+        Property Handle Private_phoOptions          (Create(Self, U_cSigCjComDockingPaneOptions))
+        { DesignTime=False}
+        Property Handle Private_phoPaintManager     (Create(Self, U_cSigCjComDockingPanePaintManager))
+        { DesignTime=False}
+        Property Handle Private_phoPane             (Create(Self, U_cSigCjComPane))
+        {DesignTime=False Visibility=Private}
+        Property Handle Private_phoTabPaintManager  (Create(Self, U_cSigCjComTabPaintManager))
+
+        { DesignTime=False}
+        Property Integer[] piaVDF_Objects
+
+        { Category="CodeJock" InitialValue=eDP_No_Events }
+        { EnumList="eDP_No_Events, eDP_Direct_To_Manager, eDP_Direct_To_Panes, eDP_Direct_To_Both" }
+        Property Integer peEventDirector    eDP_No_Events
+
+        { Category="CodeJock" }
+        Property Boolean pbPX_Save_Layout   False 
+        { Category="CodeJock" }
+        Property String  psPX_Tag           ""
+        { Category="CodeJock" }
+        Property Handle phoContainerObject 0
+        
+        //---------------------------------------------------------------------
+        //Docking Manager Properties
+        { DesignTime=False}
+        #IF (SigCj_Codejock_Version < 150001) 
+            Property Integer Private_peVisualTheme OLEThemeOffice2007
+        #ELSE            
+            Property Integer Private_peVisualTheme OLEThemeResource
+        #ENDIF
+ 
+        //---------------------------------------------------------------------
+        //Options Properties
+        { DesignTime=False}
+        Property Integer Private_peStickerStyle                 OLEStickerStyleWhidbey
+        { DesignTime=False}
+        Property Boolean Private_pbShowFloatingFramePinButton   True
+        { DesignTime=False}
+        Property Boolean Private_pbLockSplitters            False
+        { DesignTime=False}
+        Property Boolean Private_pbShowDockingPosition      True
+        { DesignTime=False}
+        Property Boolean Private_pbShowDockingStickers      True
+        { DesignTime=False}
+        Property Boolean Private_pbSideDocking              True
+        { DesignTime=False}
+        Property Boolean Private_pbSyncActiveFloatingFrames True
+        { DesignTime=False}
+        Property Boolean Private_pbThemedFloatingFrames     True
+        {DesignTime=False}
+        Property Boolean Private_pbHideClient               False   //hide the client area!!
+
+        { DesignTime=False}
+        Property Integer Private_piSideMargin_Left   3
+        { DesignTime=False}
+        Property Integer Private_piSideMargin_Right  3
+        { DesignTime=False}
+        Property Integer Private_piSideMargin_Top    3
+        { DesignTime=False}
+        Property Integer Private_piSideMargin_Bottom 3
+
+        //---------------------------------------------------------------------
+        //Paint Manager Properties
+        { DesignTime=False}
+        Property Boolean Private_pbHighLightActiveCaption   True
+        { DesignTime=False}
+        Property Integer Private_piSplitterColor
+        { DesignTime=False}
+        Property Integer Private_piSplitterSize             4  //Codejock default
+        { DesignTime=False}
+        Property Boolean Private_pbDrawCaptionIcon          True
+        {DesignTime=False}
+        Property Boolean Private_pbShowCaption              True
+        {DesignTime=False}
+        Property Integer Private_peCaptionButtonStyle       OLEPaneCaptionButtonThemedButton 
+        {DesignTime=False}
+        Property Boolean Private_pbDrawSingleTab            False
+
+        //---------------------------------------------------------------------
+        //Tab Paint Manager Properties
+        {DesignTime=False}
+        Property Boolean Private_pbRotateImageOnVerticalDraw False  
+
+    End_Procedure
+    
+    //-------------------------------------------------------------------------
+
+    Procedure OnCreate
+        Boolean bVoid
+        Handle  hoContainer
+        Variant vObject 
+        Integer iWork  
+
+        Forward Send OnCreate
+
+        //---------------------------------------------------------------------
+        //Connect to View if required
+        Get phoContainerObject to hoContainer
+        If (hoContainer > 0) Begin
+            Send ComAttachToWindow (Window_Handle(hoContainer))
+        End
+
+        //---------------------------------------------------------------------
+        //Link to Command Bars
+        If ((ghoCommandBars > 0) and (hoContainer = 0)) Begin
+            Get pvComObject of ghoCommandBars to vObject
+            Send ComSetCommandBars vObject
+        End
+
+        //---------------------------------------------------------------------
+        //Docking Manager Properties - Set Theme
+
+        Set peVisualTheme to (Private_peVisualTheme(Self))
+
+        //---------------------------------------------------------------------
+        //Link Embedded objects
+
+        Get ComLayout to vObject
+        Set pvComObject of (Private_phoLayout(Self)) to vObject
+
+        Get ComOptions to vObject
+        Set pvComObject of (Private_phoOptions(Self)) to vObject
+
+        Get ComPaintManager to vObject
+        Set pvComObject of (Private_phoPaintManager(Self)) to vObject
+        
+        Get ComTabPaintManager to vObject
+        Set pvComObject of (Private_phoTabPaintManager(Self)) to vObject        
+
+        Get ComIcons of ghoSigCjGlobalSetting to vObject
+        Set ComIcons to vObject
+
+        //---------------------------------------------------------------------
+        //Property Exchnage Tag
+
+        Set psPX_Tag         of (Private_phoLayout(Self)) to (psPX_Tag(Self))
+        Set pbPX_Save_Layout of (Private_phoLayout(Self)) to (pbPX_Save_Layout(Self))
+
+        //---------------------------------------------------------------------
+        //Set Options Properties
+        
+        Set pbHideClient                    to (Private_pbHideClient(Self))
+        Set peStickerStyle                  to (Private_peStickerStyle(Self))
+        Set pbShowFloatingFramePinButton    to (Private_pbShowFloatingFramePinButton(Self))
+        Set pbLockSplitters                 to (Private_pbLockSplitters(Self))
+        Set pbShowDockingPosition           to (Private_pbShowDockingPosition(Self))
+        Set pbSideDocking                   to (Private_pbSideDocking(Self))
+        Set pbShowDockingStickers           to (Private_pbShowDockingStickers(Self))
+        Set pbSyncActiveFloatingFrames      to (Private_pbSyncActiveFloatingFrames(Self))
+        Set pbThemedFloatingFrames          to (Private_pbThemedFloatingFrames(Self))
+
+        #IF (SigCj_Codejock_Version < 150201)        
+        Get ComSetSideDockingMargin of  (Private_phoOptions(Self)) ;
+                                        (Private_piSideMargin_Left(Self)) ;
+                                        (Private_piSideMargin_Top(Self)) ;
+                                        (Private_piSideMargin_Right(Self)) ;
+                                        (Private_piSideMargin_Bottom(Self)) ;
+                                        to bVoid
+        #ELSE
+        Send ComSetSideDockingMargin of (Private_phoOptions(Self)) ;
+                                        (Private_piSideMargin_Left(Self)) ;
+                                        (Private_piSideMargin_Top(Self)) ;
+                                        (Private_piSideMargin_Right(Self)) ;
+                                        (Private_piSideMargin_Bottom(Self))
+        #ENDIF
+
+        //---------------------------------------------------------------------
+        //Set Paint Manager Properties
+        Set pbHighLightActiveCaption    to (Private_pbHighLightActiveCaption(Self))
+        Set piSplitterSize              to (Private_piSplitterSize(Self))
+        Set pbDrawCaptionIcon           to (Private_pbDrawCaptionIcon(Self))
+        Set pbShowCaption               to (Private_pbShowCaption(Self))
+        Set pbRotateImageOnVerticalDraw to (Private_pbRotateImageOnVerticalDraw(Self))
+        Set peCaptionButtonStyle        to (Private_peCaptionButtonStyle(Self))
+        Set pbDrawSingleTab             to (Private_pbDrawSingleTab(Self))
+
+        If (Private_piSplitterColor(Self) = 0) Begin
+            //If no default color set then update DF side with COM side
+            Get ComSplitterColor of (Private_phoPaintManager(Self)) to iWork
+            Set Private_piSplitterColor to iWork
+        End
+        Else Begin
+            //Color set so update COM side
+            Set piSplitterColor to (Private_piSplitterColor(Self))
+        End
+
+        //setup the docking panes
+        Broadcast Send Setup_Pane
+        
+        //Attach any Tabbed panes
+        Send Attach_Panes
+        
+        //Load layout from registry
+        Send PX_Load of (Private_phoLayout(Self))
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure Attach_Panes
+        Integer iLoop iCount iAttachTo
+        Integer[] iaVDF_Objects
+        Variant vPane vNeighbour 
+
+        Get piaVDF_Objects to iaVDF_Objects
+        Move (SizeOfArray(iaVDF_Objects) - 1) to iCount
+        For iLoop from 0 to iCount
+            If (iaVDF_Objects[iLoop] > 0) Begin
+                Get piAttachTo of iaVDF_Objects[iLoop] to iAttachTo
+                If (iAttachTo > -1) Begin
+                    Get pvComObject of iaVDF_Objects[iLoop]     to vPane
+                    Get pvComObject of iaVDF_Objects[iAttachTo] to vNeighbour
+                    Send ComAttachPane vPane vNeighbour
+                End
+            End
+        Loop
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Function Create_Pane Integer iID       Integer iHeight    Integer iWidth ;
+                         Integer eLocation Integer iNeighbour Handle hoVDF_Object Returns Variant
+        Handle    hoPane
+        Integer[] iaVDF_Objects
+        Variant vPane vNeighbour vTabbed
+
+        If (iNeighbour > 0) Begin
+            Get ComFindPane iNeighbour to vNeighbour
+            Get ComCreatePane iID iWidth iHeight eLocation vNeighbour to vPane
+        End
+        Else Begin
+            Get ComCreatePane iID iWidth iHeight eLocation Nothing to vPane
+        End
+
+        //Keep track of VDF object
+        Get  piaVDF_Objects to iaVDF_Objects
+        Move hoVDF_Object   to iaVDF_Objects[iID]
+        Set  piaVDF_Objects to iaVDF_Objects
+
+        Function_Return vPane
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Procedure Deactivating Returns Integer
+        Integer iRetVal
+        Forward Get msg_Deactivating to iRetVal
+
+        Send PX_Save of (Private_phoLayout(Self))
+
+        Procedure_Return iRetVal
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnComAttachPane Variant llItem
+        Handle  hoClient hoPane hWnd hoVDF_Object
+        Integer eClientType iID
+        Integer[] iaVDF_Objects
+
+        Get Private_phoPane to hoPane
+        Set pvComObject of hoPane to llItem
+        Get ComId of hoPane to iID
+
+        Get piaVDF_Objects to iaVDF_Objects
+        Move iaVDF_Objects[iID] to hoVDF_Object
+        Move (phoClientObject(hoVDF_Object)) to hoClient
+        Move (peClientType   (hoVDF_Object)) to eClientType
+
+        If (eClientType = eDP_ActiveX) Begin
+            Get ComHwnd of hoClient to hWnd
+        End
+        Else Begin //(eClientType = eDP_Normal)
+            Send Add_Focus of hoClient Self
+            Get Window_Handle of hoClient to hWnd
+        End
+
+        Set ComHandle of hoPane to hWnd
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure ShowPane Integer iId
+        Send ComShowPane iID
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Function IsPaneClosed Integer iId Returns Boolean
+        Boolean bClosed
+        Handle  hoPane
+        Variant  vPane
+
+        Get Private_phoPane to hoPane
+        If (hoPane) Begin 
+            Get ComFindPane iId to vPane
+                Set pvComObject of hoPane to vPane
+                Get ComClosed of hoPane to bClosed
+            End
+        
+        Function_Return bClosed
+    End_Function
+
+    //-------------------------------------------------------------------------
+    
+    Function IsPaneSelected Integer iId Returns Boolean
+        Boolean bIsSelected
+        Handle  hoPane
+        Variant  vPane
+
+        Get Private_phoPane to hoPane
+        If (hoPane) Begin 
+            Get ComFindPane iId to vPane
+            If (not(IsNullComObject(vPane))) Begin
+                Set pvComObject of hoPane to vPane
+                Get ComSelected of hoPane to bIsSelected
+            End
+        End
+        Function_Return bIsSelected
+    End_Function
+
+    //-------------------------------------------------------------------------
+    //Events
+    //-------------------------------------------------------------------------
+
+    { MethodType=Event }
+    Procedure OnClosed Integer iPane Boolean ByRef bCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnClosing Integer iPane Boolean ByRef bCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnCollapsed Integer iPane Boolean ByRef bCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnCollapsing Integer iPane Boolean ByRef bCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnDocked Integer iPane Boolean ByRef bCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnExpanded Integer iPane Boolean ByRef bCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnExpanding Integer iPane Boolean ByRef bCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnFloated Integer iPane Boolean ByRef bCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnPinned Integer iPane Boolean ByRef bCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnUnPinned Integer iPane Boolean ByRef bCancel
+    End_Procedure
+    
+    { MethodType=Event }
+    Procedure OnActivated Integer iPane Boolean ByRef bCancel
+    End_Procedure  
+    
+    { MethodType=Event }
+    Procedure OnDeactivated Integer iPane Boolean ByRef bCancel
+    End_Procedure
+    
+    { DesignTime=False }
+    Procedure OnComAction OLEDockingPaneAction llAction Variant llPane Variant llContainer Boolean ByRef llCancel
+        Handle  hoPane
+        Integer iPane eEvent_Director
+        Integer[] iaVDF_Objects
+
+        Get piaVDF_Objects to iaVDF_Objects
+
+        Get peEventDirector to eEvent_Director
+        If (eEvent_Director <> eDP_No_Events) Begin
+            Get Private_phoPane to hoPane
+            Set pvComObject of hoPane to llPane
+            Get ComId of hoPane to iPane
+
+            Case Begin
+                Case (llAction = OLEPaneActionClosed)
+                        If (eEvent_Director iand eDP_Direct_To_Panes)   Send OnClosed of iaVDF_Objects[iPane] (&llCancel)
+                        If (eEvent_Director iand eDP_Direct_To_Manager) Send OnClosed iPane (&llCancel)
+                    Case Break
+
+                Case (llAction = OLEPaneActionClosing)
+                        If (eEvent_Director iand eDP_Direct_To_Panes)   Send OnClosing of iaVDF_Objects[iPane] (&llCancel)
+                        If (eEvent_Director iand eDP_Direct_To_Manager) Send OnClosing iPane (&llCancel)
+                    Case Break
+
+                Case (llAction = OLEPaneActionCollapsed)
+                        If (eEvent_Director iand eDP_Direct_To_Panes)   Send OnCollapsed of iaVDF_Objects[iPane] (&llCancel)
+                        If (eEvent_Director iand eDP_Direct_To_Manager) Send OnCollapsed iPane (&llCancel)
+                    Case Break
+
+                Case (llAction = OLEPaneActionCollapsing)
+                        If (eEvent_Director iand eDP_Direct_To_Panes)   Send OnCollapsing of iaVDF_Objects[iPane] (&llCancel)
+                        If (eEvent_Director iand eDP_Direct_To_Manager) Send OnCollapsing iPane (&llCancel)
+                    Case Break
+
+                Case (llAction = OLEPaneActionDocked)
+                        If (eEvent_Director iand eDP_Direct_To_Panes)   Send OnDocked of iaVDF_Objects[iPane] (&llCancel)
+                        If (eEvent_Director iand eDP_Direct_To_Manager) Send OnDocked iPane (&llCancel)
+                    Case Break
+
+                Case (llAction = OLEPaneActionExpanded)
+                        If (eEvent_Director iand eDP_Direct_To_Panes)   Send OnExpanded of iaVDF_Objects[iPane] (&llCancel)
+                        If (eEvent_Director iand eDP_Direct_To_Manager) Send OnExpanded iPane (&llCancel)
+                    Case Break
+
+                Case (llAction = OLEPaneActionExpanding)
+                        If (eEvent_Director iand eDP_Direct_To_Panes)   Send OnExpanding of iaVDF_Objects[iPane] (&llCancel)
+                        If (eEvent_Director iand eDP_Direct_To_Manager) Send OnExpanding iPane (&llCancel)
+                    Case Break
+
+                Case (llAction = OLEPaneActionFloated)
+                        If (eEvent_Director iand eDP_Direct_To_Panes)   Send OnFloated of iaVDF_Objects[iPane] (&llCancel)
+                        If (eEvent_Director iand eDP_Direct_To_Manager) Send OnFloated iPane (&llCancel)
+                    Case Break
+
+                Case (llAction = OLEPaneActionPinned)
+                        If (eEvent_Director iand eDP_Direct_To_Panes)   Send OnPinned of iaVDF_Objects[iPane] (&llCancel)
+                        If (eEvent_Director iand eDP_Direct_To_Manager) Send OnPinned iPane (&llCancel)
+                    Case Break
+
+                Case (llAction = OLEPaneActionUnPinned)
+                        If (eEvent_Director iand eDP_Direct_To_Panes)   Send OnUnPinned of iaVDF_Objects[iPane] (&llCancel)
+                        If (eEvent_Director iand eDP_Direct_To_Manager) Send OnUnPinned iPane (&llCancel)
+                    Case Break
+                    
+                Case (llAction = OLEPaneActionActivated)
+                        If (eEvent_Director iand eDP_Direct_To_Panes)   Send OnActivated of iaVDF_Objects[iPane] (&llCancel)
+                        If (eEvent_Director iand eDP_Direct_To_Manager) Send OnActivated iPane (&llCancel)
+                    Case Break            
+
+                Case (llAction = OLEPaneActionDeactivated)
+                        If (eEvent_Director iand eDP_Direct_To_Panes)   Send OnDeactivated of iaVDF_Objects[iPane] (&llCancel)
+                        If (eEvent_Director iand eDP_Direct_To_Manager) Send OnDeactivated iPane (&llCancel)
+                    Case Break
+                                            
+            Case End
+        End
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+    //Docking Manager Properties
+    //-------------------------------------------------------------------------
+
+    #IF (SigCj_Codejock_Version < 150001) 
+        { MethodType=Property Category="CodeJock" InitialValue=OLEThemeOffice2007 }
+        { EnumList="OLEThemeDefault, OLEThemeOffice, OLEThemeOffice2003, OLEThemeNativeWinXP, OLEThemeGrippered, OLEThemeVisio, OLEThemeWhidbey, OLEThemeShortcutBar2003, OLEThemeExplorer, OLEThemeVisualStudio2005, OLEThemeOffice2007, OLEThemeWord2007" }
+    #ELSE    
+        { MethodType=Property Category="CodeJock" InitialValue=OLEThemeResource }
+        { EnumList="OLEThemeDefault, OLEThemeOffice, OLEThemeOffice2003, OLEThemeNativeWinXP, OLEThemeGrippered, OLEThemeVisio, OLEThemeWhidbey, OLEThemeShortcutBar2003, OLEThemeExplorer, OLEThemeVisualStudio2005, OLEThemeResource, OLEThemeWord2007, OLEThemeOutlook2007, OLEThemeVisualStudio6 OLEThemeVisualStudio2005Beta2, OLEThemeVisualStudio2008, OLEThemeVisualStudio2010" }
+    #ENDIF 
+    Procedure Set peVisualTheme Integer iVisualTheme
+        Set SigCJProperty Set_Private_peVisualTheme Set_ComVisualTheme to iVisualTheme
+    End_Procedure  // peVisualTheme
+
+    Function peVisualTheme Returns Integer
+        Function_Return (SigCJProperty(Self, Get_Private_peVisualTheme, Get_ComVisualTheme))
+    End_Function  // peVisualTheme
+
+    //-------------------------------------------------------------------------
+    //Options Properties
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="Behaviour" InitialValue=False }
+    Procedure Set pbHideClient Boolean bHide
+        Set SigCJProperty Set_Private_pbHideClient Set_ComHideClient (Private_phoOptions(Self)) to bHide
+    End_Procedure
+    
+    Function pbHideClient Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbHideClient, Get_ComHideClient, (Private_phoOptions(Self)) ))
+    End_Function
+    
+    //-------------------------------------------------------------------------
+    
+    { MethodType=Property Category="CodeJock" InitialValue=OLEStickerStyleWhidbey }
+    { EnumList="OLEStickerStyleWhidbey, OLEStickerStyleStudio2005" }
+    Procedure Set peStickerStyle Integer iStyle
+        Set SigCJProperty Set_Private_peStickerStyle Set_ComStickerStyle (Private_phoOptions(Self)) to iStyle
+    End_Procedure
+
+    Function peStickerStyle Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_peStickerStyle, Get_ComStickerStyle, (Private_phoOptions(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=True }
+    Procedure Set pbShowFloatingFramePinButton Boolean bState
+        Set SigCJProperty Set_Private_pbShowFloatingFramePinButton Set_ComShowFloatingFramePinButton (Private_phoOptions(Self)) to bState
+    End_Procedure
+
+    Function pbShowFloatingFramePinButton Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbShowFloatingFramePinButton, Get_ComShowFloatingFramePinButton, (Private_phoOptions(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbLockSplitters Boolean bState
+        Set SigCJProperty Set_Private_pbLockSplitters Set_ComLockSplitters (Private_phoOptions(Self)) to bState
+    End_Procedure
+
+    Function pbLockSplitters Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbLockSplitters, Get_ComLockSplitters, (Private_phoOptions(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=True }
+    Procedure Set pbShowDockingPosition Boolean bState
+        Set SigCJProperty Set_Private_pbShowDockingPosition Set_ComAlphaDockingContext (Private_phoOptions(Self)) to bState
+    End_Procedure
+
+    Function pbShowDockingPosition Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbShowDockingPosition, Get_ComAlphaDockingContext, (Private_phoOptions(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=True }
+    Procedure Set pbSideDocking Boolean bState
+        Set SigCJProperty Set_Private_pbSideDocking Set_ComSideDocking (Private_phoOptions(Self)) to bState
+    End_Procedure
+
+    Function pbSideDocking Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbSideDocking, Get_ComSideDocking, (Private_phoOptions(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbShowDockingStickers Boolean bState
+        Set SigCJProperty Set_Private_pbShowDockingStickers Set_ComShowDockingContextStickers (Private_phoOptions(Self) )to bState
+    End_Procedure
+
+    Function pbShowDockingStickers Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbShowDockingStickers, Get_ComShowDockingContextStickers, (Private_phoOptions(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=True }
+    Procedure Set pbSyncActiveFloatingFrames Boolean bState
+        Set SigCJProperty Set_Private_pbSyncActiveFloatingFrames Set_ComSyncActiveFloatingFrames (Private_phoOptions(Self)) to bState
+    End_Procedure
+
+    Function pbSyncActiveFloatingFrames Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbSyncActiveFloatingFrames, Get_ComSyncActiveFloatingFrames, (Private_phoOptions(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=True }
+    Procedure Set pbThemedFloatingFrames Boolean bState
+        Set SigCJProperty Set_Private_pbThemedFloatingFrames Set_ComThemedFloatingFrames (Private_phoOptions(Self)) to bState
+    End_Procedure
+
+    Function pbThemedFloatingFrames Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbThemedFloatingFrames, Get_ComThemedFloatingFrames, (Private_phoOptions(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+    //Paint Manager Properties
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="Appearance" InitialValue=OLEPaneCaptionButtonThemedButton }
+    { EnumList="OLEPaneCaptionButtonDefault, OLEPaneCaptionButtonOffice, OLEPaneCaptionButtonOffice2003, OLEPaneCaptionButtonThemedExplorerBar, OLEPaneCaptionButtonThemedButton, OLEPaneCaptionButtonThemedToolBar, OLEPaneCaptionButtonThemedToolWindow" }
+    Procedure Set peCaptionButtonStyle Integer eStyle
+        Set SigCJProperty Set_Private_peCaptionButtonStyle Set_ComCaptionButtonStyle  (Private_phoPaintManager(Self)) to eStyle
+    End_Procedure
+
+    Function peCaptionButtonStyle Returns Integer
+        Function_Return (SigCJProperty(Self, Get_Private_peCaptionButtonStyle, Get_ComCaptionButtonStyle, (Private_phoPaintManager(Self)) ))
+    End_Function
+
+//-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=True }
+    Procedure Set pbDrawCaptionIcon Boolean bState
+        Set SigCJProperty Set_Private_pbDrawCaptionIcon Set_ComDrawCaptionIcon (Private_phoPaintManager(Self)) to bState
+    End_Procedure
+
+    Function pbDrawCaptionIcon Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbDrawCaptionIcon, Get_ComDrawCaptionIcon, (Private_phoPaintManager(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="Behaviour" InitialValue=False }
+    Procedure Set pbDrawSingleTab Boolean bState
+        Set SigCJProperty Set_Private_pbDrawSingleTab Set_ComDrawSingleTab (Private_phoPaintManager(Self)) to bState
+    End_Procedure
+    
+    Function pbDrawSingleTab Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbDrawSingleTab, Get_ComDrawSingleTab, (Private_phoPaintManager(Self)) ))
+    End_Function  
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="Appearance" InitialValue=True }
+    Procedure Set pbShowCaption Boolean bState
+        Set SigCJProperty Set_Private_pbShowCaption Set_ComShowCaption (Private_phoPaintManager(Self)) to bState
+    End_Procedure
+    
+    Function pbShowCaptions Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbShowCaption, Get_ComShowCaption, (Private_phoPaintManager(Self)) ))
+    End_Function
+    
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=True }
+    Procedure Set pbHighLightActiveCaption Boolean bState
+        Set SigCJProperty Set_Private_pbHighLightActiveCaption Set_ComHighlightActiveCaption (Private_phoPaintManager(Self)) to bState
+    End_Procedure
+
+    Function pbHighLightActiveCaption Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbHighLightActiveCaption, Get_ComHighlightActiveCaption, (Private_phoPaintManager(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set piSplitterColor Integer iColor
+        Set SigCJProperty Set_Private_piSplitterColor Set_ComSplitterColor (Private_phoPaintManager(Self)) to iColor
+    End_Procedure
+
+    Function piSplitterColor Returns Integer
+        Function_Return (SigCJProperty(Self, Get_Private_piSplitterColor, Get_ComSplitterColor, (Private_phoPaintManager(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=4 }
+    Procedure Set piSplitterSize Integer iSize
+        Set SigCJProperty Set_Private_piSplitterSize Set_ComSplitterSize (Private_phoPaintManager(Self)) to iSize
+    End_Procedure
+
+    Function piSplitterSize Returns Integer
+        Function_Return (SigCJProperty(Self, Get_Private_piSplitterSize, Get_ComSplitterSize, (Private_phoPaintManager(Self)) ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+    //Tab Paint Manager Properties
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="Appearance" InitialValue=False }
+    Procedure Set pbRotateImageOnVerticalDraw Boolean bRotate
+        Set SigCJProperty Set_Private_pbRotateImageOnVerticalDraw Set_ComRotateImageOnVerticalDraw (Private_phoTabPaintManager(Self)) to bRotate
+    End_Procedure
+    
+    Function pbRotateImageOnVerticalDraw Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbRotateImageOnVerticalDraw, Get_ComRotateImageOnVerticalDraw, (Private_phoTabPaintManager(Self)) ))
+    End_Function
+    
+End_Class
+
+//=============================================================================
+//End of Package - cSigCJDockingPanes.pkg
+//=============================================================================

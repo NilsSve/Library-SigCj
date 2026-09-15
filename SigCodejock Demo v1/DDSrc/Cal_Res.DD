@@ -1,0 +1,106 @@
+//DDB-FileStart
+//DDB-HeaderStart
+
+// File Name : Cal_Res.DD
+// Class Name: Cal_Res_DataDictionary
+// Revision  : 11
+// Version   : 2
+
+Use  Windows           // Basic Definitions
+Use  DataDict.pkg          // DataDictionary Class Definition
+Use  DDvalTbl          // Validation Table Class Definitions
+
+Open Cal_Res
+Open Cal_Sys
+
+//DDB-HeaderEnd
+//DDB-ValidationStart
+
+Register_Object Cal_Res_Datatype_VT
+
+Object Cal_Res_Datatype_VT  is a DescriptionValidationTable
+
+    Procedure Fill_List
+        Forward Send Fill_List
+        Send Add_Table_Value  "1"  "DataFlex"
+        Send Add_Table_Value  "2"  "Outlook PST"
+//        Send Add_Table_Value  "3"  "XML"
+//        Send Add_Table_Value  "4"  "Access"
+    End_Procedure    // Fill_List
+    //DDB-ValidationCustomStart
+    //DDB-ValidationCustomEnd
+End_Object   // Cal_Res_Datatype_VT
+//DDB-ValidationEnd
+//DDB-SelectionStart
+//DDB/ ExternalSelectionList Cal_Res_sl  Cal_Res.sl
+Register_Object Cal_Res_sl
+//DDB-SelectionEnd
+
+Object Resource_VT is a FileValidationTable
+    Set Main_File           to Cal_Res.File_Number
+    Set Code_Field          to 1
+    Set Description_field   to 2
+    Set Ordering            to 1
+    Set Validate_State      to True
+    Set Static_State        to False
+End_Object
+
+Class Cal_Res_DataDictionary  is a DataDictionary
+
+    // Define_Fields:
+    // This procedure is used to set up all data-dictionary rules.
+
+    Procedure Define_Fields
+        Forward Send Define_Fields
+        //DDB-Generated-Code-Location
+        //DDB-DefineFieldStart
+
+        Set Main_File            To Cal_Res.File_Number
+
+        Set Foreign_Field_Options  DD_KEYFIELD   To DD_AUTOFIND    DD_NOPUT       DD_FINDREQ    
+        Set Foreign_Field_Options  DD_INDEXFIELD to DD_NOPUT       DD_FINDREQ    
+        Set Foreign_Field_Options  DD_DEFAULT    To DD_DISPLAYONLY
+
+        // Child (Client) file structure................
+
+        // External (System) file structure.............
+        Send Add_System_File  Cal_Sys.File_Number  DD_LOCK_ON_ALL
+
+        Define_Auto_Increment  Cal_Sys.Resource_Id  To Cal_Res.Id
+
+        // Field-based properties.......................
+
+        // Cal_Res.Id
+        Set Field_Prompt_Object    Field Cal_Res.Id To (Cal_Res_sl(Self))
+
+        // Cal_Res.Title
+        Set Field_Options          Field Cal_Res.Title To DD_REQUIRED   
+        Set Field_Prompt_Object    Field Cal_Res.Title To (Cal_Res_sl(Self))
+
+        // Cal_Res.Datatype
+        Set Field_Value_Table      Field Cal_Res.Datatype To (Cal_Res_Datatype_VT(Self))
+
+        // Cal_Res.Datasource
+
+        //DDB-DefineFieldEnd
+    End_Procedure    // Define_Fields
+
+    // Field_Defaults:
+    // This procedure is used to establish default field values.
+
+    Procedure Field_Defaults
+        Forward Send Field_Defaults
+        //DDB-Generated-Code-Location
+        //DDB-FieldDefaultStart
+        //DDB-FieldDefaultEnd
+    End_Procedure    // Field_Defaults
+
+End_Class    // Cal_Res_DataDictionary
+//DDB-Selection-pkg-Start
+#IFDEF Is$WebApp
+#ELSE
+
+
+#ENDIF
+//DDB-Selection-pkg-End
+//DDB-FileEnd

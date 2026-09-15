@@ -1,0 +1,109 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJReportControl.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$
+//
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+//
+//IMPORTANT
+//=========
+//
+//This pack will "use" the correctly named packages ReportControl or GridControl.
+//
+//If you are using Codejock version 22.0 or greater, it is strongly recommended 
+//that you change your code to Use the renamed control - Grid.
+//
+//==============================================================================
+
+Use SigCjLicense.pkg
+
+#IF (SigCj_Codejock_Version < 220000)
+    Use cSigCJReportControl_Pre2200.pkg
+#ELSE
+    #Warning DFERR_COMP_WARNING_OBSOLETE_CMD "Obsolete package: cSigCJReportControl. Recode for renamed Codejock Grid Control"
+
+    #Replace SigCJReportIdleHandler                 cSigCJGridIdleHandler
+    #Replace SigCJReportColumn                      cSigCjComGridColumn
+    #Replace SigCJReportRecordItem                  cSigCJGridRecordItem
+    #Replace eRC_HitTest_ReportArea                 eRC_HitTest_GridArea
+    #Replace cSigCJReportControl                    cSigCJGridControl
+    #Replace phoReportRecords                       phoGridRecords            
+    #Replace phoReportRecord                        phoGridRecord             
+    #Replace phoReportRecordItem                    phoGridRecordItem         
+    #Replace phoReportRecordItemMetrics             phoGridRecordItemMetrics  
+    #Replace phoReportColumns                       phoGridColumns            
+    #Replace phoReportColumn                        phoGridColumn             
+    #Replace phoReportColumnOrder                   phoGridColumnOrder        
+    #Replace phoReportRows                          phoGridRows               
+    #Replace phoReportRow                           phoGridRow                
+    #Replace phoReportGroupRow                      phoGridGroupRow           
+    #Replace phoReportSelectedRows                  phoGridSelectedRows       
+    #Replace phoReportPaintManager                  phoGridPaintManager       
+    #Replace phoReportPrintOptions                  phoGridPrintOptions       
+    #Replace phoReportNavigator                     phoGridNavigator
+    #Replace phoContextMenu_ReportArea              phoContextMenu_GridArea
+    #Replace oSQL_Report_Handler                    oSQL_Grid_Handler
+    #Replace oSigCJReportIdleHandler                oSigCJGridIdleHandler
+    #Replace OnAdd_ContextMenu_ReportArea           OnAdd_ContextMenu_GridArea
+    #Replace OnPopup_ContextMenu_ReportArea         OnPopup_ContextMenu_GridArea
+    #Replace Report_Row_Count                       Grid_Row_Count
+    #Replace OnReport_Row_Count                     OnGrid_Row_Count
+    #Replace Rebuild_Report                         Rebuild_Grid
+    #Replace Deferred_Refresh_Report                Deferred_Refresh_Grid
+    #Replace OnRefresh_Report                       OnRefresh_Grid
+    #Replace Refresh_Report                         Refresh_Grid
+    #Replace DoReset_Report_Control                 DoReset_Grid_Control
+    #Replace DoRefresh_Report_Control               DoRefresh_Grid_Control
+    #Replace DoDelete_Report_Data                   DoDelete_Grid_Data
+    #Replace Add_Report_Column                      Add_Grid_Column
+    #Replace OLEXTPReportColumnOrderChangedReason   OLEXTPGridColumnOrderChangedReason
+    #Replace OnLeftClick_ReportArea                 OnLeftClick_GridArea
+    #Replace PreviewReport                          PreviewGrid
+    #Replace PrintReport                            PrintGrid
+    #Replace Add_Report_Item                        Add_Grid_Item
+
+    #Replace OLExtpReportFilterTreeByParentAndChildren  OLExtpGridFilterTreeByParentAndChildren
+    #Replace U_cSigCJComReportRecords                   U_cSigCJComGridRecords   
+    #Replace U_cSigCJComReportRecord                    U_cSigCJComGridRecord    
+    #Replace U_cSigCJComReportRecordItem                U_cSigCJComGridRecordItem
+    #Replace U_cSigCJComReportRecordItemMetrics         U_cSigCJComGridRecordItemMetrics
+
+//    OLExtpReportWatermarkCenter
+//    OLExtpReportWatermarkvCenter 
+//    OLExtpReportWatermarkPreserveRatio
+//    OLExtpReportColumnAddedToGroupby    OLExtpGridColumnAddedToGroupby
+    
+    Use cSigCJGridControl.pkg
+#ENDIF
+
+//==============================================================================
+//End of package - cSigCJReportControl.pkg
+//==============================================================================

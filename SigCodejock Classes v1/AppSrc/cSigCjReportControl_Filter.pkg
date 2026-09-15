@@ -1,0 +1,60 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCjReportControl_Filter.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev: $
+//                $Date: $
+//                $Author: ian $ 
+// 
+// Requirements : Visual DataFlex 12.1+
+//                Codejock SuitePro - Version 12.0.0+
+//
+// Copyright    : Copyright ® 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//==============================================================================
+//
+//IMPORTANT
+//=========
+//
+//This pack will "use" the correctly named packages ReportControl or GridControl.
+//
+//If you are using Codejock version 22.0 or greater, it is strongly recommended 
+//that you change your code to Use the renamed control - Grid.
+//
+//==============================================================================
+
+Use SigCjLicense.pkg
+
+#IF (SigCj_Codejock_Version < 220000)
+    Use cSigCjReportControl_Filter_Pre2200.pkg
+#ELSE
+    #Warning DFERR_COMP_WARNING_OBSOLETE_CMD "Obsolete package: cSigCjReportControl_Filter. Recode for renamed Codejock Grid Control"
+
+    #Replace cSigCjReportControl_Filter cSigCjGridControl_Filter
+
+    Use cSigCjGridControl_Filter.pkg
+#ENDIF
+
+//==============================================================================
+//End of Package - cSigCjReportControl_Filter.pkg
+//==============================================================================

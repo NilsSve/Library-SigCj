@@ -1,0 +1,58 @@
+-----------------------------------------------------------------------------
+  DATE: 27/02/2012      TIME: 09:51                                  PAGE:  1
+  FILE DEFINITION FOR FILE: CalR_Pat (# 13)
+-----------------------------------------------------------------------------
+  DRIVER NAME               : DATAFLEX
+  FILE ROOT NAME            : CalR_Pat
+  USER DISPLAY NAME         : Calendar Recurring Patterns
+  DATAFLEX FILE NAME        : CalR_Pat
+-----------------------------------------------------------------------------
+  RECORD LENGTH             : 384       ( USED: 334 )
+  MAX NUMBER OF RECORDS     : 10000     ( USED: 33 )
+  FILE COMPRESSION          : NONE
+  RE-USE DELETED SPACE      : YES
+  LOCKING TYPE              : FILE
+  HEADER INTEGRITY CHECKING : YES
+  TRANSACTION TYPE          : CLIENT ATOMIC
+  RECORD IDENTITY INDEX     : 0 ( 0 , 0 )
+  FILE LOGIN PARAMETER      : 
+  SYSTEM FILE               : NO 
+-----------------------------------------------------------------------------
+
+NUM  FIELD NAME       TYPE SIZE  OFFST IX   RELATES TO FILE.FIELD
+---  ---------------  ---- ----- ----- --   ---------------------------------
+  1  URN              NUM    8.0     1  1   
+  2  CustomProp_XML   ASC    254     5      
+  3  DurationMinutes  NUM    8.0   259      
+  4  EndAfterOcc      NUM    8.0   263      
+  5  EndDate          DAT      6   267      
+  6  EndTime          ASC      5   270      
+  7  EndMethod        NUM    2.0   275      
+  8  MasterEventId    NUM    8.0   276      
+  9  StartDate        DAT      6   280      
+ 10  StartTime        ASC      5   283      
+ 11  roD_WeekDayOnly  NUM    2.0   288      
+ 12  roD_Int_Days     NUM    4.0   289      
+ 13  roData1          NUM    8.0   291      
+ 14  roData2          NUM    8.0   295      
+ 15  roData3          NUM    8.0   299      
+ 16  roData4          NUM    8.0   303      
+ 17  roM_DayOfMonth   NUM    2.0   307      
+ 18  roM_Int_Months   NUM    8.0   308      
+ 19  roM_NthInt_Mths  NUM    8.0   312      
+ 20  roM_Nth_Day      NUM    2.0   316      
+ 21  roM_Nth_DayMask  NUM    2.0   317      
+ 22  roRecurr_Type    NUM    2.0   318      
+ 23  roW_DayWeekMask  NUM    2.0   319      
+ 24  roW_Int_Weeks    NUM    8.0   320      
+ 25  roY_DayOfMonth   NUM    2.0   324      
+ 26  roY_MonthOfYear  NUM    2.0   325      
+ 27  roY_NthM_OfYear  NUM    8.0   326      
+ 28  roY_Nth_Day      NUM    2.0   330      
+ 29  roY_Nth_DayMask  NUM    8.0   331      
+
+
+INDEX# FIELDS          DES U/C    LENGTH LEVELS SEGMENTS MODE
+------ --------------- --- ---    ------ ------ -------- -------
+  1    URN             NO  NO       4      2       1     ON-LINE
+

@@ -1,0 +1,129 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCjCalendar_DataPicker_v2.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev: $
+//                $Date: $
+//                $Author: $
+//
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2009-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+
+Use SigCjW_Calendar.pkg
+ 
+//==============================================================================
+
+Class cSigCJCalendar_DatePicker_v2 is a cSigCjComDatePicker
+
+    Procedure Construct_Object
+        Forward Send Construct_Object 
+
+        Set peAutoCreate to acAutoCreate
+
+        { Category="SigCj:Calendar" }
+        Property Handle phoCalendar 0
+        { DesignTime=False }
+        Property Handle phoDayMetrics (Create(Self, U_cSigCjComDatePickerDayMetrics))
+    End_Procedure
+
+    Procedure End_Construct_Object
+        Variant vCalendar
+
+        Forward Send End_Construct_Object   // very important!
+
+        //Set defaults
+        Set ComBorderStyle     to OLExtpDatePickerBorderNone
+        Set ComShowWeekNumbers to True
+
+        //Set Theme
+        //We will be using the Office 07 theme, so (as yet) I have not
+        //implemented theme changing.
+        Send Set_Theme_To_Office_07
+
+        //Attach to the Calendar control
+        Get pvComObject of (phoCalendar(Self)) to vCalendar
+        Send ComAttachToCalendar vCalendar
+
+        //In case the alendar wants to talk to us
+        Set phoDatePicker of (phoCalendar(Self)) to (Self)
+    End_Procedure
+
+    Procedure OnCreate
+        Forward Send OnCreate
+        
+        Set ComAskDayMetrics    to True
+        Set ComShowNonMonthDays to False
+    End_Procedure  
+
+    { MethodType=Event }        
+    Procedure OnDayMetrics Date dDate Handle hoDayMetrics 
+        
+        // Hook, sent for each day in the date range
+    End_Procedure
+    
+    // This will only get called if pbDayMetrics is set to True
+    Procedure OnComDayMetrics DateTime llDay Variant llMetrics
+        Handle  hoCalendar hoDayMetrics 
+        Integer iSpecial_Date iColor
+        Date    dDate
+
+        Get phoDayMetrics to hoDayMetrics
+        Set pvComObject of hoDayMetrics to llMetrics
+
+        Get phoCalendar to hoCalendar
+        If (hoCalendar) Begin
+            If (pbEnableSpecialDates(hoCalendar)) Begin
+                Move llDay to dDate
+                Get SpecialDate_Is_Special_Date of hoCalendar dDate to iSpecial_Date
+                If (iSpecial_Date <> -1) Begin
+                    Get SpecialDate_Back_Color of hoCalendar iSpecial_Date to iColor
+                    Set ComBackColor of hoDayMetrics to iColor
+                End
+            End
+        End
+
+        Send OnDayMetrics hoDayMetrics dDate    
+    End_Procedure
+
+    Procedure Set_Theme_To_Office_07
+        Handle hoThemeOffice07
+        Variant vTheme
+
+        #IF (SigCj_Codejock_Version < 150201) 
+            Get Create U_cSigCjComDatePickerThemeOffice2007 to hoThemeOffice07
+                Get pvComObject of hoThemeOffice07 to vTheme
+                Send ComSetTheme vTheme
+            Send Destroy of hoThemeOffice07
+        #ELSE
+        Set ComVisualTheme to OLExtpCalendarThemeResource    
+        #ENDIF 
+    End_Procedure
+End_Class
+
+//==============================================================================
+//End of Package - cSigCjCalendarDataPicker_v2.pkg
+//==============================================================================

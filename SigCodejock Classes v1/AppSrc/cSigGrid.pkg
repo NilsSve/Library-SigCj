@@ -1,0 +1,98 @@
+
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigGrid.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev: 828 $
+//                $Date: 2013-04-09 16:24:18 +0100 (Tue, 09 Apr 2013) $
+//                $Author: martin $ Martin Pincott
+// 
+// Requirements : Visual DataFlex 12.1+
+//                Codejock SuitePro - Version 12.0.0+
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//==============================================================================
+Use cCJGrid.pkg
+
+Class cSigGrid is a cCJGrid
+ 
+    { MethodType=Event }
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        { Category="ShadeRow" InitialValue=False }
+        Property Boolean pbShade_Row False
+        { Category="ShadeRow" InitialValue=0.8 }
+        Property Number  pnShade 0.8
+        { Visibility=Private }
+        Property Integer Private_DefaultSelectedBackColor
+
+
+        Set peVerticalGridStyle      to xtpGridNoLines
+        Set pbShadeSortColumn        to True
+        Set pbSelectionEnable        to True
+        Set pbHeaderReorders         to True
+        Set pbHeaderTogglesDirection to True
+        Set peAnchors                to anAll
+        
+        On_Key kClear_All Send Request_Clear_All
+    End_Procedure
+    
+    Procedure Request_Clear
+        Forward Send Request_Clear  // Send to the cCJGrid class to do what it does naturally  
+        Delegate Send Request_Clear // Now we need to sent it to the parent so that it does a standard Request_clear to the view
+    End_Procedure
+
+    Procedure Request_Save
+        Forward Send Request_Save  // Send to the cCJGrid class to do what it does naturally  
+        Delegate Send Request_Save // Now we need to sent it to the parent so that it does a standard Request_clear to the view
+    End_Procedure
+
+    Procedure End_Construct_Object
+    	Forward Send End_Construct_Object
+    	
+    	// If we are shading rows we need to turn this off otherwise the rows will get coloured grey
+    	If (pbShade_Row(Self)) Set pbSelectionEnable to False    	
+    End_Procedure       
+
+    { MethodType=Event }
+	Procedure OnSetRowColour Handle hoGridItemMetrics Integer iRow 
+	    // Hook 
+	End_Procedure    
+ 
+    { MethodType=Event }
+    Procedure OnCreateGridControl
+        Integer iColor
+
+        Forward Send OnCreateGridControl 
+ 
+        Get ComHighlightBackColor of (phoReportPaintManager(Self)) to iColor
+        Set Private_DefaultSelectedBackColor to iColor
+    End_Procedure
+ 
+End_Class
+
+//==============================================================================
+//End of Package - cSigGrid.pkg
+//==============================================================================

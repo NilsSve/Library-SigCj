@@ -1,0 +1,77 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : oSigCjShortcutBar.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$ 
+// 
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//==============================================================================
+
+Use cSigCJDockingPane.pkg
+Use cSigCjShortcutBar.pkg
+
+//==============================================================================
+//We need to put the shortcut bar in a container within the docking panel. If
+//the shortcut bar is NOT in a container then the short cut bar disapears if a 
+//model dialog is displays and closed before a non model panel is made visable.
+
+Object oSigCj_SC_Bar_Container is a Container3d
+    Set Border_Style to Border_None
+    
+    Object oSigCj_SC_Bar is a cSigCj_SC_Bar
+        Set size to 100 100
+        Set peAnchors to anAll
+    End_Object
+End_Object
+
+//==============================================================================
+
+Object oSigCj_ShortCut_Bar is a cSigCjDockingManager
+    Set phoCommandBars to oCommandBarSystem
+    Set pbPX_Save_Layout to True
+    Set psPX_Tag to "ShortCutBar"
+
+    Object oSigCj_SCB_Pane is a cSigCjDockingPane
+        //Set Size            to 125 100
+        Set peLocation      to OLEDockLeftOf
+        Set pbCloseable     to False
+        Set pbHideable      to False
+        Set pbFloatable     to False
+        Set pbCaption       to False
+        Set pbDockable      to False
+        Set piSplitterSize  to 0
+        Set pbLockSplitters to True
+        Set piId to 1
+        Set phoClient  to (oSigCj_SC_Bar_Container(Self))
+    End_Object
+End_Object 
+
+//==============================================================================
+//End of Package - oSigCjShortcutBar.pkg
+//==============================================================================

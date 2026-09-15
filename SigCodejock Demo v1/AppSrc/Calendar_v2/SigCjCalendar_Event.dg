@@ -1,0 +1,481 @@
+//=============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : SigCjCalendar_Event.dg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev: $
+//                $Date: $
+//                $Author: $
+//
+// Requirements : Visual DataFlex 14.1+
+//                Codejock SuitePro - Version 13.4.0+
+//
+// Copyright    : Copyright © 2009-2012 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//=============================================================================
+Use Windows.pkg
+Use cSigCJdbForm.pkg
+Use dfLine.pkg
+Use cTextEdit.pkg
+Use Calendar_v2\cSigCJCalendar_DialogClasses.pkg
+Use Calendar_v2\SigCjCalendar_RecPattern.dg
+Use Calendar_v2\SigCjCalendar_DB_Link.dg
+Use Calendar_v2\SigCjCalendar_Icons.dg
+Use Calendar_v2\SigCjCalendar_Properties.dg
+
+Object oSigCJCalendar_Event_Panel is a ModalPanel
+    Set Size to 196 385
+    Set Label to "Event"
+    Set piMinSize to 196 385
+    Set Location to 2 2
+
+    Property tdSigCjCal_Dialog_Info ptDialogInfo
+
+    Set Border_Style to Border_Normal
+    Set piMaxSize to 196 385
+
+    Object oSubject is a Form
+        Set Size to 13 177
+        Set Location to 5 40
+        Set Label_Col_Offset to 2
+        Set Label_Justification_Mode to JMode_Right
+        Set Label to "Subject"
+    End_Object
+
+    Object oLocation is a Form
+        Set Size to 13 177
+        Set Location to 20 40
+        Set Label_Col_Offset to 2
+        Set Label_Justification_Mode to JMode_Right
+        Set Label to "Location"
+    End_Object
+
+    Object oH_Line1 is a LineControl
+        Set Size to 2 215
+        Set Location to 38 5
+    End_Object
+
+    Object oStartDate is a Form
+        Set Size to 13 60
+        Set Location to 44 40
+        Set Label_Col_Offset to 2
+        Set Label_Justification_Mode to JMode_Right
+        Set Label to "Start Time"
+        Set Prompt_Button_Mode   to PB_PromptOn
+        Set Form_Button_Bitmap 0 to "CalendarPrompt.Bmp"
+        Set Prompt_Object        to (oSigCJMonthCalendar_Lookup(Self))
+    End_Object
+
+    Object oStartTime is a cSigCJCalendar_TimePicker
+        Set Location to 44 106
+        Set peFormat to eDTP_HM00
+    End_Object
+
+    Object oAllDayEvent is a CheckBox
+        Set Size to 10 50
+        Set Location to 46 158
+        Set Label to "All Day Event"
+        Set AlignmentMode to taLeftJustify
+
+        Procedure OnChange
+            If (Checked_State(Self)) Begin
+                Set pbEnabled of oStartTime to False
+                Set pbEnabled of oEndTime   to False
+            End
+            Else Begin
+                Set pbEnabled of oStartTime to True
+                Set pbEnabled of oEndTime   to True
+            End
+        End_Procedure
+    End_Object
+
+    Object oEndDate is a Form
+        Set Size to 13 60
+        Set Location to 59 40
+        Set Label_Col_Offset to 2
+        Set Label_Justification_Mode to JMode_Right
+        Set Label to "End Time"
+        Set Prompt_Button_Mode   to PB_PromptOn
+        Set Form_Button_Bitmap 0 to "CalendarPrompt.Bmp"
+        Set Prompt_Object        to (oSigCJMonthCalendar_Lookup(Self))
+    End_Object
+
+    Object oEndTime is a cSigCJCalendar_TimePicker
+        Set Location to 59 106
+        Set peFormat to eDTP_HM59
+    End_Object
+
+    Object oReminder is a CheckBox
+        Set Auto_Size_State to False
+        Set Size to 10 43
+        Set Location to 76 6
+        Set Label to "Reminder"
+        Set AlignmentMode to taLeftJustify
+    
+        Procedure OnChange
+            If (Checked_State(Self)) Begin
+                Set Enabled_State of oReminderBefore to True
+            End
+            Else Begin
+                Set Enabled_State of oReminderBefore to False
+            End
+        End_Procedure
+    End_Object
+
+    Object oReminderBefore is a cSigCJCalendar_ComboForm
+        Set Size to 13 54
+        Set Location to 74 60
+        Set Label_Col_Offset to 2
+        Set Label_Justification_Mode to JMode_Right
+        Set Combo_Sort_State to False
+    
+        Procedure Combo_Fill_List
+            Send Combo_Delete_Data
+            Send Combo_Add_Item "1 Minute"    1
+            Send Combo_Add_Item "5 Minutes"   5
+            Send Combo_Add_Item "10 Minutes" 10
+            Send Combo_Add_Item "15 Minutes" 15
+        End_Procedure
+    End_Object
+
+    Object oRecurring is a Button
+        Set Location to 74 168
+        Set Label to "Recurring"
+    
+        Procedure OnClick
+            tdSigCjCal_Dialog_Info tDialogInfo
+            
+            Get ptDialogInfo to tDialogInfo
+            Get Show_Dialog of oSigCjCalendar_RecPattern_Panel tDialogInfo.tDialog_RecPattern to tDialogInfo.tDialog_RecPattern
+            If ((tDialogInfo.tDialog_RecPattern.eAction <> eCal_Dialog_Action_None  )  and ;
+                (tDialogInfo.tDialog_RecPattern.eAction <> eCal_Dialog_Action_Exists)) Begin
+                Move tDialogInfo.tEvent.iID to tDialogInfo.tDialog_RecPattern.tRecPattern.iMasterEventId
+                Set ptDialogInfo to tDialogInfo
+            End
+        End_Procedure
+    End_Object
+
+    Object oH_Line2 is a LineControl
+        Set Size to 2 215
+        Set Location to 92 5
+    End_Object
+
+    Object oBody is a cTextEdit
+        Set Size to 71 177
+        Set Location to 98 40
+        Set Label to "Body Text"
+        Set Label_Justification_Mode to JMode_Right
+        Set Label_Col_Offset to 2
+    End_Object
+
+    Object oV_Line1 is a LineControl
+        Set Size to 165 3
+        Set Location to 5 225
+        Set Horizontal_State to False
+    End_Object
+
+    Object oTimeAs is a cSigCJCalendar_ComboForm
+        Set Size to 13 100
+        Set Location to 5 280
+        Set Label_Col_Offset to 2
+        Set Label_Justification_Mode to JMode_Right
+        Set Label to "Show Time As"
+        Set Combo_Sort_State to False
+    
+        Procedure Combo_Fill_List
+            Send Combo_Delete_Data
+            Send Combo_Add_Item "Free"          0
+            Send Combo_Add_Item "Tentative"     1
+            Send Combo_Add_Item "Busy"          2
+            Send Combo_Add_Item "Out of Office" 3
+        End_Procedure
+    End_Object
+
+    Object oMeeting is a CheckBox
+        Set Auto_Size_State to False
+        Set Size to 10 38
+        Set Location to 21 251
+        Set Label to "Meeting"
+        Set AlignmentMode to taLeftJustify
+    End_Object 
+
+    Object oPrivate is a CheckBox
+        Set Auto_Size_State to False
+        Set Size to 10 34
+        Set Location to 21 330
+        Set Label to "Private"
+        Set AlignmentMode to taLeftJustify
+    End_Object 
+
+    Object oImportance is a cSigCJCalendar_ComboForm
+        Set Size to 13 100
+        Set Location to 35 280
+        Set Label_Col_Offset to 2
+        Set Label_Justification_Mode to JMode_Right
+        Set Label to "Importance"
+        Set Combo_Sort_State to False
+    
+        Procedure Combo_Fill_List
+            Send Combo_Delete_Data
+            Send Combo_Add_Item "Low"    1
+            Send Combo_Add_Item "Normal" 2
+            Send Combo_Add_Item "High"   3
+        End_Procedure
+    End_Object
+
+    Object oCategorySelected is a Form
+        Set Size to 13 100
+        Set Location to 50 280
+        Set Entry_State to False
+    End_Object
+
+    Object oCategory is a cSigCJCalendar_CategoryList
+        Set Size to 104 100
+        Set Location to 65 280
+        Set Label_Col_Offset to 2
+        Set Label_Justification_Mode to JMode_Right
+        Set Label to "Category"
+        Set pbBindValue to False
+
+        Property Integer[] piaIDs
+        Property String[]  psaNames
+
+        Procedure OnCreate
+            Integer iSchedule_ID
+            Forward Send OnCreate
+            
+            Send Load_Categories iSchedule_ID
+        
+            Set Selected_Value to (Private_piData(Self))
+        End_Procedure
+
+        Procedure Load_Categories //Integer iSchedule_ID
+            Boolean bChecked
+            Integer iCount iLoop iIndex iSchedule_Count iSchedule_Loop iSchedules_Selected //iSchedule_Index 
+            String  sName
+            Integer[] iaAllCat_IDs
+            Integer[] iaAllCat_Count
+            Integer[] iaIDs
+            String[]  saNames
+            tdSigCjCal_Dialog_Info tDialogInfo
+            tdSigCjCal_Category[]  taCateogies
+            
+            If (IsComObjectCreated(Self)) Begin
+                Get ptDialogInfo to tDialogInfo
+
+                Move (SizeOfArray(tDialogInfo.taSchedules[0].taCateogies) - 1) to iCount
+                For iLoop from 0 to iCount
+                    Move (SizeOfArray(iaIDs)) to iIndex
+                    Move tDialogInfo.taSchedules[iSchedule_Loop].taCateogies[iLoop].iID   to iaIDs[iIndex]
+                    Move tDialogInfo.taSchedules[iSchedule_Loop].taCateogies[iLoop].sName to saNames[iIndex]
+                    Move tDialogInfo.taSchedules[iSchedule_Loop].taCateogies[iLoop] to taCateogies[iIndex]
+                Loop
+
+                Send ComClear
+                Move (SizeOfArray(iaIDs) - 1) to iCount
+                For iLoop from 0 to iCount
+                    Send AddItem taCateogies[iLoop]
+                Loop
+
+                Get Value of oCategorySelected to sName
+                Move (SearchArray(sName, saNames)) to iIndex
+                If (iIndex = -1) Begin
+                    //previously selected categpry no longer valid so clear value
+                    Set Value of oCategorySelected to ""
+                End
+
+                Set piaIDs   to iaIDs
+                Set psaNames to saNames
+            End
+        End_Procedure
+
+        Procedure OnComClick
+            Integer   iIndex iData
+            Integer[] iaIDs
+            String[]  saNames
+            
+            Forward Send OnComClick
+
+            Get piaIDs   to iaIDs
+            Get psaNames to saNames
+            
+            Get ComListIndex to iIndex
+            Get ComItemData iIndex to iData
+
+            Move (SearchArray(iData,iaIDs)) to iIndex
+            If (iIndex <> -1) Begin
+                Set Value of oCategorySelected to saNames[iIndex]
+                Set Private_piData to iaIDs[iIndex]
+            End
+        End_Procedure
+    End_Object
+
+    Object oH_Line3 is a LineControl
+        Set Size to 2 375
+        Set Location to 173 5
+    End_Object
+
+    Object oDB_Link is a Button
+        Set Location to 179 7
+        Set Label to "DB Link"
+    
+        Procedure OnClick
+            tdSigCjCal_Dialog_Info tDialog_Info
+            
+            Get ptDialogInfo to tDialog_Info
+            Get Show_Dialog of oSigCjCalendar_DB_Link_Panel tDialog_Info.tDialog_DB_Link to tDialog_Info.tDialog_DB_Link 
+            Set ptDialogInfo to tDialog_Info
+        End_Procedure
+    End_Object
+
+    Object oCust_Props is a Button
+        Set Location to 179 71
+        Set Label to "Properties"
+    
+        Procedure OnClick
+            tdSigCjCal_Dialog_Info tDialog_Info
+            
+            Get ptDialogInfo to tDialog_Info
+            Get Show_Dialog of oSigCjCalendar_CustomProperties_Panel tDialog_Info.tDialog_CustomProperty to tDialog_Info.tDialog_CustomProperty
+            Set ptDialogInfo to tDialog_Info
+        End_Procedure
+    End_Object
+
+    Object oCust_Icons is a Button
+        Set Location to 179 136
+        Set Label to "Icons"
+    
+        Procedure OnClick
+            tdSigCjCal_Dialog_Info tDialog_Info
+            
+            Get ptDialogInfo to tDialog_Info
+            Get Show_Dialog of oSigCjCalendar_CustomIcons_Panel tDialog_Info.tDialog_CustomIcon to tDialog_Info.tDialog_CustomIcon
+            Set ptDialogInfo to tDialog_Info
+        End_Procedure
+    End_Object
+    
+    Object oOK_Btn is a Button
+        Set Label    to "&OK"
+        Set Location to 179 276
+        Set peAnchors To anBottomRight
+
+        Procedure OnClick
+            Send Update_Dialog_Data 
+
+            Send Close_Panel
+        End_Procedure
+    End_Object
+
+    Object oCancel_Btn is a Button
+        Set Label    to "&Cancel"
+        Set Location to 179 331
+        Set peAnchors to anBottomRight
+
+        Procedure OnClick
+            tdSigCjCal_Dialog_Info tDialogInfo
+        
+            Get ptDialogInfo to tDialogInfo
+                Move eCal_Dialog_Action_None to tDialogInfo.eAction_Event
+            Set ptDialogInfo to tDialogInfo
+
+            Send Close_Panel
+        End_Procedure
+    End_Object
+
+    On_Key Key_Alt+Key_O Send KeyAction of oOK_Btn
+    On_Key Key_Alt+Key_C Send KeyAction of oCancel_Btn
+
+    Function Schedule_Index Integer iSchedule_ID Returns Integer
+        Integer iCount iLoop iIndex
+        
+        tdSigCjCal_Dialog_Info tDialogInfo
+        
+        Get ptDialogInfo to tDialogInfo
+
+        Move (SizeOfArray(tDialogInfo.taSchedules) -1) to iCount
+        For iLoop from 0 to iCount
+            If (tDialogInfo.taSchedules[iLoop].iID = iSchedule_ID) Begin
+                Move iLoop to iIndex
+                Move (iCount + 1) to iLoop  //bomb loop
+            End
+        Loop
+
+        If (iIndex = -1) Begin
+            Error 501 ("Cannot find Schedule (ID: " + String(iSchedule_ID) + ")")
+        End
+
+        Function_Return iIndex
+    End_Function
+
+    Procedure Populate_Dialog tdSigCjCal_Dialog_Info tDialogInfo
+        Set ptDialogInfo to tDialogInfo
+
+        Set Checked_State   of oAllDayEvent     to tDialogInfo.tEvent.bAllDayEvent
+        Set Value           of oBody            to tDialogInfo.tEvent.sBody
+        Set Value           of oEndDate         to tDialogInfo.tEvent.dEndDate
+        Set Time_Value      of oEndTime         to tDialogInfo.tEvent.tmEndTime
+        Set Value           of oLocation        to tDialogInfo.tEvent.sLocation 
+        Set Checked_State   of oMeeting         to tDialogInfo.tEvent.bMeetingFlag
+        Set Checked_State   of oPrivate         to tDialogInfo.tEvent.bPrivateFlag
+        Set Checked_State   of oReminder        to tDialogInfo.tEvent.bReminder
+        Set Value           of oStartDate       to tDialogInfo.tEvent.dStartDate
+        Set Time_Value      of oStartTime       to tDialogInfo.tEvent.tmStartTime
+        Set Value           of oSubject         to tDialogInfo.tEvent.sSubject
+
+        Set piInitalValue   of oTimeAs           to tDialogInfo.tEvent.eBusyStatus
+        Set piInitalValue   of oImportance       to tDialogInfo.tEvent.eImportance
+        Set piInitalValue   of oReminderBefore   to tDialogInfo.tEvent.iRem_MinsBefore
+        Set Selected_Value  of oCategory         to tDialogInfo.tEvent.sCategories
+    End_Procedure
+
+    Procedure Update_Dialog_Data 
+        tdSigCjCal_Dialog_Info tDialogInfo
+        Get ptDialogInfo to tDialogInfo
+        
+        Get Checked_State   of oAllDayEvent     to tDialogInfo.tEvent.bAllDayEvent
+        Get Value           of oBody            to tDialogInfo.tEvent.sBody
+        Get Value           of oEndDate         to tDialogInfo.tEvent.dEndDate
+        Get Time_Value      of oEndTime         to tDialogInfo.tEvent.tmEndTime
+        Get Value           of oLocation        to tDialogInfo.tEvent.sLocation 
+        Get Checked_State   of oMeeting         to tDialogInfo.tEvent.bMeetingFlag
+        Get Checked_State   of oPrivate         to tDialogInfo.tEvent.bPrivateFlag
+        Get Checked_State   of oReminder        to tDialogInfo.tEvent.bReminder
+        Get Value           of oStartDate       to tDialogInfo.tEvent.dStartDate
+        Get Time_Value      of oStartTime       to tDialogInfo.tEvent.tmStartTime
+        Get Value           of oSubject         to tDialogInfo.tEvent.sSubject
+
+        Get Selected_Value of oTimeAs           to tDialogInfo.tEvent.eBusyStatus
+        Get Selected_Value of oImportance       to tDialogInfo.tEvent.eImportance
+        Get Selected_Value of oReminderBefore   to tDialogInfo.tEvent.iRem_MinsBefore
+        Get Selected_Value of oCategory         to tDialogInfo.tEvent.sCategories
+        
+        Set ptDialogInfo to tDialogInfo
+    End_Procedure
+
+    Function Show_Dialog tdSigCjCal_Dialog_Info tDialogInfo Returns tdSigCjCal_Dialog_Info 
+        Send Populate_Dialog tDialogInfo
+        Send Popup
+        Get ptDialogInfo to tDialogInfo
+
+        Function_Return tDialogInfo
+    End_Function
+
+End_Object

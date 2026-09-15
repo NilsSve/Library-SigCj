@@ -1,0 +1,129 @@
+//DDB-FileStart
+//DDB-HeaderStart
+
+// File Name : Vendor.DD
+// Class Name: Vendor_DataDictionary
+// Revision  : 7
+// Version   : 2
+
+Use  Windows           // Basic Definitions
+Use  DataDict.pkg          // DataDictionary Class Definition
+Use  DDvalTbl          // Validation Table Class Definitions
+
+Open Vendor
+Open Invt
+Open OrdSys
+
+//DDB-HeaderEnd
+//DDB-ValidationStart
+
+Register_Object Vendor_State_VT
+
+Object Vendor_State_VT  is a CodeValidationTable
+    Set Type_Value        To "STATES"
+    //DDB-ValidationCustomStart
+    //DDB-ValidationCustomEnd
+End_Object   // Vendor_State_VT
+//DDB-ValidationEnd
+//DDB-SelectionStart
+//DDB/ ExternalSelectionList Vendor_sl  Vendor.sl
+Register_Object Vendor_sl
+//DDB-SelectionEnd
+
+Class Vendor_DataDictionary Is A DataDictionary
+
+    Procedure Define_Fields
+        Forward Send Define_Fields
+        //DDB-Generated-Code-Location
+        //DDB-DefineFieldStart
+
+        Set Main_File            To Vendor.File_Number
+        Set Cascade_Delete_State To False
+
+        Set Foreign_Field_Options  DD_KEYFIELD   To DD_FINDREQ    
+        Set Foreign_Field_Options  DD_INDEXFIELD To DD_NOPUT      
+        Set Foreign_Field_Options  DD_DEFAULT    To DD_DISPLAYONLY
+
+        // Child (Client) file structure................
+        Send Add_Client_File  Invt.File_Number
+
+        // External (System) file structure.............
+        Send Add_System_File  Ordsys.File_Number  DD_LOCK_ON_NEW_SAVE
+
+        Define_Auto_Increment  Ordsys.Vendor_Number  To Vendor.Id
+
+        // Field-based properties.......................
+
+        // Vendor.Id
+        Set Field_Label_Long       Field Vendor.ID To "Vendor ID"
+        Set Field_Label_Short      Field Vendor.ID To "Vndr ID"
+        Set Field_Options          Field Vendor.ID To DD_AUTOFIND    DD_NOPUT      
+        Set Field_Prompt_Object    Field Vendor.ID To (Vendor_sl(Self))
+        Set Key_Field_State        Field Vendor.ID To True
+        Set Status_Help            Field Vendor.ID To "Vendor Id Number (system assigned)."
+
+        // Vendor.Name
+        Set Field_Label_Long       Field Vendor.Name To "Vendor Name"
+        Set Field_Label_Short      Field Vendor.Name To "Name"
+        Set Field_Options          Field Vendor.Name To DD_REQUIRED   
+        Set Field_Prompt_Object    Field Vendor.Name To (Vendor_sl(Self))
+        Set Status_Help            Field Vendor.Name To "Vendor Name."
+
+        // Vendor.Address
+        Set Field_Label_Long       Field Vendor.Address To "Street Address"
+        Set Field_Label_Short      Field Vendor.Address To "Address"
+        Set Status_Help            Field Vendor.Address To "Street Address."
+
+        // Vendor.City
+        Set Status_Help            Field Vendor.City To "City Name."
+
+        // Vendor.State
+        Set Field_Class_Name       Field Vendor.State To "dbComboForm"
+        Set Field_Label_Long       Field Vendor.State To "State"
+        Set Field_Label_Short      Field Vendor.State To "St."
+        Set Field_Options          Field Vendor.State To DD_CAPSLOCK   
+        Set Field_Value_Table      Field Vendor.State To (Vendor_State_VT(Self))
+        Set Status_Help            Field Vendor.State To "Two letter state ID."
+
+        // Vendor.Zip
+        Set Field_Label_Long       Field Vendor.Zip To "Zip/Postal Code"
+        Set Field_Label_Short      Field Vendor.Zip To "Zip"
+        Set Field_Mask             Field Vendor.Zip To "#####-####"
+        Set Field_Mask_Type        Field Vendor.Zip To MASK_WINDOW
+        Set Status_Help            Field Vendor.Zip To "Zip or Postal Code."
+
+        // Vendor.Phone_Number
+        Set Field_Label_Long       Field Vendor.Phone_Number To "Phone Number"
+        Set Field_Label_Short      Field Vendor.Phone_Number To "Phone"
+        Set Status_Help            Field Vendor.Phone_Number To "Phone Number."
+
+        // Vendor.Fax_Number
+        Set Field_Label_Long       Field Vendor.Fax_Number To "Fax Number"
+        Set Field_Label_Short      Field Vendor.Fax_Number To "Fax"
+        Set Status_Help            Field Vendor.Fax_Number To "Fax Phone Number."
+
+        //DDB-DefineFieldEnd
+
+    End_Procedure  //  Define_Fields
+
+
+    // Field_Defaults:
+    // This procedure is used to establish default field values.
+
+    Procedure Field_Defaults
+        Forward Send Field_Defaults
+        //DDB-Generated-Code-Location
+        //DDB-FieldDefaultStart
+        //DDB-FieldDefaultEnd
+    End_Procedure    // Field_Defaults
+    
+End_Class    //  Vendor_DataDictionary
+//DDB-Selection-pkg-Start
+#IFDEF Is$WebApp
+#ELSE
+
+Use Order\Vendor.sl        // Vendor_sl
+
+#ENDIF
+//DDB-Selection-pkg-End
+//DDB-FileEnd

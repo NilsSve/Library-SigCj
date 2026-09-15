@@ -1,0 +1,76 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJToolBar.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$ Martin Pincott
+//
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//==============================================================================
+
+Use cCJCommandBarSystem.pkg
+Use cSigCJMethods_Mixin.pkg
+Use cSigCJMenuItem.pkg
+
+Class cSigCJToolBar is a cCJToolbar
+    Import_Class_Protocol cSigCJMethods_Mixin
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+    End_Procedure
+
+    Procedure End_Construct_Object
+        Forward Send End_Construct_Object
+
+        // Add your code that needs to be executed at the end of the object construction here:
+        Send Load_Menu_Items
+    End_Procedure
+    
+    // Hook 
+    { MethodType=Event }
+    Procedure Load_Menu_Items
+    End_Procedure
+
+    // Create and augment procedures and functions
+    Procedure mCreate_Menu_Item String sLabel Integer iImage Integer iControl Integer iKey String sMessage String sToolTip String sStatusHelp 
+        Handle hoMenuItem
+        
+        Get Create U_cSigCJMenuItem to hoMenuItem
+        Set psCaption      of hoMenuItem to sLabel
+        Set piIconId       of hoMenuItem to iImage
+        Set piShortcutKey  of hoMenuItem to iControl iKey
+        Set psMessage      of hoMenuItem to sMessage
+        Set psTooltip      of hoMenuItem to sToolTip
+        Set psDescription  of hoMenuItem to sStatusHelp
+    End_Procedure
+
+End_Class
+
+//==============================================================================
+//End of Package - cSigCJToolBar.pkg
+//==============================================================================

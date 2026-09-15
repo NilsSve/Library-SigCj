@@ -1,0 +1,274 @@
+Use Windows.pkg
+Use DFClient.pkg
+Use cSigCJDockingPane_Container.pkg
+Use cSigCJPropertyGrid.pkg
+Use GlobalFunctionsProcedures.pkg
+Use Sysfile1.DD
+Use Sysfile2.DD
+
+Object oPropertyGrid_Container is a cSigCJDockingPane_Container
+    Set Border_Style to Border_None
+    Set Size to 360 180
+    Set location to -1000 -1000
+
+    Object oSysfile2_DD is a Sysfile2_DataDictionary
+        Set Auto_Fill_State to True
+        Set In_Use_State to True        
+    End_Object
+
+    Object oSysfile1_DD is a Sysfile1_DataDictionary
+        Set Auto_Fill_State to True
+        Set In_Use_State to True
+    End_Object
+    
+    Object oSigCJPropertyGrid is a cSigCJPropertyGrid
+        Set Size to 311 175
+        Set Location to 1 1
+        Set piHelpHeight to 60
+        Set prSplitterPos to 0.5
+        Set peAnchors to anAll
+        Set pbVariableSplitterPos to True
+        Set phoMainContainerObjectID to (oPropertyGrid_Container(Self))
+        
+        Object oCtgry_CompanyDetails is a cSigCJPropertyGridCategory
+            Set psLabel to "Company Details"
+            Set psHelpText to "Comany Details (Address, Telephone etc.)"
+            Set psImage to 'Icon3_16.bmp'
+            
+            Object oItem_Name is a cSigCJPropertyGridItem
+                Set psLabel to "Name"
+                Set psHelpText to "Company Name"
+                Set psImage to 'Icon3_16.bmp'
+                Set psToolTip to "Images can be displayed"
+                Send BindToDataBase File_Field Sysfile1.Organisation
+            End_Object
+            Object oItem_Address1 is a cSigCJPropertyGridItem
+                Set psLabel to "Address Line 1"
+                Send BindToDataBase File_Field Sysfile1.Address1
+            End_Object
+            Object oItem_Address2 is a cSigCJPropertyGridItem
+                Set psLabel to "Address Line 2"
+                Send BindToDataBase File_Field Sysfile1.Address2
+            End_Object
+            Object oItem_Address3 is a cSigCJPropertyGridItem
+                Set psLabel to "Address Line 3"
+                Send BindToDataBase File_Field Sysfile1.Address3
+            End_Object
+            Object oItem_Address4 is a cSigCJPropertyGridItem
+                Set psLabel to "Address Line 4"
+                Send BindToDataBase File_Field Sysfile1.Address4
+            End_Object
+            Object oItem_Postcode is a cSigCJPropertyGridItem
+                Set psLabel to "Postcode"
+                Set psToolTip to "Should be uppercase - controlled by DD"
+                Send BindToDataBase File_Field Sysfile1.Postcode
+            End_Object
+            Object oItem_Country is a cSigCJPropertyGridComboFormItem
+                Set psLabel to "Country"
+                Send BindToDataBase File_Field Sysfile1.Country
+                
+                Procedure OnAddLookupItems
+                    Forward Send OnAddLookupItems
+                    //Note we forward send before we associate images (so that the control is populated with data
+                    //before we add the images)
+                    Set LookupItemImage 1 to 'FlagDenmark_16.bmp'     
+                    Set LookupItemImage 2 to 'FlagNetherlands_16.bmp' 
+                    Set LookupItemImage 3 to 'FlagUK_16.bmp'          
+                    Set LookupItemImage 4 to 'FlagUSA_16.bmp'         
+                    Set LookupItemImage 5 to 'FlagCroatia_16.bmp'                        
+                End_Procedure
+               
+            End_Object
+            Object oItem_Telephone is a cSigCJPropertyGridItem
+                Set psLabel to "Main Telephone"
+                Set psHelpText to "Main Telephone Number"
+                Send BindToDataBase File_Field Sysfile1.Telephone_No
+            End_Object
+        End_Object
+        Object oCtgry_SystemDate is a cSigCJPropertyGridCategory
+            Set psLabel to "System Date"
+            Object oItem_SystemDate is a cSigCJPropertyGridItem
+                Set psLabel to "System Date"
+                Send BindToDataBase File_Field Sysfile1.System_Date
+            End_Object
+            Object oItem_Allow_Amend_Date is a cSigCJPropertyGridItem
+                Set psLabel to "Allow Date Change?"
+                Send BindToDataBase File_Field Sysfile1.Amend_Date
+                
+                Procedure ReadItemFromDatabase
+                    Forward Send ReadItemFromDatabase
+                    //ensure pbReadOnly state of oItem_SystemDate is set correctly..
+                    Send OnChange
+                End_Procedure
+                
+                Procedure OnChange
+                    Variant vValue
+                    Get pvValue to vValue
+                    Set pbReadOnly of oItem_SystemDate to (vValue = "False")
+                End_Procedure        
+            End_Object
+                    
+        End_Object
+        Object oCtgry_Counters is a cSigCJPropertyGridCategory
+            Set psLabel to "Counters"
+            Object oItem_Slider is a cSigCJPropertyGridSliderCtlItem
+                Set psLabel to "Slider"
+                Set psToolTip to "Range set from 1 to 999"
+                Send BindToDataBase File_Field Sysfile1.Counter1
+                Set piWidth to 100
+                Set piMinimum to 1
+                Set piMaximum to 999
+            End_Object
+            Object oItem_SpinForm is a cSigCJPropertyGridSpinFormItem
+                Set psLabel to "Spin Form"
+                Set psToolTip to "Range set from 1 to 100"
+                Send BindToDataBase File_Field Sysfile1.Counter2
+                Set piWidth to 20
+                Set piMinimum to 1
+                Set piMaximum to 100             
+            End_Object            
+        End_Object
+        Object oCtgry_Misc is a cSigCJPropertyGridCategory
+            Set psLabel to "Miscallaneous"
+            Object oItem_Default_Price is a cSigCJPropertyGridItem
+                Set psLabel to "Default Price"
+                Send BindToDataBase File_Field Sysfile1.Default_Price                               
+            End_Object
+            Object oItem_Admin_Password is a cSigCJPropertyGridItem
+                Set psLabel to "Admin Password"
+                Set pbPassword_State to True
+                Send BindToDataBase File_Field Sysfile2.Admin_Password
+            End_Object
+            Object oItem_Size is a cSigCJPropertyGridItem
+                Set psLabel to "Size"
+                Send BindToDataBase File_Field Sysfile2.Size
+                //but despite binding to a numberic field, set the item type to ePGItype_String 
+                //because of the way we wish to display this
+                Set peItemType to ePGItype_String
+                
+                //ReadItemFromDatabase
+                //Forward send (so that the raw data value is read into the control) and then split the value
+                //into HI/LOW values
+                Procedure ReadItemFromDatabase
+                    Integer iHeight iWidth iSize
+                    
+                    Forward Send ReadItemFromDatabase
+                    Get pvValue to iSize
+                    Move (Hi(iSize)) to iHeight
+                    Move (Low(iSize)) to iWidth
+                    Set pvInitialValue to (String(iHeight)-';'-String(iWidth))
+                    Set pvInitialValue of oItem_Height to iHeight
+                    Set pvInitialValue of oItem_Width to iWidth
+                End_Procedure
+                
+                //MoveItemDataToDatabase
+                //Get the values of the Height/Width and calcuate (and set) the new size value
+                Procedure MoveItemDataToDatabase 
+                    Handle  hoDD
+                    Integer iField iSize iWidth iHeight iPos
+                    String  sVal
+                   
+                    Get pvValue to sVal
+                    Move (Pos(";",sVal)) to iPos
+                    If (iPos<>0) Begin
+                        Move (Left(sVal,iPos-1)) to iHeight
+                        Move (Replace(String(iHeight)-';',sVal,"")) to iWidth
+                        Move ((iHeight*65536)+iWidth) to iSize
+                    End
+                    Get Item_Server to hoDD
+                    Get Item_Data_Field to iField
+                    Set Field_changed_Value of hoDD iField to iSize
+                End_Procedure                
+
+                //OnChange
+                //Need to allow for setting of size (height/width) elements through the size item
+                //and so need to update oItem_Height and oItem_Width accordingly
+                Procedure OnChange
+                    String sVal
+                    Integer iPos iHeight iWidth
+                    
+                    Get pvValue to sVal
+                    Move (Pos(";",sVal)) to iPos
+                    If (iPos<>0) Begin
+                        Move (Left(sVal,iPos-1)) to iHeight
+                        Move (Replace(String(iHeight)-';',sVal,"")) to iWidth
+                    End
+                    Set pvValue of oItem_Height to iHeight
+                    Set pvValue of oItem_Width to iWidth
+                End_Procedure
+
+                Object oItem_Height is a cSigCJPropertyGridItem
+                    Set psLabel to "Height"
+                    Set peItemType to ePGItype_Number
+                    
+                    Procedure OnChange
+                        Set pvValue of oItem_Size to (pvValue(Self)-';'-pvValue(oItem_Width(Self)))
+                        Send MoveItemDataToDatabase of oItem_Size
+                    End_Procedure
+                End_Object
+                Object oItem_Width is a cSigCJPropertyGridItem
+                    Set psLabel to "Width"
+                    Set peItemType to ePGItype_Number
+                    
+                    Procedure OnChange
+                        Set pvValue of oItem_Size to (pvValue(oItem_Height(Self))-';'-pvValue(Self))
+                        Send MoveItemDataToDatabase of oItem_Size
+                    End_Procedure      
+                End_Object
+            End_Object
+            Object oItem_Customer_No is a cSigCJPropertyGridItem
+                Set psLabel to "Customer No."
+                Set pbReadOnly to True
+                Send BindToDataBase File_Field Sysfile2.Customer_No
+            End_Object
+            Object oItem_Order_No is a cSigCJPropertyGridItem
+                Set psLabel to "Order No."
+                Set pbReadOnly to True
+                Send BindToDataBase File_Field Sysfile2.Order_No
+            End_Object
+            Object oItem_Expand_Button is a cSigCJPropertyGridExpandBtnItem
+                Set psLabel to "Expand Button"
+                Set psHelpText to "Lookup Button - Click Me."
+                Send BindToDataBase File_Field Sysfile2.Text_Field_1
+                
+                Procedure OnClick
+                    Send ComAboutBox
+                End_Procedure
+            End_Object
+        End_Object
+        
+        //Whenever any item changes, set the enabled_State of the apply button to true
+        Procedure OnItemChanged Handle hoItem
+            Set Enabled_State of oApply_btn to True
+        End_Procedure
+                
+        Procedure OnMoveDataOut
+            Boolean bError
+            
+            Get Request_Validate of oSysfile1_DD to bError
+            If (bError=False) Begin
+                Get Request_Validate of oSysfile2_DD to bError
+            End
+            If (bError=False) Begin
+                Send Request_Save of oSysfile1_DD
+                Send Request_Save of oSysfile2_DD
+                Send DoEnumerateAllPropertyGridItems Msg_ReadItemFromDatabase //which sets all the new defaults
+                Set Enabled_State of oApply_btn to False
+            End
+        End_Procedure
+                
+    End_Object
+
+    Object oApply_btn is a Button
+        Set Location to 325 122
+        Set Label to "Apply"
+        Set peAnchors to anBottomRight
+        Set Enabled_State to False
+    
+        Procedure OnClick
+            Send Apply of oSigCJPropertyGrid
+        End_Procedure
+    
+    End_Object
+    
+End_Object

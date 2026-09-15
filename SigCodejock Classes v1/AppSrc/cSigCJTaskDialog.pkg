@@ -1,0 +1,1288 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJTaskDialog.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$ Martin Pincott
+// 
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//==============================================================================
+
+Use SigCjW_Controls.pkg
+Use cSigCJMethods_Mixin.pkg
+Use cSigCJGlobalSettings.pkg
+
+Define eBtn_OK                  for OLExtpTaskButtonOk
+Define eBtn_Yes                 for OLExtpTaskButtonYes
+Define eBtn_No                  for OLExtpTaskButtonNo
+Define eBtn_Cancel              for OLExtpTaskButtonCancel
+Define eBtn_Retry               for OLExtpTaskButtonRetry
+Define eBtn_Close               for OLExtpTaskButtonClose 
+
+Define eTaskIcon_None           for OLExtpTaskIconNone        
+Define eTaskIconWarning         for OLExtpTaskIconWarning     
+Define eTaskIconError           for OLExtpTaskIconError       
+Define eTaskIconInfo            for OLExtpTaskIconInformation 
+Define eTaskIconShield          for OLExtpTaskIconShield      
+Define eTaskIconCustom          for OLExtpTaskIconCustom      
+
+Define eTaskProgressBar_None    for OLExtpTaskProgressBarNone   
+Define eTaskProgressBar_Normal  for OLExtpTaskProgressBarNormal 
+Define eTaskProgressBar_Marquee for OLExtpTaskProgressBarMarquee
+
+Define CLF for (character(13)+ character(10)) 
+
+
+{DocStart = Class}
+//---------------------------------------------------
+//
+// Class        : cSigCJTaskDialog
+//
+// Superclass   : cSigCjComTaskDialog 
+//
+// Package      : cSigCJTaskDialog.pkg
+//
+// Mixins       : 
+//
+// Description  : The TaskDialog Control creates, displays, and operates a task dialog. A task dialog is similar to, 
+//                While much more flexible than, a basic message box. The task dialog contains application-defined messages, 
+//                title, verification check box, command links and push buttons, plus any combination of predefined icons 
+//                and push buttons.
+//
+// Properties   : pbShowWindowsExitButton       (boolean)
+//                psCollapsedControlText        (string)
+//                pbShowButtonOk                (boolean)
+//                pbShowButtonYes               (boolean)
+//                pbShowButtonNo                (boolean)
+//                pbShowButtonCancel            (boolean)
+//                pbShowButtonRetry             (boolean)
+//                pbShowButtonClose             (boolean)
+//                psContentText                 (string)
+//                piDefaultButton               (integer) 
+//                piDefaultRadioOption          (integer)
+//                piWidth                       (integer)
+//                pbEnableCallbackTimer         (boolean)                
+//                pbEnableCommandLinks          (boolean)
+//                pbEnableHyperLinks            (boolean)
+//                psExpandedControlText         (string)
+//                psExpandedInformationText     (string)
+//                pbExpandFooterArea            (boolean)
+//                piFooterIcon                  (integer)
+//                psFooterIconImage             (string)
+//                psFooterText                  (string)
+//                piMainIcon                    (integer)
+//                psMainIconImage               (string)
+//                psMainInstructionText         (string)
+//                pbMessageBoxStyle             (boolean)
+//                phParentHwnd                  (handle)
+//                piProgressBarPos              (integer)
+//                peProgressBarStyle            (integer)
+//                pbRelativePosition            (boolean)
+//                pbRtLLayout                   (boolean)
+//                pbShowCommandLinkIcons        (boolean)
+//                pbUseComCtl32                 (boolean)
+//                psVerificationText            (string)
+//                pbVerifyCheckState            (boolean)
+//                psTitle                       (string)  
+//
+// Events       : OnButtonClicked
+//                OnHyperlinkClicked
+//                OnRadioSelected
+//                OnVerificationClicked
+//                OnExpandButtonClicked
+//                OnTimer  
+//                OnConstructed
+//                OnCreate
+//
+// Methods      : ShowDialog
+//                Set TaskDialogOptionButton
+//                Set TaskDialogOptionRadio
+//                Set pbButtonEnabledState
+//                Set pbRadioOptionEnabledState
+//                Reset
+//                Set ProgressBarRange
+//                StartProgressBarMarquee
+//
+// Notes        :
+//
+// To Do        : 
+//                                
+//---------------------------------------------------
+{DocEnd} 
+
+{ OverrideProperty=psLicenseKey  DesignTime=False }
+{ OverrideProperty=psProgID      DesignTime=False }
+Class cSigCJTaskDialog is a cSigCjComTaskDialog
+    Import_Class_Protocol cSigCJMethods_Mixin
+        
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        // Define new Properties:
+        
+        On_Key Key_Escape Send Close_panel
+        
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbShowWindowsExitButton    True
+        { DesignTime=False Visibility=Private }
+        Property String  Private.psCollapsedControlText     "Details"
+        { DesignTime=False Visibility=Private }
+        Property Integer Private.peCommonButtons            0
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbOKButton                 False
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbYesButton                False
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbNoButton                 False
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbCancelButton             False
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbRetryButton              False
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbCloseButton              False
+        { DesignTime=False Visibility=Private }
+        Property String  Private.psContentText              ""
+        { DesignTime=False Visibility=Private }
+        Property Integer Private.piDefaultButton            0
+        { DesignTime=False Visibility=Private }
+        Property Integer Private.piDefaultRadioOption       0
+        { DesignTime=False Visibility=Private }
+        Property Integer Private.piWidth                    0
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbEnableCallbackTimer      False
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbEnableCommandLinks       False
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbEnableHyperLinks         True
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbExpandInfoTextByDefault  True
+        { DesignTime=False Visibility=Private }
+        Property String  Private.psExpandedControlText      "Hide Details"
+        { DesignTime=False Visibility=Private }
+        Property String  Private.psExpandedInformationText  ""
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbExpandFooterArea         False
+        { DesignTime=False Visibility=Private }
+        Property Integer Private.piFooterIcon               eTaskIcon_None 
+        { DesignTime=False Visibility=Private }
+        Property Integer Private.piFooterIconHandle         0
+        { DesignTime=False Visibility=Private }
+        Property String  Private.psFooterText               ""
+        { DesignTime=False Visibility=Private }
+        Property Integer Private.piMainIcon                 eTaskIcon_None
+        { DesignTime=False Visibility=Private }
+        Property Integer Private.piMainIconHandle           0
+        { DesignTime=False Visibility=Private }
+        Property String  Private.psMainInstructionText      ""
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbMessageBoxStyle          True
+        { DesignTime=False Visibility=Private }
+        Property Handle  Private.phParentHwnd               0
+        { DesignTime=False Visibility=Private }
+        Property Integer Private.piProgressBarPos           0
+        { DesignTime=False Visibility=Private }
+        Property Integer Private.peProgressBarStyle         eTaskProgressBar_None
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbRelativePosition         False
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbRtLLayout                False
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbShowCommandLinkIcons     True
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbUseComCtl32              False 
+        // Warning setting this to true on a vista or 2008 server will stop the modal state
+        { DesignTime=False Visibility=Private }
+        Property String  Private.psVerificationText         ""
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private.pbVerifyCheckState         False
+        { DesignTime=False Visibility=Private }
+        Property String  Private.psTitle                    ""
+        { DesignTime=False Visibility=Private }
+        Property String  Private.psMainIconImage            ""
+        { DesignTime=False Visibility=Private }
+        Property String  Private.psFooterIconImage          ""
+        { DesignTime=False Visibility=Private }
+        Property Integer piProcessCounter              
+    End_Procedure
+    
+    Procedure End_Construct_Object
+        Set location to -100 -100
+        Forward Send End_Construct_Object
+    End_Procedure
+    
+//    { MethodType=Method Visibility=Private }
+//    Procedure SetTaskDialogProperty Handle hmPrivateProperty Handle hmCOMProperty Variant vValue
+//        Set hmPrivateProperty to vValue
+//        If (IsComObjectCreated(Self)) Begin
+//            Set hmCOMProperty to vValue
+//        End
+//    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Image }
+    Procedure Set psMainIconImage String sImage
+        Integer iImageID
+        Handle hWnd
+        
+        Get AddImage of ghoSigCjGlobalSetting sImage 0 0 to iImageID
+        Get ImageHwndFromId of ghoSigCjGlobalSetting iImageID to hWnd    
+        Set piMainIconHandle to hWnd
+        Set Private.psMainIconImage to sImage
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Image }
+    Function psMainIconImage Returns String
+        Function_Return (Private.psMainIconImage(Self))
+    End_Function
+    
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Image }
+    Procedure Set psFooterIconImage String sImage
+        Integer iImageID
+        Handle hWnd
+        
+        Get AddImage of ghoSigCjGlobalSetting sImage 0 0 to iImageID
+        Get ImageHwndFromId of ghoSigCjGlobalSetting iImageID to hWnd    
+        Set piFooterIconHandle to hWnd
+        Set Private.psFooterIconImage to sImage
+    End_Procedure     
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Image }
+    Function psFooterIconImage Returns String
+        Function_Return (Private.psFooterIconImage(Self))
+    End_Function
+    
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=True }
+    Procedure Set pbShowWindowsExitButton Boolean bState
+        Set SigCJProperty Set_Private.pbShowWindowsExitButton Set_ComAllowCancellation to bState
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function pbShowWindowsExitButton Returns Boolean
+        Function_Return (Private.pbShowWindowsExitButton(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { InitialValue="Details" }
+    Procedure Set psCollapsedControlText String sText
+        Set SigCJProperty Set_Private.psCollapsedControlText Set_ComCollapsedControlText to sText
+    End_Procedure  
+    
+    { MethodType=Property Category="CodeJock" }
+    Function psCollapsedControlText Returns String
+        Function_Return (Private.psCollapsedControlText(Self))
+    End_Function
+    
+    { MethodType=Property Visibility=Private }
+    Procedure Set peCommonButtons Integer iButtons        
+        Set SigCJProperty Set_Private.peCommonButtons Set_ComCommonButtons to iButtons
+    End_Procedure 
+    
+    { MethodType=Property Visibility=Private }
+    Function peCommonButtons Returns Integer
+        Function_Return (Private.peCommonButtons(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbShowButtonOk Boolean bState
+        Set Private.pbOKButton to bState
+        Send SetCommonButtons
+    End_Procedure
+    
+    Function pbShowButtonOk Returns Boolean
+        Function_Return (Private.pbOKButton(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbShowButtonYes Boolean bState
+        Set Private.pbYesButton to bState
+        Send SetCommonButtons
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function pbShowButtonYes Returns Boolean
+        Function_Return (Private.pbYesButton(Self))
+    End_Function
+    
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbShowButtonNo Boolean bState
+        Set Private.pbNoButton to bState
+        Send SetCommonButtons
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function pbShowButtonNo Returns Boolean
+        Function_Return (Private.pbNoButton(Self))
+    End_Function
+    
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbShowButtonCancel Boolean bState
+        Set Private.pbCancelButton to bState
+        Send SetCommonButtons
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function pbShowButtonCancel Returns Boolean
+        Function_Return (Private.pbCancelButton(Self))
+    End_Function
+    
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbShowButtonRetry Boolean bState
+        Set Private.pbRetryButton to bState
+        Send SetCommonButtons
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function pbShowButtonRetry Returns Boolean
+        Function_Return (Private.pbRetryButton(Self))
+    End_Function
+    
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbShowButtonClose Boolean bState
+        Set Private.pbCloseButton to bState
+        Send SetCommonButtons
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function pbShowButtonClose Returns Boolean
+        Function_Return (Private.pbCloseButton(Self))
+    End_Function
+        
+    { MethodType=Method Visibility=Private }
+    Procedure SetCommonButtons
+        Set peCommonButtons to (If(pbShowButtonOk(Self),eBtn_OK,0)         ;
+                              + If(pbShowButtonYes(Self),eBtn_Yes,0)       ;
+                              + If(pbShowButtonNo(Self),eBtn_No,0)         ;
+                              + If(pbShowButtonCancel(Self),eBtn_Cancel,0) ;
+                              + If(pbShowButtonRetry(Self),eBtn_Retry,0)   ;
+                              + If(pbShowButtonClose(Self),eBtn_Close,0))
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set psContentText String sText
+        Set SigCJProperty Set_Private.psContentText Set_ComContentText to sText
+    End_Procedure  
+    
+    { MethodType=Property Category="CodeJock" }
+    Function psContentText Returns String
+        Function_Return (Private.psContentText(Self))
+    End_Function
+    
+    { MethodType=Property Category="CodeJock" }
+    //{ EnumList="eBtn_OK, eBtn_Yes, eBtn_No, eBtn_Cancel, eBtn_Retry, eBtn_Close" }
+    Procedure Set piDefaultButton Integer iButton
+        Set SigCJProperty Set_Private.piDefaultButton Set_ComDefaultButton to iButton
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function piDefaultButton Returns Integer
+        Function_Return (Private.piDefaultButton(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set piDefaultRadioOption Integer iButton
+        Set SigCJProperty Set_Private.piDefaultRadioOption Set_ComDefaultRadioButton to iButton
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function piDefaultRadioOption Returns Integer
+        Function_Return (Private.piDefaultRadioOption(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set piWidth Integer iWidth
+        Set SigCJProperty Set_Private.piWidth Set_ComDialogWidth to iWidth
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function piWidth Returns Integer
+        Function_Return (Private.piWidth(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbEnableCallbackTimer Boolean bState
+        Set SigCJProperty Set_Private.pbEnableCallbackTimer Set_ComEnableCallbackTimer to bState
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function pbEnableCallbackTimer Returns Boolean
+        Function_Return (Private.pbEnableCallbackTimer(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbEnableCommandLinks Boolean bState
+        Set SigCJProperty Set_Private.pbEnableCommandLinks Set_ComEnableCommandLinks to bState
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function pbEnableCommandLinks Returns Boolean
+        Function_Return (Private.pbEnableCommandLinks(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=True }
+    Procedure Set pbEnableHyperLinks Boolean bState
+        Set SigCJProperty Set_Private.pbEnableHyperLinks Set_ComEnableHyperlinks to bState
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function pbEnableHyperLinks Returns Boolean
+        Function_Return (Private.pbEnableHyperLinks(Self))
+    End_Function    
+    
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbExpandInfoTextByDefault Boolean bState
+        Set SigCJProperty Set_Private.pbExpandInfoTextByDefault Set_ComExpandedByDefault to bState
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function pbExpandInfoTextByDefault Returns Boolean
+        Function_Return (Private.pbExpandInfoTextByDefault(Self))
+    End_Function     
+    
+    { MethodType=Property Category="CodeJock" }
+    { InitialValue="Hide Details" }
+    Procedure Set psExpandedControlText String sText
+        Set SigCJProperty Set_Private.psExpandedControlText Set_ComExpandedControlText to sText
+    End_Procedure  
+    
+    { MethodType=Property Category="CodeJock" }
+    Function psExpandedControlText Returns String
+        Function_Return (Private.psExpandedControlText(Self))
+    End_Function    
+
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set psExpandedInformationText String sText
+        Set SigCJProperty Set_Private.psExpandedInformationText Set_ComExpandedInformationText to sText
+    End_Procedure  
+    
+    { MethodType=Property Category="CodeJock" }
+    Function psExpandedInformationText Returns String
+        Function_Return (Private.psExpandedInformationText(Self))
+    End_Function    
+    
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbExpandFooterArea Boolean bState
+        Set SigCJProperty Set_Private.pbExpandFooterArea Set_ComExpandFooterArea to bState
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function pbExpandFooterArea Returns Boolean
+        Function_Return (Private.pbExpandFooterArea(Self))
+    End_Function      
+    
+    { MethodType=Property Category="CodeJock" }
+    { EnumList="eTaskIcon_None, eTaskIconWarning, eTaskIconError, eTaskIconInfo, eTaskIconShield, eTaskIconCustom" }
+    { InitialValue=eTaskIcon_None }
+    Procedure Set piFooterIcon Integer iID
+        Set SigCJProperty Set_Private.piFooterIcon Set_ComFooterIcon to iID
+    End_Procedure
+      
+    { MethodType=Property Category="CodeJock" }
+    Function piFooterIcon Returns Boolean
+        Function_Return (Private.piFooterIcon(Self))
+    End_Function      
+    
+    { MethodType=Property Category="CodeJock" }
+    { Visibility = Private }
+    Procedure Set piFooterIconHandle Integer iHandle
+        Set SigCJProperty Set_Private.piFooterIconHandle Set_ComFooterIconHandle to iHandle     
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    { Visibility = Private }
+    Function piFooterIconHandle Returns Boolean
+        Function_Return (Private.piFooterIconHandle(Self))
+    End_Function  
+    
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set psFooterText String sText
+        Set SigCJProperty Set_Private.psFooterText Set_ComFooterText to sText     
+    End_Procedure  
+    
+    { MethodType=Property Category="CodeJock" }
+    Function psFooterText Returns String
+        Function_Return (Private.psFooterText(Self))
+    End_Function  
+    
+    { MethodType=Property Category="CodeJock" }
+    { EnumList="eTaskIcon_None, eTaskIconWarning, eTaskIconError, eTaskIconInfo, eTaskIconShield, eTaskIconCustom" }
+    { InitialValue=eTaskIcon_None }
+    Procedure Set piMainIcon Integer iID
+        Set SigCJProperty Set_Private.piMainIcon Set_ComMainIcon to iID     
+    End_Procedure
+      
+    { MethodType=Property Category="CodeJock" }
+    Function piMainIcon Returns Boolean
+        Function_Return (Private.piMainIcon(Self))
+    End_Function          
+
+    { MethodType=Property Category="CodeJock" }
+    { Visibility = Private }
+    Procedure Set piMainIconHandle Integer iHandle
+        Set SigCJProperty Set_Private.piMainIconHandle Set_ComMainIconHandle to iHandle
+    End_Procedure
+      
+    { MethodType=Property Category="CodeJock" }
+    { Visibility = Private }
+    Function piMainIconHandle Returns Boolean
+        Function_Return (Private.piMainIconHandle(Self))
+    End_Function   
+    
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set psMainInstructionText String sText
+        Set SigCJProperty Set_Private.psMainInstructionText Set_ComMainInstructionText to sText
+    End_Procedure  
+    
+    { MethodType=Property Category="CodeJock" }
+    Function psMainInstructionText Returns String
+        Function_Return (Private.psMainInstructionText(Self))
+    End_Function     
+    
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=True }
+    Procedure Set pbMessageBoxStyle Boolean bState
+        Set SigCJProperty Set_Private.pbMessageBoxStyle Set_ComMessageBoxStyle to bState
+    End_Procedure
+    
+    { MethodType=Property Category="CodeJock" }
+    Function pbMessageBoxStyle Returns Boolean
+        Function_Return (Private.pbMessageBoxStyle(Self))
+    End_Function    
+
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set phParentHwnd Handle hParent
+        Set SigCJProperty Set_Private.phParentHwnd Set_ComParentHwnd to hParent
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function phParentHwnd Returns Boolean
+        Function_Return (Private.phParentHwnd(Self))
+    End_Function  
+
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set piProgressBarPos Integer iPos
+        Set SigCJProperty Set_Private.piProgressBarPos Set_ComProgressBarPos to iPos
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function piProgressBarPos Returns Integer
+        Function_Return (Private.piProgressBarPos(Self))
+    End_Function
+    
+    { MethodType=Property Category="CodeJock" }
+    { EnumList="eTaskProgressBar_None, eTaskProgressBar_Normal, eTaskProgressBar_Marquee" }
+    { InitialValue=eTaskProgressBar_None }
+    Procedure Set peProgressBarStyle Integer eStyle
+        Set SigCJProperty Set_Private.piProgressBarPos Set_ComProgressBarStyle to eStyle
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function peProgressBarStyle Returns Integer
+        Function_Return (Private.peProgressBarStyle(Self))
+    End_Function
+    
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbRelativePosition Boolean bState
+        Set SigCJProperty Set_Private.pbRelativePosition Set_ComRelativePosition to bState
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function pbRelativePosition Returns Boolean
+        Function_Return (Private.pbRelativePosition(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbRtLLayout Boolean bState
+        Set SigCJProperty Set_Private.pbRtLLayout Set_ComRtlLayout to bState
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function pbRtLLayout Returns Boolean
+        Function_Return (Private.pbRtLLayout(Self))
+    End_Function
+    
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=True }
+    Procedure Set pbShowCommandLinkIcons Boolean bState
+        Set SigCJProperty Set_Private.pbShowCommandLinkIcons Set_ComShowCommandLinkIcons to bState
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function pbShowCommandLinkIcons Returns Boolean
+        Function_Return (Private.pbShowCommandLinkIcons(Self))
+    End_Function
+    
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    { Visibility=Private } 
+    Procedure Set pbUseComCtl32 Boolean bState
+        Set SigCJProperty Set_Private.pbUseComCtl32 Set_ComUseComCtl32 to bState
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    { Visibility=Private } 
+    Function pbUseComCtl32 Returns Boolean
+        Function_Return (Private.pbUseComCtl32(Self))
+    End_Function
+    
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set psVerificationText String sText
+        Set SigCJProperty Set_Private.psVerificationText Set_ComVerificationText to sText
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function psVerificationText Returns String
+        Function_Return (Private.psVerificationText(Self))
+    End_Function
+    
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbVerifyCheckState Boolean bState
+        Set SigCJProperty Set_Private.pbVerifyCheckState Set_ComVerifyCheckState to bState
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function pbVerifyCheckState Returns Boolean
+        Function_Return (Private.pbVerifyCheckState(Self))
+    End_Function
+    
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set psTitle String sTitle
+        Set SigCJProperty Set_Private.psTitle Set_ComWindowTitle to sTitle
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function psTitle Returns String
+        Function_Return (Private.psTitle(Self))
+    End_Function
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : ShowDialog
+    //
+    // Scope        : Public Method
+    //
+    // Paramaters   : None
+    //
+    // Returns      : Integer
+    //
+    // Purpose      : Displays the task dialog and return the selected button (id) when done 
+    //                
+    //                
+    // Notes        :  
+    //                          
+    //---------------------------------------------------
+    {DocEnd}
+    { MethodType=Method Visibility=Public}
+    Function ShowDialog Returns Integer
+        Function_Return (ComShowDialog(Self))
+    End_Function
+    
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : Set TaskDialogOptionButton
+    //
+    // Scope        : Public Method
+    //
+    // Paramaters   : sButtonText (string), iButtonID (integer)
+    //
+    // Returns      : 
+    //
+    // Purpose      : Adds a user defined button to the task dialog's command area.
+    //                Example: Set TaskDialogOptionButton "Run"       to 100
+    //                         Set TaskDialogOptionButton "Don't Run" to 101
+    //                
+    // Notes        : The iButtonID indicates the value to be returned when this button is selected and the 
+    //                OnButtonClicked Event fires
+    //                          
+    //---------------------------------------------------
+    {DocEnd}    
+    { MethodType=Method Visibility=Public}
+    Procedure Set TaskDialogOptionButton String sButtonText Integer iButtonID
+        Boolean bIsCreated
+        
+        Get IsComObjectCreated to bIsCreated
+        If (bIsCreated) Begin
+            Send ComAddButton sButtonText iButtonID
+        End
+    End_Procedure
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : Set TaskDialogOptionRadio
+    //
+    // Scope        : Public Method
+    //
+    // Paramaters   : sRadioText (string), iButtonID (integer)
+    //
+    // Returns      : 
+    //
+    // Purpose      : Adds a user defined button to the task dialog's command area.
+    //                Example: Set TaskDialogOptionRadio "Allow"       to 100
+    //                         Set TaskDialogOptionRadio "Don't Allow" to 101
+    //                
+    // Notes        : The iButtonID indicates the value to be returned when this button is selected and the 
+    //                OnRadioSelected Event fires
+    //                          
+    //---------------------------------------------------
+    {DocEnd}    
+    { MethodType=Method Visibility=Public}
+    Procedure Set TaskDialogOptionRadio String sRadioText Integer iButtonID
+        Boolean bIsCreated
+        
+        Get IsComObjectCreated to bIsCreated
+        If (bIsCreated) Begin
+            Send ComAddRadioButton sRadioText iButtonID
+        End        
+    End_Procedure    
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : Set pbButtonEnabledState
+    //
+    // Scope        : Public Method
+    //
+    // Paramaters   : Integer iButtonID Boolean bState
+    //
+    // Returns      : 
+    //
+    // Purpose      : Sets the enabled_state for the specified button
+    //                
+    // Notes        : 
+    //                          
+    //---------------------------------------------------
+    {DocEnd}     
+    { MethodType=Method Visibility=Public}
+    Procedure Set pbButtonEnabledState Integer iButtonID Boolean bState
+        Boolean bIsCreated
+        
+        Get IsComObjectCreated to bIsCreated
+        If (bIsCreated) Begin
+            Send ComEnableButton iButtonID bState
+        End 
+    End_Procedure
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : Set pbRadioOptionEnabledState
+    //
+    // Scope        : Public Method
+    //
+    // Paramaters   : Integer iRadioID Boolean bState
+    //
+    // Returns      : 
+    //
+    // Purpose      : Sets the enabled_state for the specified radio option
+    //                
+    // Notes        : 
+    //                          
+    //---------------------------------------------------
+    {DocEnd} 
+    { MethodType=Method Visibility=Public}
+    Procedure Set pbRadioOptionEnabledState Integer iRadioID Boolean bState
+        Boolean bIsCreated
+        
+        Get IsComObjectCreated to bIsCreated
+        If (bIsCreated) Begin
+            Send ComEnableRadioButton iRadioID bState
+        End 
+    End_Procedure   
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : ClickButton
+    //
+    // Scope        : Public Method
+    //
+    // Paramaters   : Integer iButtonID
+    //
+    // Returns      : 
+    //
+    // Purpose      : Simulate the action of a button click in the task dialog
+    //                
+    // Notes        : 
+    //                          
+    //---------------------------------------------------
+    {DocEnd} 
+    { MethodType=Method Visibility=Public}    
+    Procedure ClickButton Integer iButtonID
+        Boolean bIsCreated
+        
+        Get IsComObjectCreated to bIsCreated
+        If (bIsCreated) Begin
+            Send ComClickButton iButtonID
+        End 
+    End_Procedure
+    
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : Reset
+    //
+    // Scope        : Public Method
+    //
+    // Paramaters   : 
+    //
+    // Returns      : 
+    //
+    // Purpose      : Resets the configuration attributes for the task dialog to the default state
+    //                
+    // Notes        : 
+    //                          
+    //---------------------------------------------------
+    {DocEnd} 
+    { MethodType=Method Visibility=Public}    
+    Procedure Reset
+        Boolean bIsCreated
+        
+        Set pbShowButtonOk     to False
+        Set pbShowButtonYes    to False
+        Set pbShowButtonNo     to False
+        Set pbShowButtonCancel to False
+        Set pbShowButtonRetry  to False
+        Set pbShowButtonClose  to False
+        Set pbUseComCtl32      to False
+        
+        Get IsComObjectCreated to bIsCreated
+        If (bIsCreated) Begin
+            Send ComReset
+        End 
+    End_Procedure
+    
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : ProgressBarRange
+    //
+    // Scope        : Public Method
+    //
+    // Paramaters   : Integer iMin Integer iMax
+    //
+    // Returns      : 
+    //
+    // Purpose      : Sets the minimum and maximum values for the progress bar
+    //                
+    // Notes        : By default the min is zero and the max is 100
+    //                          
+    //---------------------------------------------------
+    {DocEnd} 
+    Procedure Set ProgressBarRange Integer iMin Integer iMax
+        Boolean bIsCreated
+        
+        Get IsComObjectCreated to bIsCreated
+        If (bIsCreated) Begin
+            Send ComSetProgressBarRange iMin iMax
+        End 
+    End_Procedure
+    
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : StartProgressBarMarquee
+    //
+    // Scope        : Public Method
+    //
+    // Paramaters   : Boolean bStart Integer imilliseconds
+    //
+    // Returns      : 
+    //
+    // Purpose      : Specifies whether the progress bar should be displayed in marquee mode or not with the ability to 
+    //                determine marquee speed as well
+    //                
+    // Notes        : peProgressBarStyle must first be set to eTaskProgressBar_Marquee and StartProgressBarMarquee 
+    //                must be called in the OnConstructed event before it can be turned on or off.  
+    //                After StartProgressBarMarquee is called in the OnConstructed event you can freely Use StartProgressBarMarquee 
+    //                anytime to start and stop the marquee.
+    //                          
+    //---------------------------------------------------
+    {DocEnd} 
+    Procedure StartProgressBarMarquee Boolean bStart Integer imilliseconds
+        Boolean bIsCreated
+        
+        Get IsComObjectCreated to bIsCreated
+        If (bIsCreated) Begin
+            Send ComStartProgressBarMarquee bStart imilliseconds
+        End 
+    End_Procedure
+
+    {MethodType=Event}
+    Procedure OnCreate
+        //Apply settings...
+        Set pbShowWindowsExitButton   to (Private.pbShowWindowsExitButton(Self))   
+        Set psCollapsedControlText    to (Private.psCollapsedControlText(Self))   
+        Set peCommonButtons           to (Private.peCommonButtons(Self))    
+        Set psContentText             to (Private.psContentText(Self))  
+        Set piDefaultButton           to (Private.piDefaultButton(Self))   
+        Set piDefaultRadioOption      to (Private.piDefaultRadioOption(Self))   
+        Set piWidth                   to (Private.piWidth(Self))   
+        Set pbEnableCallbackTimer     to (Private.pbEnableCallbackTimer(Self))   
+        Set pbEnableCommandLinks      to (Private.pbEnableCommandLinks(Self))   
+        Set pbEnableHyperLinks        to (Private.pbEnableHyperLinks(Self))   
+        Set psExpandedControlText     to (Private.psExpandedControlText(Self))   
+        Set psExpandedInformationText to (Private.psExpandedInformationText(Self))   
+        Set pbExpandFooterArea        to (Private.pbExpandFooterArea(Self))   
+        Set piFooterIcon              to (Private.piFooterIcon(Self))   
+        Set piFooterIconHandle        to (Private.piFooterIconHandle(Self))   
+        Set psFooterText              to (Private.psFooterText(Self))   
+        Set piMainIcon                to (Private.piMainIcon(Self))   
+        Set piMainIconHandle          to (Private.piMainIconHandle(Self))   
+        Set psMainInstructionText     to (Private.psMainInstructionText(Self))   
+        Set pbMessageBoxStyle         to (Private.pbMessageBoxStyle(Self))   
+        Set phParentHwnd              to (Private.phParentHwnd(Self))   
+        Set piProgressBarPos          to (Private.piProgressBarPos(Self))   
+        Set peProgressBarStyle        to (Private.peProgressBarStyle(Self))   
+        Set pbRelativePosition        to (Private.pbRelativePosition(Self))   
+        Set pbRtLLayout               to (Private.pbRtLLayout(Self))   
+        Set pbShowCommandLinkIcons    to (Private.pbShowCommandLinkIcons(Self))   
+        Set pbUseComCtl32             to (Private.pbUseComCtl32(Self))   
+        Set psVerificationText        to (Private.psVerificationText(Self))   
+        Set pbVerifyCheckState        to (Private.pbVerifyCheckState(Self))   
+        Set psTitle                   to (Private.psTitle(Self)) 
+    End_Procedure        
+    
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : OnButtonClicked
+    //
+    // Scope        : Public Event
+    //
+    // Paramaters   : Integer iButton_ID Boolean ByRef bCloseDialog
+    //
+    // Returns      : 
+    //
+    // Purpose      : Occurs when a user selects a button or command link in the task dialog
+    //                
+    //                
+    // Notes        : 
+    //                          
+    //---------------------------------------------------
+    {DocEnd} 
+    {MethodType=Event Visibility=Public}
+    Procedure OnButtonClicked Integer iButton_ID Boolean ByRef bCloseDialog
+    End_Procedure
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : OnHyperlinkClicked
+    //
+    // Scope        : Public Event
+    //
+    // Paramaters   : String llURL
+    //
+    // Returns      : 
+    //
+    // Purpose      : Occurs when a user clicks on a hyperlink in the Task Dialog's content
+    //                
+    // Notes        : 
+    //                          
+    //---------------------------------------------------
+    {DocEnd} 
+    {MethodType=Event Visibility=Public}
+    Procedure OnHyperlinkClicked String llURL
+    End_Procedure
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : OnRadioSelected
+    //
+    // Scope        : Public Event
+    //
+    // Paramaters   : Integer iRadio_ID
+    //
+    // Returns      : 
+    //
+    // Purpose      : Occurs when a user selects a radio button in the task dialog.
+    //                
+    // Notes        : 
+    //                          
+    //---------------------------------------------------
+    {DocEnd} 
+    {MethodType=Event Visibility=Public}
+    Procedure OnRadioSelected Integer iRadio_ID
+    End_Procedure
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : OnVerificationClicked
+    //
+    // Scope        : Public Event
+    //
+    // Paramaters   : Boolean bChecked
+    //
+    // Returns      : 
+    //
+    // Purpose      : Occurs when the user clicks on the task dialog's verification check box 
+    //                
+    // Notes        : 
+    //                          
+    //---------------------------------------------------
+    {DocEnd} 
+    {MethodType=Event Visibility=Public}
+    Procedure OnVerificationClicked Boolean bChecked
+    End_Procedure
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : OnExpandButtonClicked
+    //
+    // Scope        : Public Event
+    //
+    // Paramaters   : Boolean bExpanded
+    //
+    // Returns      : 
+    //
+    // Purpose      : Occurs when the user clicks on the expand in the Task Dialog.
+    //                
+    // Notes        : 
+    //                          
+    //---------------------------------------------------
+    {DocEnd} 
+    {MethodType=Event Visibility=Public}
+    Procedure OnExpandButtonClicked Boolean bExpanded
+    End_Procedure
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : OnTimer
+    //
+    // Scope        : Integer iMilliSeconds Boolean ByRef bResetCounter
+    //
+    // Paramaters   : Boolean bStart Integer imilliseconds
+    //
+    // Returns      : 
+    //
+    // Purpose      : This event is sent by the Task Dialog approximately every 
+    //                200 milliseconds when the pbEnableCallbackTimer Property has been Set (to True).
+    //                
+    // Notes        : 
+    //                          
+    //---------------------------------------------------
+    {DocEnd} 
+    {MethodType=Event Visibility=Public}
+    Procedure OnTimer Integer iMilliSeconds Boolean ByRef bResetCounter
+    End_Procedure
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : OnConstructed
+    //
+    // Scope        : Public Event
+    //
+    // Paramaters   : 
+    //
+    // Returns      : 
+    //
+    // Purpose      : Occurs once the task dialog has been created and before it is displayed.
+    //                
+    // Notes        : 
+    //                          
+    //---------------------------------------------------
+    {DocEnd} 
+    {MethodType=Event Visibility=Public}
+    Procedure OnConstructed
+    End_Procedure
+        
+    { MethodType=Event Visibility=Private}
+    Procedure OnComButtonClicked Integer llId Variant llCloseDialog
+        Send OnButtonClicked llId (&llCloseDialog)
+    End_Procedure
+
+    { MethodType=Event Visibility=Private}
+    Procedure OnComHyperlinkClicked String llURL
+        Send OnHyperlinkClicked llURL
+    End_Procedure
+
+    { MethodType=Event Visibility=Private}
+    Procedure OnComRadioButtonClicked Integer llId
+        Send OnRadioSelected llId
+    End_Procedure
+
+    { MethodType=Event Visibility=Private}
+    Procedure OnComVerificationClicked Boolean llChecked
+        Send OnVerificationClicked llChecked
+    End_Procedure
+
+    { MethodType=Event Visibility=Private}
+    Procedure OnComExpandButtonClicked Boolean llExpanded
+        Send OnExpandButtonClicked llExpanded
+    End_Procedure
+
+    { MethodType=Event Visibility=Private}
+    Procedure OnComTimer Integer llMilliSeconds Variant llReset
+        Send OnTimer llMilliSeconds (&llReset)
+    End_Procedure
+
+    { MethodType=Event Visibility=Private}
+    Procedure OnComConstructed
+        Send OnConstructed
+    End_Procedure
+   
+    // Standard User interface functions 
+    Function Initialise Returns Handle
+    	Handle hoDialog 
+
+        Get Object_Id to hoDialog
+        Send Reset of hoDialog
+        Set piProcessCounter to 0
+        // This must always be set to false
+        Set pbUseComCtl32 of hoDialog to False
+        Set Modal_State to True 
+        Set phParentHwnd to (Window_Handle(Client_Id(Self)))   
+        Function_Return hoDialog
+    End_Function
+        
+    Procedure Base_Box Handle hoDialog String sMessage String sTitle 
+        Set pbShowWindowsExitButton	of hoDialog to True 
+        Set psTitle                 of hoDialog to sTitle
+        Set piMainIcon              of hoDialog to eTaskIconCustom 
+        Set psMainInstructionText   of hoDialog to sMessage
+    End_Procedure
+
+    Procedure sigCJInfo_Box String sMessage String sTitle 
+        Integer iRetval
+        Handle hoDialog
+        
+        Get Initialise to hoDialog
+        If (num_arguments  = 1) Send Base_Box hoDialog sMessage " "
+        Else Send Base_Box hoDialog sMessage sTitle
+        
+        Set piMainIcon      of hoDialog to eTaskIconInfo
+        Set pbShowButtonOk  of hoDialog to True
+        Set piDefaultButton of hoDialog to eBtn_OK
+        
+        Get ShowDialog  to iRetval
+    End_Procedure
+
+    Procedure sigCJWarning_Box String sMessage String sTitle 
+        Integer iRetval
+        Handle hoDialog
+        
+        Get Initialise to hoDialog
+        If (num_arguments  = 1) Send Base_Box hoDialog sMessage " "
+        Else Send Base_Box hoDialog sMessage sTitle
+        
+        Set piMainIcon      of hoDialog to eTaskIconWarning       
+        Set pbShowButtonOk  of hoDialog to True
+        Set piDefaultButton	of hoDialog to eBtn_OK
+        
+        Get ShowDialog  to iRetval
+    End_Procedure
+        
+    Procedure sigCJStop_Box String sMessage String sTitle 
+		Integer iRetval
+        Handle hoDialog
+        
+        Get Initialise to hoDialog
+        If (num_arguments  = 1) Send Base_Box hoDialog sMessage " "
+        Else Send Base_Box hoDialog sMessage sTitle
+        
+        Set piMainIcon      of hoDialog to eTaskIconError         
+        Set pbShowButtonOk  of hoDialog to True
+        Set piDefaultButton	of hoDialog to eBtn_OK
+        
+        Get ShowDialog  to iRetval
+    End_Procedure
+        
+    Function sigCJYesNo_Box String sMessage String sTitle Integer eBtn Returns Integer
+        Integer iRetval
+        Handle hoDialog
+        
+        Get Initialise to hoDialog
+        If (num_arguments  = 1) Send Base_Box hoDialog sMessage " "
+        Else Send Base_Box hoDialog sMessage sTitle
+        
+        Set psMainIconImage of hoDialog to "Question_32.ico"         
+        Set pbShowButtonYes of hoDialog to True
+        Set pbShowButtonNo  of hoDialog to True            
+        If (num_arguments < 3) Set piDefaultButton	of hoDialog to eBtn_No
+        Else Set piDefaultButton	of hoDialog to eBtn
+        
+        Get ShowDialog  to iRetval
+        
+        If (iRetval = 2) Function_Return MBR_Yes
+        If (iRetval = 4) Function_Return MBR_No
+        
+    	Function_Return 0 // iRetval    
+    End_Function          
+        
+    Function sigCJYesNoCancel_Box String sMessage String sTitle Integer eBtn Returns Integer
+        Integer iRetval
+        Handle hoDialog
+        
+        Get Initialise to hoDialog
+        If (num_arguments  = 1) Send Base_Box hoDialog sMessage " "
+        Else Send Base_Box hoDialog sMessage sTitle
+        
+        Set psMainIconImage     of hoDialog to "Question_32.ico"         
+        Set pbShowButtonYes     of hoDialog to True
+        Set pbShowButtonNo      of hoDialog to True  
+        Set pbShowButtonCancel	of hoDialog to True          
+        If (num_arguments < 3) Set piDefaultButton	of hoDialog to eBtn_Cancel
+        Else Set piDefaultButton	of hoDialog to eBtn
+        
+        Get ShowDialog  to iRetval
+        
+        If (iRetval = 2) Function_Return MBR_Yes
+        If (iRetval = 4) Function_Return MBR_No
+        If (iRetval = 8) Function_Return MBR_Cancel
+        
+    	Function_Return 0 // iRetval    
+	End_Function          
+End_Class                                                 
+
+//==============================================================================
+//End of Package - cSigCJTaskDialog.pkg
+//==============================================================================

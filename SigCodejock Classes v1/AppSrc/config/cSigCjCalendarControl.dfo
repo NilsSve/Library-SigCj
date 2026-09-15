@@ -1,0 +1,51 @@
+Object
+    Set Size to 192 292
+    Set Location to 4 4
+    Set peAnchors to anAll
+
+    Procedure OnCreate
+        Forward Send OnCreate
+        // To Do : Set the ActiveX properties here...
+    End_Procedure
+
+    // Procedure OnLoad_Special_Date Date dThisDate
+    // End_Procedure
+
+    //=========================================================================
+    // List of Non Standard Table Events
+    // If your not using the standard table set then the following events will
+    // give you complete control over the data
+    //=========================================================================
+
+    Procedure OnEvent_GetUpcoming DateTime dtFrom DateTime dtTo
+    End_Procedure
+
+    Function OnEvent_Create tdEvent tEvent_Data Returns Integer
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Function OnEvent_Delete Integer iEvent_ID Returns Boolean
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Function OnEvent_Read Integer iEvent_ID Returns tdEvent
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Function OnEvent_Save tdEvent tEvent_Data Returns Boolean
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnEvents_For_Day Date dDay
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnCategory_Load 
+    End_Procedure
+
+End_Object

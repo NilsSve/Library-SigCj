@@ -1,0 +1,42 @@
+-----------------------------------------------------------------------------
+  DATE: 27/02/2012      TIME: 09:51                                  PAGE:  1
+  FILE DEFINITION FOR FILE: Invt (# 22)
+-----------------------------------------------------------------------------
+  DRIVER NAME               : DATAFLEX
+  FILE ROOT NAME            : Invt
+  USER DISPLAY NAME         : Inventory Parts
+  DATAFLEX FILE NAME        : Invt
+-----------------------------------------------------------------------------
+  RECORD LENGTH             : 73        ( USED: 70 )
+  MAX NUMBER OF RECORDS     : 10000     ( USED: 47 )
+  FILE COMPRESSION          : NONE
+  RE-USE DELETED SPACE      : YES
+  LOCKING TYPE              : FILE
+  HEADER INTEGRITY CHECKING : YES
+  TRANSACTION TYPE          : CLIENT ATOMIC
+  RECORD IDENTITY INDEX     : 0 ( 0 , 0 )
+  FILE LOGIN PARAMETER      : 
+  SYSTEM FILE               : NO 
+-----------------------------------------------------------------------------
+
+NUM  FIELD NAME       TYPE SIZE  OFFST IX   RELATES TO FILE.FIELD
+---  ---------------  ---- ----- ----- --   ---------------------------------
+  1  Item_ID          ASC     10     1  1   
+  2  Description      ASC     35    11  3   
+  3  Vendor_ID        NUM    6.0    46  2   Vendor.FIELD_1 (21,1)
+  4  Vendor_Part_ID   ASC     15    49  2   
+  5  Unit_Price       NUM    6.2    64      
+  6  On_Hand          NUM    6.0    68      
+
+
+INDEX# FIELDS          DES U/C    LENGTH LEVELS SEGMENTS MODE
+------ --------------- --- ---    ------ ------ -------- -------
+  1    Item_ID         NO  YES      10     3       1     ON-LINE
+
+  2    Vendor_ID       NO  NO       28     4       3     ON-LINE
+       Vendor_Part_ID  NO  YES
+       Item_ID         NO  YES
+
+  3    Description     NO  YES      45     4       2     ON-LINE
+       Item_ID         NO  YES
+

@@ -1,0 +1,107 @@
+//DDB-FileStart
+//DDB-HeaderStart
+
+// File Name : CalR_Pat.DD
+// Class Name: CalR_Pat_DataDictionary
+// Revision  : 2
+// Version   : 2
+
+Use  Windows           // Basic Definitions
+Use  DataDict.pkg          // DataDictionary Class Definition
+Use  DDvalTbl          // Validation Table Class Definitions
+
+Open CalR_Pat
+
+//DDB-HeaderEnd
+
+Class CalR_Pat_DataDictionary  is a DataDictionary
+
+    // Define_Fields:
+    // This procedure is used to set up all data-dictionary rules.
+
+    Procedure Define_Fields
+        Forward Send Define_Fields
+        //DDB-Generated-Code-Location
+        //DDB-DefineFieldStart
+
+        Set Main_File            To CalR_Pat.File_Number
+
+        Set Foreign_Field_Options  DD_KEYFIELD   To DD_AUTOFIND    DD_NOPUT       DD_FINDREQ
+        Set Foreign_Field_Options  DD_INDEXFIELD To DD_NOPUT       DD_FINDREQ
+        Set Foreign_Field_Options  DD_DEFAULT    To DD_DISPLAYONLY
+
+        // Field-based properties.......................
+
+        // CalR_Pat.Urn
+
+        // CalR_Pat.Customprop_Xml
+
+        // CalR_Pat.Durationminutes
+
+        // CalR_Pat.Endafterocc
+
+        // CalR_Pat.Enddate
+
+        // CalR_Pat.Endtime
+
+        // CalR_Pat.Endmethod
+
+        // CalR_Pat.Mastereventid
+
+        // CalR_Pat.Startdate
+
+        // CalR_Pat.Starttime
+
+        // CalR_Pat.Rod_Weekdayonly
+
+        // CalR_Pat.Rod_Int_Days
+
+        // CalR_Pat.Rodata1
+
+        // CalR_Pat.Rodata2
+
+        // CalR_Pat.Rodata3
+
+        // CalR_Pat.Rodata4
+
+        // CalR_Pat.Rom_Dayofmonth
+
+        // CalR_Pat.Rom_Int_Months
+
+        // CalR_Pat.Rom_Nthint_Mths
+
+        // CalR_Pat.Rom_Nth_Day
+
+        // CalR_Pat.Rom_Nth_Daymask
+
+        // CalR_Pat.Rorecurr_Type
+
+        // CalR_Pat.Row_Dayweekmask
+
+        // CalR_Pat.Row_Int_Weeks
+
+        // CalR_Pat.Roy_Dayofmonth
+
+        // CalR_Pat.Roy_Monthofyear
+
+        // CalR_Pat.Roy_Nthm_Ofyear
+
+        // CalR_Pat.Roy_Nth_Day
+
+        // CalR_Pat.Roy_Nth_Daymask
+
+        //DDB-DefineFieldEnd
+    End_Procedure    // Define_Fields
+
+    // Field_Defaults:
+    // This procedure is used to establish default field values.
+
+    Procedure Field_Defaults
+        Forward Send Field_Defaults
+        //DDB-Generated-Code-Location
+        //DDB-FieldDefaultStart
+        //DDB-FieldDefaultEnd
+    End_Procedure    // Field_Defaults
+
+End_Class    // CalR_Pat_DataDictionary
+//DDB-FileEnd

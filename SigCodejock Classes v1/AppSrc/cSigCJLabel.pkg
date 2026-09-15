@@ -1,0 +1,406 @@
+﻿//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJLabel.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$ Martin Pincott
+//
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright ⌐ 2009-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+
+Use SigCjW_Controls.pkg
+Use cSigCJMethods_Mixin.pkg
+Use cSigCJGlobalSettings.pkg
+Use StdFont.pkg
+
+{ OverrideProperty=Label_Col_Offset          DesignTime=False }
+{ OverrideProperty=Label_Justification_Mode  DesignTime=False }
+{ OverrideProperty=Label_Row_Offset          DesignTime=False }
+{ OverrideProperty=piMinSize                 DesignTime=False }
+{ OverrideProperty=Border_Style              DesignTime=False }
+{ OverrideProperty=Visible_State             DesignTime=False }
+{ OverrideProperty=Attach_Parent_State       DesignTime=False }
+{ OverrideProperty=Block_Mouse_State         DesignTime=False }
+{ OverrideProperty=Client_Area_State         DesignTime=False }
+{ OverrideProperty=Delegation_Mode           DesignTime=False }
+{ OverrideProperty=Focus_Mode                DesignTime=False }
+{ OverrideProperty=pbBindValue               DesignTime=False }
+{ OverrideProperty=peAutoCreate              DesignTime=False }
+{ OverrideProperty=peNeighborhood            DesignTime=False }
+{ OverrideProperty=Popup_State               DesignTime=False }
+{ OverrideProperty=Ring_State                DesignTime=False }
+{ OverrideProperty=Scope_State               DesignTime=False }
+{ OverrideProperty=Search_Case               DesignTime=False }
+{ OverrideProperty=Skip_State                DesignTime=False }
+{ OverrideProperty=Help_Id                   DesignTime=False }
+{ OverrideProperty=Help_Keyword              DesignTime=False }
+{ OverrideProperty=psHtmlHelpTopic           DesignTime=False }
+{ OverrideProperty=Status_Help               DesignTime=False }
+{ OverrideProperty=Use_Parent_Status_Help    DesignTime=False }
+{ OverrideProperty=psLicenseKey              DesignTime=False }
+{ OverrideProperty=psProgID                  DesignTime=False }
+Class cSigCJLabel is a cSigCjComLabel
+    Import_Class_Protocol cSigCJMethods_Mixin
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        { DesignTime=False }
+        Property Integer Private_peAlignment OLExtpAlignLeft
+
+        { DesignTime=False }
+        Property Boolean Private_pbAutoEllipsis False
+
+        { DesignTime=False }
+        Property Boolean Private_pbAutoSize False
+
+        { DesignTime=False }
+        Property OLE_Color Private_piBackColor clBtnFace
+
+        { DesignTime=False }
+        Property String  Private_psCaption ""
+
+        { DesignTime=False }
+        Property Boolean Private_pbEnabled True
+
+        { DesignTime=False }
+        Property Boolean Private_pbEnableMarkup False
+
+        { DesignTime=False }
+        Property OLE_Color Private_piForeColor clBlack
+
+        { DesignTime=False }
+        Property String  Private_psImage ""
+
+        { DesignTime=False }
+        Property Boolean Private_pbRightToLeft False
+
+        { DesignTime=False }
+        Property Boolean Private_pbUseMnemonic False
+
+        { DesignTime=False }
+        Property Boolean Private_pbWordWrap False
+
+        //Property Private_p Transparent                  Determines if the background of a TabControlPage is visible in WinXP mode.
+
+        //---------------------------------------------------------------------
+        //Font Properties
+        { DesignTime=False }
+        Property Boolean Private_pbBold False
+
+        { DesignTime=False }
+        Property Boolean Private_pbItalic False
+
+        { DesignTime=False }
+        Property Boolean Private_pbStrikethrough False
+
+        { DesignTime=False }
+        Property Boolean Private_pbUnderline False
+
+        { DesignTime=False }
+        Property String Private_psFontName "MS Sans Serif"
+
+        { DesignTime=False }
+        Property Number Private_pnFontSize 8.25
+
+        { DesignTime=False }
+        Property Handle Private_hoFont  (Create(Self, U_cComStdFont))
+
+        //---------------------------------------------------------------------
+
+    End_Procedure
+
+    Procedure End_Construct_Object
+        Forward Send End_Construct_Object
+
+        // Add your code that needs to be executed at the end of the object construction here:
+
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnCreate
+        Handle hoFont
+        
+        //Ian Smith
+        //Getting Ambiguous Function in expression Errors with DF25.x
+        //DAW have also used PRIVATE_PIBACKCOLOR as a property name but their property
+        //is still defined as an integer - as the system classes are compiled in first 
+        //the compiler complains about our declaration.
+        //To stop this - until DAW fixes their code - we are using a local variable to
+        //remove the expression syntax.
+        //        
+        OLE_Color iColor 
+
+        Forward Send OnCreate
+
+        Get Private_piBackColor to iColor
+
+        Set peAlignment     to (Private_peAlignment   (Self))
+        Set pbAutoEllipsis  to (Private_pbAutoEllipsis(Self))
+        Set pbAutoSize      to (Private_pbAutoSize    (Self))
+        Set piBackColor     to iColor   //See above (Private_piBackColor(Self))
+        Set pbEnabled       to (Private_pbEnabled     (Self))
+        Set pbEnableMarkup  to (Private_pbEnableMarkup(Self))
+        Set piForeColor     to (Private_piForeColor   (Self))
+        Set psImage         to (Private_psImage       (Self))
+        Set pbRightToLeft   to (Private_pbRightToLeft (Self))
+        Set pbUseMnemonic   to (Private_pbUseMnemonic (Self))
+        Set pbWordWrap      to (Private_pbWordWrap    (Self))
+
+        //Connect the OCX and dataflex FONT objects and set defaults
+        Get Private_hoFont   to hoFont
+        Set pvComObject      of hoFont to (ComFont(Self))
+        Set ComBold          of hoFont to (Private_pbBold(Self))
+        Set ComItalic        of hoFont to (Private_pbItalic(Self))
+        Set ComStrikethrough of hoFont to (Private_pbStrikethrough(Self))
+        Set ComUnderline     of hoFont to (Private_pbUnderline(Self))
+        // We want to use the standrad windows or df font here
+        //Set ComName          of hoFont to (Private_psFontName(Self))
+        //Set ComSize          of hoFont to (Private_pnFontSize(Self))
+
+
+        //Some of the controls clear the caption when other properties are
+        //changed, so we always set the caption last.
+        Set ComCaption  to (Private_psCaption(Self))
+    End_Procedure  // OnCreate
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbBold Boolean bState
+        Set SigCJProperty Set_Private_pbBold Set_ComBold (Private_hoFont(Self)) to bState
+    End_Procedure
+
+    Function pbBold Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbBold, Get_ComBold, Private_hoFont(Self)))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbItalic Boolean bState
+        Set SigCJProperty Set_Private_pbItalic Set_ComItalic (Private_hoFont(Self)) to bState
+    End_Procedure
+
+    Function pbItalic Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbItalic, Get_ComItalic, Private_hoFont(Self)))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbStrikethrough Boolean bState
+        Set SigCJProperty Set_Private_pbStrikethrough Set_ComStrikethrough (Private_hoFont(Self)) to bState
+    End_Procedure
+
+    Function pbStrikethrough Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbStrikethrough, Get_ComStrikethrough, Private_hoFont(Self)))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbUnderline Boolean bState
+        Set SigCJProperty Set_Private_pbUnderline Set_ComUnderline (Private_hoFont(Self)) to bState
+    End_Procedure
+
+    Function pbUnderline Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbUnderline, Get_ComUnderline, Private_hoFont(Self)))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue="MS Sans Serif" }
+    Procedure Set psFontName String sName
+        Set SigCJProperty Set_Private_psFontName Set_ComName (Private_hoFont(Self)) to sName
+    End_Procedure
+
+    Function psFontName Returns String
+        Function_Return (SigCJProperty(Self, Get_Private_psFontName, Get_ComName, Private_hoFont(Self)))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=8.25 }
+    Procedure Set pnFontSize Number nSize
+        Set SigCJProperty Set_Private_pnFontSize Set_ComSize (Private_hoFont(Self)) to nSize
+    End_Procedure
+
+    Function pnFontSize Returns Number
+        Function_Return (SigCJProperty(Self, Get_Private_pnFontSize, Get_ComSize, Private_hoFont(Self)))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=OLExtpAlignLeft }
+    { EnumList="OLExtpAlignLeft, OLExtpAlignRight, OLExtpAlignCenter, OLExtpAlignMiddle, OLExtpAlignTop, OLExtpAlignBottom" }
+    Procedure Set peAlignment Integer eAlign
+        Set SigCJProperty Set_Private_peAlignment Set_ComAlignment to eAlign
+    End_Procedure
+
+    Function peAlignment Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_peAlignment, Get_ComAlignment ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbAutoEllipsis Boolean bState
+        Set SigCJProperty Set_Private_pbAutoEllipsis Set_ComAutoEllipsis to bState
+    End_Procedure
+
+    Function pbAutoEllipsis Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbAutoEllipsis, Get_ComAutoEllipsis ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbAutoSize Boolean bState
+        Set SigCJProperty Set_Private_pbAutoSize Set_ComAutoSize to bState
+    End_Procedure
+
+    Function pbAutoSize Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbAutoSize, Get_ComAutoSize ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" PropertyType=Color InitialValue=clBtnFace }
+    Procedure Set piBackColor OLE_Color iColor
+        Set SigCJProperty Set_Private_piBackColor Set_ComBackColor to iColor
+    End_Procedure
+
+    Function piBackColor Returns OLE_Color
+        Function_Return (SigCJProperty(Self, Get_Private_piBackColor, Get_ComBackColor ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=" " }
+    Procedure Set psCaption String sLabel
+        Set SigCJProperty Set_Private_psCaption Set_ComCaption to sLabel
+    End_Procedure
+
+    Function psCaption Returns String
+        Function_Return (SigCJProperty(Self, Get_Private_psCaption, Get_ComCaption ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=True }
+    Procedure Set pbEnabled Boolean bState
+        Set SigCJProperty Set_Private_pbEnabled Set_ComEnabled to bState
+    End_Procedure
+
+    Function pbEnabled Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbEnabled, Get_ComEnabled ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbEnableMarkup Boolean bState
+        Set SigCJProperty Set_Private_pbEnableMarkup Set_ComEnableMarkup to bState
+    End_Procedure
+
+    Function pbEnableMarkup Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbEnableMarkup, Get_ComEnableMarkup ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" PropertyType=Color InitialValue=clBlack }
+    Procedure Set piForeColor Integer iColor
+        Set SigCJProperty Set_Private_piForeColor Set_ComForeColor to iColor
+    End_Procedure
+
+    Function piForeColor Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_piForeColor, Get_ComForeColor ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Procedure Set psImage String sImage
+        Integer iImageId
+        Variant vImage
+
+        Set Private_psImage to sImage
+
+        If (IsComObjectCreated(Self)) Begin
+            Get AddImage    of ghoSigCjGlobalSetting sImage 0 OLExtpImageNormal to iImageId
+            Get ImageFromId of ghoSigCjGlobalSetting iImageId to vImage
+
+            Set ComIcon to vImage
+        End
+    End_Procedure
+
+    Function psImage Returns String
+        Function_Return (Private_psImage(Self))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbRightToLeft Boolean bState
+        Set SigCJProperty Set_Private_pbRightToLeft Set_ComRightToLeft to bState
+    End_Procedure
+
+    Function pbRightToLeft Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbRightToLeft, Get_ComRightToLeft ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbUseMnemonic Boolean bState
+        Set SigCJProperty Set_Private_pbUseMnemonic Set_ComUseMnemonic to bState
+    End_Procedure
+
+    Function pbUseMnemonic Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbUseMnemonic, Get_ComUseMnemonic ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbWordWrap Boolean bState
+        Set SigCJProperty Set_Private_pbWordWrap Set_ComWordWrap to bState
+    End_Procedure
+
+    Function pbWordWrap Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbWordWrap, Get_ComWordWrap ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+End_Class
+
+//==============================================================================
+//End of Package - cSigCJLabel.pkg
+//==============================================================================

@@ -1,0 +1,41 @@
+Object
+    Set Size to 164 392
+    Set Location to 32 4
+    Set peAnchors     to anAll
+    Set phoDD         to (Server(Self))
+    Set piTable_Index to 1
+    
+//    Set pbPX_Save_Layout to True
+//    Set psPX_Tag to (Label(Self))
+
+    Procedure OnAdd_ContextMenu_ReportArea Handle hoContextMenu
+        Send Add_MenuItem of hoContextMenu "Process Selected Rows"  "Process_Rows"     True     
+    End_Procedure
+
+//    Procedure OnDefine_Columns
+//        Send Add_Report_Column "Order"         80 eRC_Integer  eRC_Standard "OrderDtl.Order_Number"    
+//        Send Add_Report_Column "Line"          80 eRC_Integer  eRC_Standard "OrderDtl.Detail_Number"   
+//        Send Add_Report_Column "Item"         100 eRC_String   eRC_Standard "OrderDtl.Item_ID"         
+//        Send Add_Report_Column "Qty"           80 eRC_Integer  eRC_Standard "OrderDtl.Qty_Ordered"     
+//        Send Add_Report_Column "Price"         80 eRC_Currency eRC_Standard "OrderDtl.Price"           
+//        Send Add_Report_Column "Line Total"   100 eRC_Currency eRC_Standard "OrderDtl.Extended_Price"  
+//    End_Procedure
+
+//    Procedure OnDouble_Click_RowID RowID Row_ID
+//        Boolean bFound
+//        String  sOrder
+//
+//        Move (FindByRowId(OrderDtl.File_Number, Row_ID)) to bFound
+//        If (bFound) Begin
+//            Send Activate_Order_View OrderDtl.Order_Number
+//        End
+//    End_Procedure
+
+//    Procedure OnProcess_Rows_RowID RowID Row_ID
+//        Boolean bFound
+//
+//        Move (FindByRowId(OrderDtl.File_Number, Row_ID)) to bFound
+//    End_Procedure
+
+End_Object
+ 

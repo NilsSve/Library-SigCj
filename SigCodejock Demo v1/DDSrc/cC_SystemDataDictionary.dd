@@ -1,0 +1,56 @@
+Use DataDict.pkg
+
+Open C_System
+
+Object oValid_Refresh_Data is a DescriptionValidationTable
+    Procedure Fill_List
+        Forward Send Fill_List
+        Send Add_Table_Value "0" "No"
+        Send Add_Table_Value "1" "Refresh required"
+        Send Add_Table_Value "2" "Refresh in progress"
+    End_Procedure
+End_Object
+
+Class cC_SystemDataDictionary is a DataDictionary
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set Main_file to C_System.File_Number
+
+        Set Foreign_Field_Option DD_KEYFIELD DD_NOPUT to True
+        Set Foreign_Field_Option DD_KEYFIELD DD_FINDREQ to True
+        Set Foreign_Field_Option DD_INDEXFIELD DD_NOPUT to True
+        Set Foreign_Field_Option DD_DEFAULT DD_DISPLAYONLY to True
+
+        Set Field_Value_Table Field C_System.Refresh_Data to oValid_Refresh_Data
+
+        Set Field_Class_Name Field C_System.Clear_sp_Cache to "dbCheckBox"
+        Set Field_Checkbox_Values Field C_System.Clear_sp_Cache to "1" "0"
+
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Function Allocate_C_Event_URN Returns Integer
+        Reread
+            Move (C_System.L_URN_Events + 1) to C_System.L_URN_Events
+            SaveRecord C_System
+        Unlock
+
+        Function_Return C_System.L_URN_Events
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Function Allocate_C_RecPat_URN Returns Integer
+        Reread
+            Move (C_System.L_URN_RecPat + 1) to C_System.L_URN_RecPat
+            SaveRecord C_System
+        Unlock
+
+        Function_Return C_System.L_URN_RecPat
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+End_Class

@@ -1,0 +1,160 @@
+Use OrderPrecompile.pkg
+Use cCJCommandBarSystem.pkg
+
+Define C_Pane_Property_Grid for 1
+Define C_Pane_Task_Panel    for 2 
+Define C_Pane_Short_Cut_Bar for 3
+
+Define C_Module_DockingManager
+Define C_Module_Orders
+Define C_Module_Calendar
+Define C_Module_Calendar_Old
+Define C_Module_Chart
+Define C_Module_ReportControl
+Define C_Module_GeneralComponents
+Define C_Module_Treeview
+
+Object oHtmlHelp is a cHtmlHelp
+End_Object
+
+Object oApplication is a cApplication
+    Set psCompany to "Special Interest Group UK"
+    Set psProduct to "Codejock Examples"
+    Set psVersion to "17.1"
+    Set psProgram to "Order"
+    Set psHelpFile to "SigCj_Help.chm"
+    Set peHelpType to htHtmlHelp  
+End_Object
+
+#IF (!@ >= 150)
+Use cToolTipController.pkg
+Object oToolTip is a cToolTipController
+    Set pbBalloonStyle to True 
+    Move Self to ghoToolTipController
+End_Object
+#ENDIF
+ 
+Object oSkin is a cCJSkinFramework
+    Set psSkinFile to "Office2007.cjstyles"
+    Set psSkinIni to "NormalBlue.ini"
+End_Object
+ 
+Use oEditContextMenu.pkg
+Use oDEOEditContextMenu.pkg
+
+Object oMain is a Panel
+    Set Label to "Codejock Order Entry Sample Application"
+    Set Location to 6 11
+    Set Size to 300 450
+  
+    //Include the desired CommandBarSystem (Style)  
+    //#Include oCommandBarSystem_Ribbon.pkg
+    #Include oCommandBarSystem_Standard.pkg
+    
+    Use oPropertyGrid_Container.pkg
+    Use oTaskPanel_Container.pkg
+    Use oShortCutBar_Container.pkg
+    
+    #IFDEF C_Module_DockingManager
+    Object oDockingManager is a cSigCjDockingManager
+        Set pbPX_Save_Layout to True
+        Set psPX_Tag to "Docking Manager"
+        
+        Object oPropertyGrid_Pane is a cSigCjDockingPane
+            Set psTitle         to "Property Grid"
+            Set psImage         to "Configure_16.ico"
+            Set phoClientObject to (oPropertyGrid_Container(Self))
+            Set peLocation      to OLEDockRightOf
+            Set piWidth         to 150
+            Set piId            to C_Pane_Property_Grid
+        End_Object
+        
+        Object oTaskPanel_Pane is a cSigCjDockingPane
+            Set psTitle         to "Task Panel"
+            Set psImage         to "ActionTileVertically.ico"
+            Set phoCLientObject to (oTaskPanel_Container(Self))
+            Set peClientType    to eDP_ActiveX
+            Set piWidth         to 150
+            Set piId            to C_Pane_Task_Panel
+        End_Object
+
+        Object oShortCutBar_Pane is a cSigCjDockingPane
+            Set psTitle         to "Short Cut Bar"
+            Set psImage         to "WindowSidebar_16.ico"
+            Set phoCLientObject to (oShortCutBar_Container(Self))
+            Set piWidth         to 150
+            Set piId            to C_Pane_Short_Cut_Bar
+        End_Object
+
+    End_Object // oDockingPanel 
+    #ENDIF
+    
+    Object oClientArea is a ClientArea
+        Set Color to clWhite
+        Set Bitmap to "logo.bmp"
+        Set Bitmap_Style to Bitmap_Center
+        
+        Use oSigCJTaskDialog.pkg
+        
+        #IFDEF C_Module_Orders         
+            Use Order\Customer.vw
+            Use Order\Invt.vw
+            Use Order\Order.vw
+            Use Order\SalesP.vw
+            Use Order\Vendor.vw
+        #ENDIF 
+
+        #IFDEF C_Module_Calendar_Old
+            Use Calendar\SigCJMonthCalendarDemo.vw
+            Use Calendar\Calendar_Special_Dates.vw
+            Use Calendar\Calendar_Categories.vw
+            Use Calendar\Calendar_Resources.vw
+            Use Calendar\SigCJStandardCalendarDemo.vw
+            Use Calendar\SigCJBespokeCalendarDemo.vw
+            Use Calendar\SigCJResourceCalendarDemo.vw
+        #ENDIF 
+
+        #IFDEF C_Module_Calendar        
+            Use Calendar_v2\Calendar_Maintenance.vw
+            Use Calendar_v2\Calendar_Demo.vw
+        #ENDIF 
+        
+        #IFDEF C_Module_Chart        
+            #IF (SigCj_Codejock_Version > 150200)  
+                Use "Chart\ChartOrder.vw"
+                Use "Chart\ChartSalesBySalesPerson.vw"
+            #ENDIF 
+        #ENDIF 
+        
+        #IFDEF C_Module_ReportControl        
+            Use "ReportControl\SigCJReportControlDemo - Text.vw"
+            Use "ReportControl\SigCJReportControlDemo - Table.vw"
+            Use "ReportControl\SigCJReportControlDemo - SQL.vw"
+            Use "ReportControl\SigCJReportControlDemo - TreeView.vw"
+        #ENDIF 
+        
+        #IFDEF C_Module_GeneralComponents       
+            Use Calendar\SigCJMonthCalendarDemo.vw
+            Use GeneralComponents\SigCJPushButtonDemo.vw
+            Use GeneralComponents\SigCJCheckBoxDemo.vw
+            Use GeneralComponents\SigCJTaskDialogDemo.vw
+            Use GeneralComponents\SigCJPopupControlDemo.vw
+            Use GeneralComponents\SigCJLabelControlDemo.vw
+            Use SigCJProgressBarDemo_View.vw
+        #ENDIF
+        
+        #IFDEF C_Module_Treeview       
+            Use "TreeviewControl\SigCJTreeViewDemo - Simple.vw"
+            Use "TreeviewControl\SigCJTreeViewDemo - Sales Orders .vw"
+        #ENDIF
+        
+        Use StdAbout.pkg
+    
+        Procedure Activate_About
+            Send DoAbout "Codejock Order Entry Sample Application" "17.0.0.0" "Copyright (c) 2013 Special Interest Group UK" "Special Interest Group UK" ""
+        End_Procedure
+    
+    End_Object
+
+End_Object
+Start_UI

@@ -1,0 +1,4 @@
+URN
+Name
+Categories
+Schedules

@@ -1,0 +1,291 @@
+//=============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : SigCjCalendar_Public.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev: $
+//                $Date: $
+//                $Author: $
+//
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2009-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//=============================================================================
+
+//These Enumerated values and Structure data types are used by the example 
+//custom dialog. They are provided as a seperate package so that they can be 
+//used in any custom dialogs the users may create. 
+
+//=============================================================================
+
+Use VDFBase.pkg
+
+//=============================================================================
+
+// Category="SigCj:Dialogs" Visibility=Public
+//Enum eCal_Dialog_Action - Dialog Actions
+
+Define eCal_Dialog_Action_Disabled  for 0
+Define eCal_Dialog_Action_None      for 1
+Define eCal_Dialog_Action_Exists    for 2
+Define eCal_Dialog_Action_Create    for 3
+Define eCal_Dialog_Action_Delete    for 4
+//Define eCal_Dialog_Action_Update    for 5
+Define eCal_Dialog_Action_Edit      for 5
+
+//-----------------------------------------------------------------------------
+
+// Category="SigCj:Dialogs" Visibility=Public
+//Enum eCal_Recur_End - Recurring Pattern End Type
+
+Define eCal_Recur_EndAfterOcc  for 1  //OLExtpCalendarPatternEndAfterOccurrences 
+Define eCal_Recur_EndOnDate    for 0  //OLExtpCalendarPatternEndDate             
+Define eCal_Recur_EndNoEnd     for 2  //OLExtpCalendarPatternEndNoDate           
+
+//-----------------------------------------------------------------------------
+
+// Category="SigCj:Dialogs" Visibility=Public
+//Enum eCal_Recur_Type  - Recurrence type
+
+Define eCal_Recur_Daily    for 1    //OLExtpCalendarRecurrenceDaily   
+Define eCal_Recur_Weekly   for 2    //OLExtpCalendarRecurrenceWeekly  
+Define eCal_Recur_Monthly  for 3    //OLExtpCalendarRecurrenceMonthly 
+Define eCal_Recur_MonthNth for 4    //OLExtpCalendarRecurrenceMonthNth
+Define eCal_Recur_Yearly   for 5    //OLExtpCalendarRecurrenceYearly  
+Define eCal_Recur_YearNth  for 6    //OLExtpCalendarRecurrenceYearNth 
+
+//-----------------------------------------------------------------------------
+
+// Category="SigCj:Dialogs" Visibility=Public
+//Enum eCal_Series_Action - Series action
+
+Define eCal_Series_Abort            for 0
+Define eCal_Series_All              for 1
+Define eCal_Series_Single           for 2
+
+//-----------------------------------------------------------------------------
+
+// Category="SigCj:General" Visibility=Public
+//Enum eCal_WW_Mask - Working Week Mask
+
+Define eCal_WW_Sunday    for   1    //OLExtpCalendarDaySunday
+Define eCal_WW_Monday    for   2    //OLExtpCalendarDayMonday
+Define eCal_WW_Tuesday   for   4    //OLExtpCalendarDayTuesday
+Define eCal_WW_Wednesday for   8    //OLExtpCalendarDayWednesday
+Define eCal_WW_Thursday  for  16    //OLExtpCalendarDayThursday
+Define eCal_WW_Friday    for  32    //OLExtpCalendarDayFriday
+Define eCal_WW_Saturday  for  64    //OLExtpCalendarDaySaturday
+Define eCal_WW_AllWeek   for 127    //OLExtpCalendarDayAllWeek
+Define eCal_WW_SaSu      for  65    //OLExtpCalendarDaySaSu
+Define eCal_WW_Mo_Fr     for  62    //OLExtpCalendarDayMo_Fr
+
+//=============================================================================
+
+// Category="SigCj:Schedules" Visibility=Public
+Struct tdSigCjCal_Category
+    Integer iID
+    String  sName           //Short Description
+    Integer iBorderColor
+    Integer iColor_1        //Light Color
+    Integer iColor_2        //Dark Color
+    Number  nGradient
+End_Struct
+
+//-----------------------------------------------------------------------------
+
+// Category="SigCj:Properties" Visibility=Public
+Struct tdSigCjCal_CustomProperty
+    String sName
+    String sValue
+End_Struct
+
+//-----------------------------------------------------------------------------
+
+// Category="SigCj:DB_Link" Visibility=Public
+Struct tdSigCjCal_DB_Link
+    Boolean bDB_Link
+    String  sTable
+    String  sKey
+End_Struct
+
+//-----------------------------------------------------------------------------
+
+// Category="SigCj:Icons" Visibility=Public
+Struct tdSigCjCal_CustomIcon
+    Integer iId
+    String  sFileName
+    Integer eAction
+End_Struct
+
+//-----------------------------------------------------------------------------
+
+// Category="SigCj:Dialogs" Visibility=Public
+Struct tdSigCjCal_Dialog_CustomIcon
+    Integer eAction
+    tdSigCjCal_CustomIcon[] tCustomIcons
+End_Struct
+
+//-----------------------------------------------------------------------------
+
+// Category="SigCj:Dialogs" Visibility=Public
+Struct tdSigCjCal_Dialog_CustomProperty
+    Integer eAction
+    Boolean bRemoveExisting
+    tdSigCjCal_CustomProperty[] tCustomProperties
+End_Struct
+
+//-----------------------------------------------------------------------------
+
+// Category="SigCj:Dialogs" Visibility=Public
+Struct tdSigCjCal_Dialog_DB_Link
+    Integer eAction
+    tdSigCjCal_DB_Link tDB_Link
+End_Struct
+
+//-----------------------------------------------------------------------------
+
+// Category="SigCj:Data" Visibility=Public
+Struct tdSigCjCal_Event             //Suggested type and size
+    Integer iID                     //NUM  8.0
+    Boolean bAllDayEvent            //NUM  2.0
+    String  sBody                   //ASC  254
+    Integer eBusyStatus             //NUM  2.0
+    String  sCategories             //ASC  254
+    Date    dCreationDate           //DAT    6
+    String  tmCreationTime          //ASC    5
+    String  sCreatedBy              //ASC   20
+    String  sCustomIcons            //ASC  254
+    String  sCustomProperties       //ASC  254
+    Boolean bDB_Link                //NUM  2.0
+    String  sDB_Key                 //ASC   20
+    String  sDB_Table               //ASC   20
+    Date    dEndDate                //DAT    6
+    String  tmEndTime               //ASC    5
+    Integer eImportance             //NUM  2.0
+    String  sLabel                  //ASC  254
+    Date    dLastMod_Date           //DAT    6
+    String  tmLastMod_Time          //ASC    5
+    String  sLastMod_By             //ASC   20
+    String  sLocation               //ASC  254
+    Boolean bMeetingFlag            //NUM  2.0
+    Boolean bPrivateFlag            //NUM  2.0
+    Integer eRecurr_State           //NUM  2.0
+    Boolean bReminder               //NUM  2.0
+    Integer iRem_MinsBefore         //NUM  8.0
+    String  sRem_SoundFile          //ASC  254
+    Integer iScheduleID             //NUM  8.0
+    String  sScheduleIDs            //NUM  8.0
+    Date    dStartDate              //DAT    6
+    String  tmStartTime             //ASC    5
+    String  sSubject                //ASC  254
+    Date    dRE_StartDateOrg        //DAT    6
+    String  tmRE_StartTimeOrg       //ASC    5
+    Date    dRE_EndDateOrg          //DAT    6
+    String  tmRE_EndTimeOrg         //ASC    5
+    Boolean bRE_Deleted             //NUM  2.0
+    Integer iRec_Pattern_id         //NUM  8.0
+End_Struct                          
+
+//-----------------------------------------------------------------------------
+
+// Category="SigCj:Data" Visibility=Public
+Struct tdSigCjCal_RecPattern        //Suggested type and size
+    Integer iID                     //NUM 8.0   rp  ID
+    String  sCustomProp_XML         //ASC 254   rp  CustomProperties
+    Integer iDurationMinutes        //NUM 8.0   rp  DurationMinutes
+    Integer iEndAfterOcc            //NUM 8.0   rp  EndAfterOccurrences
+    Date    dEndDate                //DAT   6   rp  EndDate
+    String  tmEndTime               //ASC   5   rp  {used to cal DurationMinutes}
+    Integer eEndMethod              //NUM 2.0   rp  EndMethod
+    Integer iMasterEventId          //NUM 8.0   rp  MasterEventId
+    Date    dStartDate              //DAT   6   rp  StartDate
+    String  tmStartTime             //ASC   5   rp  StartTime
+    Boolean bRoD_WeekDayOnly        //NUM 2.0   rpo DailyEveryWeekDayOnly
+    Integer iRoD_Int_Days           //NUM 4.0   rpo DailyIntervalDays
+    Integer iRoData1                //NUM 8.0   rpo Data1
+    Integer iRoData2                //NUM 8.0   rpo Data2
+    Integer iRoData3                //NUM 8.0   rpo Data3
+    Integer iRoData4                //NUM 8.0   rpo Data4
+    Integer iRoM_DayOfMonth         //NUM 2.0   rpo MonthlyDayOfMonth
+    Integer iRoM_Int_Months         //NUM 8.0   rpo MonthlyIntervalMonths
+    Integer iRoM_NthInt_Mths        //NUM 8.0   rpo MonthNthIntervalMonths
+    Integer iRoM_Nth_Day            //NUM 2.0   rpo MonthNthWhichDay
+    Integer eRoM_Nth_DayMask        //NUM 2.0   rpo MonthNthWhichDayMask
+    Integer eRoRecurr_Type          //NUM 2.0   rpo RecurrenceType
+    Integer eRoW_DayWeekMask        //NUM 2.0   rpo WeeklyDayOfWeekMask
+    Integer iRoW_Int_Weeks          //NUM 8.0   rpo WeeklyIntervalWeeks
+    Integer iRoY_DayOfMonth         //NUM 2.0   rpo YearlyDayOfMonth
+    Integer iRoY_MonthOfYear        //NUM 2.0   rpo YearlyMonthOfYear
+    Integer iRoY_NthM_OfYear        //NUM 8.0   rpo YearNthMonthOfYear
+    Integer iRoY_Nth_Day            //NUM 2.0   rpo YearNthWhichDay
+    Integer iRoY_Nth_DayMask        //NUM 8.0   rpo YearNthWhichDayMask
+End_Struct
+
+//-----------------------------------------------------------------------------
+
+// Category="SigCj:Dialogs" Visibility=Public
+Struct tdSigCjCal_Dialog_RecPattern
+    Integer eAction
+    tdSigCjCal_RecPattern tRecPattern
+End_Struct
+
+//-----------------------------------------------------------------------------
+
+// Category="SigCj:Schedules" Visibility=Public
+Struct tdSigCjCal_Resource
+    Integer iID
+    String  sName
+    Integer iShadeColor
+    Boolean bMuiltiColor
+End_Struct
+
+//-----------------------------------------------------------------------------
+
+// Category="SigCj:Schedules" Visibility=Public
+Struct tdSigCjCal_Schedule_Info
+    Integer iID
+    String  sName
+    tdSigCjCal_Category[] taCateogies
+End_Struct
+
+//-----------------------------------------------------------------------------
+
+// Category="SigCj:Dialogs" Visibility=Public
+Struct tdSigCjCal_Dialog_Info
+    Boolean bEnableResources                                //copy of pbEnableResources
+    Boolean bMultiSchedulesMode                             //copy of pbMultiSchedulesMode
+    Boolean bAllScheduleInfo                                //copy of pbAllScheduleInfo
+    Handle  hoRecurringDialog                               //copy of phoRecurringDialog
+    Integer eAction_Event                                   //action for Event
+    String  sDefaultSchedule                                //Clicked schedule if in multi schedule mode
+    tdSigCjCal_Event                 tEvent                 //Event data if editing or a set of default if creating
+    tdSigCjCal_Dialog_RecPattern     tDialog_RecPattern     //RecPattern data if exists or a set of default if none
+    tdSigCjCal_Dialog_DB_Link        tDialog_DB_Link        //info about DB_Link
+    tdSigCjCal_Dialog_CustomIcon     tDialog_CustomIcon     //info about custom Icons
+    tdSigCjCal_Dialog_CustomProperty tDialog_CustomProperty //info about custom properties
+    tdSigCjCal_Schedule_Info[]       taSchedules            //Schedule and category information.
+End_Struct
+
+//==============================================================================
+//End of Package - SigCjCalendar_Public.pkg
+//==============================================================================

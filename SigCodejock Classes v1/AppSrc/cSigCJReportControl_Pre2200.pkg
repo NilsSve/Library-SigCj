@@ -1,0 +1,3463 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJReportControl.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev: 905 $
+//                $Date: 2019-04-30 08:58:11 +0100 (Tue, 30 Apr 2019) $
+//                $Author: ian $ Martin Pincott
+//
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+// Contributions
+// =============
+//
+// When       Who           What
+// ========== ============== =====================================================
+// 2009-06-25 Chris Spencer Reported Bug when using DD defined check boxes.
+//
+// 2011-06-23 Peter van Mil Zero Suppress options for Integer, Decimal/Real and Currency columns
+//                               Properties: - pbZero_Suppress_Integer, pbZero_Suppress_Decimal and pbZero_Suppress_Currency added
+// 2012-05-08 Chuck Atkinson Added right click Context Menu Grouping options
+//==============================================================================
+
+Use SigCjW_ReportControl.pkg
+Use cSigCJMethods_Mixin.pkg
+Use cSigCJGlobalSettings.pkg
+Use cSigCJPropEx_Mixin.pkg
+Use cSigCJReportControlContextMenu.pkg
+Use cSigCJReportFieldChooser_Pre2200.pkg
+Use gFormatNumbers.pkg
+Use CSV_Export.dg
+Use StdFont.pkg
+
+Register_Function pbRefreshRequired Returns Boolean
+
+Class SigCJReportIdleHandler is a cIdleHandler
+
+    Procedure OnIdle
+        If (pbRefreshRequired(Self)) Begin
+            Delegate Send Refresh_Report
+            Set pbRefreshRequired to False
+        End
+        If (pbNeedsRedraw(Self)) Begin
+            Delegate Send ComRedraw
+            Set pbNeedsRedraw to False
+        End
+    End_Procedure
+
+End_Class
+
+Class SigCJReportColumn is a cSigCjComReportColumn
+    Import_Class_Protocol cSigCJMethods_Mixin
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        { Visibility=Private }
+        { MethodType=Property }
+        Property String Private.psImage
+        { Visibility=Private }
+        { MethodType=Property }
+        Property Integer Private.piImage
+    End_Procedure
+
+
+    { MethodType=Property }
+    { Category="CodeJock" }
+    Procedure Set psImage String sImage
+        Integer iImageId
+        Variant vImage
+
+        Get AddImage    of ghoSigCjGlobalSetting sImage 0 OLExtpImageNormal to iImageId
+        Set Private.piImage to iImageId
+
+        If (IsComObjectCreated(Self)) Set ComIcon to iImageId
+    End_Procedure
+
+    { MethodType=Property }
+    { Category="CodeJock" }
+    Function psImage Returns String
+        Function_Return (Private.psImage(Self))
+    End_Function
+
+End_Class
+
+
+Class SigCJReportRecordItem is a cSigCjComReportRecordItem
+    Import_Class_Protocol cSigCJMethods_Mixin
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        { Visibility=Private }
+        { MethodType=Property }
+        Property String Private.psImage
+        { Visibility=Private }
+        { MethodType=Property }
+        Property Integer Private.piImage
+    End_Procedure
+
+
+    { MethodType=Property }
+    { Category="CodeJock" }
+    Procedure Set psImage String sImage
+        Integer iImageId
+        Variant vImage
+
+        Get AddImage    of ghoSigCjGlobalSetting sImage 0 OLExtpImageNormal to iImageId
+        Set Private.piImage to iImageId
+
+        If (IsComObjectCreated(Self)) Set ComIcon to iImageId
+    End_Procedure
+
+    { MethodType=Property }
+    { Category="CodeJock" }
+    Function psImage Returns String
+        Function_Return (Private.psImage(Self))
+    End_Function
+
+End_Class
+
+
+//Add the the next line to your main program in order to use Mertech SQL drivers instead of DataAccess drivers.
+//Define SigCj_Use_Mertech_Drivers
+
+#IFDEF SigCj_Use_Mertech_Drivers
+    Use MerTech.inc
+    Use cSQLResultSet.pkg
+    Move SQLFLEX To _SQLBACKEND    // Default = Move ORAFLEX To _SQLBACKEND
+#ELSE
+    Use sql.pkg
+#ENDIF
+
+//=============================================================================
+//Enums
+//=====
+
+Enum_List // HitTest
+    Define eRC_HitTest_None
+    Define eRC_HitTest_Unknown
+    Define eRC_HitTest_GroupBox
+    Define eRC_HitTest_Header
+    Define eRC_HitTest_ReportArea
+End_Enum_List
+
+Enum_List // Data Source
+    Define eRC_db_Table
+    Define eRC_db_SQL
+    Define eRC_db_Text
+End_Enum_List
+
+Enum_List // Find record Method for standard dataflex tables
+    Define eRC_Find_Normal
+    Define eRC_Find_RequestRead
+    Define eRC_Find_Constrained
+End_Enum_List
+
+Enum_List // Styles
+    Define eRC_Standard
+    Define eRC_CheckBox
+    Define eRC_Preview
+End_Enum_List
+
+Enum_List
+    Define eRC_BestFit_None
+    Define eRC_BestFit_Visible
+    Define eRC_BestFit_All
+End_Enum_List
+
+//-----------------------------------------------------------------------------
+
+Enum_List  // Data Type
+    Define eRC_String           // This first so string is default if data type not specified
+    Define eRC_Currency
+    Define eRC_Date
+    Define eRC_DateTime
+    Define eRC_DTString         // Datatime held as a String
+    Define eRC_Integer
+    Define eRC_Real
+    Define eRC_Decimal          // It will work out the number decimal places, upto 8
+    Define eRC_Text             // Text fields have automatic word wrap
+    Define eRC_Time
+    Define eRC_Dev1             // For Development formats
+    Define eRC_Dev2
+    Define eRC_Dev3
+    Define eRC_Last_DataType    // MUST BE Lst in Enum_List
+End_Enum_List
+
+Define eRC_Num_DataTypes for (eRC_Last_DataType - 1) // Now many types defined (0 based)
+
+//-----------------------------------------------------------------------------
+
+// This sets the defaults format
+Struct tdRC_Column_Format
+    Boolean bBold
+    Boolean bColorColumn
+    Integer eAlignment
+    Integer eBestFit
+    Integer iForeColor
+    Integer iBackColor
+    Integer iForeColor_Neg
+    Integer iBackColor_Neg
+    String  sFormat         //the format of the caption - see Codejock help
+    String  sDateFormat     //the format of the source Date/Time data (e.g. DD-MM-YYYY hh:mm:ss)
+End_Struct
+
+#Replace tdRC_Column_Formats  tdRC_Column_Format[eRC_Last_DataType] //Let the compile do the work
+
+//-----------------------------------------------------------------------------
+
+Struct tdRC_Column_Def
+    String  sLabel     // - Column header label
+    Integer iSize      // - Column size
+    Integer eDataType  // - Column data type
+    Integer eStyle     // - Column style - Currency / checkbox etc
+    String  sTC_Name   // - Table / Column name (file.field)
+    String  sEval      // - Eval value for database function or datafield displayed
+    Boolean bSubTotals // - Enable sub total for the column in header row
+    String  sFormat    // - This Sets the Column format of each column
+End_Struct
+
+//-----------------------------------------------------------------------------
+
+Struct tdRC_Ordering
+    Integer iColumn         // - Column Number (zero based)
+    Boolean bDescending     // - True = Descending, False = Ascending
+End_Struct
+
+//-----------------------------------------------------------------------------
+
+{ OverrideProperty=Label_Col_Offset          DesignTime=False }
+{ OverrideProperty=Label_Justification_Mode  DesignTime=False }
+{ OverrideProperty=Label_Row_Offset          DesignTime=False }
+{ OverrideProperty=piMinSize                 DesignTime=False }
+{ OverrideProperty=Border_Style              DesignTime=False }
+{ OverrideProperty=Visible_State             DesignTime=False }
+{ OverrideProperty=Attach_Parent_State       DesignTime=False }
+{ OverrideProperty=Block_Mouse_State         DesignTime=False }
+{ OverrideProperty=Client_Area_State         DesignTime=False }
+{ OverrideProperty=Delegation_Mode           DesignTime=False }
+{ OverrideProperty=Focus_Mode                DesignTime=False }
+{ OverrideProperty=pbBindValue               DesignTime=False }
+{ OverrideProperty=peAutoCreate              DesignTime=False }
+{ OverrideProperty=peNeighborhood            DesignTime=False }
+{ OverrideProperty=Popup_State               DesignTime=False }
+{ OverrideProperty=Ring_State                DesignTime=False }
+{ OverrideProperty=Scope_State               DesignTime=False }
+{ OverrideProperty=Search_Case               DesignTime=False }
+{ OverrideProperty=Skip_State                DesignTime=False }
+{ OverrideProperty=Help_Id                   DesignTime=False }
+{ OverrideProperty=Help_Keyword              DesignTime=False }
+{ OverrideProperty=psHtmlHelpTopic           DesignTime=False }
+{ OverrideProperty=Status_Help               DesignTime=False }
+{ OverrideProperty=Use_Parent_Status_Help    DesignTime=False }
+{ OverrideProperty=psLicenseKey              DesignTime=False }
+{ OverrideProperty=psProgID                  DesignTime=False }
+{ OverrideProperty=Color                     InitialValue=clActiveCaption }
+{ OverrideProperty=psPX_Class InitialValue="SigCjReportControl" }
+
+{ DesignerClass=cDTGrid }
+Class cSigCJReportControl is a cSigCjComReportControl
+    Import_Class_Protocol cSigCJMethods_Mixin
+    Import_Class_Protocol cSigCJPropEx_Mixin
+
+//    Set Color to clActiveCaption // Used only by the Studio
+
+    Procedure Construct_Object
+        Handle hoFieldChooserPanel
+
+        Forward Send Construct_Object
+
+        { DesignTime=False }
+        Property Handle phoReportRecords             (Create(Self, U_cSigCjComReportRecords))
+
+        { DesignTime=False }
+        Property Handle phoReportRecord              (Create(Self, U_cSigCjComReportRecord))
+
+        { DesignTime=False }
+        Property Handle phoReportRecordItem          (Create(Self, U_SigCJReportRecordItem))
+
+        { DesignTime=False }
+        Property Handle phoReportRecordItemMetrics   (Create(Self, U_cSigCjComReportRecordItemMetrics))
+
+        { DesignTime=False }
+        Property Handle phoReportColumns             (Create(Self, U_cSigCjComReportColumns))
+
+        { DesignTime=False }
+        Property Handle phoReportColumn              (Create(Self, U_SigCJReportColumn))
+
+        { DesignTime=False }
+        Property Handle phoReportColumnOrder         (Create(Self, U_cSigCjComReportColumnOrder))
+
+        { DesignTime=False }
+        Property Handle phoReportRows                (Create(Self, U_cSigCjComReportRows))
+
+        { DesignTime=False }
+        Property Handle phoReportRow                 (Create(Self, U_cSigCjComReportRow))
+
+        { DesignTime=False }
+        Property Handle phoReportGroupRow            (Create(Self, U_cSigCjComReportGroupRow))
+
+        { DesignTime=False }
+        Property Handle phoReportSelectedRows        (Create(Self, U_cSigCjComReportSelectedRows))
+
+        { DesignTime=False }
+        Property Handle phoReportPaintManager        (Create(Self, U_cSigCjComReportPaintManager))
+
+        { DesignTime=False }
+        Property Handle phoReportPrintOptions        (Create(Self, U_cSigCjComReportPrintOptions))
+
+        { DesignTime=False }
+        Property Handle phoPrintPageHeaderFooter     (Create(Self, U_cSigCjComPrintPageHeaderFooter))
+
+        { DesignTime=False }
+        Property Handle phoHitTestInfo               (Create(Self, U_cSigCjComReportHitTestInfo))
+
+        { DesignTime=False }
+        Property Handle phoReportNavigator           (Create(Self, U_cSigCjComReportNavigator))
+
+        { DesignTime=False }
+        Property tdRC_Column_Formats ptColumn_Formats
+
+        { Category="CodeJock" InitialValue="" }
+        Property String  psWatermarkBitmap
+
+        { Category="CodeJock" InitialValue=2082 } // 2 + 32 + 2048 = 2082
+        Property Integer piWatermarkAlignment (OLExtpReportWatermarkCenter + OLExtpReportWatermarkvCenter + OLExtpReportWatermarkPreserveRatio)
+
+        { Category="CodeJock" InitialValue=35 }
+        Property Integer piWatermarkWeight 35
+
+        { Category="CodeJock" InitialValue=True }
+        Property Boolean pbWatermarkFromFile True
+
+        { Category="CodeJock" InitialValue=False }
+        Property Boolean pbPrintLandscape False
+
+        // Font Support
+        { DesignTime=False }
+        Property Handle phoFont               (Create(Self, U_cComStdFont))
+
+        { Category="CodeJock" InitialValue="" }
+        Property String  psGridFontName
+
+        { Category="CodeJock" InitialValue=0 }
+        Property Number  pnGridFontSize
+
+        { Category="CodeJock" InitialValue="" }
+        Property String  psPreviewFontName
+
+        { Category="CodeJock" InitialValue=0 }
+        Property Number  pnPreviewFontSize
+
+        { DesignTime=False }
+        Property Integer Private_piFreezeColumnsCount 0
+
+        { Category="CodeJock" InitialValue=False }
+        Property Boolean pbFreezeColumns False
+
+        { DesignTime=False }
+        Property Integer Private_piColumn_Count 0
+
+        { DesignTime=False }
+        Property Integer Private_piCurrentColumnIndex 0
+
+        { DesignTime=False }
+        Property Integer Private_piRow_Count 0
+
+        { DesignTime=False }
+        Property Integer Private_piFiltered_Row_Count 0
+
+        { DesignTime=False }
+        Property Integer Private_piSelected_Row_Count 0
+
+        { DesignTime=False }
+        Property Boolean Private_pbPreviewMode True
+
+        { DesignTime=False }
+        Property Boolean Private_pbShowFooter True
+
+        { Category="CodeJock" InitialValue="" }
+        Property Handle phoContextMenu_Header        (Create(Self, U_cSigCJReportControlContextMenu_Header))
+
+        { Category="CodeJock" InitialValue="" }
+        Property Handle phoContextMenu_GroupBox      (Create(Self, U_cSigCJReportControlContextMenu_GroupBox))
+
+        { Category="CodeJock" InitialValue="" }
+        Property Handle phoContextMenu_Groups        (Create(Self, U_cSigCJReportControlContextMenu_Groups))
+
+        { Category="CodeJock" InitialValue="" }
+        Property Handle phoContextMenu_ReportArea    (Create(Self, U_cSigCJReportControlContextMenu_ReportArea))
+
+        { DesignTime=False }
+        { EnumList="eRC_HitTest_None, eRC_HitTest_Unknown, eRC_HitTest_GroupBox, eRC_HitTest_Header, eRC_HitTest_ReportArea"}
+        Property Integer peHitTest
+
+        { Category="CodeJock" InitialValue=False }
+        Property Boolean pbActive_Track False
+
+        { Category="CodeJock" InitialValue=False }
+        Property Boolean pbAuto_Columns False
+
+        { Visibility = Private }
+        Property Boolean Private_pbMultipleSelection True
+
+        { Visibility = Private }
+        Property Boolean Private_pbAutoColumnSizing False
+
+        { Category="CodeJock" InitialValue=True }
+        Property Boolean pbAuto_Fill True
+
+        { Category="CodeJock" InitialValue=False }
+        Property Boolean pbZero_Suppress_Integer False
+
+        { Category="CodeJock" InitialValue=False }
+        Property Boolean pbZero_Suppress_Decimal False // or Real
+
+        { Category="CodeJock" InitialValue=False }
+        Property Boolean pbZero_Suppress_Currency False
+
+
+        { Category="CodeJock-Text Files Only" InitialValue=True }
+        Property Boolean pbAuto_Row_Ref True
+
+        { Category="CodeJock" }
+        Property String  psProcess_Type
+
+        { DesignTime=False }
+        Property Integer piCh_No 0
+
+        { DesignTime=False }
+        Property tdRC_Column_Def[] ptColumn_Defs
+
+        { DesignTime=False }
+        Property String[] psData_Items
+
+        { Category="CodeJock" InitialValue=eRC_db_Table }
+        { EnumList="eRC_db_Table, eRC_db_SQL, eRC_db_Text"}
+        Property Integer peDb_Type eRC_db_Table
+
+        { DesignTime=False }
+        Property Handle phoDD 0
+
+        { Category="CodeJock" InitialValue=True }
+        Property Boolean pbShowGroupBox True
+
+        { Category="CodeJock" InitialValue=False }
+        Property Boolean pbDescending False
+
+        { Category="CodeJock" InitialValue=False }
+        Property Boolean pbCollapseGroups False
+
+        { Category="CodeJock" InitialValue= True}
+        Property Boolean pbColumn_Resort True
+
+        { Category="CodeJock" InitialValue= 0}
+        Property Integer piMaxPreviewLines 0
+
+        { Category="CodeJock" InitialValue= '' }
+        Property String  psNoItemsText ''
+
+        { DesignTime=False }
+        Property Boolean pbEOF False
+
+        { DesignTime=False }
+        { Category="CodeJock" }
+        Property Handle phoFieldChooser 0
+
+        { DesignTime=False }
+        { Obsolete=True }
+        Property Handle Private_phoFieldChooserList 0
+
+        { DesignTime=False}
+        Property Boolean pbDefaultLayout False
+
+        { Category="CodeJock" InitialValue= 0}
+        Property Integer piMax_Rows 0
+
+        { Category="CodeJock" InitialValue= False}
+        Property Boolean pbRow_Item False
+
+        { Category="CodeJock" InitialValue= False}
+        Property Boolean pbRow_Colors False
+
+        { Category="CodeJock" InitialValue= False}
+        Property Boolean pbItem_Colors False
+
+        { DesignTime=False }
+        Property Integer piRow_ForeColor 0
+
+        { DesignTime=False }
+        Property Integer piRow_BackColor 0
+
+        { DesignTime=False }
+        Property Integer piItem_ForeColor 0
+
+        { DesignTime=False }
+        Property Integer piItem_BackColor 0
+
+        { DesignTime=False }
+        Property Boolean pbItem_Bold False
+
+        { DesignTime=False }
+        Property String  psExport_File ""
+
+        { Category="CodeJock" InitialValue=0 }
+        Property Integer piRef_Column    0
+
+        { DesignTime=False }
+        Property String  psCurrent_Tag ""
+
+        { Category="CodeJock-Data Tables Only" InitialValue=False }
+        Property Boolean pbRowID_Mode False
+
+        { Category="CodeJock" InitialValue=False }
+        Property Boolean pbShow_Recnum False
+
+        { Category="CodeJock" InitialValue=True }
+        Property Boolean pbWordWrap True
+
+        { Category="CodeJock" InitialValue=eRC_Find_Normal }
+        { EnumList="eRC_Find_Normal, eRC_Find_RequestRead, eRC_Find_Constrained"}
+        Property Integer peDataflex_Table_Find_Method
+
+        { Category="CodeJock-SQL" InitialValue=False }
+        Property Boolean pbSQL_Case False
+
+        { Category="CodeJock-SQL" InitialValue="" }
+        Property String  psSQL_From ""
+
+        { Category="CodeJock-SQL" InitialValue="" }
+        Property String  psSQL_OrderBy ""
+
+        { Category="CodeJock-SQL" InitialValue="" }
+        Property String  psSQL_Select ""
+
+        { DesignTime=False }
+        Property String  psSQL_Select_Statment ""
+
+        { Category="CodeJock-SQL" InitialValue="" }
+        Property String  psSQL_Where ""
+
+        { Category="CodeJock-SQL" InitialValue=False }
+        Property String  pbAlwaysRebuild_SQL False
+
+        { Category="CodeJock-SQL" InitialValue=True }
+        Property String  pbSQL_AutoTranslateToOEM True
+
+        { Category="CodeJock" InitialValue=0 }
+        Property Integer piTable_Index 0
+
+        { Category="CodeJock" InitialValue=0 }
+        Property Integer piLoad_Monitor 0
+
+        { DesignTime=False }
+        Property TimeSpan ptsTimeSpan_Load
+
+        { DesignTime=False }
+        Property TimeSpan ptsTimeSpan_SQL
+
+        { DesignTime=False }
+        Property Boolean pbRefreshRequired False
+
+        { DesignTime=False }
+        Property Boolean pbNeedsRedraw False
+
+        { Category="CodeJock" InitialValue=False }
+        Property Boolean pbEnableTotals False
+
+        { Category="CodeJock" InitialValue=False }
+        Property Boolean pbShade_Column_On_Sort False
+
+        { Category="CodeJock" InitialValue=False }
+        Property Boolean pbShade_Row False
+
+        { Category="CodeJock" InitialValue=0.8 }
+        Property Number  pnShade 0.8
+
+        { Visibility=Private }
+        Property Integer Private_DefaultSelectedBackColor
+
+        #IFDEF SigCj_Use_Mertech_Drivers
+        #ELSE
+            Object oSQL_Report_Handler is a cSQLHandleManager
+            End_Object
+        #ENDIF
+
+        Object oSigCJReportIdleHandler is a SigCJReportIdleHandler
+            Set pbEnabled to True
+        End_Object
+
+        Send Initialise_PropEx_Mixin
+        Set psPX_Class to "SigCjReportControl"
+    End_Procedure
+
+    Procedure End_Construct_Object
+        Forward Send End_Construct_Object
+
+        Send Initialise_Column_Formats
+    End_Procedure
+
+    Procedure ReleaseComObject
+        //The order of this may be important... not sure... currently does what is expected!
+        If (IsComObject(phoReportRecords            (Self))) Set pvComObject of (phoReportRecords           (Self)) to (NullComObject())
+        If (IsComObject(phoReportRecord             (Self))) Set pvComObject of (phoReportRecord            (Self)) to (NullComObject())
+        If (IsComObject(phoReportRecordItem         (Self))) Set pvComObject of (phoReportRecordItem        (Self)) to (NullComObject())
+        If (IsComObject(phoReportRecordItemMetrics  (Self))) Set pvComObject of (phoReportRecordItemMetrics (Self)) to (NullComObject())
+        If (IsComObject(phoReportColumns            (Self))) Set pvComObject of (phoReportColumns           (Self)) to (NullComObject())
+        If (IsComObject(phoReportColumn             (Self))) Set pvComObject of (phoReportColumn            (Self)) to (NullComObject())
+        If (IsComObject(phoReportColumnOrder        (Self))) Set pvComObject of (phoReportColumnOrder       (Self)) to (NullComObject())
+        If (IsComObject(phoReportRows               (Self))) Set pvComObject of (phoReportRows              (Self)) to (NullComObject())
+        If (IsComObject(phoReportRow                (Self))) Set pvComObject of (phoReportRow               (Self)) to (NullComObject())
+        If (IsComObject(phoReportGroupRow           (Self))) Set pvComObject of (phoReportGroupRow          (Self)) to (NullComObject())
+        If (IsComObject(phoReportSelectedRows       (Self))) Set pvComObject of (phoReportSelectedRows      (Self)) to (NullComObject())
+        If (IsComObject(phoReportPaintManager       (Self))) Set pvComObject of (phoReportPaintManager      (Self)) to (NullComObject())
+        If (IsComObject(phoReportPrintOptions       (Self))) Set pvComObject of (phoReportPrintOptions      (Self)) to (NullComObject())
+        If (IsComObject(phoPrintPageHeaderFooter    (Self))) Set pvComObject of (phoPrintPageHeaderFooter   (Self)) to (NullComObject())
+        If (IsComObject(phoHitTestInfo              (Self))) Set pvComObject of (phoHitTestInfo             (Self)) to (NullComObject())
+        If (IsComObject(phoFont                     (Self))) Set pvComObject of (phoFont                    (Self)) to (NullComObject())
+        If (IsComObject(phoContextMenu_Header       (Self))) Set pvComObject of (phoContextMenu_Header      (Self)) to (NullComObject())
+        If (IsComObject(phoContextMenu_GroupBox     (Self))) Set pvComObject of (phoContextMenu_GroupBox    (Self)) to (NullComObject())
+        If (IsComObject(phoContextMenu_Groups       (Self))) Set pvComObject of (phoContextMenu_Groups      (Self)) to (NullComObject())
+        If (IsComObject(phoContextMenu_ReportArea   (Self))) Set pvComObject of (phoContextMenu_ReportArea  (Self)) to (NullComObject())
+
+        // Get phoIdleHandler to hoIdle
+        If (oSigCJReportIdleHandler(Self) <> 0) Set pbEnabled of (oSigCJReportIdleHandler(Self)) to False
+
+        Forward Send ReleaseComObject
+    End_Procedure
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Function CreateFieldChooserPanel Returns Handle
+        Handle hoFieldChooserPanel
+
+        Get Create U_cSigCjGridFieldChooserPanel to hoFieldChooserPanel
+        Set phoGridObject of hoFieldChooserPanel to Self
+
+        Function_Return hoFieldChooserPanel
+    End_Function
+
+    Procedure AttachFieldChooser Handle hoFieldChooser Boolean bAttach
+        Variant vFieldChooser
+
+        If (IsComObjectCreated(Self) and hoFieldChooser <> 0) Begin
+            If bAttach Begin
+                Get pvComObject of hoFieldChooser to vFieldChooser
+            End
+            Else Begin
+                Move (NullComObject()) to vFieldChooser
+            End
+            Set ComFieldChooser to vFieldChooser
+        End
+    End_Procedure  // AttachFieldChooser
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Procedure Reset_Data_Properties
+        Set pbAuto_Columns        to False
+        Set pbAuto_Row_Ref        to True
+        Set phoDD                 to 0
+        Set pbDescending          to False
+        Set ptsTimeSpan_Load      to ""
+        Set ptsTimeSpan_SQL       to ""
+        Set piMax_Rows            to 0
+        Set piRef_Column          to 0
+        Set pbRowID_Mode          to False
+        Set pbShow_Recnum         to False
+        Set pbSQL_Case            to False
+        Set psSQL_From            to ""
+        Set psSQL_OrderBy         to ""
+        Set psSQL_Select          to ""
+        Set psSQL_Select_Statment to ""
+        Set psSQL_Where           to ""
+        Set pbAlwaysRebuild_SQL   to False
+        Set piTable_Index         to 0
+
+        Set Private_piRow_Count             to 0
+        Set Private_piFiltered_Row_Count    to 0
+        Set Private_piSelected_Row_Count    to 0
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+    // Support for Obsolete Code
+
+    { Category="CodeJock" InitialValue=True }
+    { Obsolete=True }
+    Procedure Set pbNormal_Find_Method Boolean bOk
+        If (bOk) Set peDataflex_Table_Find_Method to eRC_Find_Normal
+        Else Set peDataflex_Table_Find_Method to eRC_Find_Constrained
+    End_Procedure
+    // Use Set peDataflex_Table_Find_Method to eRC_Find_Normal
+    // Options eRC_Find_Normal eRC_Find_RequestRead eRC_Find_Constrained
+
+
+    //-------------------------------------------------------------------------
+
+    {Category="CodeJock" MethodType=Method}
+    Procedure SetWatermark
+        Boolean bWatermarkFromFile bRetval
+        Integer iWatermarkWeight iWatermarkAlignment iImageId
+        String  sWatermarkBitmap sBitmapPath
+
+        Get psWatermarkBitmap    to sWatermarkBitmap
+        Get piWatermarkWeight    to iWatermarkWeight
+        Get piWatermarkAlignment to iWatermarkAlignment
+        Get pbWatermarkFromFile  to bWatermarkFromFile
+
+        Set ComWatermarkAlignment to iWatermarkAlignment
+
+        If (sWatermarkBitmap <> "") Begin
+            If (bWatermarkFromFile) Begin
+                Get psBitmapPath of (phoWorkspace(ghoApplication))        to sBitmapPath
+                Move (Append(sBitmapPath,String("\" + sWatermarkBitmap))) to sBitmapPath
+                Get ComSetWatermarkBitmapFromFile sBitmapPath iWatermarkWeight to bRetval
+            End
+            Else Begin
+                Get AddImage of ghoSigCjGlobalSetting sWatermarkBitmap 0 OLExtpImageNormal to iImageId
+                Get ComSetWatermarkBitmap iImageId iWatermarkWeight to bRetval
+//                If (IsComObjectCreated(Self)) Set ComIcon to iImageId
+            End
+        End
+    End_Procedure
+
+    {Category="CodeJock" MethodType=Property InitialValue=True }
+    Procedure Set pbMultipleSelection Boolean bValue
+        Set SigCJProperty Set_Private_pbMultipleSelection Set_ComMultipleSelection to bValue
+    End_Procedure
+
+    Function pbMultipleSelection Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbMultipleSelection, Get_ComMultipleSelection))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbAutoColumnSizing Boolean bValue
+        Set SigCJProperty Set_Private_pbAutoColumnSizing Set_ComAutoColumnSizing to bValue
+    End_Procedure
+
+    Function pbAutoColumnSizing Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbAutoColumnSizing, Get_ComAutoColumnSizing))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=True }
+    Procedure Set pbShowFooter Boolean bValue
+        Set SigCJProperty Set_Private_pbShowFooter Set_ComShowFooter to bValue
+    End_Procedure
+
+    Function pbShowFooter Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbShowFooter, Get_ComShowFooter))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=0 }
+    Procedure Set piFreezeColumnsCount Integer iCount
+        Set SigCJProperty Set_Private_piFreezeColumnsCount Set_ComFreezeColumnsCount to iCount
+    End_Procedure
+
+    Function piFreezeColumnsCount Returns Integer
+        Function_Return (SigCJProperty(Self, Get_Private_piFreezeColumnsCount, Get_ComFreezeColumnsCount))
+    End_Function
+
+    { MethodType=Property }
+    Function piColumn_Count Returns Integer
+        Function_Return (Private_piColumn_Count(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" PropertyType=Color InitialValue=clWindow }
+    Procedure Set piBackColor OLE_Color iColor
+        Set SigCJProperty Set_Private_piBackColor Set_ComBackColor to iColor
+    End_Procedure
+
+    Function piBackColor Returns OLE_Color
+        Function_Return (SigCJProperty(Self, Get_Private_piBackColor, Get_ComBackColor ))
+    End_Function
+
+    { MethodType=Property }
+    Function piRow_Count Returns Integer
+        Function_Return (Private_piRow_Count(Self))
+    End_Function
+
+    { MethodType=Property }
+    Function piFiltered_Row_Count Returns Integer
+        Function_Return (Private_piFiltered_Row_Count(Self))
+    End_Function
+
+    { MethodType=Property }
+    Function piSelected_Row_Count Returns Integer
+        Function_Return (Private_piSelected_Row_Count(Self))
+    End_Function
+
+    { MethodType=Property }
+    Function pbPreviewMode Returns Boolean
+        Function_Return (Private_pbPreviewMode(Self))
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set pbPreviewMode Boolean bValue
+        If (IsComObjectCreated(Self)) Begin
+            Set ComPreviewMode to bValue
+            Set Private_pbPreviewMode to bValue
+        End
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+    {MethodType=Method DesignTime=False}
+    Procedure FieldChooser
+        Send Popup to (phoFieldChooser(Self))
+    End_Procedure
+
+    Procedure DefaultLayout
+        Set pbDefaultLayout to True
+        Send PX_Delete_Key (PX_Registry_Key(Self))
+        Send Rebuild_Report
+        Set pbDefaultLayout to False
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    {MethodType=Method DesignTime=False}
+    Procedure Initialise_Column_Formats
+        Integer iLoop
+        tdRC_Column_Formats tColumn_Formats
+
+        Get ptColumn_Formats to tColumn_Formats
+
+        For iLoop from 0 to eRC_Num_DataTypes
+            Move False               to tColumn_Formats[iLoop].bBold
+            Move False               to tColumn_Formats[iLoop].bColorColumn
+            Move eRC_BestFit_None    to tColumn_Formats[iLoop].eBestFit
+            Move clWindow            to tColumn_Formats[iLoop].iBackColor
+            Move clWindowText        to tColumn_Formats[iLoop].iForeColor
+            Move clWindow            to tColumn_Formats[iLoop].iBackColor_Neg
+            Move clRed               to tColumn_Formats[iLoop].iForeColor_Neg
+            Move ""                  to tColumn_Formats[iLoop].sFormat
+            Move ""                  to tColumn_Formats[iLoop].sDateFormat
+
+            Move OLExtpAlignmentLeft to tColumn_Formats[iLoop].eAlignment
+            If ((iLoop = eRC_Currency) or (iLoop = eRC_Integer) or (iLoop = eRC_Real)) Begin
+                Move OLExtpAlignmentRight to tColumn_Formats[iLoop].eAlignment
+            End
+            If (iLoop = eRC_Decimal) Begin
+                Move OLExtpAlignmentRight to tColumn_Formats[iLoop].eAlignment
+                Move "%.8s" to tColumn_Formats[iLoop].sFormat
+            End
+            If (iLoop = eRC_Text) Begin
+                Move OLExtpAlignmentWordBreak to tColumn_Formats[iLoop].eAlignment
+                Move eRC_BestFit_None to tColumn_Formats[iLoop].eBestFit
+            End
+            If (iLoop = eRC_date) Begin
+                Move eRC_BestFit_All to tColumn_Formats[iLoop].eBestFit
+            End
+        Loop
+
+        Set ptColumn_Formats to tColumn_Formats
+
+        Send OnSetColumnFormats
+    End_Procedure
+
+    Procedure OnSetColumnFormats
+        //Event Hook
+        //
+        //tdRC_Column_Formats tColumn_Formats
+        //
+        //Get ptColumn_Formats to tColumn_Formats
+        //
+        //Move True   to tColumn_Formats[eRC_Dev1].bBold
+        //Move clBlue to tColumn_Formats[eRC_Dev1].iForeColor
+        //Move "%.2s" to tColumn_Formats[eRC_Dev1].sFormat
+        //
+        //Set ptColumn_Formats to tColumn_Formats
+        //
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+    // Context Menu OnAdd_ and OnPopup_ Hook options
+    //-------------------------------------------------------------------------
+    Procedure OnAdd_ContextMenu_GroupBox Handle hoContextMenu
+        Send Add_Standard_MenuItems of hoContextMenu
+    End_Procedure
+
+    Procedure OnAdd_ContextMenu_Groups Handle hoContextMenu
+        Send Add_Standard_MenuItems of hoContextMenu
+    End_Procedure
+
+    Procedure OnAdd_ContextMenu_Header Handle hoContextMenu
+        Send Add_Standard_MenuItems of hoContextMenu
+    End_Procedure
+
+    Procedure OnAdd_ContextMenu_ReportArea Handle hoContextMenu
+        Send Add_Standard_MenuItems of hoContextMenu
+    End_Procedure
+
+    Procedure OnPopup_ContextMenu_GroupBox Handle hoContextMenu
+    End_Procedure
+
+    Procedure OnPopup_ContextMenu_Groups Handle hoContextMenu
+    End_Procedure
+
+    Procedure OnPopup_ContextMenu_Header Handle hoContextMenu
+    End_Procedure
+
+    Procedure OnPopup_ContextMenu_ReportArea Handle hoContextMenu
+    End_Procedure
+
+    Procedure OnCreate
+        Handle  hoReportPaintManager hoReportPrintOptions hoReportNavigator hoFieldChooserPanel hoFont
+        Handle  hoContextMenu_GroupBox hoContextMenu_Groups hoContextMenu_Header hoContextMenu_ReportArea
+        Variant vImageList vFont
+        String  sFontName
+        Number  nFontSize
+        Integer iColor
+
+        Forward Send OnCreate
+        // Force set the default of AutoColumnSizing as in Codejock it's True and we have set it to be False
+        Set ComMultipleSelection  to (Private_pbMultipleSelection(Self))
+        Set ComAutoColumnSizing   to (Private_pbAutoColumnSizing(Self))
+        // Set ComAutoColumnSizing   to (pbAutoColumnSizing(Self))
+
+        Get phoReportPaintManager to hoReportPaintManager
+        Get phoReportPrintOptions to hoReportPrintOptions
+        Get phoReportNavigator    to hoReportNavigator
+
+        //Attach the report control paint manager and Print options to the DataFlex objects.
+        //(Only one of each object, so leave attached)
+        Set pvComObject of hoReportPaintManager to (ComPaintManager(Self))
+        Set pvComObject of hoReportPrintOptions to (ComPrintOptions(Self))
+        Set pvComObject of hoReportNavigator    to (ComNavigator(Self))
+
+        //Setup Paint Manager
+        #IF (SigCj_Codejock_Version < 150001)
+            Set ComColumnStyle       of hoReportPaintManager to OLExtpColumnOffice2007
+        #ELSE
+            Set ComColumnStyle       of hoReportPaintManager to OLExtpColumnResource
+        #ENDIF
+        Set ComBorderStyle       to OLExtpBorderThemedFrame
+        Set ComFixedRowHeight    of hoReportPaintManager to False    //Allow multi row items
+        Set ComVerticalGridStyle of hoReportPaintManager to OLExtpGridNoLines
+
+        If (piMaxPreviewLines(Self) > 0) Set ComMaxPreviewLines of hoReportPaintManager to (piMaxPreviewLines(Self))
+        If (psNoItemsText(Self) > '')    Set ComNoItemsText     of hoReportPaintManager to (psNoItemsText(Self))
+
+        // Setup Print Options
+        If (pbPrintLandscape(Self)) Set ComLandscape of hoReportPrintOptions to True
+
+        // Setup Fonts
+        Get psGridFontName to sFontName
+        Get pnGridFontSize to nFontSize
+        If ((sFontName <> "") or (nFontSize > 0)) Begin
+            Set ComFixedRowHeight of hoReportPaintManager to False
+            Get phoFont to hoFont
+            Get ComTextFont of hoReportPaintManager to vFont
+            Set pvComObject of hoFont to vFont
+            If (sFontName <> "") Set ComName of hoFont to sFontName
+            If (nFontSize > 0)   Set ComSize of hoFont to nFontSize
+        End
+        Get psPreviewFontName to sFontName
+        Get pnPreviewFontSize to nFontSize
+        If ((sFontName <> "") or (nFontSize > 0)) Begin
+            Set ComFixedRowHeight of hoReportPaintManager to False
+            Get phoFont to hoFont
+            Get ComPreviewTextFont of hoReportPaintManager to vFont
+            Set pvComObject of hoFont to vFont
+            If (sFontName <> "") Set ComName of hoFont to sFontName
+            If (nFontSize > 0)   Set ComSize of hoFont to nFontSize
+        End
+
+        //Grab the default selected back color.
+        Get ComHighlightBackColor of hoReportPaintManager to iColor
+        Set Private_DefaultSelectedBackColor to iColor
+
+        // Setup Icons
+        Get ComIcons of ghoSigCjGlobalSetting to vImageList
+        Set ComIcons to vImageList
+
+        // Show Group Box
+        Set ComShowGroupBox      to (pbShowGroupBox(Self))
+
+        // Show Footer
+        If (pbEnableTotals(Self)) Begin
+            Set ComShowFooter  to (Private_pbShowFooter(Self))
+        End
+        If (pbShade_Column_On_Sort(Self)) Begin
+            Set ComShadeSortColumn of (phoReportPaintManager(Self)) to True
+        End
+
+        Send SetWatermark
+
+        Get CreateFieldChooserPanel to hoFieldChooserPanel
+        Set phoFieldChooser to hoFieldChooserPanel
+
+        // Add Context Menu option hooks
+        Get phoContextMenu_GroupBox   to hoContextMenu_GroupBox
+        Get phoContextMenu_Groups     to hoContextMenu_Groups
+        Get phoContextMenu_Header     to hoContextMenu_Header
+        Get phoContextMenu_ReportArea to hoContextMenu_ReportArea
+        If (Object_Id(hoContextMenu_GroupBox))   Send OnAdd_ContextMenu_GroupBox   hoContextMenu_GroupBox
+        If (Object_Id(hoContextMenu_Groups))     Send OnAdd_ContextMenu_Groups     hoContextMenu_Groups
+        If (Object_Id(hoContextMenu_Header))     Send OnAdd_ContextMenu_Header     hoContextMenu_Header
+        If (Object_Id(hoContextMenu_ReportArea)) Send OnAdd_ContextMenu_ReportArea hoContextMenu_ReportArea
+
+        #IF (SigCj_Codejock_Version > 160300)
+            Send ComSetCustomDraw OLExtpCustomBeforeDrawRow
+        #ENDIF
+
+        //If auto fill then do so
+        If (pbAuto_Fill(Self)) Begin
+            Send Rebuild_Report
+        End
+
+        Send Standard_PrintFooter
+        Set pbEnabled of (oSigCJReportIdleHandler(Self)) to True
+    End_Procedure
+
+    #IF (SigCj_Codejock_Version > 160300)
+        Procedure OnComBeforeDrawRow Variant llRow Variant llItem Variant llMetrics
+            Handle  hoMetrics hoRow
+            Variant vFocusedRow
+            Integer iBackColour
+            Integer iRed iGreen iBlue
+            Number  nShade
+
+            If (pbShade_Row(Self)) Begin
+                Get phoReportRow to hoRow
+                Set pvComObject  of hoRow to llRow
+                Get phoReportRecordItemMetrics to hoMetrics
+                Set pvComObject   of hoMetrics to llMetrics
+
+                Get ComBackColor of hoMetrics to iBackColour
+                Get ComFocusedRow to vFocusedRow
+
+                If ((IsSameComObject(vFocusedRow, llRow)) or (ComSelected(hoRow))) Begin
+                    Get ComBackColor of hoMetrics to iBackColour
+                    Get pnShade to nShade
+                    Get R_From_RGB iBackColour to iRed
+                    Get G_From_RGB iBackColour to iGreen
+                    Get B_From_RGB iBackColour to iBlue
+                    Move ( RGB(Mod(iRed * nShade, 256), Mod(iGreen * nShade, 256), Mod(iBlue * nShade, 256)) ) to iBackColour
+                    Set ComBackColor of hoMetrics to iBackColour
+                End
+            End
+        End_Procedure
+    #ENDIF
+
+    //=========================================================================
+    // Count Hooks
+    {MethodType=Method DesignTime=False}
+    Procedure Report_Row_Count
+        Integer iRowCount
+        Handle  hoRecords
+        Variant  vRecords
+
+        Get phoReportRecords         to hoRecords
+        Get ComRecords               to  vRecords
+        Set pvComObject of hoRecords to  vRecords
+        Get ComCount    of hoRecords to  iRowCount
+        Set Private_piRow_Count to iRowCount
+
+        Send OnReport_Row_Count iRowCount
+    End_Procedure
+
+    Procedure OnReport_Row_Count Integer iRow_Count
+        // Hook
+    End_Procedure
+
+    {MethodType=Method DesignTime=False}
+    Procedure Filtered_Row_Count
+        Integer iGroupCount iFiltered_Count iRow
+        Boolean bGroupRow
+        Handle  hoReportRows hoRow
+        Variant  vReportRows  vRow
+
+        Get phoReportRows               to hoReportRows
+        Get phoReportRow                 to hoRow
+        Get ComRows                     to  vReportRows
+        Set pvComObject of hoReportRows to  vReportRows
+        Get ComCount    of hoReportRows to  iFiltered_Count
+
+        Decrement iFiltered_Count
+        For iRow from 0 to iFiltered_Count
+            Get ComRow of hoReportRows iRow to vRow
+            Set pvComObject of hoRow to vRow
+            Get ComGroupRow of hoRow to bGroupRow
+            If (bGroupRow) Increment iGroupCount
+        Loop
+        Set Private_piFiltered_Row_Count to (iFiltered_Count - iGroupCount +1)
+
+        Send OnFiltered_Row_Count (iFiltered_Count - iGroupCount +1)
+    End_Procedure
+
+    Procedure OnFiltered_Row_Count Integer iFiltered_Count
+        // Hook
+    End_Procedure
+
+    {MethodType=Method DesignTime=False}
+    Procedure Selected_Row_Count
+        Integer iSelectedCount
+        Handle  hoSelectedRows
+        Variant vSelectedRows
+
+        Get phoReportSelectedRows         to hoSelectedRows
+        Get ComSelectedRows               to  vSelectedRows
+        Set pvComObject of hoSelectedRows to  vSelectedRows
+        Get ComCount    of hoSelectedRows to  iSelectedCount
+        Set Private_piSelected_Row_Count  to  iSelectedCount
+
+        Send OnSelected_Row_Count iSelectedCount
+    End_Procedure
+
+    Procedure OnSelected_Row_Count Integer iSelectedCount
+        // Hook
+    End_Procedure
+
+    Procedure Shade_Row
+        Boolean bGroupRow
+        Handle  hoRow hoRecord hoItem hoSelectedRows
+        Variant  vRow  vRecord  vItem
+        Integer iBackColour iCount iDefaultBackColor
+        Integer iRed iGreen iBlue
+        Number  nTint
+
+        If (pbShade_Row(Self)) Begin
+            Get Private_DefaultSelectedBackColor to iDefaultBackColor
+
+            Get phoReportSelectedRows to hoSelectedRows
+            If (IsComObject(pvComObject(hoSelectedRows))) Begin
+                Get ComCount of (phoReportSelectedRows(Self)) to iCount
+            End
+            If (iCount <= 1) Begin
+                Get ComFocusedRow   to  vRow
+                Get phoReportRow    to hoRow
+                Set pvComObject     of hoRow to vRow
+                If (IsComObject(vRow)) Begin
+                    Get ComGroupRow     of hoRow to bGroupRow
+                    If (not(bGroupRow)) Begin
+                        Get ComRecord       of hoRow to vRecord
+
+                        Get phoReportRecord to hoRecord
+                        Set pvComObject     of hoRecord to vRecord
+                        Get ComItem         of hoRecord 0 to vItem
+
+                        Get phoReportRecordItem to hoItem
+                        Set pvComObject         of hoItem to vItem
+                        Get ComBackColor        of hoItem to iBackColour
+
+                        Get R_From_RGB iBackColour to iRed
+                        Get G_From_RGB iBackColour to iGreen
+                        Get B_From_RGB iBackColour to iBlue
+
+                        Get pnShade to nTint
+                        Move ( RGB(Mod(iRed * nTint, 256), Mod(iGreen * nTint, 256), Mod(iBlue * nTint, 256)) ) to iBackColour
+                    End
+                End
+            End
+
+            //Over ride if necessary
+            If ((iCount > 1) or (bGroupRow)) Begin
+                Move iDefaultBackColor to iBackColour
+            End
+
+            Set ComSelectedRowBackColor of (phoReportPaintManager(Self)) to iBackColour
+            Set ComHighlightBackColor   of (phoReportPaintManager(Self)) to iBackColour
+        End
+    End_Procedure
+
+    Procedure OnComSelectionChanged
+        Send Selected_Row_Count
+        #IF (SigCj_Codejock_Version < 160301)
+            Send Shade_Row
+        #ENDIF
+    End_Procedure
+
+    //=========================================================================
+    //General
+
+    Procedure Rebuild_Report
+        Boolean bColumn_Resort
+        Integer iRowCount
+
+        Get pbColumn_Resort to bColumn_Resort
+        // On Rebuilding the Report we must reset the Column sort order
+        Set pbColumn_Resort to True
+
+        Send DoReset_Report_Control //delete any data and column definitions
+        Send DoDefine_Columns       //define the columns
+        Send DoLoad_Data            //load the data
+        Send ComPopulate            //display it
+
+        //Send DoBest_Fit
+
+        Set ComTopRowIndex to 0     //Insure we're at the top
+
+        Send Report_Row_Count
+        Send Resync_to_Focus_Row
+
+        If (pbDefaultLayout(Self) = False) Send PX_Load
+        Set ComAutoColumnSizing    to (pbAutoColumnSizing(Self))
+        Set ComShowGroupBox        to (pbShowGroupBox(Self))
+        Set ComShowItemsInGroups   to False
+        Send Remove_Sorted_Columns
+        Set pbColumn_Resort to bColumn_Resort
+        Get Private_piRow_Count to iRowCount
+        If (iRowCount > 0) Begin
+            If (pbEnableTotals(Self)) Send DoGroupCalculation
+            #IF (SigCj_Codejock_Version < 160301)
+                Send Shade_Row
+            #ENDIF
+        End
+    End_Procedure
+
+    // Refresh_Report when idle
+    Procedure Deferred_Refresh_Report
+        If (IsComObjectCreated(Self)) Begin
+            Set pbRefreshRequired to True
+        End
+    End_Procedure
+
+    // Redraw the control
+    Procedure DeferredRedraw
+        Set pbNeedsRedraw to True
+     End_Procedure
+
+    // User hook sent at the start of the Refresh_Report method
+    Procedure OnRefresh_Report
+    End_Procedure
+
+    Procedure Refresh_Report
+        Send OnRefresh_Report
+
+        If ((piColumn_Count(Self) = 0) or (pbAuto_Fill(Self) = False)) Begin
+            // No Count then not column data created, so build the report
+            Send DoReset_Report_Control //delete any data and column definitions
+            Send DoDefine_Columns       //define the columns
+            If ((pbAuto_Fill(Self) = False) and (pbPX_Save_Layout(Self) = True)) Send PX_Load
+        End
+        Else Begin
+            Send DoRefresh_Report_Control
+            If (peDb_Type(Self) = eRC_db_SQL) Send Build_SQL_Statement
+        End
+        Send DoLoad_Data            //load the data
+        Send ComPopulate            //display it
+        //Send DoBest_Fit
+
+        Set ComTopRowIndex to 0     //Insure we're at the top
+        Send Report_Row_Count
+        Send Resync_to_Focus_Row
+        If (pbEnableTotals(Self)) Send DoGroupCalculation
+    End_Procedure
+
+    Procedure Resync_to_Focus_Row
+        Variant vRow
+
+        Get ComFocusedRow to vRow
+        If (not(IsNullComObject(vRow))) Begin
+            Send OnComFocusChanging vRow Nothing Nothing Nothing
+            #IF (SigCj_Codejock_Version < 160301)
+                Send Shade_Row
+            #ENDIF
+        End
+        Send Filtered_Row_Count
+        Send Selected_Row_Count
+    End_Procedure
+
+    Procedure Filter_Rows String sValue
+        Set ComFilterText to sValue
+        Send ComPopulate
+        Send Resync_to_Focus_Row
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure DoReset_Report_Control
+        Handle hoColumns
+        Variant vColumns
+        tdRC_Column_Def[] tColumn_Defs
+
+        Get phoReportColumns     to hoColumns
+
+        Send DoDelete_Report_Data
+
+        //delete report control column objects
+        Get ComColumns to vColumns
+        Set pvComObject of hoColumns to vColumns
+        Send ComDeleteAll of hoColumns
+
+        //Clear the columns defs
+        Set ptColumn_Defs to tColumn_Defs
+        Set Private_piColumn_Count to 0
+    End_Procedure
+
+    Procedure DoRefresh_Report_Control
+        Send DoDelete_Report_Data
+    End_Procedure
+
+    Procedure DoDelete_Report_Data
+        Integer iColumns iCol
+        Handle  hoRecords hoColumns hoColumn
+        Variant  vRecords vColumns   vColumn
+
+        Get phoReportRecords to hoRecords
+
+        //delete any data
+        Get ComRecords to vRecords
+        Set pvComObject of hoRecords to vRecords
+        Send ComDeleteAll of hoRecords
+
+        //Need to remove any calculated footer totals
+        If (pbEnableTotals(Self)) Begin
+            Get phoReportColumns to hoColumns
+            Get phoReportColumn to hoColumn
+
+            Get ComColumns               to vColumns
+            Set pvComObject of hoColumns to vColumns
+            Get ComCount of hoColumns to iColumns
+            Decrement iColumns
+            For iCol from 0 to iColumns
+                Get ComColumn of hoColumns iCol to vColumn
+                Set pvComObject of hoColumn to vColumn
+                Set ComFooterText of hoColumn to " "
+            Loop
+        End
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure DoDefine_Columns
+        If (pbAuto_Columns(Self)) Begin
+           Send Define_From_DD      //Use DD to create columns
+        End
+        Else Begin
+            Send OnDefine_Columns   //Get user to specify column info
+        End
+
+        Send Create_Columns         //Ceate RC columns based on defined column info
+    End_Procedure
+
+    Procedure OnDefine_Columns
+        // Event Hook
+        //
+        // Call Add_Column for each column
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    {MethodType=Method DesignTime=False}
+    Procedure Define_From_DD
+        Boolean bShow_Recnum bShow
+        Handle hoDD
+        Integer iTable iColumns iLoop iTable_Type eType iSize  iNo_DP iVal_Type
+        String sLabel sTable sColumn sTrue sFalse sEval
+
+        Get pbShow_Recnum to bShow_Recnum
+        Get phoDD to hoDD
+        If (hoDD <> 0) Begin
+            Move (Main_File(hoDD)) to iTable
+            Get_Attribute DF_FILE_LOGICAL_NAME  of iTable to sTable
+            Get_Attribute DF_FILE_NUMBER_FIELDS of iTable to iColumns
+
+            For iLoop from 0 to iColumns
+                Get_Attribute DF_FIELD_NAME      of iTable iLoop to sColumn
+                Move True to bShow
+
+                If (not(bShow_Recnum) and Uppercase(Trim(sColumn)) = "RECNUM") Move False to bShow
+
+                //Can add logic in here to control display of overlap / inverse fields etc.
+
+                If (bShow) Begin
+                    Get_Attribute DF_FIELD_LENGTH    of iTable iLoop to iSize
+                    Get_Attribute DF_FIELD_TYPE      of iTable iLoop to iTable_Type
+
+                    Move -1 to eType    //stop un-handled types
+                    If (iTable_Type = DF_ASCII    ) Move eRC_String   to eType
+                    If (iTable_Type = DF_DATE     ) Move eRC_Date     to eType
+                    If (iTable_Type = DF_DATETIME ) Move eRC_DateTime to eType
+                    If (iTable_Type = DF_OVERLAP  ) Move eRC_String   to eType
+                    If (iTable_Type = DF_TEXT     ) Move eRC_Text     to eType
+
+                    If (iTable_Type = DF_BCD) Begin
+                        Get_Attribute DF_FIELD_PRECISION of iTable iLoop to iNo_DP
+                        If (iNo_DP > 0) Move eRC_Real    to eType
+                        Else            Move eRC_Integer to eType
+                    End
+
+                    //Override eType eRC_String if size > 50
+                    If ((pbWordWrap(Self) = True) and (eType = eRC_String) and (iSize > 50)) Begin
+                         Move eRC_Text to eType  //Force word wrap
+                         Move 50 to iSize
+                    End
+
+                    If (iSize < 8) Move 8 to iSize  //8 characters seems to be a good minimum size
+
+                    Move (Field_Label_Short(hoDD,iLoop)) to sLabel
+                    If (Trim(sLabel) = "") Move sColumn to sLabel
+
+                    Move (Field_Validation_Type(hoDD,iLoop)) to iVal_Type
+                    If (iVal_Type = FA_VALIDATION_TYPE_CHECKBOX) Begin
+                        Move (Field_Checkbox_Value(hoDD,iLoop,True )) to sTrue
+                        Move (Field_Checkbox_Value(hoDD,iLoop,False)) to sFalse
+
+//Bug                        Move ("If(" - sTable - "." - sColumn - " = " - sTrue - ",'" - sTrue - "','" - sFalse - "')") to sEval
+                        Move ("If(" - sTable - "." - sColumn - " = '" - sTrue - "', 1, 0)") to sEval
+                        Send Add_Report_Column sLabel (iSize * 8) eType eRC_CheckBox (sTable - "." - sColumn) sEval
+                    End
+                    Else Send Add_Report_Column sLabel (iSize * 8) eType eRC_Standard (sTable - "." - sColumn) ""
+                    //(iSize * 8) 8 pixels per char seems to give a good column width
+                End
+            Loop
+        End
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+    //CAUTION :- Overloaded Function
+
+    //For Text & CSV files
+//    Procedure Add_Report_Column Overloaded String sLabel Integer iSize Integer eDataType Short eStyle
+//        tdRC_Column_Def[] tColumn_Defs
+//        Integer iCount
+//
+//        Get ptColumn_Defs to tColumn_Defs
+//        Move (SizeOfArray(tColumn_Defs)) to iCount
+//
+//        Move sLabel     to tColumn_Defs[iCount].sLabel
+//        Move iSize      to tColumn_Defs[iCount].iSize
+//        Move eDataType  to tColumn_Defs[iCount].eDataType
+//        Move eStyle     to tColumn_Defs[iCount].eStyle
+//
+//        Set ptColumn_Defs to tColumn_Defs
+//        Set Private_piColumn_Count to iCount
+//    End_Procedure
+
+    //For database & SQL files
+    Procedure Add_Report_Column String sLabel Integer iSize Integer eDataType Integer eStyle String sTC_Name String sEval Boolean bSubTotals String sFormat
+        tdRC_Column_Def[] tColumn_Defs
+        Integer iCount
+
+        Get ptColumn_Defs to tColumn_Defs
+        Move (SizeOfArray(tColumn_Defs)) to iCount
+
+        Move sLabel     to tColumn_Defs[iCount].sLabel
+        Move iSize      to tColumn_Defs[iCount].iSize
+        Move eDataType  to tColumn_Defs[iCount].eDataType
+        Move eStyle     to tColumn_Defs[iCount].eStyle
+        If (num_arguments >= 5) Move sTC_Name   to tColumn_Defs[iCount].sTC_Name
+        If (num_arguments >= 6) Move sEval      to tColumn_Defs[iCount].sEval
+        If (num_arguments >= 7) Move bSubTotals to tColumn_Defs[iCount].bSubTotals
+        If (num_arguments >= 8) Move sFormat    to tColumn_Defs[iCount].sFormat
+
+        Set ptColumn_Defs to tColumn_Defs
+        Set Private_piColumn_Count to iCount
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    {MethodType=Method DesignTime=False}
+    Procedure Create_Columns
+        Integer iColumnCount iCount
+        Integer eDataType
+        Handle  hoColumns hoCol
+        Variant  vColumns vCol
+        tdRC_Column_Def[] tColumn_Defs
+        tdRC_Column_Formats tColumn_Formats
+
+        Get ptColumn_Formats to tColumn_Formats
+        Get ptColumn_Defs    to tColumn_Defs
+        Get piColumn_Count   to iColumnCount
+
+        Get phoReportColumns to hoColumns
+        Get phoReportColumn  to hoCol
+
+        Get ComColumns to vColumns
+        Set pvComObject of hoColumns to vColumns
+
+        For iCount from 0 to iColumnCount
+            Get ComAdd of hoColumns iCount tColumn_Defs[iCount].sLabel tColumn_Defs[iCount].iSize True to vCol
+            Set pvComObject of hoCol to vCol
+
+            Set ComAlignment of hoCol to tColumn_Formats[tColumn_Defs[iCount].eDataType].eAlignment
+
+            //If the Style is check box then force alignment to be center
+            If (tColumn_Defs[iCount].eStyle = eRC_CheckBox) Begin
+                Set ComHeaderAlignment of hoCol to OLExtpAlignmentCenter
+                Set ComFooterAlignment of hoCol to OLExtpAlignmentCenter
+            End
+            Else Begin
+                Set ComHeaderAlignment of hoCol to tColumn_Formats[tColumn_Defs[iCount].eDataType].eAlignment
+                Set ComFooterAlignment of hoCol to tColumn_Formats[tColumn_Defs[iCount].eDataType].eAlignment
+            End
+
+            Set ComBestFitMode of hoCol to tColumn_Formats[tColumn_Defs[iCount].eDataType].eBestFit
+            //create a hidden column
+            If (tColumn_Defs[iCount].iSize  = 0) Begin
+                Set ComVisible of hoCol to False
+                Set ComShowInFieldChooser of hoCol to False
+            End
+            If (tColumn_Defs[iCount].eStyle = eRC_Preview) Begin
+                If (pbPreviewMode(Self)) Set ComPreviewMode to True
+            End
+            Send OnCreateColumn iCount hoCol
+        Loop
+    End_Procedure
+
+    Procedure OnCreateColumn Integer iColumn Handle hoCol
+        // Hook
+    End_Procedure
+
+    // Retruns the column label
+    Function psColumn_Label Integer iColumn Returns String
+        String sRetval
+        tdRC_Column_Def[] tColumn_Defs
+
+        Get ptColumn_Defs to tColumn_Defs
+        Move tColumn_Defs[iColumn].sLabel to sRetval
+
+        Function_Return sRetval
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    {MethodType=Method DesignTime=False}
+    Procedure DoLoad_Data
+        Integer  eDb_Type
+        DateTime dtStart dtEnd
+
+        If (pbColumn_Resort(Self)) Send Remove_Sorted_Columns
+        Get peDb_Type to eDb_Type
+
+        Send OnBefore_Load_Data
+        If (piLoad_Monitor(Self) > 0) Send OnLoad_Start (piMax_Rows(Self))
+
+        Move (CurrentDateTime()) to dtStart
+        If (eDb_Type = eRC_db_Table) Send DoLoad_Table
+        If (eDb_Type = eRC_db_SQL  ) Send DoLoad_SQL
+        If (eDb_Type = eRC_db_Text ) Send DoLoad_Text
+        Move (CurrentDateTime()) to dtEnd
+        Set ptsTimeSpan_Load to (dtEnd - dtStart)
+
+        If (piLoad_Monitor(Self) > 0) Send OnLoad_End (piRow_Count(Self))
+
+        Send DoSetColumnOrdering
+        Send DoSetColumnGrouping
+        Send OnAfter_Load_Data
+    End_Procedure
+
+    //=========================================================================
+
+    Function GroupSubTotalFormula Returns String
+        Integer iColumn iCol_Count
+        String sFormula
+        tdRC_Column_Def[] taColumn_Defs
+
+        Get ptColumn_Defs to taColumn_Defs
+        Move (SizeOfArray(taColumn_Defs) - 1) to iCol_Count
+        For iColumn from 0 to iCol_Count
+            If (taColumn_Defs[iColumn].bSubTotals) Begin
+                Move (sFormula + "SUMSUB(C" + String(iColumn) + ":C" + String(iColumn + 1) + ") ") to sFormula
+            End
+        Loop
+
+        Function_Return (Trim(sFormula))
+    End_Function
+
+    Procedure DoGroupCalculation
+        Boolean bGroupRow
+        Integer iRow iRowCount
+        Handle hoReportRow hoGroupRow hoReportRows
+        Variant vRow vReportRows
+        String  sFormula
+
+        Get phoReportRow      to hoReportRow
+        Get phoReportGroupRow to hoGroupRow
+
+        Get phoReportRows               to hoReportRows
+        Get ComRows                     to  vReportRows
+        Set pvComObject of hoReportRows to  vReportRows
+
+        Get ComCount of hoReportRows to iRowCount
+        Decrement iRowCount
+
+        Get GroupSubTotalFormula to sFormula
+
+        For iRow from 0 to iRowCount
+            Get ComRow of hoReportRows iRow to vRow
+            Set pvComObject of hoReportRow to vRow
+            Get ComGroupRow of hoReportRow to bGroupRow
+            If (bGroupRow) Begin
+                Set pvComObject of hoGroupRow to vRow
+                Set ComGroupFormat  of hoGroupRow to "%.02f"
+                Set ComGroupFormula of hoGroupRow to sFormula
+                Set ComGroupCaption of hoGroupRow to ""
+            End
+        Loop
+    End_Procedure
+
+    Procedure OnComGroupOrderChangedEx Variant llColumn OLEXTPReportColumnOrderChangedReason llReason
+        If (llReason iand OLExtpReportColumnAddedToGroupby) Begin
+            If (pbEnableTotals(Self)) Send DoGroupCalculation
+        End
+    End_Procedure
+
+    //=========================================================================
+
+    Procedure OnBefore_Load_Data
+        // Event Hook
+    End_Procedure
+
+    Procedure OnAfter_Load_Data
+        // Event Hook
+    End_Procedure
+
+    Procedure OnLoad_Start Integer iMax_Rows
+    End_Procedure
+
+    Procedure OnLoad_Monitor Integer iRow_Count
+    End_Procedure
+
+    Procedure OnLoad_End Integer iRow_Count
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure Set pbGroup_Sorted_Columns Boolean bState
+        Variant vOrder
+        Handle  hoOrder
+
+        Get phoReportColumnOrder to hoOrder
+        Set ComShowItemsInGroups to bState
+
+        If (not(bState)) Begin
+            Get ComGroupsOrder to vOrder
+            Set pvComObject    of hoOrder to vOrder
+            Send ComDeleteAll  of hoOrder
+
+            Get ComSortOrder   to vOrder
+            Set pvComObject    of hoOrder to vOrder
+            Send ComDeleteAll  of hoOrder
+        End
+
+        Send ComPopulate
+    End_Procedure
+
+    {MethodType=Method DesignTime=False}
+    Procedure Remove_Sorted_Columns
+        Variant vOrder
+        Handle  hoOrder
+
+        Get phoReportColumnOrder to hoOrder
+        Get ComSortOrder   to vOrder
+        Set pvComObject    of hoOrder to vOrder
+        Send ComDeleteAll  of hoOrder
+        Send ComPopulate
+    End_Procedure
+
+    //=========================================================================
+    //Selection
+
+    {MethodType=Method DesignTime=False}
+    Procedure SelectAll
+        Integer iCount iRow
+        Handle  hoReport_Rows hoRow
+        Variant vReport_Rows  vRow
+
+        Get phoReportRows to hoReport_Rows
+        Get phoReportRow  to hoRow
+
+        Get ComRows to vReport_Rows
+        Set pvComObject of hoReport_Rows to vReport_Rows
+
+        Get ComCount of hoReport_Rows to iCount
+        Decrement iCount
+        For iRow from 0 to iCount
+            Get ComRow of hoReport_Rows iRow to vRow
+            Set pvComObject of hoRow to vRow
+            Set ComSelected of hoRow to True
+        Loop
+        Send Selected_Row_Count
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    {MethodType=Method DesignTime=False}
+    Procedure DeselectAll
+        Variant vSelected_Rows
+        Handle  hoSelected_Rows
+
+        Get phoReportSelectedRows to hoSelected_Rows
+        Get ComSelectedRows to vSelected_Rows
+        Set pvComObject of hoSelected_Rows to vSelected_Rows
+        Send ComDeleteAll of hoSelected_Rows
+        Send Selected_Row_Count
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    {MethodType=Method DesignTime=False}
+    Procedure Invert_Selection
+        Integer iCount iRow
+        Handle  hoReport_Rows hoRow
+        Variant vReport_Rows  vRow
+
+        Get phoReportRows to hoReport_Rows
+        Get phoReportRow  to hoRow
+
+        Get ComRows to vReport_Rows
+        Set pvComObject of hoReport_Rows to vReport_Rows
+
+        Get ComCount of hoReport_Rows to iCount
+        Decrement iCount
+        For iRow from 0 to iCount
+            Get ComRow of hoReport_Rows iRow to vRow
+            Set pvComObject of hoRow to vRow
+            Set ComSelected of hoRow to (not(ComSelected(hoRow)))
+        Loop
+        Send Selected_Row_Count
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure Find_Row_Tag String sValue
+        Boolean bGroupRow
+        Integer iCount iRow
+        RowID   Row_ID
+        String  sID
+        Handle  hoReport_Rows hoRow hoRec
+        Variant  vReport_Rows vRow   vRec
+
+        Get phoReportRows to hoReport_Rows
+        Get phoReportRow          to hoRow
+        Get phoReportRecord       to hoRec
+
+        Get ComRows to vReport_Rows
+        Set pvComObject of hoReport_Rows to vReport_Rows
+
+        Get ComCount of hoReport_Rows to iCount
+        Decrement iCount
+        For iRow from 0 to iCount
+            Get ComRow of hoReport_Rows iRow to vRow
+            Set pvComObject of hoRow to vRow
+
+            Get ComGroupRow of hoRow to bGroupRow
+            If (not(bGroupRow)) Begin
+                Get ComRecord   of hoRow to vRec
+                Set pvComObject of hoRec to vRec
+
+                Get ComTag      of hoRec to sID
+
+                If (sID = sValue) Begin
+                    Set ComFocusedRow to vRow
+                    Send OnComFocusChanging vRow Nothing Nothing Nothing
+                    Move (iCount + 1) to iRow
+                End
+            End
+        Loop
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    // Hooks for left click options
+    Procedure OnLeftClick_Header Handle hoColumn
+    End_Procedure
+    Procedure OnLeftClick_GroupBox Handle hoColumn
+    End_Procedure
+    Procedure OnLeftClick_ReportArea Handle hoColumn Handle hoRow Handle hoItem
+    End_Procedure
+
+    // On Mouse Up set Left click options and Right click context menu options
+    Procedure OnComMouseUp Short llButton Short llShift Integer llx Integer lly
+        Handle  hoHitTestInfo hoReportColumn hoRow hoGroupRow hoItem
+        Handle  hoContextMenu_Header hoContextMenu_GroupBox hoContextMenu_Groups hoContextMenu_ReportArea
+        Variant vHitTest vColumn vRow vGroupRow vItem
+        Integer iReportInfoCode iIndex iColumns
+        Boolean bGroupRow bExpanded
+        String  sName
+
+        Get phoHitTestInfo to hoHitTestInfo
+        Get phoContextMenu_Header     to hoContextMenu_Header
+        Get phoContextMenu_GroupBox   to hoContextMenu_GroupBox
+        Get phoContextMenu_Groups     to hoContextMenu_Groups
+        Get phoContextMenu_ReportArea to hoContextMenu_ReportArea
+
+        Get ComHitTest llx lly to vHitTest
+        Set pvComObject of hoHitTestInfo to vHitTest
+
+        Get ComColumn of hoHitTestInfo to vColumn
+        Get ComRow    of hoHitTestInfo to vRow
+        Get ComItem   of hoHitTestInfo to vItem
+        Get ComHt     of hoHitTestInfo to iReportInfoCode
+
+        If (iReportInfoCode = OLExtpHitTestUnknown) Begin
+            Set peHitTest to eRC_HitTest_Unknown
+        End
+        If (iReportInfoCode = OLExtpHitTestGroupBox) Begin
+            Set peHitTest to eRC_HitTest_GroupBox
+
+            If ((llButton = 1) and (hoContextMenu_GroupBox > 0)) Begin
+                Get phoReportColumn    to hoReportColumn
+                Set pvComObject        of hoReportColumn to vColumn
+                Send OnLeftClick_GroupBox hoReportColumn
+            End
+            If ((llButton = 2) and (hoContextMenu_GroupBox > 0)) Begin
+                Send Activate of (Self) // Ensure that the VDF object also has the focus
+                Send Popup of hoContextMenu_GroupBox
+            End
+        End
+        If (iReportInfoCode = OLExtpHitTestHeader) Begin
+            Set peHitTest to eRC_HitTest_Header
+
+            Get phoReportColumn to hoReportColumn
+            Set pvComObject of hoReportColumn to vColumn
+            If (IsComObjectCreated(hoReportColumn)) Begin
+                Get ComIndex    of hoReportColumn to iIndex
+                Set Private_piCurrentColumnIndex  to iIndex
+            End
+
+            If ((llButton = 1) and (hoContextMenu_Header > 0)) Begin
+                Get phoReportColumn  to hoReportColumn
+                Set pvComObject      of hoReportColumn to vColumn
+                Send OnLeftClick_Header hoReportColumn
+            End
+
+            If ((llButton = 2) and (hoContextMenu_Header > 0)) Begin
+                Send Activate of (Self) // Ensure that the VDF object also has the focus
+                Send Popup of hoContextMenu_Header
+            End
+        End
+        If (iReportInfoCode = OLExtpHitTestReportArea) Begin
+            Set peHitTest to eRC_HitTest_ReportArea
+
+            If ((llButton = 1) and (hoContextMenu_ReportArea > 0)) Begin
+                Get phoReportColumn     to hoReportColumn
+                Set pvComObject         of hoReportColumn to vColumn
+                Get phoReportRow        to hoRow
+                Set pvComObject         of hoRow  to vRow
+                Get phoReportRecordItem to hoItem
+                Set pvComObject         of hoItem to vItem
+                Send OnLeftClick_ReportArea hoReportColumn hoRow hoItem
+            End
+            If ((llButton = 2) and (hoContextMenu_ReportArea > 0)) Begin
+                Send Activate of (Self) // Ensure that the VDF object also has the focus
+                Get phoReportRow      to hoRow
+                Set pvComObject       of hoRow  to vRow
+
+                If (not(IsNullComObject(vRow))) Begin
+                    Get ComGroupRow of hoRow  to bGroupRow
+                End
+
+                If (bGroupRow) Begin
+                    Send Popup of hoContextMenu_Groups
+                    Set ComFocusedRow to vRow
+                End
+                Else Begin
+                    Send Popup of hoContextMenu_ReportArea
+                End
+            End
+        End
+        Set peHitTest to eRC_HitTest_None
+    End_Procedure
+
+    // FreezeColumn option
+    Procedure FreezeColumn
+        Integer iIndex
+
+        Get Private_piCurrentColumnIndex  to iIndex
+        Set piFreezeColumnsCount          to iIndex
+        Send ComReDraw
+    End_Procedure
+
+    Procedure FreezeClear
+        Set piFreezeColumnsCount to 0
+        Send ComReDraw
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure PreviewReport
+        Send ComPrintPreview True
+    End_Procedure
+
+    Procedure PrintReport
+        Send ComPrintReport 0
+    End_Procedure
+
+    Procedure CSV_Export
+        Boolean bComer
+        Integer iCount iRow iColumn iColumn_Count iWidth iChannel
+        RowID   Row_ID
+        String  sID sValue sExport_File
+        Handle  hoReport_Rows hoRow hoRec hoItem
+        Variant  vReport_Rows vRow   vRec  vItem
+        tdRC_Column_Def[] tColumn_Defs
+
+        Get phoReportSelectedRows to hoReport_Rows
+        Get phoReportRow          to hoRow
+        Get phoReportRecord       to hoRec
+        Get phoReportRecordItem   to hoItem
+
+        Get ptColumn_Defs         to tColumn_Defs
+        Get piColumn_Count        to iColumn_Count
+
+        Set psExport_File to ""
+        Send Popup of oCSV_Export_Dialog
+        Get psExport_File to sExport_File
+
+        If (sExport_File <> "") Begin
+            Move (Seq_New_Channel()) to iChannel
+            Direct_Output channel iChannel sExport_File
+
+            Get ComSelectedRows to vReport_Rows
+            Set pvComObject of hoReport_Rows to vReport_Rows
+
+            // Output header
+            Move (False) to bComer
+            For iColumn from 0 to iColumn_Count
+                If (tColumn_Defs[iColumn].iSize > 0) Begin
+                    If (bComer) Write channel iChannel ","
+                    Write channel iChannel ('"' + String(tColumn_Defs[iColumn].sLabel) + '"')
+                    Move (True) to bComer
+                End
+            Loop
+            Writeln channel iChannel ""
+
+            Get ComCount of hoReport_Rows to iCount
+            Decrement iCount
+            For iRow from 0 to iCount
+                Get ComRow of hoReport_Rows iRow to vRow
+                Set pvComObject of hoRow to vRow
+
+                If (ComSelected(hoRow)) Begin
+                    If (not(ComGroupRow(hoRow))) Begin
+                        Get ComRecord of hoRow to vRec
+                        Set pvComObject of hoRec to vRec
+
+                        Move (False) to bComer
+                        For iColumn from 0 to iColumn_Count
+                            Get ComItem     of hoRec  iColumn to vItem
+                            Set pvComObject of hoItem         to vItem
+                            Get ComCaption  of hoItem         to sValue
+                            If (tColumn_Defs[iColumn].iSize > 0) Begin
+                                If (bComer) Write channel iChannel ","
+                                Write channel iChannel ('"' + String(sValue) + '"')
+                                Move (True) to bComer
+                            End
+                        Loop
+                        Writeln channel iChannel ""
+                    End //bGroupRow
+                End
+            Loop
+            Close_Output  channel iChannel sExport_File
+            Send Seq_Release_Channel iChannel
+        End
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure Process_Rows
+        Integer iCount iRow iColumns iCol
+        Boolean bCancel
+        RowID   Row_ID
+        String  sID  sProcess_Type
+        Handle  hoReport_Rows hoRow hoRec hoItem
+        Variant  vReport_Rows vRow   vRec  vItem
+        String[] sData
+
+        tdRC_Column_Def[] tColumn_Defs
+
+        Get ptColumn_Defs         to tColumn_Defs
+        Get phoReportSelectedRows to hoReport_Rows
+        Get phoReportRow          to hoRow
+        Get phoReportRecord       to hoRec
+        Get phoReportRecordItem   to hoItem
+
+        Get ComSelectedRows to vReport_Rows
+        Set pvComObject of hoReport_Rows to vReport_Rows
+
+        Get piColumn_Count to iColumns
+        Get psProcess_Type to sProcess_Type
+
+        Get ComCount of hoReport_Rows to iCount
+        Send OnPre_Process_Rows iCount
+
+        Decrement iCount
+        For iRow from 0 to iCount
+            Get ComRow of hoReport_Rows iRow to vRow
+            Set pvComObject of hoRow to vRow
+
+            If (ComSelected(hoRow)) Begin
+                Get ComRecord of hoRow to vRec
+                Set pvComObject of hoRec to vRec
+
+                If (not(ComGroupRow(hoRow))) Begin
+                    Get ComTag of hoRec to sID
+
+                    //--- Get Column Data ---
+                    Move (ResizeArray(sData,0)) to sData
+                    For iCol from 0 to iColumns
+                        Get ComItem of hoRec iCol to vItem
+                        Set pvComObject of hoItem to vItem
+                        If (tColumn_Defs[iCol].eStyle = eRC_Preview) Begin
+                            Get ComPreviewText of hoRec to sData[iCol]
+                        End
+                        Else Begin
+                            If (tColumn_Defs[iCol].eStyle = eRC_CheckBox) Begin
+                                Get ComChecked of hoItem to sData[iCol]
+                            End
+                            Else Begin
+                                Get ComValue of hoItem to sData[iCol]
+                            End
+                        End
+                    Loop
+                    Set psData_Items to sData
+                    //--- Get Column Data ---
+
+                    If (pbRowID_Mode(Self)) Begin
+                        Move (DeserializeRowID(sID)) to Row_ID
+                        Send OnProcess_Rows_RowID Row_ID sProcess_Type (&bCancel)
+                    End
+                    Else Begin
+                       Send OnProcess_Rows sID sProcess_Type (&bCancel)
+                    End
+                End //bGroupRow
+            End
+            If (bCancel) Move (iCount+1) to iRow
+        Loop
+        Send OnPost_Process_Rows bCancel
+    End_Procedure
+
+    Procedure OnPre_Process_Rows Integer iRow_Count
+        // Event Hook
+    End_Procedure
+
+    Procedure OnProcess_Rows String sID String sProcess_Type Boolean ByRef bCancel
+        // Event Hook
+    End_Procedure
+
+    Procedure OnProcess_Rows_RowID RowID Row_ID String sProcess_Type Boolean ByRef bCancel
+        // Event Hook
+    End_Procedure
+
+    Procedure OnPost_Process_Rows Boolean bCancel
+        // Event Hook
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnComFocusChanging Variant llNewRow Variant llNewColumn Variant llNewItem Boolean ByRef llCancel
+        Boolean bFound bGroup
+        Integer iTable eDb_Type
+        String  sID
+        Handle  hoRow hoRec
+        Variant  vRow  vRec
+
+        Get phoReportRow    to hoRow
+        Get phoReportRecord to hoRec
+
+        If (pbActive_Track(Self)) Begin
+            Set pvComObject of hoRow to llNewRow
+
+            Get ComRecord of hoRow to vRec
+            Get ComGroupRow of hoRow to bGroup
+            If (not(bGroup)) Begin
+                Set pvComObject of hoRec to vRec
+
+                Get ComTag of hoRec to sID
+                Set psCurrent_Tag   to sID
+
+                If (pbRowID_Mode(Self)) Begin
+                    If (phoDD(Self) > 0) Begin
+                        Move (Main_File(phoDD(Self))) to iTable
+                        Send FindByRowId of (phoDD(Self)) iTable (DeserializeRowID(sID))
+                        Send OnActive_Track sID
+                    End
+                 End
+                 Else Begin
+                    Send OnActive_Track sID
+                End
+            End
+        End
+    End_Procedure
+
+    Procedure OnActive_Track String sID
+        // Event Hook
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnComRowDblClick Variant llRow Variant llItem
+        String  sID
+        Boolean bGroup
+        Handle  hoRow hoRec
+        Variant  vRow  vRec
+
+        Get phoReportRow    to hoRow
+        Get phoReportRecord to hoRec
+
+        Set pvComObject of hoRow to llRow
+
+        Get ComRecord of hoRow to vRec
+        Get ComGroupRow of hoRow to bGroup
+        If (not(bGroup)) Begin
+            Set pvComObject of hoRec to vRec
+
+            Get ComTag of hoRec to sID
+
+            If (pbRowID_Mode(Self)) Begin
+                Send OnDouble_Click_RowID (DeserializeRowID(sID))
+            End
+            Else Begin
+                Send OnDouble_Click sID
+            End
+        End
+    End_Procedure
+
+    Procedure OnDouble_Click String sID
+        // Event Hook
+    End_Procedure
+
+    Procedure OnDouble_Click_RowID RowID Row_ID
+        // Event Hook
+    End_Procedure
+
+    //=========================================================================
+
+    Procedure DoBest_Fit
+        Integer iColumn iColumn_Count iBestFit
+        Handle  hoColumns hoCol
+        Variant  vColumns  vCol
+
+        tdRC_Column_Def[] tColumn_Defs
+        tdRC_Column_Formats tColumn_Formats
+
+        Get ptColumn_Defs    to tColumn_Defs
+        Get ptColumn_Formats to tColumn_Formats
+
+        Get ComColumns to vColumns
+        Get Create U_cSigCjComReportColumns to hoColumns
+            Set pvComObject of hoColumns to vColumns
+
+            Get ComCount of hoColumns to iColumn_Count
+            Decrement iColumn_Count //make zero based
+
+            Get Create U_cSigCjComReportColumn to hoCol
+
+                For iColumn from 0 to iColumn_Count
+                    Move tColumn_Formats[tColumn_Defs[iColumn].eDataType].eBestFit to iBestFit
+                    If (iBestFit <> eRC_BestFit_None) Begin
+                        Get ComColumn of hoColumns iColumn to vCol
+                        Set pvComObject of hoCol to vCol
+                        Send ComBestFit of hoCol
+                    End
+                Loop
+
+            Send Destroy of hoCol
+        Send Destroy of hoColumns
+    End_Procedure
+
+    //=========================================================================
+
+    Procedure Add_Report_Item Handle  hoRec  Integer iColumn Boolean bRow_Item Integer eDataType Integer eStyle ;
+                              Boolean bRow_Colors tdRC_Column_Format tColumn_Format String sValue Boolean bTotals ;
+                              String sColumnFormat
+        Boolean   bAdded bItem_Colors bItem_Bold
+        Integer   iValue iItem_ForeColor iItem_BackColor iDecSep iUsedDecSep iTotal iThousandSep iNumDecPlaces iPos
+        Number    nValue nTotal
+        DateTime dtValue
+        Handle   hoItem hoColumns hoCol
+        Variant   vItem vColumns vCol
+        String    sPreviewText sTotal
+
+        Get phoReportRecordItem to hoItem
+        Move False to bAdded
+
+        If (eStyle = eRC_Preview) Begin
+            Get ComPreviewText of hoRec to sPreviewText
+            If (sPreviewText <> "") Move (Append(sPreviewText, (" " + String(Trim(sValue))) )) to sPreviewText
+            Else Move (Trim(sValue)) to sPreviewText
+            Set ComPreviewText of hoRec to sPreviewText
+        End
+
+        If (eStyle = eRC_CheckBox) Begin
+            Get ComAddItem  of hoRec sValue to vItem
+            Set pvComObject of hoItem to vItem
+
+            Set ComHasCheckBox of hoItem to True
+            Set ComAlignment   of hoItem to OLExtpAlignmentIconCenter
+            Set ComChecked     of hoItem to sValue
+            Set ComCaption     of hoItem to " " // This stops the value from being shown
+
+            Move True to bAdded
+        End
+
+        If (eStyle = eRC_Standard) Begin
+            If (bTotals) Begin
+                Get phoReportColumns to hoColumns
+                Get phoReportColumn  to hoCol
+
+                Get ComColumns to vColumns
+                Set pvComObject of hoColumns to vColumns
+                Get ComFind     of hoColumns iColumn to vCol
+                Set pvComObject of hoCol to vCol
+            End
+            //Date, DateTime & Time - Must use DateTime var so report control
+            //sorts column correctly
+            If ((eDataType = eRC_Date    ) or ;
+                (eDataType = eRC_DateTime) or ;
+                (eDataType = eRC_DTString) or ;
+                (eDataType = eRC_Time    )) Begin
+
+                //Expects DD/MM/CCYY HH:MM:SS for none sql tables CCYY/MM/DD HH:MM:SS for sql tables
+
+                //Add date
+                If ((eDataType = eRC_Date) or (eDataType = eRC_DateTime) or (eDataType = eRC_DTString)) Begin
+                    If ((peDb_Type(Self) = eRC_db_SQL) and (eDataType <> eRC_DTString)) Begin
+                        Move (DateSetDay   (dtValue, (Mid(sValue,2,9)))) to dtValue
+                        Move (DateSetMonth (dtValue, (Mid(sValue,2,6)))) to dtValue
+                        Move (DateSetYear  (dtValue, (Mid(sValue,4,1)))) to dtValue
+                    End
+                    Else Begin
+                        Move (DateSetDay   (dtValue, (DateGetDay(sValue))))   to dtValue
+                        Move (DateSetMonth (dtValue, (DateGetMonth(sValue)))) to dtValue
+                        Move (DateSetYear  (dtValue, (DateGetYear(sValue))))  to dtValue
+                    End
+                End
+                //Add Time
+                If ((eDataType = eRC_DateTime) or (eDataType = eRC_Time) or eDataType = eRC_DTString) Begin
+                    If ((peDb_Type(Self) = eRC_db_SQL) and (eDataType <> eRC_DTString)) Begin
+                        Move (DateSetHour   (dtValue, (Mid(sValue,2,12)))) to dtValue
+                        Move (DateSetMinute (dtValue, (Mid(sValue,2,15)))) to dtValue
+                        Move (DateSetSecond (dtValue, (Mid(sValue,2,18)))) to dtValue
+                    End
+                    Else Begin
+                        Move (DateSetHour   (dtValue, (DateGetHour(sValue))))   to dtValue
+                        Move (DateSetMinute (dtValue, (DateGetMinute(sValue)))) to dtValue
+                        Move (DateSetSecond (dtValue, (DateGetSecond(sValue)))) to dtValue
+                    End
+                End
+                If ((dtValue = "01/01/1753 00:00:00") or (dtValue = "00:00:00" )) Begin
+                    Get ComAddItem of hoRec "" to vItem // Don't show blank dates
+                End
+                Else Get ComAddItem of hoRec dtValue to vItem
+                Move True to bAdded
+            End
+
+            If (eDataType = eRC_Currency) Begin
+                Move sValue to nValue
+                Get ComAddItem of hoRec nValue to vItem
+                Set pvComObject of hoItem to vItem
+
+                If (bTotals) Begin
+                    Get ComFooterText of hoCol to sTotal
+                    // replace currency symbol and thousand seperators so we can convert to a number
+                    Get_Attribute DF_THOUSANDS_SEPARATOR to iThousandSep
+                    Move (Replaces(Character(iThousandSep),sTotal,"")) to sTotal
+                    Move (Replaces(ToOEM(Default_Currency_Symbol()),sTotal, "")) to sTotal
+
+                    //Add the old and new values together and convert to a currency string
+                    Move (ToOEM(FormatCurrency((Number(sTotal) + nValue),2))) to sTotal
+                    Set ComFooterText of hoCol to sTotal
+                End
+
+                If ((pbZero_Suppress_Currency(Self)) and (nValue = 0)) Begin
+                    Set ComCaption  of hoItem to " "
+                End
+                Else Begin
+                    Move (ToOEM(FormatCurrency(nValue,2))) to sValue
+                    Set ComCaption  of hoItem to sValue
+                End
+                Move True to bAdded
+            End
+
+            If (eDataType = eRC_Integer) Begin
+                Get ComAddItem of hoRec (Integer(sValue)) to vItem
+
+                If (bTotals) Begin
+                    Get ComFooterText of hoCol to iTotal
+                    Set ComFooterText of hoCol to (iTotal + Integer(sValue))
+                End
+
+                Set pvComObject of hoItem to vItem
+                If ((pbZero_Suppress_Integer(Self)) and (Integer(sValue) = 0)) Begin
+                    Set pvComObject of hoItem to vItem
+                    Set ComCaption  of hoItem to " "
+                End
+                Move True to bAdded
+            End
+
+            If ((eDataType = eRC_Real) or (eDataType = eRC_Decimal)) Begin
+
+                Get_Attribute DF_DECIMAL_SEPARATOR to iDecSep
+                If ((iDecSep = 46) and RightPos(",", sValue)) Begin
+                    Move 44 to iUsedDecSep
+                    Set_Attribute DF_DECIMAL_SEPARATOR to iUsedDecSep
+                    Move sValue to nValue
+                    Set_Attribute DF_DECIMAL_SEPARATOR to iDecSep
+                End
+                Else If ((iDecSep = 44) and RightPos(".", sValue)) Begin
+                    Move 46 to iUsedDecSep
+                    Set_Attribute DF_DECIMAL_SEPARATOR to iUsedDecSep
+                    Move sValue to nValue
+                    Set_Attribute DF_DECIMAL_SEPARATOR to iDecSep
+                End
+                Else Begin
+                   Move iDecSep to iUsedDecSep
+                   Move sValue to nValue
+                End
+
+                Move (Pos(Character(iUsedDecSep), sValue)) to iPos
+                If (iPos) Begin
+                    Move (Length(sValue) - Pos(Character(iUsedDecSep),sValue) ) to iNumDecPlaces
+                End
+                Else Begin
+                    Move 0 to iNumDecPlaces
+                End
+                Get ComAddItem of hoRec nValue to vItem
+                If (bTotals) Begin
+                    Get ComFooterText of hoCol to nTotal
+                    Move (String(nTotal + nValue)) to sTotal
+                    If (iNumDecPlaces > 0) Begin
+                        Move (Pos(Character(iUsedDecSep), sTotal)) to iDecSep
+                        If (not(iDecSep)) Begin
+                            Move (Length(sTotal)) to iDecSep
+                            Move (sTotal + Character(iUsedDecSep)) to sTotal
+                        End
+                        Move (Left(sTotal + Repeat('0', iNumDecPlaces), (iDecSep + 1 + iNumDecPlaces))) to sTotal
+                    End
+                    Set ComFooterText of hoCol to sTotal
+                End
+                Set pvComObject of hoItem to vItem
+                If ((pbZero_Suppress_Decimal(Self)) and (nValue = 0)) Set ComCaption  of hoItem to " "
+                Else Set ComCaption  of hoItem to sValue
+                Move True to bAdded
+            End
+            //All previously unhandled data types
+            If (not(bAdded)) Begin
+                Get ComAddItem of hoRec sValue to vItem
+                Move True to bAdded
+            End
+        End
+
+        // Check just in case an invalid Style is passed
+        If (not(bAdded)) Begin
+            //Add empty item
+            Get ComAddItem of hoRec "" to vItem
+        End
+
+        //Now format the column
+        If (bAdded) Begin
+            Set pvComObject of hoItem to vItem
+
+            //Alignment done at column level
+            If (not(bRow_Colors) and tColumn_Format.bColorColumn) Begin
+                If ((eDataType = eRC_Currency) and (sValue < 0)) Begin
+                    Set ComBackColor of hoItem to tColumn_Format.iBackColor_Neg
+                    Set ComForeColor of hoItem to tColumn_Format.iForeColor_Neg
+                End
+                Else Begin
+                    Set ComBackColor of hoItem to tColumn_Format.iBackColor
+                    Set ComForeColor of hoItem to tColumn_Format.iForeColor
+                End
+            End
+
+            Set ComBold of hoItem to tColumn_Format.bBold
+            If (tColumn_Format.sFormat <> "") Begin
+                Set ComFormat of hoItem to tColumn_Format.sFormat
+            End
+// MXP This is not working as required
+//            If (sColumnFormat <> "") Begin
+//                Set ComFormat of hoItem to sColumnFormat
+//            End
+            If (bRow_Item) Begin
+                If ((eDataType = eRC_Date) or (eDataType = eRC_DateTime) or (eDataType = eRC_DTString)) Begin
+                    // Do not process date formats and codejock stores them correctly
+                End
+                Else Get ComValue of hoItem to sValue
+                Send OnCreateRowItem iColumn hoItem sValue
+            End
+            If (bRow_Colors) Begin
+                If ((eDataType = eRC_Date) or (eDataType = eRC_DateTime) or (eDataType = eRC_DTString)) Begin
+                    // Do not process date formats and codejock stores them correctly
+                End
+                Else Get ComValue of hoItem to sValue
+                // Send OnSetRowColor   iColumn sValue
+            End
+
+            Get pbItem_Colors to bItem_Colors
+
+            If (bItem_Colors) Begin
+                Set piItem_ForeColor to 0
+                Set piItem_BackColor to 0
+                Set pbItem_Bold      to False
+                Send OnSetItemColor iColumn sValue
+                Get piItem_ForeColor to iItem_ForeColor
+                Get piItem_BackColor to iItem_BackColor
+                Get pbItem_Bold      to bItem_Bold
+                If (iItem_ForeColor) Set ComForeColor of hoItem to iItem_ForeColor
+                If (iItem_BackColor) Set ComBackColor of hoItem to iItem_BackColor
+                If (bItem_Bold)      Set ComBold      of hoItem to True
+            End
+        End
+    End_Procedure
+
+    Procedure OnCreateRowItem Integer iColumn Handle hoItem String sValue
+        // Hook
+    End_Procedure
+
+    //=========================================================================
+    //Table Data
+
+    Procedure DoLoad_Table
+        Boolean bFound bRow_Colors bRow_Item
+        Integer iRow_Count iMax_Rows iColumn iColumn_Count iRef_Column
+        Integer iRow_ForeColor iRow_BackColor iItem_ForeColor iItem_BackColor iLoad_Monitor
+        Handle  hoRecords hoRec hoItem
+        Variant  vRecords  vRec  vItem
+        String  sValue sTag
+
+        tdRC_Column_Def[] tColumn_Defs
+        tdRC_Column_Formats tColumn_Formats
+
+        //Table specific
+        Boolean bDescending bDeferredState
+        Handle  hoDD
+        Integer iFile_Number iIndex iTable
+        RowID   Row_ID
+
+        Send Cursor_Wait of Cursor_Control
+
+        Get phoDD to hoDD
+        If (hoDD > 0) Begin
+            Get phoReportRecordItem to hoItem
+            Get phoReportRecord     to hoRec
+            Get phoReportRecords    to hoRecords
+            Get ComRecords          to vRecords
+            Set pvComObject of hoRecords to vRecords
+
+            Get ptColumn_Formats to tColumn_Formats
+            Get ptColumn_Defs    to tColumn_Defs
+            Get piColumn_Count   to iColumn_Count
+            Get piRef_Column     to iRef_Column
+            Get piMax_Rows       to iMax_Rows
+            Get pbRow_Colors     to bRow_Colors
+            Get pbRow_Item       to bRow_Item
+            Get piLoad_Monitor   to iLoad_Monitor
+
+            Get piTable_Index to iIndex
+            Get pbDescending  to bDescending
+            Get Main_File     of hoDD to iTable
+
+            If (peDataflex_Table_Find_Method(Self) = eRC_Find_Normal) Begin
+                Send Clear of hoDD
+                If (bDescending) Send Find of hoDD LAST_RECORD iIndex
+                Else             Send Find of hoDD GE          iIndex
+            End
+            Else If (peDataflex_Table_Find_Method(Self) = eRC_Find_RequestRead) Begin
+                Send Clear of hoDD
+                If (bDescending) Send Request_Read of hoDD LAST_RECORD iTable iIndex
+                Else             Send Request_Read of hoDD GE          iTable iIndex
+            End
+            Else If (peDataflex_Table_Find_Method(Self) = eRC_Find_Constrained) Begin
+                Constrained_Clear (If(bDescending,LE,GE)) iTable by iIndex
+                Constrained_Find Next
+            End
+
+            Move (Found) to bFound
+            While (bFound)
+                Get ComAdd of hoRecords to vRec
+                Set pvComObject of hoRec to vRec
+                Increment iRow_Count
+
+                //Reset row Colors
+                If (bRow_Colors) Begin
+                    Set piRow_ForeColor to 0
+                    Set piRow_BackColor to 0
+                End
+
+                For iColumn from 0 to iColumn_Count
+                    //Item Data
+                    If (Trim(tColumn_Defs[iColumn].sEval) = "") Move tColumn_Defs[iColumn].sTC_Name to sValue
+                    Else                                        Move tColumn_Defs[iColumn].sEval    to sValue
+                    Move (Eval(sValue)) to sValue
+
+                    //Add the item
+                    Send Add_Report_Item hoRec                                            ;
+                                         iColumn                                          ;
+                                         bRow_Item                                        ;
+                                         tColumn_Defs[iColumn].eDataType                  ;
+                                         tColumn_Defs[iColumn].eStyle                     ;
+                                         bRow_Colors                                      ;
+                                         tColumn_Formats[tColumn_Defs[iColumn].eDataType] ;
+                                         (Trim(sValue))                                   ;
+                                         tColumn_Defs[iColumn].bSubTotals                 ;
+                                         tColumn_Defs[iColumn].sFormat
+
+                    //Tag value
+                    If (iColumn = iRef_Column) Move sValue to sTag
+
+                    //Set row Colors
+                    If (bRow_Colors) Send OnSetRowColor iColumn sValue
+                Loop
+
+                //Add Tag
+                If (pbRowID_Mode(Self)) Begin
+                    Get Main_File of (phoDD(Self)) to iFile_Number
+                    Move (GetRowID(iFile_Number)) to Row_ID
+                    Set ComTag of hoRec to (SerializeRowId(Row_ID))
+                End
+                Else Begin
+                    Set ComTag of hoRec to sTag
+                End
+
+                //Set row Color
+                If (bRow_Colors) Begin
+                    Get piRow_ForeColor to iRow_ForeColor
+                    Get piRow_BackColor to iRow_BackColor
+                    If ((iRow_ForeColor) or (iRow_BackColor)) Begin
+                        For iColumn from 0 to iColumn_Count
+                            Get ComItem      of hoRec iColumn to vItem
+                            Set pvComObject  of hoItem to vItem
+                            Get ComForeColor of hoItem to iItem_ForeColor
+                            Get ComBackColor of hoItem to iItem_BackColor
+                            If ((iRow_ForeColor) and (iItem_ForeColor = -1)) Set ComForeColor of hoItem to iRow_ForeColor
+                            If ((iRow_BackColor) and (iItem_BackColor = -1)) Set ComBackColor of hoItem to iRow_BackColor
+                        Loop
+                    End
+                End
+
+                If (peDataflex_Table_Find_Method(Self) = eRC_Find_Normal) Begin
+                    If (bDescending) Send Find of hoDD LT iIndex
+                    Else             Send Find of hoDD GT iIndex
+                End
+                Else If (peDataflex_Table_Find_Method(Self) = eRC_Find_RequestRead) Begin
+                    If (bDescending) Send Request_Read of hoDD LT iTable iIndex
+                    Else             Send Request_Read of hoDD GT iTable iIndex
+                End
+                Else If (peDataflex_Table_Find_Method(Self) = eRC_Find_Constrained) Begin
+                    Constrained_Find Next
+                End
+
+                Move (Found) to bFound
+                If ((bFound) and (iMax_Rows > 0)) Move (iRow_Count < iMax_Rows) to bFound
+
+                If (iLoad_Monitor > 0) Begin
+                    If ((iRow_Count > iLoad_Monitor) and (Mod(iRow_Count, iLoad_Monitor) = 0)) Send OnLoad_Monitor iRow_Count
+                End
+            Loop
+            // Send DoBest_Fit
+        End
+
+        Set Private_piRow_Count to iRow_Count
+        Send Cursor_Ready of Cursor_Control
+    End_Procedure
+
+    //=========================================================================
+    //SQL Data
+
+    Procedure Build_SQL_Statement
+        String  sSQL_Statement sSQL_Select sSQL_From sSQL_Where sSQL_OrderBy
+        String  sFieldName
+        Boolean bCase
+        Integer iColumnCount iCount iIndex iSegments iColumn
+        Handle  hoDD hTable
+        tdRC_Column_Def[] tColumn_Defs
+
+        Send OnBuild_SQL_Statement
+
+        Get phoDD         to hoDD
+        Get piTable_Index to iIndex
+        Get psSQL_Select  to sSQL_Select
+        Get psSQL_From    to sSQL_From
+        Get psSQL_Where   to sSQL_Where
+        Get psSQL_OrderBy to sSQL_OrderBy
+        Get pbSQL_Case    to bCase
+
+        //---------------------------------------------------------------------
+        //Sort out Select
+        If (sSQL_Select = "") Begin
+            Get ptColumn_Defs  to tColumn_Defs
+            Get piColumn_Count to iColumnCount
+            For iCount from 0 to iColumnCount
+                If (iCount > 0) Move (Append(sSQL_Select,", ")) to sSQL_Select
+                If ((bCase = True) and (tColumn_Defs[iCount].sEval <> "")) Begin
+                    Move (Append(sSQL_Select,String(tColumn_Defs[iCount].sEval))) to sSQL_Select
+                End
+                Else Move (Append(sSQL_Select,String(tColumn_Defs[iCount].sTC_Name))) to sSQL_Select
+            Loop
+            Set psSQL_Select  to sSQL_Select
+        End
+
+        //---------------------------------------------------------------------
+        //Sort out From
+        If (sSQL_From = "") Begin
+            Get Main_File of hoDD to hTable
+            Get_Attribute DF_FILE_LOGICAL_NAME of hTable to sSQL_From
+            Set psSQL_From    to sSQL_From
+        End
+
+        //---------------------------------------------------------------------
+        //Sort out Where
+        //This has to be specified by the user
+
+        //---------------------------------------------------------------------
+        //Sort out OrderBy
+        If ((sSQL_OrderBy = "") and (iIndex > 0)) Begin
+            Get Main_File of hoDD to hTable
+            Get_Attribute DF_INDEX_NUMBER_SEGMENTS of hTable iIndex to iSegments
+            For iCount from 1 to iSegments
+                Get_Attribute DF_INDEX_SEGMENT_FIELD of hTable iIndex iCount to iColumn
+                Get_Attribute DF_FIELD_NAME of hTable iColumn to sSQL_OrderBy
+                Move (Append(sSQL_OrderBy,(String(sSQL_OrderBy) * " "))) to sSQL_OrderBy
+            Loop
+        End
+
+        //---------------------------------------------------------------------
+        // Build the statement
+        If (psSQL_Select(Self)  <> "") Move (Append(sSQL_Statement,("select"    * String(psSQL_Select(Self))  ))) to sSQL_Statement
+        If (psSQL_From(Self)    <> "") Move (Append(sSQL_Statement,(" from"     * String(psSQL_From(Self))    ))) to sSQL_Statement
+        If (psSQL_Where(Self)   <> "") Move (Append(sSQL_Statement,(" where"    * String(psSQL_Where(Self))   ))) to sSQL_Statement
+        If (psSQL_OrderBy(Self) <> "") Move (Append(sSQL_Statement,(" order by" * String(psSQL_OrderBy(Self)) ))) to sSQL_Statement
+
+        Set psSQL_Select_Statment to sSQL_Statement
+    End_Procedure
+
+    Procedure OnBuild_SQL_Statement
+        //Event Hook
+    End_Procedure
+
+    //------------------------------------------------------
+    //
+    // Function   : piDriverIndex
+    //
+    // Scope      : Public
+    //
+    // Parameters : sDriver -  Name of driver as returned by DF_FILE_DRIVER
+    //
+    // Returns    : Integer - ID of the driver, if present.
+    //
+    // Purpose    : Different workstations may have different drivers installed. This functions (lifted from the help)
+    //              loops through a machines installed drivers matching their names to the passed value. If found
+    //              the this index can be used in the "Driver" series of Get_Attribute for querying further values
+    //
+    // Notes      :
+    //
+    //------------------------------------------------------
+    Function piDriverIndex String sDriver Returns Integer
+        String sCurrentDriver
+        Integer iDriver
+        Integer iNumDrivers
+
+        Get_Attribute DF_NUMBER_DRIVERS to iNumDrivers
+        For iDriver from 1 to iNumDrivers
+            Get_Attribute DF_DRIVER_NAME of iDriver to sCurrentDriver
+            If (Uppercase(sDriver) = Uppercase(sCurrentDriver)) ;
+                Function_Return iDriver
+        Loop
+
+        Function_Return 0
+    End_Function // piDriverIndex String sDriver Returns Integer
+
+
+    //------------------------------------------------------
+    //
+    // Function   : psConnectionStringFromID
+    //
+    // Scope      : Public
+    //
+    // Parameters : sDriver -  Name of driver as returned by DF_FILE_DRIVER
+    //              sConnectionID - "Fake" login with a connection ID instead of connection string
+    //
+    // Returns    : String - connection string
+    //
+    // Purpose    : Having found the driver in use. Walk through its registered connection ID until
+    //              we find the one one we're interested in a return its connection string.
+    //
+    // Notes      :
+    //
+    //------------------------------------------------------
+    Function psConnectionStringFromID String sDriver String sConnectionID Returns String
+        Integer iDriver iConn iNumConn
+        String sID sConnectionString
+
+        Get piDriverIndex sDriver to iDriver
+        If (iDriver) Begin
+            //Walk through all Connection IDs for the relevant driver. Exit when we find something (or run out of IDs)
+            Move 0 to iConn
+            Get_Attribute DF_DRIVER_NUMBER_CONNECTION_IDS of iDriver to iNumConn
+            While ((iConn < iNumConn) and (sConnectionString = ""))
+
+                Get_Attribute DF_DRIVER_CONNECTION_ID of iDriver iConn to sID
+                If (Uppercase(sConnectionID) = Uppercase("DFCONNID=" + sID)) ;
+                    Get_Attribute DF_DRIVER_CONNECTION_ID_STRING of iDriver iConn to sConnectionString
+
+                Move (iConn + 1) to iConn
+            Loop
+        End
+
+        Function_Return sConnectionString
+    End_Function // psConnectionStringFromID String sDriver String sConnectionID Returns String
+
+    //-------------------------------------------------------------------------
+
+    Procedure DoLoad_SQL
+        Boolean bSQL_AutoTranslateToOEM bFound bRow_Colors bRow_Item
+        Integer iRow_Count iMax_Rows iColumn iColumn_Count iRef_Column
+        Integer iRow_ForeColor iRow_BackColor iItem_ForeColor iItem_BackColor iLoad_Monitor
+        Handle  hoRecords hoRec hoItem
+        Variant  vRecords  vRec  vItem
+        String  sValue sTag
+        String sTABLE_CHARACTER_FORMAT
+
+        tdRC_Column_Def[] tColumn_Defs
+        tdRC_Column_Formats tColumn_Formats
+
+        //SQL specific
+        Boolean  bCase
+        Integer  iFetchResult
+        Handle   hoSQL hoDD hdbc hstmt hTable
+        String   sDriver sConnection sSQL_Select_Statment
+        DateTime dtStart dtEnd
+
+        Send Cursor_Wait of Cursor_Control
+
+        Get phoReportRecordItem to hoItem
+        Get phoReportRecord     to hoRec
+        Get phoReportRecords    to hoRecords
+        Get ComRecords          to vRecords
+        Set pvComObject of hoRecords to vRecords
+
+        Get ptColumn_Formats to tColumn_Formats
+        Get ptColumn_Defs    to tColumn_Defs
+        Get piColumn_Count   to iColumn_Count
+        Get piRef_Column     to iRef_Column
+        Get piMax_Rows       to iMax_Rows
+        Get pbRow_Colors     to bRow_Colors
+        Get pbRow_Item       to bRow_Item
+        Get piLoad_Monitor   to iLoad_Monitor
+
+        Move (CurrentDateTime()) to dtStart
+
+        If ((psSQL_Select_Statment(Self) = "") or pbAlwaysRebuild_SQL(Self)) Send Build_SQL_Statement
+        Get psSQL_Select_Statment to sSQL_Select_Statment
+
+        Get phoDD to hoDD
+        Get Main_File of hoDD to hTable
+        Get pbSQL_Case        to bCase
+
+        Get_Attribute DF_FILE_TABLE_CHARACTER_FORMAT of hTable to sTABLE_CHARACTER_FORMAT
+        Move (pbSQL_AutoTranslateToOEM(Self) and (sTABLE_CHARACTER_FORMAT <> 'OEM')) to bSQL_AutoTranslateToOEM
+
+        #IFDEF SigCj_Use_Mertech_Drivers
+            Get CreateResultSet to hoSQL
+            Send ExecuteQuery of hoSQL sSQL_Select_Statment
+        #ELSE
+            Move (oSQL_Report_Handler(Self)) to hoSQL
+
+            Get_Attribute DF_FILE_DRIVER of hTable to sDriver
+            Get_Attribute DF_FILE_LOGIN  of hTable to sConnection
+
+            // If have a connection ID. Translate it into a proper connection string
+            If (Uppercase(left(sConnection, 9)) = "DFCONNID=") ;
+                Get psConnectionStringFromID sDriver sConnection to sConnection
+
+            Get SQLConnect of hoSQL ;
+                sDriver ;
+                sConnection to hdbc
+
+            Get SQLOpen        of hdbc to hstmt
+            Send SQLExecDirect of hstmt sSQL_Select_Statment
+        #ENDIF
+
+        Move (CurrentDateTime()) to dtEnd
+        Set ptsTimeSpan_SQL to (dtEnd - dtStart)
+
+        Repeat
+            #IFDEF SigCj_Use_Mertech_Drivers
+                Send Next of hoSQL
+                Move (Found) to iFetchResult
+            #ELSE
+                Get SQLFetch of hstmt to iFetchResult
+            #ENDIF
+
+            If (iFetchResult <> 0) Begin
+                If (iRow_Count = 1) Begin
+                    Move (CurrentDateTime()) to dtEnd
+                    Set ptsTimeSpan_SQL to (dtEnd - dtStart)
+                End
+
+                Get ComAdd of hoRecords to vRec
+                Set pvComObject of hoRec to vRec
+                Increment iRow_Count
+
+                //Reset row Colors
+                If (bRow_Colors) Begin
+                    Set piRow_ForeColor to 0 // Reset Row ForeColor
+                    Set piRow_BackColor to 0 // Reset Row BackColor
+                End
+
+                For iColumn from 0 to iColumn_Count
+                    // Get the Column data
+                    #IFDEF SigCj_Use_Mertech_Drivers
+                        Get getString of hoSQL (iColumn +1) to sValue
+                    #ELSE
+                        Get SQLColumnValue of hstmt (iColumn +1) to sValue
+                    #ENDIF
+
+                    If (bSQL_AutoTranslateToOEM) ;
+                        Move (ToOEM(sValue)) to sValue
+
+                    Move (Trim(sValue)) to sValue
+
+                    If (not(bCase) and (Trim(tColumn_Defs[iColumn].sEval) <> "")) Begin
+                        Move (Replace(tColumn_Defs[iColumn].sTC_Name,tColumn_Defs[iColumn].sEval,('"' + String(sValue) + '"'))) to sValue
+                        Move (Eval(sValue)) to sValue
+                    End
+
+                    //Add the item
+                    Send Add_Report_Item hoRec                                            ;
+                                         iColumn                                          ;
+                                         bRow_Item                                        ;
+                                         tColumn_Defs[iColumn].eDataType                  ;
+                                         tColumn_Defs[iColumn].eStyle                     ;
+                                         bRow_Colors                                      ;
+                                         tColumn_Formats[tColumn_Defs[iColumn].eDataType] ;
+                                         (Trim(sValue))                                   ;
+                                         tColumn_Defs[iColumn].bSubTotals                 ;
+                                         tColumn_Defs[iColumn].sFormat
+
+                    //Tag value
+                    If (iColumn = iRef_Column) Move sValue to sTag
+
+                    //Set row Colors
+                    If (bRow_Colors) Send OnSetRowColor iColumn sValue
+                Loop
+
+                //Add Tag
+                Set ComTag of hoRec to sTag
+
+                //Set row Color
+                If (bRow_Colors) Begin
+                    Get piRow_ForeColor to iRow_ForeColor
+                    Get piRow_BackColor to iRow_BackColor
+                    If ((iRow_ForeColor) or (iRow_BackColor)) Begin
+                        For iColumn from 0 to iColumn_Count
+                            Get ComItem      of hoRec iColumn to vItem
+                            Set pvComObject  of hoItem to vItem
+                            Get ComForeColor of hoItem to iItem_ForeColor
+                            Get ComBackColor of hoItem to iItem_BackColor
+                            If ((iRow_ForeColor) and (iItem_ForeColor = -1)) Set ComForeColor of hoItem to iRow_ForeColor
+                            If ((iRow_BackColor) and (iItem_BackColor = -1)) Set ComBackColor of hoItem to iRow_BackColor
+                        Loop
+                    End
+                End
+
+                If ((iMax_Rows > 0) and (iRow_Count = iMax_Rows)) Begin
+                    //Max rows specified and reach so bomb repeat loop
+                    Move 0 to iFetchResult
+                End
+            End
+            If (iLoad_Monitor > 0) Begin
+                If ((iRow_Count > iLoad_Monitor) and (Mod(iRow_Count, iLoad_Monitor) = 0)) Send OnLoad_Monitor iRow_Count
+            End
+        Until (iFetchResult = 0)
+
+        #IFDEF SigCj_Use_Mertech_Drivers
+            Send Destroy_Object of hoSQL
+        #ELSE
+            Send SQLClose       of hstmt
+            Send SQLDisconnect  of hdbc
+        #ENDIF
+
+        Set Private_piRow_Count to iRow_Count
+
+        //Send DoBest_Fit
+
+        Send Cursor_Ready of Cursor_Control
+    End_Procedure
+
+    Procedure OnSetRowColor Integer iColumn String sValue
+        /// Hook
+        // If ((iColumn = 11) and (sValue = "Equipment")) Begin
+        //    Set piRow_ForeColor to 255
+        //    Set piRow_BackColor to clFuchsia
+        // End
+    End_Procedure
+
+    Procedure OnSetItemColor Integer iColumn String sValue
+        /// Hook
+        // If ((iColumn = 11) and (sValue = "Equipment")) Begin
+        //    Set piItem_ForeColor to 255
+        //    Set piItem_BackColor to clFuchsia
+        // End
+    End_Procedure
+
+    //=========================================================================
+    //Text Data
+
+    Procedure DoLoad_Text
+        Boolean bFound bRow_Colors bRow_Item
+        Integer iRow_Count iMax_Rows iColumn iColumn_Count iRef_Column
+        Integer iRow_ForeColor iRow_BackColor iItem_ForeColor iItem_BackColor iLoad_Monitor
+        Handle  hoRecords hoRec hoItem
+        Variant  vRecords  vRec  vItem
+        String  sValue sTag
+
+        tdRC_Column_Def[] tColumn_Defs
+        tdRC_Column_Formats tColumn_Formats
+
+        //Table specific
+        String[] saData
+
+        Send Cursor_Wait of Cursor_Control
+
+        Send OnOpen_DataSource
+        If (not(pbEOF(Self))) Begin
+            Get phoReportRecordItem to hoItem
+            Get phoReportRecord     to hoRec
+            Get phoReportRecords    to hoRecords
+            Get ComRecords          to vRecords
+            Set pvComObject of hoRecords to vRecords
+
+            Get ptColumn_Formats to tColumn_Formats
+            Get ptColumn_Defs    to tColumn_Defs
+            Get piColumn_Count   to iColumn_Count
+            Get piRef_Column     to iRef_Column
+            Get piMax_Rows       to iMax_Rows
+            Get pbRow_Colors     to bRow_Colors
+            Get pbRow_Item       to bRow_Item
+            Get piLoad_Monitor   to iLoad_Monitor
+
+            Move True to bFound
+            While (bFound)
+                Move (ResizeArray(saData,0)) to saData
+                Set psData_Items to saData
+
+                Send OnPrepare_RowData
+                If (not(pbEOF(Self))) Begin
+                    Get psData_Items   to saData
+
+                    Get ComAdd of hoRecords to vRec
+                    Set pvComObject of hoRec to vRec
+                    Increment iRow_Count
+
+                    //Reset row Colors
+                    If (bRow_Colors) Begin
+                        Set piRow_ForeColor to 0
+                        Set piRow_BackColor to 0
+                    End
+
+                    For iColumn from 0 to iColumn_Count
+                        //Item Data
+                        Move saData[iColumn] to sValue
+
+                        //Add the item
+                        Send Add_Report_Item hoRec                                            ;
+                                             iColumn                                          ;
+                                             bRow_Item                                        ;
+                                             tColumn_Defs[iColumn].eDataType                  ;
+                                             tColumn_Defs[iColumn].eStyle                     ;
+                                             bRow_Colors                                      ;
+                                             tColumn_Formats[tColumn_Defs[iColumn].eDataType] ;
+                                             (Trim(sValue))                                   ;
+                                             tColumn_Defs[iColumn].bSubTotals                 ;
+                                             tColumn_Defs[iColumn].sFormat
+
+                        //Set row Colors
+                        If (bRow_Colors) Send OnSetRowColor iColumn sValue
+                    Loop
+
+                    //Add Tag
+                    If (pbAuto_Row_Ref(Self)) Begin
+                        Set ComTag of hoRec to iRow_Count
+                    End
+                    Else Begin
+                        Set ComTag of hoRec to saData[iRef_Column]
+                    End
+
+                    //Set row Color
+                    If (bRow_Colors) Begin
+                        Get piRow_ForeColor to iRow_ForeColor
+                        Get piRow_BackColor to iRow_BackColor
+                        If ((iRow_ForeColor) or (iRow_BackColor)) Begin
+                            For iColumn from 0 to iColumn_Count
+                                Get ComItem      of hoRec iColumn to vItem
+                                Set pvComObject  of hoItem to vItem
+                                Get ComForeColor of hoItem to iItem_ForeColor
+                                Get ComBackColor of hoItem to iItem_BackColor
+                                If ((iRow_ForeColor) and (iItem_ForeColor = -1)) Set ComForeColor of hoItem to iRow_ForeColor
+                                If ((iRow_BackColor) and (iItem_BackColor = -1)) Set ComBackColor of hoItem to iRow_BackColor
+                            Loop
+                        End
+                    End
+                    If (iMax_Rows > 0) Move (iRow_Count < iMax_Rows) to bFound
+                End
+                Else Begin
+                    Move (False) to bFound
+                End
+
+                If (iLoad_Monitor > 0) Begin
+                    If ((iRow_Count > iLoad_Monitor) and (Mod(iRow_Count, iLoad_Monitor) = 0)) Send OnLoad_Monitor iRow_Count
+                End
+            Loop
+
+            //Send DoBest_Fit
+        End
+
+        Send OnClose_DataSource
+        Set Private_piRow_Count to iRow_Count
+        Send Cursor_Ready of Cursor_Control
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnOpen_DataSource
+        // Event Hook
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnPrepare_RowData
+        // Event Hook
+        //
+        // Send Add_Item_Data for each column
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnClose_DataSource
+        // Event Hook
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    Procedure Add_Item_Data String sItem
+        String[] sData
+
+        Get psData_Items to sData
+        Move sItem to sData[SizeOfArray(sData)]
+        Set psData_Items to sData
+    End_Procedure
+
+    //=========================================================================
+
+    Procedure OnComGroupOrderChanged
+        Boolean bGroupRow
+        Integer iCount iRow iWork
+        Handle  hoReport_Rows hoRow hoGroupRow
+        Variant vReport_Rows  vRow
+
+        If (pbCollapseGroups(Self)) Begin
+            Get phoReportRows     to hoReport_Rows
+            Get phoReportRow      to hoRow
+            Get phoReportGroupRow to hoGroupRow
+            Get ComRows to vReport_Rows
+            Set pvComObject of hoReport_Rows to vReport_Rows
+
+            Get ComCount of hoReport_Rows to iCount
+            Decrement iCount
+
+            For iRow from 0 to iCount
+                Get ComRow of hoReport_Rows iRow to vRow
+                Set pvComObject of hoRow to vRow
+
+                Get ComGroupRow of hoRow to bGroupRow
+                If (bGroupRow) Begin
+                    Set pvComObject of hoGroupRow to vRow
+                    Set ComExpanded of hoRow to False
+
+                    Get ComCount of hoReport_Rows to iCount
+                    Decrement iCount
+                End
+            Loop
+        End
+    End_Procedure
+
+    Function Ensure_Visible String sTag Returns Boolean
+        Boolean bFound bGroupRow bExpanded
+        Integer iCount iLoop
+        Handle hoRecords hoRec hoReport_Rows hoRow hoGroupRow
+        Variant vRec vRow vReport_Rows vGroup_Row
+        String sRecTag
+        Integer[] aiRow
+
+        Get phoReportRecords  to hoRecords
+        Get phoReportRecord   to hoRec
+        Get phoReportRows     to hoReport_Rows
+        Get phoReportRow      to hoRow
+        Get phoReportGroupRow to hoGroupRow
+
+        Get ComRows to vReport_Rows
+        Set pvComObject of hoReport_Rows to vReport_Rows
+
+        Get ComCount of hoRecords to iCount
+
+        //Find record with matching TAG
+        Decrement iCount
+        Move False to bFound
+        Move 0 to iLoop
+        Repeat
+            Get ComRecord of hoRecords iLoop to vRec
+            Set pvComObject of hoRec to vRec
+
+            Get ComTag of hoRec to sRecTag
+            If (sRecTag = sTag) Begin
+                Move True to bFound
+            End
+            Increment iLoop
+        Until ((iLoop = iCount) or bFound)
+
+        If (bFound) Begin
+            //tag found so find row
+            Get ComFindRow of hoReport_Rows vRec to vRow
+            If (IsNullComObject(vRow)) Begin
+                //Row not found so must be in a collapsed group.
+                //Have to expand each group until we find row
+                Move False to bFound
+                Get ComCount of hoReport_Rows to iCount
+                Decrement iCount
+                For iLoop from 0 to iCount
+                    Get ComRow of hoReport_Rows iLoop to vRow
+                    Set pvComObject of hoRow to vRow
+
+                    Get ComGroupRow of hoRow to bGroupRow
+                    If (bGroupRow) Begin
+                        Set pvComObject of hoGroupRow to vRow
+                        Get ComExpanded of hoGroupRow to bExpanded
+                        If (not(bExpanded)) Begin
+                            Set ComExpanded of hoGroupRow to True
+                            Get ComFindRow of hoReport_Rows vRec to vRow
+                            If (IsNullComObject(vRow)) Begin
+                                Move iLoop to aiRow[SizeOfArray(aiRow)]
+                                Get ComCount of hoReport_Rows to iCount
+                                Decrement iCount
+                            End
+                            Else Begin
+                                Move True to bFound
+                                Move (iCount + 1) to iLoop  //bomb loop
+                            End
+                        End
+                    End
+                Loop
+
+                //Collapse any groups that we have just expanded
+                Move (SizeOfArray(aiRow)) to iCount
+                While (iCount > 0)
+                    Decrement iCount
+                    Get ComRow of hoReport_Rows aiRow[iCount] to vGroup_Row
+                    Set pvComObject of hoGroupRow to vGroup_Row
+                    Set ComExpanded of hoGroupRow to False
+                Loop
+            End
+        End
+
+        If (bFound) Begin
+            //Found row so make it the focus.
+            //We use FocusedRow as this makes the row visible and
+            //highlights it. EnsureVisible only makes row visible.
+            Set pvComObject of hoRow to vRow
+            Set ComFocusedRow to vRow
+            //Send ComEnsureVisible of hoRow
+        End
+
+        Function_Return bFound
+    End_Function
+
+    //=========================================================================
+
+    {MethodType=Event}
+    Procedure OnSetOrdering tdRC_Ordering[] ByRef taRC_Ordering
+    End_Procedure
+
+    {MethodType=Event}
+    Procedure OnSetGrouping tdRC_Ordering[] ByRef taRC_Ordering
+    End_Procedure
+
+    {MethodType=Method Visibility=Private}
+    Procedure DoSetOrdering Boolean bGroup
+        tdRC_Ordering[] taRC_Ordering
+        Integer iColumns iSort
+        Handle hoOrder hoColumns hoColumn
+        Variant vColumn vColumns vOrder
+
+        If (bGroup) Begin
+            Get ComGroupsOrder to vOrder
+            Send OnSetGrouping (&taRC_Ordering)
+        End
+        Else Begin
+            Get ComSortOrder to vOrder
+            Send OnSetOrdering (&taRC_Ordering)
+        End
+
+        Move (SizeOfArray(taRC_Ordering)) to iColumns
+        If (iColumns=0) Begin
+            Procedure_Return
+        End
+
+        Get phoReportColumnOrder to hoOrder
+        Get phoReportColumns to hoColumns
+        Get phoReportColumn to hoColumn
+
+        Get ComColumns to vColumns
+        Set pvComObject of hoOrder to vOrder
+        Set pvComObject of hoColumns to vColumns
+
+        For iSort from 0 to (iColumns-1)
+            Get ComColumn of hoColumns taRC_Ordering[iSort].iColumn to vColumn
+            Set pvComObject of hoColumn to vColumn
+            Set ComSortAscending of hoColumn to (not(taRC_Ordering[iSort].bDescending))
+            Send ComAdd of hoOrder vColumn
+        Loop
+    End_Procedure
+
+    {MethodType=Method Visibility=Private}
+    Procedure DoSetColumnOrdering
+        Send DoSetOrdering False
+    End_Procedure
+
+    {MethodType=Method Visibility=Private}
+    Procedure DoSetColumnGrouping
+        Send DoSetOrdering True
+    End_Procedure
+
+    {MethodType=Method}
+    Procedure SortGridByColumn tdRC_Ordering[] tRC_Ordering
+        Handle hoSortOrder hoCol
+        Integer iItem
+
+        Get phoReportColumn to hoCol
+        Get phoReportColumnOrder to hoSortOrder
+
+        Send ComDeleteAll of hoSortOrder
+        For iItem from 0 to (SizeOfArray(tRC_Ordering) -1)
+            Set pvComObject of hoCol to (ComColumn(phoReportColumns(Self), tRC_Ordering[iItem].iColumn))
+            Set ComSortAscending of hoCol to tRC_Ordering[iItem].bDescending
+            Send ComAdd of hoSortOrder (pvComObject(hoCol))
+        Loop
+    End_Procedure //SortGridByColumn tdRC_Ordering[] tRC_Ordering
+
+    //=========================================================================
+    // Navigator methods
+
+    { Visibility = False }
+    Function Focus_Row_Index Returns Integer
+        Integer iRetval
+        Variant vRow
+
+        Get ComFocusedRow to vRow
+        If (not(IsNullComObject(vRow))) Begin
+            Set pvComObject of (phoReportRow(Self)) to vRow
+            Get ComIndex    of (phoReportRow(Self)) to iRetval
+        End
+        Function_Return iRetval
+    End_Function
+
+    { Visibility = False }
+    Function Last_Row_Index Returns Integer
+        Integer iRowCount
+
+        Get ComCount of (phoReportRows(Self)) to iRowCount
+
+        Function_Return (iRowCount - 1) //zero based
+    End_Function
+
+    { Visibility = False }
+    Function Find_Next_Non_Group_Row Integer iIndex Returns Integer
+        Boolean bGroupRow
+        Handle  hoRows hoRow
+        Variant vRow
+        Integer iRowCount
+
+        Get phoReportRows  to hoRows
+        Get phoReportRow   to hoRow
+
+        Get Last_Row_Index to iRowCount
+        If (iIndex < iRowCount) Increment iIndex
+
+        Repeat
+            Get ComRow of hoRows iIndex to vRow
+            Set pvComObject of hoRow to vRow
+            Get ComGroupRow of hoRow to bGroupRow
+            If (bGroupRow) Begin
+                Increment iIndex
+            End
+        Until (not(bGroupRow) or (iIndex = iRowCount))
+
+        If (bGroupRow) Move -1 to iIndex
+
+        Function_Return iIndex
+    End_Function
+
+    { Visibility = False }
+    Procedure MoveToRow Integer iIndex
+        Send ComMoveToRow of (phoReportNavigator(Self)) iIndex False False
+    End_Procedure
+
+    Procedure MoveToFirstRow
+        Integer iIndex
+
+        Get Find_Next_Non_Group_Row -1 to iIndex
+        If (iIndex <> -1) Send MoveToRow iIndex
+    End_Procedure
+
+    Procedure MoveUpRow
+        Boolean bGroupRow
+        Handle hoRows hoRow
+        Variant vRows  vRow
+        Integer iIndex
+
+        Get Focus_Row_Index to iIndex
+        If (iIndex > 0) Begin
+            Get phoReportRows   to hoRows
+            Get phoReportRow    to hoRow
+
+            Get ComRows to vRows
+            Set pvComObject of hoRows to vRows
+
+            Repeat
+                Get ComRow of hoRows (iIndex -1) to vRow
+                Set pvComObject of hoRow to vRow
+                Get ComGroupRow of hoRow to bGroupRow
+                If (bGroupRow) Begin
+                    Decrement iIndex
+                End
+            Until (not(bGroupRow) or (iIndex < 2))
+
+            If (not(bGroupRow)) Send MoveToRow (iIndex - 1)
+        End
+    End_Procedure
+
+    Procedure MoveDownRow
+        Integer iIndex
+
+        Get Focus_Row_Index to iIndex
+        Get Find_Next_Non_Group_Row iIndex to iIndex
+
+        If (iIndex <> -1) Send MoveToRow iIndex
+    End_Procedure
+
+    Procedure MoveToLastRow
+        Integer iRowCount
+
+        Get Last_Row_Index to iRowCount
+        Send MoveToRow iRowCount
+    End_Procedure
+
+    //=========================================================================
+    // Other features
+
+    Procedure Standard_PrintFooter
+        Handle hoPrintPageHeaderFooter  hoReportPrintOptions hoClient
+        String sLabel
+
+        Get Client_id                to hoClient
+        Get Label       of  hoClient to sLabel
+        Get phoReportPrintOptions    to hoReportPrintOptions
+        Get phoPrintPageHeaderFooter to hoPrintPageHeaderFooter
+
+        Set pvComObject     of hoPrintPageHeaderFooter to (ComFooter(hoReportPrintOptions))
+        Set ComFormatString of hoPrintPageHeaderFooter to ("&D &b" * String(sLabel) * "&b Page &p of &P")
+    End_Procedure
+
+    Procedure Set PrintFooter String sValue
+        Handle hoPrintPageHeaderFooter  hoReportPrintOptions
+        Get phoReportPrintOptions    to hoReportPrintOptions
+        Get phoPrintPageHeaderFooter to hoPrintPageHeaderFooter
+
+        Set pvComObject     of hoPrintPageHeaderFooter to (ComFooter(hoReportPrintOptions))
+        Set ComFormatString of hoPrintPageHeaderFooter to sValue
+    End_Procedure
+
+    Procedure Set PrintHeader String sValue
+        Handle hoPrintPageHeaderFooter  hoReportPrintOptions
+        Get phoReportPrintOptions    to hoReportPrintOptions
+        Get phoPrintPageHeaderFooter to hoPrintPageHeaderFooter
+
+        Set pvComObject     of hoPrintPageHeaderFooter to (ComHeader(hoReportPrintOptions))
+        Set ComFormatString of hoPrintPageHeaderFooter to sValue
+    End_Procedure
+
+    //=========================================================================
+    //Standard Dataflex methods
+
+    Procedure Deactivating Returns Integer
+        Integer iRetVal
+
+        Forward Get Msg_Deactivating to iRetVal
+
+        If (phoFieldChooser(Self)) Begin
+            Set Visible_State of (phoFieldChooser(Self)) to False
+        End
+        Send PX_Save
+
+        Procedure_Return iRetVal
+    End_Procedure
+
+    //=========================================================================
+    //
+    //The following procedures are to stop data aware error messages
+    //
+    Procedure Prompt
+    End_Procedure
+
+    Procedure Request_Clear
+    End_Procedure
+
+    Procedure Request_Clear_All
+    End_Procedure
+
+    Procedure Request_Save
+    End_Procedure
+
+    Procedure Request_Delete
+    End_Procedure
+
+    Procedure Find_Next
+    End_Procedure
+
+    Procedure Find_Previous
+    End_Procedure
+
+    Procedure Beginning_Of_Data
+    End_Procedure
+
+    Procedure End_Of_Data
+    End_Procedure
+
+    Procedure Find_Ge
+    End_Procedure
+
+    Procedure Superfind
+    End_Procedure
+
+    Procedure Superfind_Next
+    End_Procedure
+
+    Procedure Superfind_Previous
+    End_Procedure
+
+    Procedure OnComColumnClick Variant llColumn
+        Forward Send OnComColumnClick llColumn
+    End_Procedure
+End_Class
+
+//==============================================================================
+//End of package - cSigCJReportControl.pkg
+//==============================================================================

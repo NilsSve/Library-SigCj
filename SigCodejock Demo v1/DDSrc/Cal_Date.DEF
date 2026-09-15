@@ -1,0 +1,38 @@
+-----------------------------------------------------------------------------
+  DATE: 27/02/2012      TIME: 09:51                                  PAGE:  1
+  FILE DEFINITION FOR FILE: cal_date (# 15)
+-----------------------------------------------------------------------------
+  DRIVER NAME               : DATAFLEX
+  FILE ROOT NAME            : cal_date
+  USER DISPLAY NAME         : Calendar Special Dates
+  DATAFLEX FILE NAME        : cal_date
+-----------------------------------------------------------------------------
+  RECORD LENGTH             : 64        ( USED: 62 )
+  MAX NUMBER OF RECORDS     : 10000     ( USED: 22 )
+  FILE COMPRESSION          : NONE
+  RE-USE DELETED SPACE      : YES
+  LOCKING TYPE              : FILE
+  HEADER INTEGRITY CHECKING : YES
+  TRANSACTION TYPE          : CLIENT ATOMIC
+  RECORD IDENTITY INDEX     : 0 ( 0 , 0 )
+  FILE LOGIN PARAMETER      : 
+  SYSTEM FILE               : NO 
+-----------------------------------------------------------------------------
+
+NUM  FIELD NAME       TYPE SIZE  OFFST IX   RELATES TO FILE.FIELD
+---  ---------------  ---- ----- ----- --   ---------------------------------
+  1  Date_From        DAT      6     1  1   
+  2  Date_To          DAT      6     4      
+  3  Title            ASC     50     7  2   
+  4  BackColour       NUM    8.0    57      
+  5  AllDay           NUM    2.0    61      
+  6  AllowEvents      NUM    2.0    62      
+
+
+INDEX# FIELDS          DES U/C    LENGTH LEVELS SEGMENTS MODE
+------ --------------- --- ---    ------ ------ -------- -------
+  1    Date_From       NO  NO       3      2       1     ON-LINE
+
+  2    Title           NO  NO       53     5       2     ON-LINE
+       Date_From       NO  NO 
+

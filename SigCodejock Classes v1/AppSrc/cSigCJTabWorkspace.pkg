@@ -1,0 +1,293 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJTabWorkspace.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev: 599 $
+//                $Date: 2009-10-14 10:39:01 +0100 (Wed, 14 Oct 2009) $
+//                $Author: pak $ Martin Pincott
+// 
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//==============================================================================
+
+Use cCJCommandBars.pkg
+Use cSigCJMethods_Mixin.pkg
+Use GlobalFunctionsProcedures.pkg
+
+Class cSigCJTabWorkspace is a cCJTabWorkspace
+    Import_Class_Protocol cSigCJMethods_Mixin
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        {Visibility=Private} 
+        {Visibility=Private} 
+        Property Integer Private_peFlags                 0
+        {Visibility=Private} 
+        Property Boolean Private_pbAllowReorder          False
+        {Visibility=Private} 
+        Property Boolean Private_pbAutoTheme             False
+        {Visibility=Private} 
+        Property Boolean Private_pbAutoUpdateTabCaption  True
+        {Visibility=Private} 
+        Property Boolean Private_pbGroupsEnable          False
+        {Visibility=Private} 
+        Property Boolean Private_pbHideArrows            False
+        {Visibility=Private} 
+        Property Boolean Private_pbHideClose             False
+        {Visibility=Private} 
+        Property Boolean Private_pbHideAll               False
+        {Visibility=Private} 
+        Property Boolean Private_pbShowActiveFiles       False
+        {Visibility=Private} 
+        Property Boolean Private_pbHideArrowsAlways      False
+        {Visibility=Private} 
+        Property Boolean Private_pbShowCloseTab          False
+        {Visibility=Private} 
+        Property Boolean Private_pbShowCloseSelectedTab  False
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbAllowReorder Boolean bAllow
+        Set SigCJProperty Set_Private_pbAllowReorder Set_ComAllowReorder to bAllow
+    End_Procedure
+    
+    Function pbAllowReorder Returns Boolean
+        Function_Return (SigCjProperty(Self, Get_Private_pbAllowReorder, Get_ComAllowReorder ))
+    End_Function
+    
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbAutoTheme Boolean bAutoTheme
+        Set SigCJProperty Set_Private_pbAutoTheme Set_ComAutoTheme to bAutoTheme
+    End_Procedure
+    
+    Function pbAutoTheme Returns Boolean
+        Function_Return (SigCjProperty(Self, Get_Private_pbAutoTheme, Get_ComAutoTheme ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbAutoUpdateTabCaption Boolean bValue
+        Set SigCJProperty Set_Private_pbAutoUpdateTabCaption Set_ComAutoUpdateTabCaption to bValue
+    End_Procedure
+    
+    Function pbAutoUpdateTabCaption Returns Boolean
+        Function_Return (SigCjProperty(Self, Get_Private_pbAutoUpdateTabCaption, Get_ComAutoUpdateTabCaption ))
+    End_Function
+    
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set peFlags Integer eFlags
+        Set SigCJProperty Set_Private_peFlags Set_ComFlags to eFlags  
+    End_Procedure
+    
+    Function peFlags Returns Integer
+        Function_Return (Private_peFlags(Self))
+    End_Function 
+    
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbHideArrows Boolean bHide
+        Set Private_pbHideArrows to bHide
+        If (bHide) Begin
+            Set peFlags to (AddBitValue(xtpWorkspaceHideArrows,peFlags(Self))) 
+        End
+        Else Begin
+            Set peFlags to (RemoveBitValue(xtpWorkspaceHideArrows,peFlags(Self))) 
+        End
+    End_Procedure
+    
+    Function pbHideArrows Returns Boolean
+        Function_Return (Private_pbHideArrows(Self))
+    End_Function
+    
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbHideClose Boolean bHide
+        Set Private_pbHideClose to bHide
+        If (bHide) Begin
+            Set peFlags to (AddBitValue(xtpWorkspaceHideClose,peFlags(Self)))   
+        End
+        Else Begin
+            Set peFlags to (RemoveBitValue(xtpWorkspaceHideClose,peFlags(Self))) 
+        End
+    End_Procedure
+
+    Function pbHideClose Returns Boolean
+        Function_Return (Private_pbHideClose(Self))
+    End_Function   
+ 
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+     Procedure Set pbHideAll Boolean bHide
+        Set Private_pbHideAll to bHide
+        If (bHide) Begin
+            Set peFlags to (AddBitValue(xtpWorkspaceHideAll,peFlags(Self)))   
+        End
+        Else Begin
+            Set peFlags to (RemoveBitValue(xtpWorkspaceHideAll,peFlags(Self))) 
+        End       
+    End_Procedure
+
+    Function pbHideAll Returns Boolean
+        Function_Return (Private_pbHideAll(Self))
+    End_Function   
+    
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbShowActiveFiles Boolean bShow
+        Set Private_pbShowActiveFiles to bShow
+        If (bShow) Begin
+            Set peFlags to (AddBitValue(xtpWorkspaceShowActiveFiles,peFlags(Self)))   
+        End
+        Else Begin
+            Set peFlags to (RemoveBitValue(xtpWorkspaceShowActiveFiles,peFlags(Self))) 
+        End   
+    End_Procedure
+
+    Function pbShowActiveFiles Returns Boolean
+        Function_Return (Private_pbShowActiveFiles(Self))
+    End_Function   
+    
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbHideArrowsAlways Boolean bHide
+        Set Private_pbHideArrowsAlways to bHide
+        If (bHide) Begin
+            Set peFlags to (AddBitValue(xtpWorkspaceHideArrowsAlways,peFlags(Self)))   
+        End
+        Else Begin
+            Set peFlags to (RemoveBitValue(xtpWorkspaceHideArrowsAlways,peFlags(Self))) 
+        End 
+    End_Procedure
+
+    Function pbHideArrowsAlways Returns Boolean
+        Function_Return (Private_pbHideArrowsAlways(Self))
+    End_Function  
+    
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbShowCloseTab Boolean bShow
+        Set Private_pbShowCloseTab to bShow
+        If (bShow) Begin
+            Set peFlags to (AddBitValue(xtpWorkspaceShowCloseTab,peFlags(Self)))   
+        End
+        Else Begin
+            Set peFlags to (RemoveBitValue(xtpWorkspaceShowCloseTab,peFlags(Self))) 
+        End  
+    End_Procedure
+
+    Function pbShowCloseTab Returns Boolean
+        Function_Return (Private_pbShowCloseTab(Self))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbShowCloseSelectedTab Boolean bShow
+        Set Private_pbShowCloseSelectedTab to bShow
+        If (bShow) Begin
+            Set peFlags to (AddBitValue(xtpWorkspaceShowCloseSelectedTab,peFlags(Self)))   
+        End
+        Else Begin
+            Set peFlags to (RemoveBitValue(xtpWorkspaceShowCloseSelectedTab,peFlags(Self))) 
+        End           
+    End_Procedure
+
+    Function pbShowCloseSelectedTab Returns Boolean
+        Function_Return (Private_pbShowCloseSelectedTab(Self))
+    End_Function 
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Method }
+    Procedure Set EnableGroups Boolean bEnable 
+        Set Private_pbGroupsEnable to bEnable
+        If (bEnable) Begin
+            If (IsComObjectCreated(Self)) Begin
+                Send ComEnableGroups
+            End
+        End
+    End_Procedure
+    
+    { MethodType=Method }
+    Function GroupsEnabled Returns Boolean
+        Function_Return (Private_pbGroupsEnable(Self))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Event }
+    Procedure OnSetTabWorkspaceProperties
+        Set pbAllowReorder          to (Private_pbAllowReorder        (Self))
+        Set pbAutoTheme             to (Private_pbAutoTheme           (Self))
+        Set pbAutoUpdateTabCaption  to (Private_pbAutoUpdateTabCaption(Self))
+        Set pbHideArrows            to (Private_pbHideArrows          (Self))
+        Set pbHideClose             to (Private_pbHideClose           (Self))
+        Set pbHideAll               to (Private_pbHideAll             (Self))
+        Set pbShowActiveFiles       to (Private_pbShowActiveFiles     (Self))
+        Set pbHideArrowsAlways      to (Private_pbHideArrowsAlways    (Self))
+        Set pbShowCloseTab          to (Private_pbShowCloseTab        (Self))
+        Set pbShowCloseSelectedTab  to (Private_pbShowCloseSelectedTab(Self))
+        Set EnableGroups            to (GroupsEnabled(Self))
+    End_Procedure
+
+    Procedure OnComNewItem Variant llItem
+        Handle hoClient hoFirstView
+        Integer iSize
+        
+        If (not(Private_pbGroupsEnable(Self))) Begin
+            Get Client_Id to hoClient 
+            Get Next_Mdi_Dialog of hoClient True to hoFirstView  
+            While (Object_Id(hoFirstView) and (ComItemCount(Self) = 1))
+                If (Active_State(hoFirstView)) Begin
+                    Get Size of hoFirstView to iSize    
+                    Send Page_Object to hoFirstView True
+                    Set Size of hoFirstView to (Hi(iSize)) (Low(iSize))
+                    Send Adjust_Logicals of hoFirstView
+                End
+                Get Next_Mdi_Dialog of hoClient False to hoFirstView        
+            Loop
+        End
+        Delegate Send OnNewWorkspaceTabItem llItem
+    End_Procedure
+
+End_Class
+
+//==============================================================================
+//End of Package - cSigCJTabWorkspace.pkg
+//==============================================================================

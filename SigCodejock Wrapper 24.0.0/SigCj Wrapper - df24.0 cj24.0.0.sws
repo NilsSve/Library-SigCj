@@ -1,0 +1,8 @@
+[Properties]
+Version=24.0
+[WorkspacePaths]
+ConfigFile=.\Programs\Config.ws
+[Preferences]
+DefaultFormHeight=12
+[Projects]
+Project0=Not Needed.src

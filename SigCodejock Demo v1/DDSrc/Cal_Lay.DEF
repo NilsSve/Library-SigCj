@@ -1,0 +1,35 @@
+-----------------------------------------------------------------------------
+  DATE: 27/02/2012      TIME: 09:51                                  PAGE:  1
+  FILE DEFINITION FOR FILE: Cal_Lay (# 8)
+-----------------------------------------------------------------------------
+  DRIVER NAME               : DATAFLEX
+  FILE ROOT NAME            : Cal_Lay
+  USER DISPLAY NAME         : Calendar Layouts
+  DATAFLEX FILE NAME        : Cal_Lay
+-----------------------------------------------------------------------------
+  RECORD LENGTH             : 39        ( USED: 38 )
+  MAX NUMBER OF RECORDS     : 10000     ( USED: 2 )
+  FILE COMPRESSION          : NONE
+  RE-USE DELETED SPACE      : YES
+  LOCKING TYPE              : FILE
+  HEADER INTEGRITY CHECKING : YES
+  TRANSACTION TYPE          : CLIENT ATOMIC
+  RECORD IDENTITY INDEX     : 0 ( 0 , 0 )
+  FILE LOGIN PARAMETER      : 
+  SYSTEM FILE               : NO 
+-----------------------------------------------------------------------------
+
+NUM  FIELD NAME       TYPE SIZE  OFFST IX   RELATES TO FILE.FIELD
+---  ---------------  ---- ----- ----- --   ---------------------------------
+  1  ID               NUM    4.0     1  1   
+  2  Title            ASC     32     3  2   
+  3  Count            NUM    4.0    35      
+  4  Category_Set     NUM    4.0    37      
+
+
+INDEX# FIELDS          DES U/C    LENGTH LEVELS SEGMENTS MODE
+------ --------------- --- ---    ------ ------ -------- -------
+  1    ID              NO  NO       2      2       1     ON-LINE
+
+  2    Title           NO  NO       32     4       1     ON-LINE
+

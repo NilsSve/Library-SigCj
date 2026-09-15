@@ -1,0 +1,178 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : SigCjC_ColorManager.pkg
+// Description  : Common Define / Class for Codejock controls
+//
+// Created by   : Ian Smith
+// Revision     : $Rev$
+//                $Date$
+//                $Author$
+//
+// Requirements : Visual DataFlex 24.0
+//                Codejock SuitePro - Version 24.0.0
+//
+// Copyright    : Copyright c 2008-2025 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+//CompilerWarnings Suspend
+
+Use FlexCom20.pkg
+
+Define OLEXTPColorManagerColor for Integer
+    Define OLESTDCOLOR_BACKGROUND for 1
+    Define OLESTDCOLOR_ACTIVECAPTION for 2
+    Define OLESTDCOLOR_INACTIVECAPTION for 3
+    Define OLESTDCOLOR_MENU for 4
+    Define OLESTDCOLOR_WINDOW for 5
+    Define OLESTDCOLOR_WINDOWFRAME for 6
+    Define OLESTDCOLOR_MENUTEXT for 7
+    Define OLESTDCOLOR_WINDOWTEXT for 8
+    Define OLESTDCOLOR_CAPTIONTEXT for 9
+    Define OLESTDCOLOR_ACTIVEBORDER for 10
+    Define OLESTDCOLOR_INACTIVEBORDER for 11
+    Define OLESTDCOLOR_APPWORKSPACE for 12
+    Define OLESTDCOLOR_HIGHLIGHT for 13
+    Define OLESTDCOLOR_HIGHLIGHTTEXT for 14
+    Define OLESTDCOLOR_BTNFACE for 15
+    Define OLESTDCOLOR_BTNSHADOW for 16
+    Define OLESTDCOLOR_GRAYTEXT for 17
+    Define OLESTDCOLOR_BTNTEXT for 18
+    Define OLESTDCOLOR_INACTIVECAPTIONTEXT for 19
+    Define OLESTDCOLOR_BTNHIGHLIGHT for 20
+    Define OLESTDCOLOR_3DDKSHADOW for 21
+    Define OLESTDCOLOR_3DLIGHT for 22
+    Define OLESTDCOLOR_INFOTEXT for 23
+    Define OLESTDCOLOR_INFOBK for 24
+    Define OLESTDCOLOR_HOTLIGHT for 26
+    Define OLESTDCOLOR_GRADIENTACTIVECAPTION for 27
+    Define OLESTDCOLOR_GRADIENTINACTIVECAPTION for 28
+    Define OLEXPCOLOR_TOOLBAR_FACE for 30
+    Define OLEXPCOLOR_HIGHLIGHT for 31
+    Define OLEXPCOLOR_HIGHLIGHT_BORDER for 32
+    Define OLEXPCOLOR_HIGHLIGHT_PUSHED for 33
+    Define OLEXPCOLOR_HIGHLIGHT_CHECKED for 36
+    Define OLEXPCOLOR_HIGHLIGHT_CHECKED_BORDER for 37
+    Define OLEXPCOLOR_ICONSHADDOW for 34
+    Define OLEXPCOLOR_GRAYTEXT for 35
+    Define OLEXPCOLOR_TOOLBAR_GRIPPER for 38
+    Define OLEXPCOLOR_SEPARATOR for 39
+    Define OLEXPCOLOR_DISABLED for 40
+    Define OLEXPCOLOR_MENUBAR_FACE for 41
+    Define OLEXPCOLOR_MENUBAR_EXPANDED for 42
+    Define OLEXPCOLOR_MENUBAR_BORDER for 43
+    Define OLEXPCOLOR_MENUBAR_TEXT for 44
+    Define OLEXPCOLOR_HIGHLIGHT_TEXT for 45
+    Define OLEXPCOLOR_TOOLBAR_TEXT for 46
+    Define OLEXPCOLOR_PUSHED_TEXT for 47
+    Define OLEXPCOLOR_TAB_INACTIVE_BACK for 48
+    Define OLEXPCOLOR_TAB_INACTIVE_TEXT for 49
+    Define OLEXPCOLOR_HIGHLIGHT_PUSHED_BORDER for 50
+    Define OLEXPCOLOR_3DFACE for 51
+    Define OLEXPCOLOR_3DSHADOW for 52
+    Define OLEXPCOLOR_FRAME for 54
+    Define OLEXPCOLOR_SPLITTER_FACE for 55
+    Define OLEXPCOLOR_LABEL for 56
+    Define OLEXPCOLOR_STATICFRAME for 57
+
+Define OLEXTPCurrentSystemTheme for Integer
+    // No known theme in use
+    Define OLExtpSystemThemeUnknown for 0
+    // Blue theme in use
+    Define OLExtpSystemThemeBlue for 1
+    // Olive theme in use
+    Define OLExtpSystemThemeOlive for 2
+    // Silver theme in use
+    Define OLExtpSystemThemeSilver for 3
+    // Silver theme in use
+    Define OLExtpSystemThemeRoyale for 4
+    // Silver theme in use
+    Define OLExtpSystemThemeAero for 5
+    // Use OS theme.
+    Define OLExtpSystemThemeAuto for 6
+
+Class cSigCjComIColorManager is a Mixin
+
+    { MethodType=Property DesignTime=False }
+    Function ComSystemTheme Returns OLEXTPCurrentSystemTheme
+        OLEXTPCurrentSystemTheme retVal
+        Get ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComSystemTheme OLEXTPCurrentSystemTheme value
+        Set ComProperty of (phDispatchDriver(Self)) 3 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComEnableLunaBlueForRoyaleTheme Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComEnableLunaBlueForRoyaleTheme Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 4 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComColor OLEXTPColorManagerColor llIndex Returns OLE_COLOR
+        Handle hDispatchDriver
+        OLE_COLOR retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llIndex
+        Get InvokeComMethod of hDispatchDriver 0 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComSetColor OLEXTPColorManagerColor llIndex OLE_COLOR llColor
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llIndex
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llColor
+        Send InvokeComMethod to hDispatchDriver 1 OLE_VT_VOID
+    End_Procedure
+
+    Function ComGetCurrentSystemTheme Returns OLEXTPCurrentSystemTheme
+        Handle hDispatchDriver
+        OLEXTPCurrentSystemTheme retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 2 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+End_Class
+
+Class cSigCjComColorManager is a cComAutomationObject
+    Import_Class_Protocol cSigCjComIColorManager
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set peAutoCreate to acNoAutoCreate
+    End_Procedure
+End_Class
+
+//==============================================================================
+//End of package - SigCjC_ColorManager.pkg
+//==============================================================================
+

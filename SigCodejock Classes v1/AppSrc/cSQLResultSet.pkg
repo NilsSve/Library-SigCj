@@ -1,0 +1,1343 @@
+//*************************************************************************
+//*                                                                       *
+//*  Confidential Trade Secret.                                           *
+//*  Copyright (c) 1997-2001 Mertech Data System, Miami Florida,          *
+//*  All rights reserved.                                                 *
+//*  DataFlex is a registered trademark of Data Access Corporation.       *
+//*                                                                       *
+//************************************************************************/
+
+Use Mertech.inc
+Use Windows
+Use Dferror
+Use Case.mac
+Use Set.pkg
+Use DfCursor.pkg
+Use cSQLException
+Use cSQLMetaData
+Use cSQLStatement
+
+#REM -----------------------------------------------
+#REM Mertech Data Systems Inc. - www.mertechdata.com
+#REM cSQLResultSet.pkg Version 1.0.9
+#REM -----------------------------------------------
+
+//================================================================================================
+// 1.0.1 - WvA 08/30/2000 - first draft
+// 1.0.2 - WvA 09/11/2000 - ExecuteQuery will now return a nonzero value if an error occured.
+//                          pbLocalBufferState created to enable/disable buffer
+//                          Exception Object moved and initialize method and piLastSQLException
+//                          added
+// 1.0.3                    Support for hints added,
+//                          BindResultSet, CurrentUserName, piMaxRows created.
+//                          Introduced a more logical Class-structure, with cSQLMetaData, cQLStatement
+//                          and cSQLException.
+// 1.0.4 - WvA 11/30/2000 - Introduced pbAutoRowNum/pbAutoRowID to also load a unique rowidentifier from every
+//                          query, this makes it easier to locate the current row.
+//                          Togglemode for automatic commit per statement with pbAutoCommitState.
+// 1.0.5 - WvA 12/20/2000 - Implementation of UpdateRow, RefreshRow.
+//                          get/set Column_Changed_State and set ColumnValue added.
+//                          DoSqlException method renamed to SQLException
+// 1.0.6 - WvA 01/04/2001 - Support for MS-SQL implemented. Also new is versionchecking to
+//                          make sure the minimum driver specifications are met.
+//                          Fixed several bugs, support for type date added.
+// 1.0.7 - WvA 05/11/2001 - Fixed versionchecking, changed the default for piMaxRows, pbAutoRownum and
+//                          pbAutoRowID. Fixed the AddRow function.
+//                          Added a check that only intfiles can be binded. Also added automatic
+//                          user and backend detection if the table is binded to a dataflex INT file.
+//                          SQLException object is now initialized during creation of the resultset
+//                          instead of during execution of the statement.
+// 1.0.8 - WvA 08/27/2001 - Setting NLS Date format in Oracle disabled. This is already handled by the driver.
+//                          SQL Exception object moved to be local to the resultset class to avoid
+//                          delegation problems if the package is not included at desktop level.
+// 1.0.9 - WvA 07/16/2002 - The columnchanged storage was not automatically destroyed when the rowbuffers
+//                          were destroyed. This resulted in out of memory problems when querying large
+//                          resultsets.
+//------------------------------------------------------------------------------------------------
+//
+
+
+
+Define FETCH_UNKNOWN For 0
+Define FETCH_REVERSE For 1
+Define FETCH_FORWARD For 2
+
+#IFDEF _SQLBACKEND
+#ELSE
+    #IFDEF FMAC_VERSION
+        STRING _SQLBACKEND
+    #ELSE
+        STRING _SQLBACKEND 255
+    #ENDIF
+#ENDIF
+#IFDEF _SQLUSERNAME
+#ELSE
+    #IFDEF FMAC_VERSION
+        STRING _SQLUSERNAME
+    #ELSE
+        STRING _SQLUSERNAME 255
+    #ENDIF
+#ENDIF
+
+
+Move ORAFLEX To _SQLBACKEND    // Or: Move SQLFLEX To _SQLBACKEND
+Move "SCOTT" To _SQLUSERNAME
+// The global variables _SQLBACKEND and _SQLUSERNAME are used as the default values for every
+// new resultset object that is created.
+
+
+
+// Contains a row of the data fetched from the resultset.
+Class cRowBuffer Is A Array
+  Procedure Construct_Object
+    Forward Send Construct_Object
+    Property Integer piRowNum            Public 0  // ROWNUM in the result.
+    Property String  psRowID             Public "" // ROWID of the physical row
+    Property Integer phoRowColumnChanged Public 0
+  End_Procedure // Construct_Object
+
+  // **WvA: 16-7-2002 Augmented to clean up the columnchanged objects when this
+  // buffer object gets destroyed.
+  Procedure Destroy_Object
+    Local Integer hoChanged
+    Get phoRowColumnChanged To hoChanged
+    If hoChanged Ne 0 Begin
+      Send Destroy_Object To hoChanged
+    End
+    Forward Send Destroy_Object
+  End_Procedure // Destroy_Object
+End_Class // cRowBuffer
+
+// Options per row per column
+Class cRowColumnChanged Is A Array
+End_Class // cRowColumnChanged
+
+
+
+// This class is an object oriented interface to the mertech direct drivers.
+// The logic that is used in this class is modelled after a JDBC driver in order to
+// create an easy to understand interface.
+Class cSQLResultSet Is A BaseClass
+  Procedure Construct_Object
+    Local String  sOwner
+    Local Integer hoMetaData hoSQLException
+    Forward Send Construct_Object
+    Property Integer phoMetaData          Public  0
+    Property Integer phoStatement         Public  0
+    Property Integer piCurrentFile        Public  0
+    Property Integer pbFetchDirection     Public  FETCH_FORWARD
+    Property Integer pbLocalBufferState   Public  True
+    Property Integer pbFetchAllColumns    Public  False  // internal, do not use
+    Property Integer piCurrentRow         Public  -1     // internal (zerobased)
+    Property Integer piMaxRows            Public  1      // locally cached rows is not yet supported
+    Property Integer pbAutoRowID          Public  False  // setting this to true will automatically include the RowID column
+    Property Integer pbAutoRowNum         Public  False  // setting this to true will automatically include the Rownum column
+    Property Integer pbAutoCommitState    Public  True
+    Property String  psSQLBackend         Public  _SQLBACKEND  // Default is "ORAFLEX"
+    Property String  psOwner              Public  "" //_SQLUSERNAME // Default is "SCOTT"
+    Property integer pbSQLFlexRevisionOk  Public -1 // internal, -1 is not initialized
+    Property integer pbORAFlexRevisionOk  Public -1 // internal, -1 is not initialized
+
+    Object oRowHandles  Is A Array
+    End_Object // oRowHandles
+
+
+    Object oMetaData Is A cMetaData
+      Move Self To hoMetaData
+    End_Object // oMetaData
+
+    Object oStatement  Is A cStatement
+    End_Object // oStatement
+
+    Object oSQLException Is A cSQLException
+    End_Object // oSQLException
+
+    Move (oSQLException(Self)) To hoSQLException
+    Send Initialize To hoSQLException
+
+    Get CurrentUserName To sOwner   // ?? Needs to be reviewed if it should be sent from here
+    Set psOwner To sOwner
+
+    Set phoMetaData  To hoMetaData
+  End_Procedure // Construct_Object
+
+
+  // This procedure will check the minimal revision of the driver that is required to
+  // connect to the database. If the driver does not meet the minimal requirements
+  // an error is generated and the program is aborted.
+  Procedure DoRevisionCheck
+    Local String  sSQLBackEnd sRevision sMessage
+    Local Integer iVersion iMajor iMinor bOk
+    Move "" To sRevision
+    Get psSQLBackend To sSQLBackEnd
+    If (sSQLBackend = ORAFLEX) Begin
+      If (pbORAFlexRevisionOk(Self) = -1) Begin
+        Move 3  To iVersion
+        Move 0  To iMajor
+        Move 13 To iMinor
+        ORAFLEX_REVISION sRevision
+        Move (Uppercase(sRevision)) To sRevision
+        Move (replace("ORAFLEX",sRevision,"")) To sRevision
+      End
+    End
+    Else If (sSQLBackend = SQLFLEX) Begin
+      If (pbSQLFlexRevisionOk(Self) = -1) Begin
+        Move 7  To iVersion
+        Move 2  To iMajor
+        Move 1  To iMinor
+        SQLFLEX_REVISION sRevision
+        Move (Uppercase(sRevision)) To sRevision
+        Move (replace("SQLFLEX",sRevision,"")) To sRevision
+      End
+    End
+    If (sRevision <> "") Begin
+      Get IsRevisionOk sRevision iVersion iMajor iMinor To bOk
+      If (Not(bOk)) Begin
+        If (sSQLBackend = SQLFLEX) Set pbSQLFlexRevisionOk To 0
+        Else If (sSQLBackend = ORAFLEX) Set pbORAFlexRevisionOk To 0
+        Move ("A fatal error occured, because the minimal version of the "+sSQLBackEnd+" driver\n") To sMessage
+        Move (sMessage+"does not match the minimal version required for the embedded SQL class.\n\n") To sMessage
+        Move (sMessage+"Your revision = "+sRevision+"\n") To sMessage
+        Move (sMessage+"Required revision = "+trim(iVersion)+","+trim(iMajor)+","+trim(iMinor)+",0 \n") To sMessage
+        Send Stop_Box sMessage
+        Abort
+      End
+      Else Begin
+        If (sSQLBackend = SQLFLEX) Set pbSQLFlexRevisionOk To 1
+        Else If (sSQLBackend = ORAFLEX) Set pbORAFlexRevisionOk To 1
+      End
+    End
+  End_Procedure // DoRevisionCheck
+
+  // Checks if the revision passed in variable sRevision meets the minimal revision required
+  // passed in string(iVersion)+","+string(iMajor)+","+string(iMinor)
+  Function IsRevisionOk String sRevision Integer iVersion Integer iMajor Integer iMinor Returns Integer
+    Local Integer bOk iPos iRevision
+    Move (True) To bOk
+    Move (Pos(",",sRevision)) To iPos
+    Move (integer(Left(sRevision,iPos-1))) To iRevision // Version
+    If (iRevision < iVersion ) Move (False) To bOk
+    Else If (iRevision > iVersion) Move (True) To bOk
+    Else Begin
+      Move (Mid(sRevision,length(sRevision)-iPos,iPos+1)) To sRevision
+      Move (Pos(",",sRevision)) To iPos
+      Move (integer(Left(sRevision,iPos-1))) To iRevision // Major
+      If (iRevision < iMajor ) Move (False) To bOk
+      Else If (iRevision > iMajor) Move (True) To bOk
+      Else Begin
+        Move (Mid(sRevision,length(sRevision)-iPos,iPos+1)) To sRevision
+        Move (Pos(",",sRevision)) To iPos
+        If ((integer(Left(sRevision,iPos-1))) < iMinor ) Move (False) To bOk
+      End
+    End
+    Function_Return bOk
+  End_Function // IsRevisionOk
+
+
+  // Returns the SQL statement that is used to produce the resultset.
+  // This can be different from the statement that is passed to the executequery
+  // method.
+  Function Statement Returns String
+    Local Integer hoStatement
+    Local String  sStmt
+    Get phoStatement To hoStatement
+    If (hoStatement > Desktop) Begin
+      Send DoRevisionCheck
+      Get Statement Of hoStatement To sStmt
+    End
+    Else Send SQLException SQLX_NO_STATEMENT_OBJ
+    Function_Return sStmt
+  End_Function // Statement
+
+
+
+  // Returns the SQL statement that is used to produce the resultset.
+  // This is the statement that is originally passed to the executequery
+  // method.
+  Function UnparsedStatement Returns String
+    Local Integer hoStatement
+    Local String  sStmt
+    Get phoStatement To hoStatement
+    If (hoStatement > Desktop) Begin
+      Get UnparsedStatement Of hoStatement To sStmt
+    End
+    Else Send SQLException SQLX_NO_STATEMENT_OBJ
+    Function_Return sStmt
+  End_Function // UnparsedStatement
+
+
+  // Returns the type of the statement.
+  // 0 - STMT_UNKNOWN    :Unsupported statement
+  // 1 - STMT_SELECT     :Select statement
+  // 2 - STMT_CHANGE     :Statement that needs a seperate commit/rollback)
+  // 3 - STMT_BASIC      :Basic Statement
+  // 4 - STMT_SP         :Stored procedure
+  Function StatementType Returns Integer
+    Local Integer hoStatement iType
+    Get phoStatement To hoStatement
+    If (hoStatement > Desktop) Begin
+      Get piStatementType Of hoStatement To iType
+    End
+    Else Send SQLException SQLX_NO_STATEMENT_OBJ
+    Function_Return iType
+  End_Function // StatementType
+
+
+  // internal
+  // This function will parse and implement the SQL statement
+  Procedure PrepareStatement String sStmt
+    Local Integer hoStatement
+    Get phoStatement To hoStatement
+    If (hoStatement > Desktop) Begin
+      Send SetCurrentDateFormat
+      Send PrepareStatement To hoStatement sStmt
+    End
+    Else Send SQLException SQLX_NO_STATEMENT_OBJ
+  End_Procedure // PrepareStatement
+
+  // internal: Do Not Use
+  // Sets the dateformat of the SQL engine equal to windows regional settings.
+  // We need this in order to easily convert between DataFlex and SQL date-types.
+  Procedure SetCurrentDateFormat
+    Local Integer iDateFormat iSep
+    Local String  sSep sQry sSQLBackEnd
+
+    Get psSQLBackend To sSQLBackEnd
+    Get_attribute df_date_format    To iDateFormat
+    Get_attribute df_date_separator To iSep
+    Move (Character(iSep)) To sSep
+    If (sSQLBackend = ORAFLEX) Begin
+// **WvA: Aug 27, 2001  Changing the date format conflicts with internal date settings
+//        of the driver.
+//        The code is disabled because it seems we only need to set the dateformat for MS SQL
+//      Move "ALTER SESSION SET NLS_DATE_FORMAT='" To sQry
+//      If (iDateFormat = DF_DATE_USA) Move (sQry+"MM"+sSep+"DD"+sSep+"YYYY'") To sQry
+//      Else If (iDateFormat = DF_DATE_EUROPEAN) Move (sQry+"DD"+sSep+"MM"+sSep+"YYYY'") To sQry
+//      Else If (iDateFormat = DF_DATE_MILITARY) Move (sQry+"YYYY"+sSep+"MM"+sSep+"DD'") To sQry
+    End
+    Else If (sSQLBackend = SQLFLEX) Begin
+      Move "SET DATEFORMAT " To sQry
+      If (iDateFormat = DF_DATE_USA) Move (sQry+"mdy") To sQry
+      Else If (iDateFormat = DF_DATE_EUROPEAN) Move (sQry+"dmy") To sQry
+      Else If (iDateFormat = DF_DATE_MILITARY) Move (sQry+"ymd") To sQry
+
+    SQL_SET_STMT To sQry
+    SQL_PREPARE_STMT
+    SQL_EXECUTE_STMT
+    End
+  End_Procedure // SetCurrentDateFormat
+
+
+
+  // This gets the login-ID of the current user.
+  // For MS SQL you can also use the macro GET_SCHEMA_NAME
+  Function CurrentUserName Returns String
+    Local String sOwnerName
+    Local String sQry sSQLBackEnd
+    Get psSQLBackend To sSQLBackEnd
+    If (sSQLBackend = ORAFLEX) ;
+      Move "SELECT username FROM user_users" To sQry
+    Else If (sSQLBackend = SQLFLEX) ;
+      Move "SELECT convert(char(30), CURRENT_USER)" To sQry
+
+    SQL_SET_STMT To sQry
+    SQL_PREPARE_STMT
+    SQL_EXECUTE_STMT
+    SQL_FETCH_NEXT_ROW
+    If (Found) DO_GET_BIND_PARAMETERS sOwnerName
+    Function_Return sOwnerName
+  End_Function // CurrentUserName
+
+
+  // Create a new rowbuffer object. These rows are created 'locally' because DataFlex only allows
+  // an object nesting level of 32k objects.
+  Function CreateRow Returns Handle
+    Local Handle hoRow hoRowColumnChanged
+    Object oRowBuffer Is A cRowBuffer
+      Move Self To hoRow
+    End_Object // oRowBuffer
+
+    Object oRowColumnChanged Is A cRowColumnChanged
+      Move Self To hoRowColumnChanged
+    End_Object // oRowColumnChanged
+    If (hoRow <> 0) Set phoRowColumnChanged Of hoRow To hoRowColumnChanged
+
+    Function_Return hoRow
+  End_Function // CreateRow
+
+
+  // Checks if the value in column iColumn on the current row has changed by
+  // checking it's changed_state.
+  //
+  // Returns True if changed, or False if it hasn't changed.
+  Function Column_Changed_State Integer iColumn Returns Integer
+    Local Integer bState iCurrentRow iRow
+    Local Integer hoRowBuffer hoRowColumnChanged
+    Get piCurrentRow To iRow
+    If (iRow > -1) Begin
+      Get Array_Value Of (oRowHandles(Self)) Item iRow To hoRowBuffer
+      If (hoRowBuffer <> 0) Begin
+        Get phoRowColumnChanged Of hoRowBuffer To hoRowColumnChanged
+        If (hoRowColumnChanged <> 0) Begin
+          Get Array_value Of hoRowColumnChanged Item iColumn To bState
+        End
+      End
+    End
+    Function_Return bState
+  End_Function // Column_Changed_State
+
+
+  Function Current_Row Returns Integer
+    Function_Return (piCurrentRow(Self))
+  End_Function // Current_Row
+
+
+  // Sets the changed_state of the column iColumn in the current row.
+  // This can be used to indicate that the value in this column has changed, so that
+  // the row should be saved.
+  Procedure Set Column_Changed_State Integer iColumn Integer bState
+    Local Integer iCurrentRow iRow
+    Local Integer hoRowBuffer hoRowColumnChanged
+    Get piCurrentRow To iRow
+    If (iRow > -1) Begin
+      Get Array_Value Of (oRowHandles(Self)) Item iRow To hoRowBuffer
+      If (hoRowBuffer <> 0) Begin
+        Get phoRowColumnChanged Of hoRowBuffer To hoRowColumnChanged
+        If (hoRowColumnChanged <> 0) Begin
+          Set Array_value Of hoRowColumnChanged Item iColumn To bState
+        End
+      End
+    End
+  End_Procedure // Set Column_Changed_State
+
+
+  // This procedure will add the fetched row to the array on the DataFlex backend.
+  // If number of rows is equal to the limit of rows that may exist (piMaxRows) then
+  // all the rows will scroll up and the oldest row will drop out of the array and gets
+  // destroyed.
+  // If piMaxRows = 0 the size of the resultset is only limited by DataFlex itself,
+  // typically 32000. This will result in an error declared by dataflex. that's why
+  // piMaxRows has a default value of 500 rows.
+  // **WvA: Temporarily changed to 1
+  Function AddRow Returns Handle
+    Local Integer iRowCount hoRowBuffer iMaxRows
+    Get Item_Count  Of (oRowHandles(Self)) To iRowCount
+    Get piMaxRows To iMaxRows
+    If ((iMaxRows > 0) And (iMaxRows = iRowCount)) Begin
+      Decrement iRowCount
+      Get Array_Value Of (oRowHandles(Self)) Item 0 To hoRowBuffer
+      Send Delete_Item To (oRowHandles(Self)) 0
+      Send Destroy_Object To hoRowBuffer
+    End
+    Get CreateRow To hoRowBuffer
+    If (hoRowBuffer > Desktop) Begin
+      Set Array_Value Of (oRowHandles(Self)) Item iRowCount To hoRowBuffer
+      Set piCurrentRow To iRowCount
+    End
+    Function_Return hoRowBuffer
+  End_Function // AddRow
+
+
+  // With BindresultSet you can tell the resultset that the results of the
+  // query should be put into a DataFlex filebuffer directly. Without this the results are onlu
+  // put into the Resultset array.
+  // The filebuffer used is equal to the file in the filelist with filenumber iFile
+  Procedure BindResultSet Integer iFile
+    Local Integer bOpen
+    Local String  sDriverName sOwner
+    Get_Attribute DF_FILE_OPENED Of iFile To bOpen
+    If bOpen EQ dfFalse Begin
+      If (Error_object_Id > 0) ;
+        Send Ignore_Error To (Error_Info_Object(Self)) 74
+      Open iFile
+      Move (Found) To bOpen
+      If (Error_object_Id > 0) ;
+        Send Trap_Error To (Error_Info_Object(Self)) 74
+    End
+    If (bOpen) Begin
+      Set piCurrentFile To iFile
+      If (iFile > 0) Begin  // Allrighty we are going to bind our RS to DataFlex files, set up some defaults
+        Get_attribute DF_FILE_DRIVER of iFile To sDriverName
+        If ((sDriverName = ORAFLEX) Or (sDriverName = SQLFLEX)) Begin
+          Set psSQLBackend To sDriverName
+          Get_attribute DF_FILE_OWNER of iFile To sOwner
+          Set psOwner To sOwner
+          Set pbLocalBufferState To False  // Use the recordbuffer to store the data
+        End  // = ORAFLEX Or SQLFLEX
+        Else Send SQLException SQLX_NOT_A_VALID_INTFILE
+      End
+      Else Set pbLocalBufferState To True
+    End
+    Else Send SQLException SQLX_ENTRY_NOT_IN_FILELIST
+  End_Procedure // BindResultSet
+
+
+
+  //  Maps the given Resultset column name to its ResultSet column index.
+  //
+  // Returns: the column nr if found, or -1 if no column matches sColumnname
+  //
+  Function FindColumn String sColumnName Returns Integer
+    Local Integer iColumn iCount iNdx hoMetaData iPos iLen
+    Local String  sVal sIndex
+    Move -1 To iColumn
+    Move (Trim(Uppercase(sColumnName))) To sColumnName
+    Move (oMetaData(Self)) To hoMetaData
+    If (hoMetaData > Desktop) Begin
+      Get ColumnCount Of hoMetaData To iCount
+      Move 1 To iNdx
+      If (Pos(".",sColumnName) = 0) Begin
+        While (iNdx <= iCount And iColumn = -1)
+          Get ColumnName Of hoMetaData Item iNdx To sVal
+          If (sColumnName = sVal) Move iNdx To iColumn
+          Increment iNdx
+        Loop
+      End
+      Else Begin
+        While (iNdx <= iCount And iColumn = -1)
+          Get FullColumnName Of hoMetaData Item iNdx To sVal
+          If (sColumnName = sVal) Move iNdx To iColumn
+          Increment iNdx
+        Loop
+      End
+    End
+    If (iColumn = -1) Begin
+      Send SQLException SQLX_COLUMN_NOT_FOUND ("Column name = ["+sColumnName+"]")
+    End
+    Function_Return iColumn
+  End_Function // FindColumn
+
+
+  //
+  // If the columnname passed is a numerical value, we assume that it is the
+  // columnnumber,  otherwise the column is referenced by its name.
+  // Returns: the column nr if found, or -1 if no column matches sColumn
+  //
+  Function ColumnNumber String sColumn Returns Integer
+    Local Integer iLen iPos bIsNumber iColumn
+    Local String  sChar sNumber
+
+    Move (True) To bIsNumber
+    Move 1 To iPos
+    move (Trim(sColumn))   To sColumn
+    Move (Length(sColumn)) To iLen
+    While ((bIsNumber) AND (iPos <= iLen))
+      Move (Mid(sColumn,1,iPos)) To sChar
+      If (Pos(sChar,"0123456789") <> 0) begin
+        Move (sNumber+sChar) To sNumber
+        Increment iPos
+      End
+      Else Begin
+        Move (False) to bIsNumber
+        Move (FindColumn(Self,sColumn)) To iColumn // Lookup the name
+      End
+    End // while
+    If (bIsNumber = True) Begin
+      Move sNumber To iColumn
+      If (iColumn > ColumnCount(oMetaData(Self))) Move -1 To iColumn
+    End
+    Function_Return (iColumn)
+  End_Function // ColumnNumber
+
+
+  // This method will parse and execute the query that is in the sQuery variable.
+  // Returns a nonzero value if there was an error somewhere.
+  // If this query is binded to a dataflex file, the file must be opened before
+  // calling this method.
+  Procedure ExecuteQuery String sStmt Returns Integer
+    Local Integer iFile iField iLoop iCount iNdx iRetVal
+    Local Integer bSelectStmt bFetchAllColumns iType bAutoCommitState
+    Local String  sColumnName sColumnValue sTempQuery sOwner sTableName
+    Local Handle  hoMetaData hoSQLException
+
+    Send Cursor_Wait To (Cursor_Control(Self))
+
+    Get piCurrentFile To iFile
+    Move (oSQLException(Self)) To hoSQLException
+    Get phoMetaData To hoMetaData
+    Send PrepareStatement sStmt
+    Get Statement To sStmt
+    If (sStmt <> "") Begin
+      Get StatementType To iType
+      If (iType = STMT_SELECT) Begin
+        Get piErrorCount Of hoSQLException To iRetVal
+        If (iRetVal = 0) Begin
+          If (iFile > 0) Begin
+
+//            Showln ("statement = ")
+//            Showln ("["+sStmt+"]")
+
+            indicate found True
+            Indicate Err False
+            SQL_SET_STMT Of iFile To sStmt
+            SQL_PREPARE_STMT Of iFile
+
+            // Enumerate the columns and bind
+            Get ColumnCount Of hoMetaData To iCount
+            Move 1 To iNdx
+            While (iNdx <= iCount)
+              Get FieldNum Of hoMetaData Item iNdx To iField
+              If (iField > -1) SQL_BINDCOLUMNS_STMT Of iFile To iField
+  //              Showln ("Binding: fieldnum= "+trim(iField)+" ColumnName "+(Columnname(hoMetaData,iNdx)))
+  //              Else Error 25000 "Column not found in DataFlex file"
+              Increment iNdx
+            Loop
+
+            SQL_EXECUTE_STMT Of iFile
+          End
+          Else Begin // iFile <= 0
+
+            indicate found True
+            Indicate Err False
+            SQL_SET_STMT To sStmt
+            SQL_PREPARE_STMT
+            SQL_EXECUTE_STMT
+          End // iFile <= 0
+        End
+
+
+      End // If iType = STMT_SELECT
+      Else Begin
+        If ( iType = STMT_CHANGE) Begin
+          Get pbAutoCommitState To bAutoCommitState
+
+          Indicate found True
+          Indicate Err False
+          If (bAutoCommitState = True) Begin
+            SQL_START_TRANSACTION_STMT // Initialize a transaction (SQLFLEX only)
+          End
+          SQL_SET_STMT To sStmt
+          SQL_PREPARE_STMT
+          SQL_EXECUTE
+
+          If (bAutoCommitState = True) Begin
+            If (Err) Begin
+              SQL_ROLLBACK_STMT
+              Move 1 To iRetVal
+              // Normally the SQL engine/driver will report an error for you.
+              // I don't think that we have to report that a rollback is being performed as
+              // it is a very sensible thing to do.
+              //Send SQLException SQLX_QUERY_NOT_SUCCESFULL
+            End
+            Else Begin
+              SQL_COMMIT_STMT
+            End
+          End // pbAutoCommitState
+        End
+        Else If ( iType = STMT_BASIC) Begin
+          Indicate found True
+          Indicate Err False
+          SQL_SET sStmt
+          //SQL_PREPARE_STMT
+          SQL_EXECUTE
+        End
+        Else If ( iType = STMT_SP) Begin
+          Send Info_Box "To Do : Support for stored procedures."
+          Move 1 To iRetVal
+        End
+        Else Begin
+          Send Info_Box "Sorry, but the command that you are trying to execute is unknown to our parser.\nPlease check if there is a typing error in the SQL query.\n"
+          Move 1 To iRetVal
+        End
+
+
+        If (iRetVal = 0) Begin
+        End
+      End
+    End // sStmt = ""
+    Else Begin
+      Send SQLException SQLX_CANNOT_PARSE_EMPTY_QUERY
+      Move 1 To iRetVal
+    End
+
+    Send Cursor_Ready To (Cursor_Control(Self))
+
+    Procedure_return iRetVal
+  End_Procedure // ExecuteQuery
+
+
+  // To Do :
+  Procedure Previous
+    Local Integer bValidRow
+    Send Info_Box "To Do : Procedure Previous"
+    Procedure_Return bValidRow
+  End_Procedure // Previous
+
+
+  // This procedure reads the results from the query into the local buffer on a row
+  // by row basis.
+  // Post: The piCurrentRow is set to the new row.
+  Procedure Next
+    Local Integer iFile iLoop iCount iField hoRow hoMetaData iMaxRows iRowsFetched
+    Local Integer bFound iCurrentRow bAutoRowNum bAutoRowID
+    Local String  sVal sSQLBackend sDataType
+
+    Get piCurrentFile To iFile
+    Get piMaxRows     To iMaxRows
+    Get psSQLBackend  To sSQLBackend
+
+    Move (oMetaData(Self)) To hoMetaData
+    If (hoMetaData > Desktop) Begin
+      If iFile Begin
+        SQL_FETCH_NEXT_ROW Of iFile
+        If (pbLocalBufferState(Self)) Begin
+
+          // Get the data into the rowbuffer array
+          If (Found) Begin
+            Get ColumnCount Of hoMetaData To iCount
+            Get AddRow To hoRow
+            If (hoRow > Desktop) Begin
+              For iLoop From 0 To (iCount-1)
+                Get FieldNum Of hoMetadata Item (iLoop+1) To iField
+                Get_Field_Value iFile iField To sVal
+                Set Array_Value Of hoRow Item iLoop To sVal
+              Loop
+            End
+            Else Begin
+              Send SQLException SQLX_INSUFFICIENT_MEMORY_FOR_NEW_ROW
+            End
+          End // found
+        End
+      End
+      Else Begin
+
+        Get ColumnCount Of hoMetaData To iCount
+        Move (True) To bFound
+//        While ( (bfound) And ((iMaxRows = 0) Or (iRowsFetched < iMaxRows)) )
+          Get piCurrentRow To iCurrentRow
+          SQL_FETCH_NEXT_ROW
+          If (found) Begin
+            Get AddRow To hoRow
+            If (hoRow > Desktop) Begin
+              For iLoop From 0 To (iCount-1)
+                DO_GET_BIND_PARAMETERS sVal
+                //
+                //
+                //If (sSQLBackend = SQLFLEX) Begin
+                //  Get ColumnDataType  Of hoMetaData Item (iLoop+1) To sDatatype
+                //  If (Pos("DATE",sDataType) <> 0)  Begin
+                //    Get ReformatDateColumn sVal To sVal
+                //  End
+                //End
+                Set Array_Value Of hoRow Item iLoop To sVal
+              Loop
+
+              Get pbAutoRowNum To bAutoRowNum
+              If (bAutoRowNum = True) Begin
+                If (sSQLBackend = ORAFLEX) Begin
+                  DO_GET_BIND_PARAMETERS sVal
+                  Set piRowNum Of hoRow To (Integer(sVal))
+                End
+                Else If (sSQLBackend = SQLFLEX) Begin
+                  // T-SQL has no alternative for the ROWNUM column, we use the piCurrentRow
+                  // property instead.
+                  Set piRowNum of hoRow To iCurrentRow
+                End
+              End
+
+              Get pbAutoRowID To bAutoRowID
+              If (bAutoRowID = True) Begin
+                DO_GET_BIND_PARAMETERS sVal
+                Set psRowID Of hoRow To sVal  // ROWID for Oracle and IDENTITYCOL for T-SQL
+              End
+
+            End
+            Else Begin
+              Send SQLException SQLX_INSUFFICIENT_MEMORY_FOR_NEW_ROW
+            End
+          End
+          Else Move (False) To bFound
+//          Increment iRowsFetched
+//        Loop
+        // Reset the current row back to
+//        Set piCurrentRow To iCurrentRow//(iCurrentRow - iRowsFetched + 1)
+      End
+
+    End // hoMetaData
+
+    [ Err ] Begin
+      Send SQLException SQLX_FETCHING_COLUMN
+    End
+  End_Procedure // Next
+
+
+
+  // Moves the cursor to the first row in the ResultSet
+  //
+  // Returns: True if the cursor is on a valid row, False if there are no
+  //          rows in this resultset.
+  // To Do :
+  Procedure First Returns Integer
+    Local Integer iFile bValidRow
+    Get piCurrentFile To iFile
+    if (iFile > 0) Begin
+      Clear iFile
+      vFind iFile 0 Gt
+    End
+    Else Begin
+      Send Info_Box "To Do : Method First"
+    End
+    Procedure_Return bValidRow
+  End_Procedure // First
+
+
+  // Releases the resultset and clears the entire buffer.
+  Procedure DoClose
+    Local Integer iRowCount iRow hoRowBuffer hoRowHandles
+    Move (oRowHandles(Self)) To hoRowHandles
+    If (hoRowHandles > 0) Begin
+      Get Item_Count Of hoRowHandles To iRowCount
+      For iRow From 0 To iRowCount
+        Get Array_Value Of hoRowHandles Item iRow To hoRowBuffer
+        If (hoRowBuffer > Desktop) Begin
+          Send Delete_Data To hoRowBuffer
+          Send Destroy_Object To hoRowBuffer
+        End
+      Loop
+      Send Delete_Data To hoRowHandles
+    End
+  End_Procedure // DoClose
+
+
+  // Moves the cursor to row iRow in the ResultSet
+  // To Do :
+  Procedure DoAbsolute Integer iRow
+    Send Info_Box "To Do : DoAbsolute"
+  End_Procedure // DoAbsolute
+
+
+  Procedure Destroy_Object
+    Send DoClose
+    Forward Send Destroy_Object
+  End_Procedure // Destroy_Object
+
+  // No DataFlex equivalent
+  //// Moves the cursor to the end of this ResultSet, just after the last row.
+  //Procedure AfterLast
+  //End_Procedure // AfterLast
+
+  // No DataFlex equivalent
+  //// Moves the cursor to the front of this ResultSet, just before the first row.
+  //Procedure BeforeFirst
+  //End_Procedure // BeforeFirst
+
+
+  // To Do :
+  Function IsAfterLast Returns Integer
+    Local Integer bIsAfterLast
+    Send Info_Box "To Do : IsAfterLast"
+    Function_Return bIsAfterLast
+  End_Function // IsAfterLast
+
+
+  // Gets the value of column iColumn in the current row.
+  // The type returned is always string if it is a non-string value automatic
+  // casting is performed.
+  Function ColumnValue Integer iColumn Returns String
+    Local String  sValue
+    Local Integer iRow hoRowBuffer
+    Get piCurrentRow To iRow
+    If (iRow >= 0) Begin
+      Get Array_Value Of (oRowHandles(Self)) Item iRow To hoRowBuffer
+      If (hoRowBuffer > Desktop) Begin
+        Get Array_Value Of hoRowBuffer Item (iColumn-1) To sValue
+      End
+    End
+    Function_Return sValue
+  End_Function // ColumnValue
+
+
+
+  // Sets the value of column iColumn in the current row to sValue
+  Procedure Set ColumnValue Integer iColumn String sValue
+    Local Integer iRow hoRowBuffer
+    Get piCurrentRow To iRow
+    If (iRow >= 0) Begin
+      Get Array_Value Of (oRowHandles(Self)) Item iRow To hoRowBuffer
+      If (hoRowBuffer > Desktop) Begin
+        Set Array_Value Of hoRowBuffer Item (iColumn-1) To sValue
+      End
+    End
+    Function_Return sValue
+  End_Procedure // Set ColumnValue
+
+
+  // Gets the string-value of the column passed in sFieldID for the current row.
+  // sFieldID this is a sql fieldnumber if it only contains a numeric value.
+  //          It may also contain the name of the field.
+  // Note: This means that you cannot use the name for a field that only consists of
+  //       numbers. Instead use the sql fieldnumber.
+  // Throws an exception if the referenced column is unknown to the class.
+  Function GetString String sFieldID Returns String
+    Local String  sValue
+    Local Integer iColumn hoSelf
+    Move Self To hoSelf
+    Get ColumnNumber Of hoSelf Item sFieldID To iColumn
+    If (iColumn <> -1) Begin
+      Get ColumnValue iColumn To sValue
+    End
+    Else Begin
+      Send SQLException SQLX_COLUMN_UNKNOWN ("Column name = ["+sFieldID+"]")
+    End
+    Function_Return sValue
+  End_Function // GetString
+
+
+  // Gets the integer-value of the column passed in sFieldID for the current row.
+  // sFieldID this is a sql fieldnumber if it only contains a numeric value.
+  //          It may also contain the name of the field.
+  // Note: This means that you cannot use the name for a field that only consists of
+  //       numbers. Instead use the sql fieldnumber.
+  // Throws an exception if the referenced column is unknown to the class.
+  Function GetInteger String sFieldID Returns Integer
+    Local Integer iColumn hoSelf iValue
+    Move Self To hoSelf
+    Get ColumnNumber Of hoSelf Item sFieldID To iColumn
+    If (iColumn <> -1) Begin
+      Get ColumnValue iColumn To iValue
+    End
+    Else Begin
+      Send SQLException SQLX_COLUMN_UNKNOWN ("Column name = ["+sFieldID+"]")
+    End
+    Function_Return iValue
+  End_Function // GetInteger
+
+
+  // Gets the date-value of the column passed in sFieldID for the current row.
+  // sFieldID this is a sql fieldnumber if it only contains a numeric value.
+  //          It may also contain the name of the field.
+  // Note: This means that you cannot use the name for a field that only consists of
+  //       numbers. Instead use the sql fieldnumber.
+  // Throws an exception if the referenced column is unknown to the class.
+  Function GetDate String sFieldID Returns Date
+    Local Date  dValue
+    Local Integer iColumn hoSelf
+    Move Self To hoSelf
+    Get ColumnNumber Of hoSelf Item sFieldID To iColumn
+    If (iColumn <> -1) Begin
+      Get ColumnValue iColumn To dValue
+    End
+    Else Begin
+      Send SQLException SQLX_COLUMN_UNKNOWN ("Column name = ["+sFieldID+"]")
+    End
+    Function_Return dValue
+  End_Function // GetDate
+
+
+  // Gets the numnber-value of the column passed in sFieldID for the current row.
+  // sFieldID this is a sql fieldnumber if it only contains a numeric value.
+  //          It may also contain the name of the field.
+  // Note: This means that you cannot use the name for a field that only consists of
+  //       numbers. Instead use the sql fieldnumber.
+  // Throws an exception if the referenced column is unknown to the class.
+  Function GetNumber String sFieldID Returns Number
+    Local Number  nValue
+    Local Integer iColumn hoSelf
+    Move Self To hoSelf
+    Get ColumnNumber Of hoSelf Item sFieldID To iColumn
+    If (iColumn <> -1) Begin
+      Get ColumnValue iColumn To nValue
+    End
+    Else Begin
+      Send SQLException SQLX_COLUMN_UNKNOWN ("Column name = ["+sFieldID+"]")
+    End
+    Function_Return nValue
+  End_Function // GetNumber
+
+
+  // Gets the real-value of the column passed in sFieldID for the current row.
+  // sFieldID this is a sql fieldnumber if it only contains a numeric value.
+  //          It may also contain the name of the field.
+  // Note: This means that you cannot use the name for a field that only consists of
+  //       numbers. Instead use the sql fieldnumber.
+  // Throws an exception if the referenced column is unknown to the class.
+  Function GetReal String sFieldID Returns Real
+    Local Real    rValue
+    Local Integer iColumn hoSelf
+    Move Self To hoSelf
+    Get ColumnNumber Of hoSelf Item sFieldID To iColumn
+    If (iColumn <> -1) Begin
+      Get ColumnValue iColumn To rValue
+    End
+    Else Begin
+      Send SQLException SQLX_COLUMN_UNKNOWN ("Column name = ["+sFieldID+"]")
+    End
+    Function_Return rValue
+  End_Function // GetReal
+
+
+  // To Do :
+  Function GetCursorName Returns String
+    Local String sName
+    Send Info_Box "To Do : GetCursorName"
+    Function_Return sName
+  End_Function // GetCursorName
+
+
+  // Gets the handle of the object that contains the metadata that belongs to the
+  // current resultset.
+  Function GetMetaData Returns Integer
+    Function_Return (phoMetaData(Self))
+  End_Function // GetMetaData
+
+
+
+  Procedure UpdateString String sFieldID String sFieldValue
+    Local Integer iColumn
+    Local Integer hoSelf
+
+    Move Self To hoSelf
+    Get ColumnNumber Of hoSelf Item sFieldID To iColumn
+    If (iColumn <> -1) Begin
+      Set ColumnValue Item iColumn To sFieldValue
+      Set Column_Changed_State Item iColumn To True
+    End
+    Else Begin
+      Send SQLException SQLX_COLUMN_UNKNOWN ("Column name = ["+sFieldID+"]")
+    End
+  End_Procedure // UpdateString
+
+
+
+  Procedure UpdateInteger String sFieldID Integer iFieldValue
+    Local Integer iColumn
+    Local Integer hoSelf
+
+    Move Self To hoSelf
+    Get ColumnNumber Of hoSelf Item sFieldID To iColumn
+    If (iColumn <> -1) Begin
+      Set ColumnValue Item iColumn To iFieldValue
+      Set Column_Changed_State Item iColumn To True
+    End
+    Else Begin
+      Send SQLException SQLX_COLUMN_UNKNOWN ("Column name = ["+sFieldID+"]")
+    End
+  End_Procedure // UpdateInteger
+
+
+  Procedure UpdateDate String sFieldID Date dValue
+    Local Integer iColumn
+    Local Integer hoSelf
+
+    Move Self To hoSelf
+    Get ColumnNumber Of hoSelf Item sFieldID To iColumn
+    If (iColumn <> -1) Begin
+      Set ColumnValue Item iColumn To dValue
+      Set Column_Changed_State Item iColumn To True
+    End
+    Else Begin
+      Send SQLException SQLX_COLUMN_UNKNOWN ("Column name = ["+sFieldID+"]")
+    End
+  End_Procedure // UpdateDate
+
+
+  Procedure UpdateNumber String sFieldID Number nValue
+    Local Integer iColumn
+    Local Integer hoSelf
+
+    Move Self To hoSelf
+    Get ColumnNumber Of hoSelf Item sFieldID To iColumn
+    If (iColumn <> -1) Begin
+      Set ColumnValue Item iColumn To nValue
+      Set Column_Changed_State Item iColumn To True
+    End
+    Else Begin
+      Send SQLException SQLX_COLUMN_UNKNOWN ("Column name = ["+sFieldID+"]")
+    End
+  End_Procedure // UpdateNumber
+
+
+  Procedure UpdateReal String sFieldID Real rValue
+    Local Integer iColumn
+    Local Integer hoSelf
+
+    Move Self To hoSelf
+    Get ColumnNumber Of hoSelf Item sFieldID To iColumn
+    If (iColumn <> -1) Begin
+      Set ColumnValue Item iColumn To rValue
+      Set Column_Changed_State Item iColumn To True
+    End
+    Else Begin
+      Send SQLException SQLX_COLUMN_UNKNOWN ("Column name = ["+sFieldID+"]")
+    End
+  End_Procedure // UpdateReal
+
+
+  // Deletes the current row from the ResultSet and underlying database
+  // To Do :
+  Procedure DeleteRow
+    Send Info_Box "To Do : DeleteRow"
+  End_Procedure // DeleteRow
+
+
+  // Inserts a row before the current row from the ResultSet and underlying database
+  // To Do :
+  Procedure InsertRow
+    Send Info_Box "To Do : InsertRow"
+  End_Procedure // InsertRow
+
+
+  // Executes multiple statements that are passed to this method. Statements can be
+  // seperated by putting semicolumns between them.
+  // A new single resultset object will be temporarily created to execute the statements.
+  //
+  // Returns a nonzero value if an error occurs
+  Procedure ExecuteStatements String sStmts Returns Integer
+    Local Integer hoUpdateRS iLinedlm iRetVal
+    Local String  sStmt
+
+    Move 0 to iRetVal
+    Get CreateResultSet To hoUpdateRS
+    If (hoUpdateRS <> 0) Begin
+      While ((sStmts <> "") And (iRetVal =0))
+        Move (Pos(";",sStmts)) To iLinedlm
+        If (iLinedlm <> 0) Move (left(sStmts,iLinedlm)) To sStmt
+        Else Move sStmts To sStmt
+        Move (Replace(sStmt,sStmts,"")) To sStmts
+        Get Msg_ExecuteQuery Of hoUpdateRS sStmt To iRetVal
+      Loop
+    End
+    Else Move 2 To iRetVal
+    Procedure_Return iRetVal
+  End_Procedure // ExecuteStatements
+
+
+
+  // This method will traverse every column for the current row in the resultset.
+  // If a column has changed, the database will be updated with the new value.
+  //
+  //
+  Procedure UpdateRow
+    Local Integer hoUpdateRS hoMetaData iColumn iColumnCount bChanged iRetVal
+    Local String  sColumn sTable sDatatype sFieldValue sStmt sRowID sSQLBackend
+    Get phoMetaData To hoMetaData
+    If (hoMetaData <> 0) Begin
+      Get ColumnCount Of hoMetaData To iColumnCount
+      If (iColumnCount > 0) Begin
+        Move 1 To iColumn
+        While (iColumn <= iColumnCount)
+          Get Column_Changed_State Item iColumn To bChanged
+          If (bChanged <> 0) Begin
+            Get psSQLBackend  To sSQLBackend
+            Get ColumnName      Of hoMetaData Item iColumn To sColumn
+            Get ColumnTableName Of hoMetaData Item iColumn To sTable
+            Get ColumnDataType  Of hoMetaData Item iColumn To sDatatype
+            Get ColumnValue Item iColumn To sFieldValue
+            If ( (Pos("CHAR",sDataType) <> 0) Or (Pos("TEXT",sDataType) <> 0) ) Begin // Check if the column is a string or text val
+              If (Pos ("'",sFieldValue) = 0) Begin
+                Move ("'"+sFieldValue+"'") To sFieldValue
+              End
+            End
+            Else If  (Pos("DATE",sDataType) <> 0)  Begin // Check if the column is of type date
+              Move ("'"+sFieldValue+"'") To sFieldValue
+            End
+            Get RowID To sRowID
+
+            If (sSQLBackend = ORAFLEX) Begin
+              Move (sStmt+"UPDATE "+sTable+" SET "+sColumn+" = "+sFieldValue+" WHERE ROWID = (CHARTOROWID('"+sRowID+"')); " ) To sStmt
+            End
+            Else If (sSQLBackend = SQLFLEX) Begin
+              Move (sStmt+"UPDATE "+sTable+" SET "+sColumn+" = "+sFieldValue+" WHERE IDENTITYCOL = '"+sRowID+"'; " ) To sStmt
+            End
+
+          End
+          Increment iColumn
+        Loop
+      End
+
+      If (sStmt <> "") Begin
+        Get msg_ExecuteStatements sStmt To iRetVal
+      End // sStmt <> ""
+    End
+  End_Procedure // UpdateRow
+
+
+  // This method will refresh the data of the current row with the actual data that is retrieved
+  // from the table.
+  Procedure RefreshRow
+    Local Integer iNdx iColumnCount iTableCount iLoop iCurrentRow bAutoRowNum
+    Local Integer hoUpdateRS hoMetaData hoRowBuffer
+    Local String  sColumn sTable sDatatype sFieldValue sStmt sVal sRowID sSQLBackend
+    Get phoMetaData To hoMetaData
+    If (hoMetaData <> 0) Begin
+      Get ColumnCount Of hoMetaData To iColumnCount
+      Get psSQLBackend  To sSQLBackend
+      If (iColumnCount > 0) Begin
+        Move 1 To iNdx
+        //Get phoStatement To hoStatement
+        //If (hoStatement <> 0) Begin
+          Move "SELECT " To sStmt
+
+          While (iNdx <= iColumnCount)
+            Get FullColumnName Of hoMetaData Item iNdx To sVal
+            If (Pos("?",sVal) = 1) Move (Replace("?",sVal,"")) To sVal // A calculated value
+            If (sSQLBackEnd = SQLFLEX) Begin
+              Get ColumnDataType  Of hoMetaData Item iNdx To sDatatype
+              If (Pos("DATE",sDataType) <> 0)  Begin
+                Move ("convert(char(10),"+sVal+", 101)") To sVal
+              End
+            End
+
+
+            Move (sStmt+sVal) To sStmt
+            If (iNdx <> iColumnCount) Begin
+              Move (sStmt+", ") To sStmt
+            End
+            Increment iNdx
+          Loop
+
+          Get pbAutoRowNum To bAutoRowNum
+          If ((bAutoRowNum = True) And (sSQLBackend=ORAFLEX)) Begin
+            Move (sStmt+", ROWNUM") To sStmt
+          End
+
+          Move (sStmt+" FROM ") To sStmt
+
+          // enumerate the tables
+          Get TableCount Of hoMetaData To iTableCount
+          Move 1 To iNdx
+          While (iNdx <= iTableCount)
+            Get TableName Of hoMetaData Item iNdx To sVal
+            Move (sStmt+sVal) To sStmt
+            If (iNdx <> iTableCount) Begin
+              Move (sStmt+", ") To sStmt
+            End
+            Increment iNdx
+          Loop
+
+          Get RowID To sRowID
+          If (sSQLBackEnd = ORAFLEX) Begin
+            Move (sStmt+" WHERE ROWID = (CHARTOROWID('"+sRowID+"'))" ) To sStmt
+          End
+          Else If (sSQLBackEnd = SQLFLEX) Begin
+            Move (sStmt+" WHERE IDENTITYCOL = '"+sRowID+"'" ) To sStmt
+          End
+        //End
+
+        If (sStmt <> "") Begin
+
+          indicate found True
+          Indicate Err False
+          SQL_SET_STMT To sStmt
+          SQL_PREPARE_STMT
+          SQL_EXECUTE_STMT
+
+          Get piCurrentRow To iCurrentRow
+          Get Array_Value Of (oRowHandles(Self)) Item iCurrentRow To hoRowBuffer
+          SQL_FETCH_NEXT_ROW
+          If (found) Begin
+            If (hoRowBuffer <> 0) Begin
+              For iLoop From 0 To (iColumnCount-1)
+                DO_GET_BIND_PARAMETERS sVal
+
+                Set Array_Value Of hoRowBuffer Item iLoop To sVal
+                Set Column_Changed_State Item iLoop To False
+              Loop
+
+              Get pbAutoRowNum To bAutoRowNum
+              If ( (bAutoRowNum = True) And (sSQLBackEnd = ORAFLEX) ) Begin
+                DO_GET_BIND_PARAMETERS sVal
+                Set piRowNum Of hoRowBuffer To (Integer(sVal))
+              End
+            End // hoRowBuffer
+          End
+        End // sStmt <> ""
+
+
+      End // iColumnCount
+
+    End
+  End_Procedure // RefreshRow
+
+
+
+  // Retrieves the value of the current ROWNUM column. The first row is number 1, the second number 2,
+  // and so on.
+  // Returns:
+  // the current row number; 0 if there is no current row
+  // Pre: pbAutoRowNum should be true when the query is executed, so that the proper value is already fetched
+  // Throws:
+  // SQLException - if a database access error occurs
+  Function RowNum Returns Integer
+    Local Integer iRowNum iRow hoRowBuffer
+    Get piCurrentRow To iRow
+    If (iRow > -1) Begin
+      Get Array_Value Of (oRowHandles(Self)) Item iRow To hoRowBuffer
+      If (hoRowBuffer <> 0) Begin
+        Get piRowNum Of hoRowBuffer To iRowNum
+      End
+    End
+    Function_Return iRowNum
+  End_Function // RowNum
+
+
+
+  // Retrieves the value of the current ROWID column. Every row in the (Oracle) database is uniquely
+  // identified by the ROWID. This ID contains specific information about where the physical row is
+  // stored.
+  // Returns:
+  // A 12 char value for Oracle 7.x and a 18 char value for 8i
+  // For MS-SQL this will return the value stored in the IDENTITYCOL
+  // Pre: pbAutoRowID should be true when the query is executed, so that the proper value is already fetched
+  // Throws:
+  // SQLException - if a database access error occurs
+  Function RowID Returns String
+    Local Integer iRow hoRowBuffer
+    Local String  sRowID
+    Get piCurrentRow To iRow
+    If (iRow > -1) Begin
+      Get Array_Value Of (oRowHandles(Self)) Item iRow To hoRowBuffer
+      If (hoRowBuffer <> 0) Begin
+        Get psRowID Of hoRowBuffer To sRowID
+      End
+    End
+    Function_Return sRowID
+  End_Function // RowID
+
+
+  Procedure Set FetchSize Integer iSize
+    Local Integer iFile
+    Get piCurrentFile To iFile
+    If iFile Begin
+      Set_attribute DF_FILE_MAX_ROWS of iFile To iSize
+    End
+  End_Procedure // Set FetchSize
+
+
+  Procedure Set FetchDirection Integer iDirection
+    Set pbFetchDirection To iDirection
+  End_Procedure // Set FetchDirection
+
+
+  Function FetchDirection Returns Integer
+    Function_Return (pbFetchDirection(Self))
+  End_Function // FetchDirection
+
+End_Class // cSQLResultSet
+
+
+
+Procedure SQLException For Desktop Integer iException String sMessage
+  Local Integer hoSQLException
+  Move (oSQLException(Self)) To hoSQLException
+  If (hoSQLException > Desktop) Begin
+    Set piSQLException Of hoSQLException To iException
+    If (num_arguments = 2) ;
+      Set psSQLException Of hoSQLException To sMessage
+    Else Set psSQLException Of hoSQLException To ""
+    Send SQLException To hoSQLException
+  End
+End_Procedure // SQLException
+
+
+Function CreateResultSet For Desktop Returns Handle
+  Local Handle hoResultSet hoSelf
+  Move Self To hoSelf
+  Move Desktop To Self       // Create the resultset at the desktop
+  Object oResultSet Is A cSQLResultSet
+    Move Self To hoResultSet
+  End_Object // oResultSet
+  Move hoSelf To Self
+  Function_Return hoResultSet
+End_Function // CreateResultSet
+

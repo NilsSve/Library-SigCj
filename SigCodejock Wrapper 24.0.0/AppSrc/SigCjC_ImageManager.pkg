@@ -1,0 +1,433 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : SigCjC_ImageManager.pkg
+// Description  : Common Define / Class for Codejock controls
+//
+// Created by   : Ian Smith
+// Revision     : $Rev$
+//                $Date$
+//                $Author$
+//
+// Requirements : Visual DataFlex 24.0
+//                Codejock SuitePro - Version 24.0.0
+//
+// Copyright    : Copyright c 2008-2025 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+//CompilerWarnings Suspend
+
+Use FlexCom20.pkg
+
+Define OLEXTPImageState for Integer
+    Define OLExtpImageNormal for 0
+    Define OLExtpImageDisabled for 1
+    Define OLExtpImageHot for 2
+    Define OLExtpImageChecked for 3
+    Define OLExtpImagePressed for 4
+
+Class cSigCjComIImageManagerIcons is a Mixin
+
+    { MethodType=Property DesignTime=False }
+    Function ComDrawReverted Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 6 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComDrawReverted Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 6 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComMaskColor Returns OLE_COLOR
+        OLE_COLOR retVal
+        Get ComProperty of (phDispatchDriver(Self)) 9 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComMaskColor OLE_COLOR value
+        Set ComProperty of (phDispatchDriver(Self)) 9 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComCount Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 1 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+#IFDEF Is$Win64 
+    Procedure ComAddIcon BigInt llHandle Integer llCommand OLEXTPImageState llimageState
+#ELSE
+    Procedure ComAddIcon Integer llHandle Integer llCommand OLEXTPImageState llimageState
+#ENDIF
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 3
+#IFDEF Is$Win64 
+        Send DefineParam to hDispatchDriver OLE_VT_I8 llHandle
+#ELSE
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llHandle
+#ENDIF
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llCommand
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llimageState
+        Send InvokeComMethod to hDispatchDriver 2 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComLoadIcon String llPath Integer llCommand OLEXTPImageState llimageState
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 3
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llPath
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llCommand
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llimageState
+        Send InvokeComMethod to hDispatchDriver 3 OLE_VT_VOID
+    End_Procedure
+
+#IFDEF Is$Win64 
+    Procedure ComAddBitmap BigInt llHandle Variant llCommands OLEXTPImageState llimageState Boolean llAlpha
+#ELSE
+    Procedure ComAddBitmap Integer llHandle Variant llCommands OLEXTPImageState llimageState Boolean llAlpha
+#ENDIF
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 4
+#IFDEF Is$Win64 
+        Send DefineParam to hDispatchDriver OLE_VT_I8 llHandle
+#ELSE
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llHandle
+#ENDIF
+        Send DefineParam to hDispatchDriver OLE_VT_VARIANT llCommands
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llimageState
+        Send DefineParam to hDispatchDriver OLE_VT_BOOL llAlpha
+        Send InvokeComMethod to hDispatchDriver 8 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComLoadBitmap String llPath Variant llCommands OLEXTPImageState llimageState
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 3
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llPath
+        Send DefineParam to hDispatchDriver OLE_VT_VARIANT llCommands
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llimageState
+        Send InvokeComMethod to hDispatchDriver 4 OLE_VT_VOID
+    End_Procedure
+
+#IFDEF Is$Win64 
+    Procedure ComLoadBitmapFromResource BigInt llModule Integer llResource Variant llCommands OLEXTPImageState llimageState
+#ELSE
+    Procedure ComLoadBitmapFromResource OLE_HANDLE llModule Integer llResource Variant llCommands OLEXTPImageState llimageState
+#ENDIF
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 4
+#IFDEF Is$Win64 
+        Send DefineParam to hDispatchDriver OLE_VT_I8 llModule
+#ELSE
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llModule
+#ENDIF
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llResource
+        Send DefineParam to hDispatchDriver OLE_VT_VARIANT llCommands
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llimageState
+        Send InvokeComMethod to hDispatchDriver 14 OLE_VT_VOID
+    End_Procedure
+
+#IFDEF Is$Win64 
+    Procedure ComLoadIconFromResource BigInt llModule Integer llResource Integer llCommand OLEXTPImageState llimageState
+#ELSE
+    Procedure ComLoadIconFromResource OLE_HANDLE llModule Integer llResource Integer llCommand OLEXTPImageState llimageState
+#ENDIF
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 4
+#IFDEF Is$Win64 
+        Send DefineParam to hDispatchDriver OLE_VT_I8 llModule
+#ELSE
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llModule
+#ENDIF
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llResource
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llCommand
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llimageState
+        Send InvokeComMethod to hDispatchDriver 16 OLE_VT_VOID
+    End_Procedure
+
+    Function ComLoadVectorIcon String llPath Integer llnIDCommand Integer llnWidth OLEXTPImageState llimageState Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 4
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llPath
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llnIDCommand
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llnWidth
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llimageState
+        Get InvokeComMethod of hDispatchDriver 17 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    Function ComLoadVectorIconCode String llCode Integer llnIDCommand Integer llnWidth OLEXTPImageState llimageState Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 4
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llCode
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llnIDCommand
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llnWidth
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llimageState
+        Get InvokeComMethod of hDispatchDriver 18 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+#IFDEF Is$Win64 
+    Function ComLoadVectorIconFromResource BigInt llModule String llResourceType Integer llResource Integer llnIDCommand Integer llnWidth OLEXTPImageState llimageState Returns Boolean
+#ELSE
+    Function ComLoadVectorIconFromResource OLE_HANDLE llModule String llResourceType Integer llResource Integer llnIDCommand Integer llnWidth OLEXTPImageState llimageState Returns Boolean
+#ENDIF
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 6
+#IFDEF Is$Win64 
+        Send DefineParam to hDispatchDriver OLE_VT_I8 llModule
+#ELSE
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llModule
+#ENDIF
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llResourceType
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llResource
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llnIDCommand
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llnWidth
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llimageState
+        Get InvokeComMethod of hDispatchDriver 19 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComRemoveAll
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 5 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComAddIcons Variant llIcons
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llIcons
+        Send InvokeComMethod to hDispatchDriver 7 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComRemoveIcon Integer llCommand
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llCommand
+        Send InvokeComMethod to hDispatchDriver 10 OLE_VT_VOID
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComIsAlphaIconsSupported Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 11 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComRefreshAll
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 12 OLE_VT_VOID
+    End_Procedure
+
+    Function ComGetImage Integer llCommand Integer llWidth Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llCommand
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llWidth
+        Get InvokeComMethod of hDispatchDriver 13 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function Com_NewEnum Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver -4 OLE_VT_UNKNOWN to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComDoPropExchange Variant llpPX
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llpPX
+        Send InvokeComMethod to hDispatchDriver 15 OLE_VT_VOID
+    End_Procedure
+End_Class
+
+Class cSigCjComImageManagerIcons is a cComAutomationObject
+    Import_Class_Protocol cSigCjComIImageManagerIcons
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        Set peAutoCreate to acNoAutoCreate
+    End_Procedure
+End_Class
+
+Class cSigCjComImageManagerIcon is a cComAutomationObject
+
+    { MethodType=Property DesignTime=False }
+    Function ComId Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 1 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComWidth Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 2 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComHeight Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 3 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComScaled Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 4 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComAlpha Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 5 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComHandle Returns OLE_HANDLE
+        Handle hDispatchDriver
+        OLE_HANDLE retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 6 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComDraw OLE_HANDLE llhDC Integer llx Integer lly Integer llcx Integer llcy OLEXTPImageState llstate
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 6
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llhDC
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llx
+        Send DefineParam to hDispatchDriver OLE_VT_I4 lly
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llcx
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llcy
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llstate
+        Send InvokeComMethod to hDispatchDriver 7 OLE_VT_VOID
+    End_Procedure
+
+    Function ComCreatePicture OLEXTPImageState llstate Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llstate
+        Get InvokeComMethod of hDispatchDriver 8 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Function ComScale Integer llWidth Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llWidth
+        Get InvokeComMethod of hDispatchDriver 9 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+End_Class
+
+Class cSigCjComImageManagerIconSet is a cComAutomationObject
+
+    { MethodType=Property DesignTime=False }
+    Function ComId Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 1 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComCount Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 2 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    Function ComGetImage Integer llWidth Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llWidth
+        Get InvokeComMethod of hDispatchDriver 13 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function Com_NewEnum Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver -4 OLE_VT_UNKNOWN to retVal
+        Function_Return retVal
+    End_Function
+End_Class
+
+//==============================================================================
+//End of package - SigCjC_ImageManager.pkg
+//==============================================================================
+

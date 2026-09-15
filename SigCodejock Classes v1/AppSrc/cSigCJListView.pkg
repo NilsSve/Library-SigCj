@@ -1,0 +1,449 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJListView.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$ Martin Pincott
+//
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+
+Use SigCjW_Controls.pkg
+Use cSigCJMethods_Mixin.pkg
+Use cSigCJGlobalSettings.pkg
+
+Define eLVStyle_Icon            for OLExtpListViewIcon
+Define eLVStyle_SmallIcon       for OLExtpListViewSmallIcon
+Define eLVStyle_List            for OLExtpListViewList
+Define eLVStyle_Report          for OLExtpListViewReport
+
+Define eLVArrange_None          for OLExtpListViewArrangeNone
+Define eLVArrange_AutoLeft      for OLExtpListViewArrangeAutoLeft
+Define eLVArrange_AutoTop       for OLExtpListViewArrangeAutoTop
+
+Define eLVLableEdit_Automatic   for OLExtpListViewLabelAutomatic
+Define eLVLableEdit_Manual      for OLExtpListViewLabelManual
+
+
+
+
+
+Class cSigCJListView is a cSigCjComListView
+    Import_Class_Protocol cSigCJMethods_Mixin
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        // Define new Properties:
+        { DesignTime=False Visibility=Private }
+        Property Handle  Private_phoListViewItems           (Create(Self,Refclass(cSigCjComListViewItems)))
+        { DesignTime=False Visibility=Private }
+        Property Handle  Private_phoListViewColumnHeaders   (Create(Self,Refclass(cSigCjComListViewColumnHeaders)))
+        { DesignTime=False Visibility=Private }
+        Property Handle  Private_phoListViewItem            (Create(Self,Refclass(cSigCjComListViewItem)))
+
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private_pbAllowColumnReorder       False
+        { DesignTime=False Visibility=Private }
+        Property Integer Private_peAppearance               OLExtpAppearanceStandard
+        { DesignTime=False Visibility=Private }
+        Property Integer Private_peArrange                  eLVArrange_None
+
+        { DesignTime=False Visibility=Private }
+        Property OLE_Color Private_piBackColor                clWindow
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private_pbShowCheckboxes           False
+        { DesignTime=False Visibility=Private }
+        Property Integer Private_peListViewStyle            eLVStyle_Icon
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private_pbEnabled                  True
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private_pbFlatScrollbar            False
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private_pbFullRowSelect            False
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private_pbGridLines                False
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private_pbHideColumnHeaders        False
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private_pbHideSelection            False
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private_pbHotTracking              False
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private_pbHoverSelection           False
+        { DesignTime=False Visibility=Private }
+        Property Integer Private_piIconSize
+        { DesignTime=False Visibility=Private }
+        Property Integer Private_peLabelEdit                eLVLableEdit_Manual
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private_pbLabelWrap                True
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private_pbLockRedraw               False
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private_pbMultiSelect              False
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private_pbShowBorder               True
+        #IF (SigCj_Codejock_Version >= 150103)
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private_pbShowSortArrow            True
+        #ENDIF
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private_pbSorted                   True
+        { DesignTime=False Visibility=Private }
+        Property Boolean Private_pbUseVisualStyle           True
+
+    End_Procedure
+
+    // Create and augment procedures and functions
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbAllowColumnReorder Boolean bState
+        Set SigCJProperty (RefProcSet(Private_pbAllowColumnReorder)) (RefProcSet(ComAllowColumnReorder)) to bState
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function pbAllowColumnReorder Returns Boolean
+        Function_Return (Private_pbAllowColumnReorder(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    #IF (SigCj_Codejock_Version < 150001)
+        { MethodType=Property Category="CodeJock" InitialValue=OLExtpAppearanceStandard }
+        { EnumList="OLExtpAppearanceStandard, OLExtpAppearanceFlat, OLExtpAppearanceUltraFlat, OLExtpAppearanceOffice2000, OLExtpAppearanceOffice2000, OLExtpAppearanceOffice2003, OLExtpAppearanceOffice2007" }
+    #ELSE
+        { MethodType=Property Category="CodeJock" InitialValue=OLExtpAppearanceStandard }
+        { EnumList="OLExtpAppearanceStandard, OLExtpAppearanceFlat, OLExtpAppearanceUltraFlat, OLExtpAppearanceOffice2000, OLExtpAppearanceOffice2000, OLExtpAppearanceOffice2003, OLExtpAppearanceResource" }
+    #ENDIF
+    Procedure Set peAppearance Integer eAppearance
+        Set SigCJProperty (RefProcSet(Private_peAppearance)) (RefProcSet(ComAppearance)) to eAppearance
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function peAppearance Returns Integer
+        Function_Return (Private_peAppearance(Self))
+    End_Function
+
+    { MethodType=Property Category="Codejock" }
+    { EnumList="eLVArrange_None,eLVArrange_AutoLeft,eLVArrange_AutoTop" }
+    { InitialValue=eLVArrange_None}
+    Procedure Set peArrange Integer eArrange
+        Set SigCJProperty (RefProcSet(Private_peArrange)) (RefProcSet(ComArrange)) to eArrange
+    End_Procedure
+
+    Function peArrange Returns Integer
+        Function_Return (Private_peArrange(Self))
+    End_Function
+
+    { MethodType=Property Category="Codejock" }
+    { EnumList="eLVLableEdit_Manual,eLVLableEdit_Automatic" }
+    { InitialValue=eLVLableEdit_Manual}
+    Procedure Set peLabelEdit Integer eValue
+        Set SigCJProperty (RefProcSet(Private_peLabelEdit)) (RefProcSet(ComLabelEdit)) to eValue
+    End_Procedure
+
+    Function peLabelEdit Returns Integer
+        Function_Return (Private_peLabelEdit(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    Procedure Set piBackColor OLE_Color iColor
+        Set SigCJProperty (RefProcSet(Private_piBackColor)) (RefProcSet(ComBackColor)) to iColor
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function piBackColor Returns OLE_Color
+        Function_Return (Private_piBackColor(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbShowCheckboxes Boolean bState
+        Set SigCJProperty (RefProcSet(Private_pbShowCheckboxes)) (RefProcSet(ComCheckboxes)) to bState
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function pbShowCheckboxes Returns Boolean
+        Function_Return (Private_pbShowCheckboxes(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { EnumList="eLVStyle_Icon,eLVStyle_SmallIcon,eLVStyle_List,eLVStyle_Report" }
+    { InitialValue=eLVAppearance_Standard}
+    Procedure Set peListViewStyle Integer eStyle
+        Set SigCJProperty (RefProcSet(Private_peListViewStyle)) (RefProcSet(ComView)) to eStyle
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function peListViewStyle Returns Integer
+        Function_Return (Private_peListViewStyle(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=True }
+    Procedure Set pbEnabled Boolean bEnabled
+        Set SigCJProperty (RefProcSet(Private_pbEnabled)) (RefProcSet(ComEnabled)) to bEnabled
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function pbEnabled Returns Boolean
+        Function_Return (Private_pbEnabled(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbFlatScrollbar Boolean bFlat
+        Set SigCJProperty (RefProcSet(Private_pbFlatScrollbar)) (RefProcSet(ComFlatScrollBar)) to bFlat
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function pbFlatScrollbar Returns Boolean
+        Function_Return (Private_pbFlatScrollbar(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbFullRowSelect Boolean bSelect
+        Set SigCJProperty (RefProcSet(Private_pbFullRowSelect)) (RefProcSet(ComFullRowSelect)) to bSelect
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function pbFullRowSelect Returns Boolean
+        Function_Return (Private_pbFullRowSelect(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbGridLines Boolean bGridLines
+        Set SigCJProperty (RefProcSet(Private_pbGridLines)) (RefProcSet(ComGridLines)) to bGridLines
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function pbGridLines Returns Boolean
+        Function_Return (Private_pbGridLines(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbHideColumnHeaders Boolean bHide
+        Set SigCJProperty (RefProcSet(Private_pbHideColumnHeaders)) (RefProcSet(ComHideColumnHeaders)) to bHide
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function pbHideColumnHeaders Returns Boolean
+        Function_Return (Private_pbHideColumnHeaders(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbHideSelection Boolean bHide
+        Set SigCJProperty (RefProcSet(Private_pbHideSelection)) (RefProcSet(ComHideSelection)) to bHide
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function pbHideSelection Returns Boolean
+        Function_Return (Private_pbHideSelection(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbHotTracking Boolean bValue
+        Set SigCJProperty (RefProcSet(Private_pbHotTracking)) (RefProcSet(ComHotTracking)) to bValue
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function pbHotTracking Returns Boolean
+        Function_Return (Private_pbHotTracking(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbHoverSelection Boolean bValue
+        Set SigCJProperty (RefProcSet(Private_pbHoverSelection)) (RefProcSet(ComHoverSelection)) to bValue
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function pbHoverSelection Returns Boolean
+        Function_Return (Private_pbHoverSelection(Self))
+    End_Function
+
+    {MethodType=Property Category=Appearance}
+    {InitialValue=16,16}
+    Procedure Set piIconSize Integer iHeight Integer iWidth
+        Set Private_piIconSize to ((iHeight*65536)+iWidth)
+    End_Procedure
+
+    {MethodType=Property Category=Appearance}
+    Function piIconSize Returns Integer
+        Function_Return (Private_piIconSize(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=True }
+    Procedure Set pbLabelWrap Boolean bWrap
+        Set SigCJProperty (RefProcSet(Private_pbLabelWrap)) (RefProcSet(ComLabelWrap)) to bWrap
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function pbLabelWrap Returns Boolean
+        Function_Return (Private_pbLabelWrap(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbLockRedraw Boolean bLock
+        Set SigCJProperty (RefProcSet(Private_pbLockRedraw)) (RefProcSet(ComLockRedraw)) to bLock
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function pbLockRedraw Returns Boolean
+        Function_Return (Private_pbLockRedraw(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbMultiSelect Boolean bSelect
+        Set SigCJProperty (RefProcSet(Private_pbMultiSelect)) (RefProcSet(ComMultiSelect)) to bSelect
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function pbMultiSelect Returns Boolean
+        Function_Return (Private_pbMultiSelect(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=True }
+    Procedure Set pbShowBorder Boolean bShow
+        Set SigCJProperty (RefProcSet(Private_pbShowBorder)) (RefProcSet(ComShowBorder)) to bShow
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function pbShowBorder Returns Boolean
+        Function_Return (Private_pbShowBorder(Self))
+    End_Function
+
+    #IF (SigCj_Codejock_Version >= 150103)
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=True }
+    Procedure Set pbShowSortArrow Boolean bShow
+        Set SigCJProperty (RefProcSet(Private_pbShowSortArrow)) (RefProcSet(ComShowSortArrow)) to bShow
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function pbShowSortArrow Returns Boolean
+        Function_Return (Private_pbShowSortArrow(Self))
+    End_Function
+    #ENDIF
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=True }
+    Procedure Set pbSorted Boolean bSorted
+        Set SigCJProperty (RefProcSet(Private_pbSorted)) (RefProcSet(ComSorted)) to bSorted
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function pbSorted Returns Boolean
+        Function_Return (Private_pbSorted(Self))
+    End_Function
+
+    { MethodType=Property Category="CodeJock" }
+    { PropertyType=Boolean InitialValue=True }
+    Procedure Set pbUseVisualStyle Boolean bUseStyle
+        Set SigCJProperty (RefProcSet(Private_pbUseVisualStyle)) (RefProcSet(ComUseVisualStyle)) to bUseStyle
+    End_Procedure
+
+    { MethodType=Property Category="CodeJock" }
+    Function pbUseVisualStyle Returns Boolean
+        Function_Return (Private_pbUseVisualStyle(Self))
+    End_Function
+
+    Procedure AddListItem Integer iListItemIndex String sKey String sItemLabel String sImage
+        Handle hoListItems hoListItem
+        Variant vListItem
+        Integer iImageID
+
+        Get Private_phoListViewItems to hoListItems
+        If (sImage <> "") Begin
+            Get AddImage of ghoSigCjGlobalSetting sImage 0 0 to iImageID
+        End
+        Get ComAdd of hoListItems iListItemIndex sKey sItemLabel iImageID to vListItem
+        Get Private_phoListViewItem to hoListItem
+        Set pvComObject of hoListItem to vListItem
+        Send OnListItemAdded hoListItem iListItemIndex
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnListItemAdded Handle hoListItem Integer iListItemIndex
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnCreate
+        Set pvComObject of (Private_phoListViewItems(Self)) to (ComListItems(Self))
+        Set pvComObject of (Private_phoListViewColumnHeaders(Self)) to (ComColumnHeaders(Self))
+
+        Set pbAllowColumnReorder to (Private_pbAllowColumnReorder(Self))
+        Set peAppearance to (Private_peAppearance(Self))
+        Set peArrange to (Private_peArrange(Self))
+        Set piBackColor to (Private_piBackColor(Self))
+        Set pbShowCheckboxes to (Private_pbShowCheckboxes(Self))
+        Set peListViewStyle to (Private_peListViewStyle(Self))
+        Set pbEnabled to (Private_pbEnabled(Self))
+        Set pbFlatScrollbar to (Private_pbFlatScrollbar(Self))
+        Set pbFullRowSelect to (Private_pbFullRowSelect(Self))
+        Set pbGridLines to (Private_pbGridLines(Self))
+        Set pbHideColumnHeaders to (Private_pbHideColumnHeaders(Self))
+        Set pbHideSelection to (Private_pbHideSelection(Self))
+        Set pbHotTracking to (Private_pbHotTracking(Self))
+        Set pbHoverSelection to (Private_pbHoverSelection(Self))
+        Set peLabelEdit to (Private_peLabelEdit(Self))
+        Set pbLabelWrap to (Private_pbLabelWrap(Self))
+        Set pbLockRedraw to (Private_pbLockRedraw(Self))
+        Set pbMultiSelect to (Private_pbMultiSelect(Self))
+        Set pbShowBorder to (Private_pbShowBorder(Self))
+
+        #IF (SigCj_Codejock_Version >= 150103)
+        Set pbShowSortArrow to (Private_pbShowSortArrow(Self))
+        #ENDIF
+
+        Set pbSorted to (Private_pbSorted(Self))
+        Set pbUseVisualStyle to (Private_pbUseVisualStyle(Self))
+
+        Set ComColumnHeaderIcons to (ComIcons(ghoSigCjGlobalSetting))
+        Set ComIcons             to (ComIcons(ghoSigCjGlobalSetting))
+        Set ComIconSize          to (Low(piIconSize(Self))) (Hi(piIconSize(Self)))
+
+        Send OnAddListViewItems
+    End_Procedure
+
+    {MethodType=Event}
+    Procedure OnAddListViewItems
+    End_Procedure
+End_Class
+
+//==============================================================================
+//End of Package - cSigCJListView.pkg
+//==============================================================================

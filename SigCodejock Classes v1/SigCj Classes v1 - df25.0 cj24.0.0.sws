@@ -1,0 +1,9 @@
+[Properties]
+Version=25.0
+HideSystemClasses=true
+[WorkspacePaths]
+ConfigFile=.\Programs\Config.ws
+[Projects]
+Project0=NotNeeded.src
+[Libraries]
+Lib1=..\SigCodejock Wrapper 24.0.0\SigCj Wrapper - df25.0 cj24.0.0.sws

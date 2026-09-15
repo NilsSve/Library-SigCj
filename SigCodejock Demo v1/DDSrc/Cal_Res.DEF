@@ -1,0 +1,35 @@
+-----------------------------------------------------------------------------
+  DATE: 27/02/2012      TIME: 09:51                                  PAGE:  1
+  FILE DEFINITION FOR FILE: Cal_Res (# 9)
+-----------------------------------------------------------------------------
+  DRIVER NAME               : DATAFLEX
+  FILE ROOT NAME            : Cal_Res
+  USER DISPLAY NAME         : Calendar Resources
+  DATAFLEX FILE NAME        : Cal_Res
+-----------------------------------------------------------------------------
+  RECORD LENGTH             : 384       ( USED: 236 )
+  MAX NUMBER OF RECORDS     : 10000     ( USED: 4 )
+  FILE COMPRESSION          : NONE
+  RE-USE DELETED SPACE      : YES
+  LOCKING TYPE              : FILE
+  HEADER INTEGRITY CHECKING : YES
+  TRANSACTION TYPE          : CLIENT ATOMIC
+  RECORD IDENTITY INDEX     : 0 ( 0 , 0 )
+  FILE LOGIN PARAMETER      : 
+  SYSTEM FILE               : NO 
+-----------------------------------------------------------------------------
+
+NUM  FIELD NAME       TYPE SIZE  OFFST IX   RELATES TO FILE.FIELD
+---  ---------------  ---- ----- ----- --   ---------------------------------
+  1  ID               NUM    6.0     1  1   
+  2  Title            ASC     32     4  2   
+  3  DataType         NUM    2.0    36      
+  4  DataSource       ASC    200    37      
+
+
+INDEX# FIELDS          DES U/C    LENGTH LEVELS SEGMENTS MODE
+------ --------------- --- ---    ------ ------ -------- -------
+  1    ID              NO  NO       3      2       1     ON-LINE
+
+  2    Title           NO  NO       32     4       1     ON-LINE
+

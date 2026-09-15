@@ -1,0 +1,7 @@
+#REPLACE FILE55 c_Sched
+#REPLACE c_Sched.Recnum |FN55,0
+#REPLACE c_Sched.URN |FN55,1
+#REPLACE c_Sched.Name |FS55,2
+#REPLACE c_Sched.Shade_Color |FN55,3
+#REPLACE c_Sched.DataType |FN55,4
+#REPLACE c_Sched.DataSource |FS55,5

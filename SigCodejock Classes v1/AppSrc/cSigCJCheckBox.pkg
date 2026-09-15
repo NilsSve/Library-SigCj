@@ -1,0 +1,471 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJCheckBox.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$ Martin Pincott
+//
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+
+Use SigCjW_CheckBox.pkg
+Use cSigCJMethods_Mixin.pkg
+
+{DocStart = Package}
+//=============================================================================
+//Check Box Value
+//
+//We have to control the check box value if we want a tri-state box. When
+//clicked the control behaves as a two state box.
+//
+//=============================================================================
+{DocEnd}
+
+Class cSigCJCheckBox_Mixin is a Mixin
+
+    Procedure Initialise_cSigCJCheckBox_Mixin
+
+        { DesignTime=False }
+        Property Integer Private_peAppearance OLExtpAppearanceStandard
+
+        { DesignTime=False }
+        Property OLE_Color Private_piBackColor clBtnFace
+
+        { DesignTime=False }
+        Property String  Private_psCaption ""
+
+        { DesignTime=False }
+        Property Boolean Private_pbDrawFocusRect True
+
+        { DesignTime=False }
+        Property Boolean Private_pbEnabled True
+
+        { DesignTime=False }
+        Property Boolean Private_pbEnableMarkup False
+
+        { DesignTime=False }
+        Property Integer Private_piForeColor clBlack
+
+        { DesignTime=False }
+        Property Boolean Private_pbMultiLine True
+
+        { DesignTime=False }
+        Property Boolean Private_pbRightToLeft False
+
+        { DesignTime=False }
+        Property Integer Private_peTextAlignment OLExtpAlignLeft
+
+        { DesignTime=False }
+        Property Boolean Private_pbUseVisualStyle True
+
+        //Property Private_p Font                         Gets/Sets the font that will be used to display the text for the control.
+        //Property Private_p hWnd                         Gets the window handle that the control is bound to.
+        //Property Private_p OLEDropMode                  Returns or sets how a target component handles drop operations.
+        //Property Private_p Transparent                  Determines if the background of a TabControlPage is visible in WinXP mode.
+
+        { DesignTime=False }
+        Property Boolean Private_pbValueChanging False  //controls reentrency in OnComClivk
+
+        { DesignTime=False }
+        Property Integer Private_piValue 0              //Value of control
+
+        //Properties to hold True / False values. Default to standard numeric values
+        { Category="CodeJock" InitialValue="0" }
+        Property String psFalse 0
+
+        {  Category="CodeJock" InitialValue="1" }
+        Property String psTrue 1
+
+        { Category="CodeJock" InitialValue="2" }
+        Property String psGrayed 2
+
+        { Category="CodeJock" InitialValue=True }
+        Property Boolean pbTriState True
+
+    End_Procedure
+
+    Procedure OnCreate
+        Forward Send OnCreate
+
+        Set peAppearance        to (Private_peAppearance(Self))
+        Set piBackColor         to (Private_piBackColor(Self))
+        Set pbDrawFocusRect     to (Private_pbDrawFocusRect(Self))
+        Set pbEnabled           to (Private_pbEnabled(Self))
+        Set pbEnableMarkup      to (Private_pbEnableMarkup(Self))
+        Set piForeColor         to (Private_piForeColor(Self))
+        Set pbMultiLine         to (Private_pbMultiLine(Self))
+        Set pbRightToLeft       to (Private_pbRightToLeft(Self))
+        Set peTextAlignment     to (Private_peTextAlignment(Self))
+        Set pbUseVisualStyle    to (Private_pbUseVisualStyle(Self))
+
+        //This needs to be done after Multiline, so do it at the end incase
+        //some of the other properies effect it as well.
+        Set psCaption           to (Private_psCaption(Self))
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    #IF (SigCj_Codejock_Version < 150001)
+        { MethodType=Property Category="CodeJock" InitialValue=OLExtpAppearanceStandard }
+        { EnumList="OLExtpAppearanceStandard, OLExtpAppearanceFlat, OLExtpAppearanceUltraFlat, OLExtpAppearanceOffice2000, OLExtpAppearanceOffice2000, OLExtpAppearanceOffice2003, OLExtpAppearanceOffice2007" }
+    #ELSE
+        { MethodType=Property Category="CodeJock" InitialValue=OLExtpAppearanceStandard }
+        { EnumList="OLExtpAppearanceStandard, OLExtpAppearanceFlat, OLExtpAppearanceUltraFlat, OLExtpAppearanceOffice2000, OLExtpAppearanceOffice2000, OLExtpAppearanceOffice2003, OLExtpAppearanceResource" }
+    #ENDIF
+    Procedure Set peAppearance Integer eAppearance
+        Set SigCJProperty Set_Private_peAppearance Set_ComAppearance to eAppearance
+    End_Procedure
+
+    Function peAppearance Returns Integer
+        Function_Return (SigCJProperty(Self, Get_Private_peAppearance, Get_ComAppearance ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" PropertyType=Color InitialValue=clBtnFace }
+    Procedure Set piBackColor OLE_Color iColor
+        Set SigCJProperty Set_Private_piBackColor Set_ComBackColor to iColor
+    End_Procedure
+
+    Function piBackColor Returns OLE_Color
+        Function_Return (SigCJProperty(Self, Get_Private_piBackColor, Get_ComBackColor ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue="" }
+    Procedure Set psCaption String sCaption
+        Set SigCJProperty Set_Private_psCaption Set_ComCaption to sCaption
+    End_Procedure
+
+    Function psCaption Returns String
+        Function_Return (SigCJProperty(Self, Get_Private_psCaption, Get_ComCaption ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=True }
+    Procedure Set pbDrawFocusRect Boolean bState
+        Set SigCJProperty Set_Private_pbDrawFocusRect Set_ComDrawFocusRect to bState
+    End_Procedure
+
+    Function pbDrawFocusRect Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbDrawFocusRect, Get_ComDrawFocusRect ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=True }
+    Procedure Set pbEnabled Boolean bState
+        Set SigCJProperty Set_Private_pbEnabled Set_ComEnabled to bState
+    End_Procedure
+
+    Function pbEnabled Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbEnabled, Get_ComEnabled ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbEnableMarkup Boolean bState
+        Set SigCJProperty Set_Private_pbEnableMarkup Set_ComEnableMarkup to bState
+    End_Procedure
+
+    Function pbEnableMarkup Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbEnableMarkup, Get_ComEnableMarkup ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" PropertyType=Color InitialValue=clBlack }
+    Procedure Set piForeColor Integer iColor
+        Set SigCJProperty Set_Private_piForeColor Set_ComForeColor to iColor
+    End_Procedure
+
+    Function piForeColor Returns Integer
+        Function_Return (SigCJProperty(Self, Get_Private_piForeColor, Get_ComForeColor ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbMultiLine Boolean bState
+        Set SigCJProperty Set_Private_pbMultiLine Set_ComMultiLine to bState
+    End_Procedure
+
+    Function pbMultiLine Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbMultiLine, Get_ComMultiLine ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbRightToLeft Boolean bState
+        Set SigCJProperty Set_Private_pbRightToLeft Set_ComRightToLeft to bState
+    End_Procedure
+
+    Function pbRightToLeft Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbRightToLeft, Get_ComRightToLeft ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=OLExtpAlignLeft }
+    { EnumList="OLExtpAlignLeft, OLExtpAlignRight, OLExtpAlignCenter, OLExtpAlignMiddle, OLExtpAlignTop, OLExtpAlignBottom" }
+    Procedure Set peTextAlignment Integer eAlign
+        Set SigCJProperty Set_Private_peTextAlignment Set_ComTextAlignment to eAlign
+    End_Procedure
+
+    Function peTextAlignment Returns Integer
+        Function_Return (SigCJProperty(Self, Get_Private_peTextAlignment, Get_ComTextAlignment ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=True }
+    Procedure Set pbUseVisualStyle Boolean bState
+        Set SigCJProperty Set_Private_pbUseVisualStyle Set_ComUseVisualStyle to bState
+    End_Procedure
+
+    Function pbUseVisualStyle Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbUseVisualStyle, Get_ComUseVisualStyle ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property DesignTime=False }
+    Function psValue Returns String
+        Integer iValue
+
+        Get Private_piValue to iValue
+
+        //Lots of exit points... I don't like this, but they are all together
+        If (iValue = 0) Function_Return (psFalse(Self))
+        If (iValue = 1) Function_Return (psTrue(Self))
+        If (iValue = 2) Function_Return (psGrayed(Self))
+
+        //Catch - should never happen
+        Function_Return "*Error*"
+    End_Function
+
+    //-------------------------------------------------------------------------
+    // Dataflex interface properties
+    { MethodType=Property }
+    Procedure Set Label String sValue
+        Set psCaption to sValue
+    End_Procedure
+
+    Function Label Returns String
+        Function_Return (psCaption(Self))
+    End_Function
+
+    Function Checked_State Returns Integer
+        Function_Return (Private_piValue(Self))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    Procedure OnComClick
+        Integer iValue
+
+        If (not(Private_pbValueChanging(Self))) Begin
+            Set Private_pbValueChanging to True
+
+            Get Private_piValue to iValue
+
+            If (pbTriState(Self)) Begin
+                If (iValue = 2) Move 0 to iValue
+                Else Increment iValue
+            End
+            Else Move (not(iValue)) to iValue
+
+            Set Private_piValue  to iValue
+            Set ComValue to iValue
+
+            Set Private_pbValueChanging to False
+
+            Send OnChange
+        End
+    End_Procedure
+
+    //Hook - Fired when the value changes
+    Procedure OnChange
+    End_Procedure
+
+End_Class
+
+//==============================================================================
+
+
+{ OverrideProperty=Label_Col_Offset          DesignTime=False }
+{ OverrideProperty=Label_Justification_Mode  DesignTime=False }
+{ OverrideProperty=Label_Row_Offset          DesignTime=False }
+{ OverrideProperty=piMinSize                 DesignTime=False }
+{ OverrideProperty=Border_Style              DesignTime=False }
+{ OverrideProperty=Visible_State             DesignTime=False }
+{ OverrideProperty=Attach_Parent_State       DesignTime=False }
+{ OverrideProperty=Block_Mouse_State         DesignTime=False }
+{ OverrideProperty=Client_Area_State         DesignTime=False }
+{ OverrideProperty=Delegation_Mode           DesignTime=False }
+{ OverrideProperty=Focus_Mode                DesignTime=False }
+{ OverrideProperty=pbBindValue               DesignTime=False }
+{ OverrideProperty=peAutoCreate              DesignTime=False }
+{ OverrideProperty=peNeighborhood            DesignTime=False }
+{ OverrideProperty=Popup_State               DesignTime=False }
+{ OverrideProperty=Ring_State                DesignTime=False }
+{ OverrideProperty=Scope_State               DesignTime=False }
+{ OverrideProperty=Search_Case               DesignTime=False }
+{ OverrideProperty=Skip_State                DesignTime=False }
+{ OverrideProperty=Help_Id                   DesignTime=False }
+{ OverrideProperty=Help_Keyword              DesignTime=False }
+{ OverrideProperty=psHtmlHelpTopic           DesignTime=False }
+{ OverrideProperty=Status_Help               DesignTime=False }
+{ OverrideProperty=Use_Parent_Status_Help    DesignTime=False }
+{ OverrideProperty=psLicenseKey              DesignTime=False }
+{ OverrideProperty=psProgID                  DesignTime=False }
+{ OverrideProperty=Color                     DesignTime=False }
+{ OverrideProperty=TextColor                 DesignTime=False }
+{ OverrideProperty=Enabled_State             DesignTime=False }
+Class cSigCJCheckBox is a cSigCjComCheckBox
+    Import_Class_Protocol cSigCJMethods_Mixin
+    Import_Class_Protocol cSigCJCheckBox_Mixin
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        Send Initialise_cSigCJCheckBox_Mixin
+    End_Procedure  // Construct_Object
+
+End_Class
+
+//==============================================================================
+
+{ OverrideProperty=Label_Col_Offset          DesignTime=False }
+{ OverrideProperty=Label_Justification_Mode  DesignTime=False }
+{ OverrideProperty=Label_Row_Offset          DesignTime=False }
+{ OverrideProperty=piMinSize                 DesignTime=False }
+{ OverrideProperty=Border_Style              DesignTime=False }
+{ OverrideProperty=Visible_State             DesignTime=False }
+{ OverrideProperty=Attach_Parent_State       DesignTime=False }
+{ OverrideProperty=Block_Mouse_State         DesignTime=False }
+{ OverrideProperty=Client_Area_State         DesignTime=False }
+{ OverrideProperty=Delegation_Mode           DesignTime=False }
+{ OverrideProperty=Focus_Mode                DesignTime=False }
+{ OverrideProperty=pbBindValue               DesignTime=False }
+{ OverrideProperty=peAutoCreate              DesignTime=False }
+{ OverrideProperty=peNeighborhood            DesignTime=False }
+{ OverrideProperty=Popup_State               DesignTime=False }
+{ OverrideProperty=Ring_State                DesignTime=False }
+{ OverrideProperty=Scope_State               DesignTime=False }
+{ OverrideProperty=Search_Case               DesignTime=False }
+{ OverrideProperty=Skip_State                DesignTime=False }
+{ OverrideProperty=Help_Id                   DesignTime=False }
+{ OverrideProperty=Help_Keyword              DesignTime=False }
+{ OverrideProperty=psHtmlHelpTopic           DesignTime=False }
+{ OverrideProperty=Status_Help               DesignTime=False }
+{ OverrideProperty=Use_Parent_Status_Help    DesignTime=False }
+{ OverrideProperty=psLicenseKey              DesignTime=False }
+{ OverrideProperty=psProgID                  DesignTime=False }
+{ OverrideProperty=Color                     DesignTime=False }
+{ OverrideProperty=TextColor                 DesignTime=False }
+{ OverrideProperty=Enabled_State             DesignTime=False }
+Class cSigCJdbCheckBox is a cSigCjComDbCheckBox
+    Import_Class_Protocol cSigCJMethods_Mixin
+    Import_Class_Protocol cSigCJCheckBox_Mixin
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        Send Initialise_cSigCJCheckBox_Mixin
+    End_Procedure  // Construct_Object
+
+    //=========================================================================
+
+    Procedure End_Construct_Object
+        Handle  hoMain_DD hoDD
+        Integer iValidation_Type iFile iField
+        String  sTrue sFalse //sValue
+
+        Forward Send End_Construct_Object
+
+        Get Data_File  to iFile     //this gets the Entry_Items' file number
+        Get Data_Field to iField    //this gets the Entry_Items' field number
+
+        //Get the actual DD that supplies data for the Entry_Item file.field
+        Get Main_DD                     to hoMain_DD //this gives us the view DD
+        Get Data_Set of hoMain_DD iFile to hoDD      //this gives us the actual DD
+
+        //Now we can get the fields' validation type
+        Get Field_Validation_Type of (Field_Attributes(hoDD)) iField to iValidation_Type
+
+        If (iValidation_Type = FA_VALIDATION_TYPE_CHECKBOX) Begin
+            //Defined as a check box so can only be TRUE / FALSE - not grayed
+            Get Field_CheckBox_Value of hoDD iField True  to sTrue
+            Get Field_CheckBox_Value of hoDD iField False to sFalse
+
+            Set pbTriState to False
+            Set psTrue     to sTrue
+            Set psFalse    to sFalse
+            Set psGrayed   to sFalse  //Just in case
+        End
+    End_Procedure
+
+    //=========================================================================
+
+    Function ControlValue Returns String
+        Function_Return (psValue(Self))
+    End_Function
+
+    Procedure Set ControlValue String sValue
+        Integer iComValue
+
+        If (pbTriState(Self)) Begin
+            Move OLExtpGrayed to iComValue
+            If (sValue = (psTrue(Self)))  Move OLExtpChecked   to iComValue
+            If (sValue = (psFalse(Self))) Move OLExtpUnchecked to iComValue
+        End
+        Else Begin
+            Move OLExtpUnchecked to iComValue
+            If (sValue = (psTrue(Self)))  Move OLExtpChecked   to iComValue
+        End
+
+        //Stop the standard click event firing
+        Set Private_pbValueChanging to True
+            Set ComValue to iComValue
+            Set Private_piValue to iComValue
+            Send OnChange
+        Set Private_pbValueChanging to False
+    End_Procedure
+
+    //=========================================================================
+
+End_Class
+
+//==============================================================================
+//End of package - cSigCJCheckBox.pkg
+//==============================================================================

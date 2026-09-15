@@ -1,0 +1,1616 @@
+//=============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : oSigCjCalendar_Properties.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev: $
+//                $Date: $
+//                $Author: $
+//
+// Requirements : Visual DataFlex 14.1+
+//                Codejock SuitePro - Version 13.4.0+
+//
+// Copyright    : Copyright © 2009-2012 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//=============================================================================
+Use cSigCJPropertyGrid.pkg
+
+Object oSigCJCalendar_Properties_Grid is a cSigCJPropertyGrid
+    Set Size to 156 165
+    Set Location to 3 3
+    Set Border_Style to Border_None
+    Set peAnchors to anAll
+
+    Set piHelpHeight to 60
+    Set prSplitterPos to 0.5
+    Set pbVariableSplitterPos to True
+    Set phoMainContainerObjectID to (Parent(Self))
+    Set pbVariableHelpHeight to True
+
+    Property Handle phoCal
+    
+    //=========================================================================
+
+    Object oC_AutoRefresh is a cSigCJPropertyGridCategory
+        Set psLabel to "Auto Refresh"
+        Set psHelpText to "Properties to configure automatic data refresh"
+
+        //---------------------------------------------------------------------
+
+        Object o_pbEnableAutoRefresh is a cSigCJPropertyGridItem
+            Set psLabel to "Enable Auto Refresh"
+            Set psHelpText to "If enabled an idle handler will be used to refresh the data. This is a design time property."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbEnableAutoRefresh(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbEnableAutoRefresh of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_piRefreshInterval is a cSigCJPropertyGridItem
+            Set psLabel to "Refresh Interval"
+            Set psHelpText to "How often will the data be refreshed."
+            Set peItemType to ePGItype_Number
+            Set pvInitialValue to (piRefreshInterval(zzCal_Object))
+
+            Procedure OnChange
+                Integer iValue
+            
+                Get pvValue to iValue
+                Set piRefreshInterval of zzCal_Object to iValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_peIntervalUnits is a cSigCJPropertyGridComboFormItem
+            Set psLabel to "Refresh Units"
+            Set psHelpText to "Specifies whether the Refresh Interval is in Minutes or Seconds."
+            Set peItemType to ePGItype_Enum
+            Set pvInitialValue to (peIntervalUnits(zzCal_Object))  
+
+            Procedure OnAddLookupItems
+                Send AddLookupItem "Minutes"  eCal_AR_Minutes   "" ""  
+                Send AddLookupItem "Seconds"  eCal_AR_Seconds  "" ""  
+            End_Procedure
+
+            Procedure OnChange
+                Integer eValue
+            
+                Get pvValue to eValue
+                Set peIntervalUnits of zzCal_Object to eValue
+            End_Procedure        
+        End_Object
+
+    End_Object 
+ 
+    //-------------------------------------------------------------------------
+
+    Object oC_Calendar is a cSigCJPropertyGridCategory
+        Set psLabel to "Calendar"
+        Set psHelpText to ""
+
+        //---------------------------------------------------------------------
+
+        Object o_pbDayViewAutoResetBusyFlag is a cSigCJPropertyGridItem
+            Set psLabel to "Auto Reset Busy"
+            Set psHelpText to "Specifies if the event status is automatically set to 'Free' when an Event is moved from the hours area to the all day area and vice versa."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbDayViewAutoResetBusyFlag(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbDayViewAutoResetBusyFlag of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbMonthViewCompressWeekendDays is a cSigCJPropertyGridItem
+            Set psLabel to "Compress Weekend Days"
+            Set psHelpText to 'Specifies whether Saturday and Sunday are "compressed" while in Month view.'
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbMonthViewCompressWeekendDays(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbMonthViewCompressWeekendDays of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_psCustomTitle is a cSigCJPropertyGridItem
+            Set psLabel to "Custom Title"
+            Set psHelpText to "Used for unique title - e.g. for PrintJob name."
+            Set peItemType to ePGItype_String
+            Set pvInitialValue to (psCustomTitle(zzCal_Object))  
+
+            Procedure OnChange
+                String sValue
+            
+                Get pvValue to sValue
+                Set psCustomTitle of zzCal_Object to sValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_psDayHeaderFormat is a cSigCJPropertyGridItem
+            Set psLabel to "Day Header Format"
+            Set psHelpText to "Day View header format to use when FullDateMode is True."
+            Set peItemType to ePGItype_String
+            Set pvInitialValue to (psDayHeaderFormat(zzCal_Object))  
+
+            Procedure OnChange
+                String sValue
+            
+                Get pvValue to sValue
+                Set psDayHeaderFormat of zzCal_Object to sValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbEnabled is a cSigCJPropertyGridItem
+            Set psLabel to "Enabled"
+            Set psHelpText to ""
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbEnabled(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbEnabled of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_peFirstDayOfTheWeek is a cSigCJPropertyGridComboFormItem
+            Set psLabel to "First Week Day"
+            Set psHelpText to "Sets the first day of the week."
+            Set peItemType to ePGItype_Enum
+            Set pvInitialValue to (peFirstDayOfTheWeek(zzCal_Object))
+
+            Procedure OnAddLookupItems
+                Send AddLookupItem "Sunday"    eCal_Sunday    "" ""  
+                Send AddLookupItem "Monday"    eCal_Monday    "" ""  
+                Send AddLookupItem "Tuesday"   eCal_Tuesday   "" ""  
+                Send AddLookupItem "Wednesday" eCal_Wednesday "" ""  
+                Send AddLookupItem "Thursday"  eCal_Thursday  "" ""                      
+                Send AddLookupItem "Friday"    eCal_Friday    "" ""                      
+                Send AddLookupItem "Saturday"  eCal_Saturday  "" ""                      
+            End_Procedure
+
+            Procedure OnChange
+                String sValue
+            
+                Get pvValue to sValue
+                Set peFirstDayOfTheWeek of zzCal_Object to sValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbFullDateMode is a cSigCJPropertyGridItem
+            Set psLabel to "Full Date Mode"
+            Set psHelpText to "Tells the calendar to use DayHeaderFormat to display header information in day view."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbFullDateMode(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbFullDateMode of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbMarkupEnabled is a cSigCJPropertyGridItem
+            Set psLabel to "Markup Enabled"
+            Set psHelpText to "Allows the use of a XAML snippet to be used to display text in events\appointments."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbMarkupEnabled(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbMarkupEnabled of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_piMinColumnWidth is a cSigCJPropertyGridSpinFormItem
+            Set psLabel    to "Min Column Width"
+            Set psHelpText to "Minimum column width in day view. -1 = Auto / 0 = No minimum / +ve = width in pixels."
+            Set peItemType to ePGItype_Number
+            Set piMinimum  to -1 
+            Set piMaximum  to 100
+            Set pvInitialValue to (piMinColumnWidth(zzCal_Object))  
+
+            Procedure OnChange
+                Integer iValue
+            
+                Get pvValue to iValue
+                Set piMinColumnWidth  of zzCal_Object to iValue
+                Send ComPopulate of zzCal_Object 
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbUseMultiColumnWeekMode is a cSigCJPropertyGridItem
+            Set psLabel to "Multi Column Week"
+            Set psHelpText to "Specfies if full week view is displayed in 7 or 2 columns."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbUseMultiColumnWeekMode(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbUseMultiColumnWeekMode of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbMultipleSchedulesMode is a cSigCJPropertyGridItem
+            Set psLabel to "Multiple Schedules"
+            Set psHelpText to ""
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbMultipleSchedulesMode(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbMultipleSchedulesMode of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbEnablePrevNextEventButtons is a cSigCJPropertyGridItem
+            Set psLabel to "Prev/Next Event Buttons"
+            Set psHelpText to 'Specifies whether the "Prev/Next Appointment" buttons are enabled.'
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbEnablePrevNextEventButtons(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbEnablePrevNextEventButtons of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbReadOnlyMode is a cSigCJPropertyGridItem
+            Set psLabel to "Read Only Mode"
+            Set psHelpText to "Puts the calendar into Read Only mode."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbReadOnlyMode(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbReadOnlyMode of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbEnableReminders is a cSigCJPropertyGridItem
+            Set psLabel to "Reminders"
+            Set psHelpText to "Enables\disables the use of reminders."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbEnableReminders(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbEnableReminders of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbRightToLeft is a cSigCJPropertyGridItem
+            Set psLabel to "Right to Left"
+            Set psHelpText to "Aligned to support locales using right-to-left fonts."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbRightToLeft(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbRightToLeft of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbShowEndDate is a cSigCJPropertyGridItem
+            Set psLabel to "Show End Date"
+            Set psHelpText to "Show in End date in Week & Month views."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbShowEndDate(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbShowEndDate of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbShowTimeAsClocks is a cSigCJPropertyGridItem
+            Set psLabel to "Show Time as Clocks"
+            Set psHelpText to "Show Time as Clocks in Week & Month views."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbShowTimeAsClocks(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbShowTimeAsClocks of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbSwitchToDayViewIfPickedSingleDay is a cSigCJPropertyGridItem
+            Set psLabel to "Switch to Day View"
+            Set psHelpText to "Specifies whether to switch to day view when a day is selected in the date picker."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbSwitchToDayViewIfPickedSingleDay(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbSwitchToDayViewIfPickedSingleDay of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_peWorkWeekMask is a cSigCJPropertyGridComboFormItem
+            Set psLabel to "Working Week"
+            Set psHelpText to 'Specifies which days of the week are "work days". Any combination of days can be set'
+            Set peItemType to ePGItype_Enum
+            Set pvInitialValue to (peWorkWeekMask(zzCal_Object))
+
+            Procedure OnAddLookupItems
+                Send AddLookupItem "All Week"  eCal_WW_AllWeek    "" ""  
+                Send AddLookupItem "Mon - Fri" eCal_WW_Mo_Fr      "" ""  
+                Send AddLookupItem "Sat & Sun" eCal_WW_SaSu       "" ""  
+                Send AddLookupItem "Sunday"    eCal_WW_Sunday     "" ""  
+                Send AddLookupItem "Monday"    eCal_WW_Monday     "" ""                      
+                Send AddLookupItem "Tuesday"   eCal_WW_Tuesday    "" ""                      
+                Send AddLookupItem "Wednesday" eCal_WW_Wednesday  "" ""                      
+                Send AddLookupItem "Thursday"  eCal_WW_Thursday   "" ""                      
+                Send AddLookupItem "Friday"    eCal_WW_Friday     "" ""                      
+                Send AddLookupItem "Saturday"  eCal_WW_Saturday   "" ""                      
+            End_Procedure
+
+            Procedure OnChange
+                String sValue
+            
+                Get pvValue to sValue
+                Set peWorkWeekMask of zzCal_Object to sValue
+            End_Procedure        
+        End_Object
+
+    End_Object 
+ 
+    //-------------------------------------------------------------------------
+
+    Object oC_CaptionBar is a cSigCJPropertyGridCategory
+        Set psLabel to "Caption Bar"
+        Set psHelpText to "Properties to control the Caption Bar"
+
+        //---------------------------------------------------------------------
+
+        Object o_pbShowCaptionBarDateLabel is a cSigCJPropertyGridItem
+            Set psLabel to "Date Label"
+            Set psHelpText to "Show the Date Label on the Caption Bar."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbShowCaptionBarDateLabel(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbShowCaptionBarDateLabel of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbShowCaptionBarExpandButton is a cSigCJPropertyGridItem
+            Set psLabel to "Expand Button"
+            Set psHelpText to "Show the Expand Button on the Caption Bar."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbShowCaptionBarExpandButton(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbShowCaptionBarExpandButton of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbShowMultiColumnsButton is a cSigCJPropertyGridItem
+            Set psLabel to "Multi Column Button"
+            Set psHelpText to "Show the Multi Column Week View Button on the Caption Bar."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbShowMultiColumnsButton(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbShowMultiColumnsButton of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbShowCaptionBarScrollDateButtons is a cSigCJPropertyGridItem
+            Set psLabel to "Scroll Date Buttons"
+            Set psHelpText to "Show the Scroll Date Buttons on the Caption Bar."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbShowCaptionBarScrollDateButtons(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbShowCaptionBarScrollDateButtons of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbShowCaptionBar is a cSigCJPropertyGridItem
+            Set psLabel to "Show Caption Bar"
+            Set psHelpText to "Show the Caption Bar."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbShowCaptionBar(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbShowCaptionBar of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbOneLineCaptionBar is a cSigCJPropertyGridItem
+            Set psLabel to "Single Line"
+            Set psHelpText to "Format the Caption bar as on single line."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbOneLineCaptionBar(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbOneLineCaptionBar of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbShowCaptionBarSwitchViewButtons is a cSigCJPropertyGridItem
+            Set psLabel to "Switch View Buttons"
+            Set psHelpText to "Show the Switch View Buttons on the Caption Bar."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbShowCaptionBarSwitchViewButtons(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbShowCaptionBarSwitchViewButtons of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+    End_Object 
+
+    //-------------------------------------------------------------------------
+
+    Object oC_Dialogs is a cSigCJPropertyGridCategory
+        Set psLabel to "Dialogs"
+        Set psHelpText to "Properties to control the Dialogs"
+
+        //---------------------------------------------------------------------
+
+        Object o_pbDialogAllSchedulesMode is a cSigCJPropertyGridItem
+            Set psLabel to "Enable Dialog All Schedules Mode"
+            Set psHelpText to ("If True all the schedules of all the Resources in the Layout will be passed to the dialog. " + ;
+                               "If false only the schedules of all the Resource clicked on will be passed to the dialog." )
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbDialogAllSchedulesMode(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbDialogAllSchedulesMode of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbAllowEditInDayView is a cSigCJPropertyGridItem
+            Set psLabel to "Enable Edit in Day view"
+            Set psHelpText to "Allow Event creation and edit in Day view."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbAllowEditInDayView(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbAllowEditInDayView of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbAllowEditInWeekView is a cSigCJPropertyGridItem
+            Set psLabel to "Enable Edit in Week view"
+            Set psHelpText to "Allow Event creation and edit in Week view."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbAllowEditInWeekView(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbAllowEditInWeekView of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbAllowEditInMonthView is a cSigCJPropertyGridItem
+            Set psLabel to "Enable Edit in Month view"
+            Set psHelpText to "Allow Event creation and edit in Month view."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbAllowEditInMonthView(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbAllowEditInMonthView of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_peContextMenu_Header is a cSigCJPropertyGridComboFormItem
+            Set psLabel to "Header Menu"
+            Set psHelpText to "Header context menu type."
+            Set peItemType to ePGItype_Enum
+            Set pvInitialValue to (peContextMenu_Header(zzCal_Object))  
+
+            Procedure OnAddLookupItems
+                Send AddLookupItem "Disabled" eCal_CM_Disabled "" ""  
+                Send AddLookupItem "Standard" eCal_CM_Standard "" ""  
+                Send AddLookupItem "Custom"   eCal_CM_Custom   "" ""  
+            End_Procedure
+
+            Procedure OnChange
+                Integer eValue
+            
+                Get pvValue to eValue
+                Set peContextMenu_Header of zzCal_Object to eValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_peContextMenu_Main is a cSigCJPropertyGridComboFormItem
+            Set psLabel to "Main Menu"
+            Set psHelpText to "Main context menu type."
+            Set peItemType to ePGItype_Enum
+            Set pvInitialValue to (peContextMenu_Main(zzCal_Object))  
+
+            Procedure OnAddLookupItems
+                Send AddLookupItem "Disabled" eCal_CM_Disabled "" ""  
+                Send AddLookupItem "Standard" eCal_CM_Standard "" ""  
+                Send AddLookupItem "Custom"   eCal_CM_Custom   "" ""  
+            End_Procedure
+
+            Procedure OnChange
+                Integer eValue
+            
+                Get pvValue to eValue
+                Set peContextMenu_Main of zzCal_Object to eValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_peContextMenu_Scale is a cSigCJPropertyGridComboFormItem
+            Set psLabel to "Scale Menu"
+            Set psHelpText to "Scale context menu type."
+            Set peItemType to ePGItype_Enum
+            Set pvInitialValue to (peContextMenu_Scale(zzCal_Object))  
+
+            Procedure OnAddLookupItems
+                Send AddLookupItem "Disabled" eCal_CM_Disabled "" ""  
+                Send AddLookupItem "Standard" eCal_CM_Standard "" ""  
+                Send AddLookupItem "Custom"   eCal_CM_Custom   "" ""  
+            End_Procedure
+
+            Procedure OnChange
+                Integer eValue
+            
+                Get pvValue to eValue
+                Set peContextMenu_Scale of zzCal_Object to eValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object oItem_IPE is a cSigCJPropertyGridItem
+            Set psLabel to "Context Menu Text"
+            Set psHelpText to "Properties to set the text on context menus."
+            Set piValueBackgroundColor to (RGB(234,216,196))
+        
+            Procedure Private.Create Handle hoParent Boolean bRecursive
+                Handle hoCaptionMetrics 
+    
+                Forward Send Private.Create hoParent bRecursive
+                
+                Get Private.phoPropertyCaptionMetrics to hoCaptionMetrics
+                Set ComBackColor of hoCaptionMetrics to (RGB(234,216,196))
+            End_Procedure
+
+            Object o_psCM_CreateEvent is a cSigCJPropertyGridItem
+                Set psLabel to "Create Event"
+                Set psHelpText to "Text for the Create Event menu item."
+                Set peItemType to ePGItype_String
+                Set pvInitialValue to (psCM_CreateEvent(zzCal_Object))  
+    
+                Procedure OnChange
+                    String sValue
+                
+                    Get pvValue to sValue
+                    Set psCM_CreateEvent of zzCal_Object to sValue
+                End_Procedure        
+            End_Object
+
+            Object o_psCM_DeleteEvent is a cSigCJPropertyGridItem
+                Set psLabel to "Delete Event"
+                Set psHelpText to "Text for the Delete Event menu item."
+                Set peItemType to ePGItype_String
+                Set pvInitialValue to (psCM_DeleteEvent(zzCal_Object))  
+    
+                Procedure OnChange
+                    String sValue
+                
+                    Get pvValue to sValue
+                    Set psCM_DeleteEvent of zzCal_Object to sValue
+                End_Procedure        
+            End_Object
+
+            Object o_psCM_EditEvent is a cSigCJPropertyGridItem
+                Set psLabel to "Edit Event"
+                Set psHelpText to "Text for the Edit Event menu item."
+                Set peItemType to ePGItype_String
+                Set pvInitialValue to (psCM_EditEvent(zzCal_Object))  
+    
+                Procedure OnChange
+                    String sValue
+                
+                    Get pvValue to sValue
+                    Set psCM_EditEvent of zzCal_Object to sValue
+                End_Procedure        
+            End_Object
+
+            Object o_psCM_AddDB_Link is a cSigCJPropertyGridItem
+                Set psLabel to "Add DB Link"
+                Set psHelpText to "Text for the Add DB Link menu item."
+                Set peItemType to ePGItype_String
+                Set pvInitialValue to (psCM_AddDB_Link(zzCal_Object))  
+    
+                Procedure OnChange
+                    String sValue
+                
+                    Get pvValue to sValue
+                    Set psCM_AddDB_Link of zzCal_Object to sValue
+                End_Procedure        
+            End_Object
+
+            Object o_psCM_GotoDB_Link is a cSigCJPropertyGridItem
+                Set psLabel to "Goto DB Link"
+                Set psHelpText to "Text for the Goto DB Link menu item."
+                Set peItemType to ePGItype_String
+                Set pvInitialValue to (psCM_GotoDB_Link(zzCal_Object))  
+    
+                Procedure OnChange
+                    String sValue
+                
+                    Get pvValue to sValue
+                    Set psCM_GotoDB_Link of zzCal_Object to sValue
+                End_Procedure        
+            End_Object
+
+            Object o_psCM_RemoveDB_Link is a cSigCJPropertyGridItem
+                Set psLabel to "Remove DB Link"
+                Set psHelpText to "Text for the DB Link menu item."
+                Set peItemType to ePGItype_String
+                Set pvInitialValue to (psCM_RemoveDB_Link(zzCal_Object))  
+    
+                Procedure OnChange
+                    String sValue
+                
+                    Get pvValue to sValue
+                    Set psCM_RemoveDB_Link of zzCal_Object to sValue
+                End_Procedure        
+            End_Object
+
+            Object o_psCM_RefreshData is a cSigCJPropertyGridItem
+                Set psLabel to "Refresh Data"
+                Set psHelpText to "Text for the Refresh menu item."
+                Set peItemType to ePGItype_String
+                Set pvInitialValue to (psCM_RefreshData(zzCal_Object))  
+    
+                Procedure OnChange
+                    String sValue
+                
+                    Get pvValue to sValue
+                    Set psCM_RefreshData of zzCal_Object to sValue
+                End_Procedure        
+            End_Object
+
+            Object o_psCM_RemoveException is a cSigCJPropertyGridItem
+                Set psLabel to "Remove Exception"
+                Set psHelpText to "Text for the Remove Exception menu item."
+                Set peItemType to ePGItype_String
+                Set pvInitialValue to (psCM_RemoveException(zzCal_Object))  
+    
+                Procedure OnChange
+                    String sValue
+                
+                    Get pvValue to sValue
+                    Set psCM_RemoveException of zzCal_Object to sValue
+                End_Procedure        
+            End_Object
+
+        End_Object
+        
+    End_Object 
+
+    //-------------------------------------------------------------------------
+
+    Object oC_Icons is a cSigCJPropertyGridCategory
+        Set psLabel to "Icons"
+        Set psHelpText to "Properties to control Event Icons"
+
+        //---------------------------------------------------------------------
+
+        Object o_psIcon_DB_Link is a cSigCJPropertyGridItem
+            Set psLabel to "DB Link Icon"
+            Set psHelpText to "Name of the DB Link icon."
+            Set peItemType to ePGItype_String
+            Set pvInitialValue to (psIcon_DB_Link(zzCal_Object))  
+
+            Procedure OnChange
+                String sValue
+            
+                Get pvValue to sValue
+                Set psIcon_DB_Link of zzCal_Object to sValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_psIcon_Exception is a cSigCJPropertyGridItem
+            Set psLabel to "Exception Icon"
+            Set psHelpText to "Name of the Recurring Event Exception icon."
+            Set peItemType to ePGItype_String
+            Set pvInitialValue to (psIcon_Exception(zzCal_Object))  
+
+            Procedure OnChange
+                String sValue
+            
+                Get pvValue to sValue
+                Set psIcon_Exception of zzCal_Object to sValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_psIcon_Meeting is a cSigCJPropertyGridItem
+            Set psLabel to "Meeting Icon"
+            Set psHelpText to "Name of the Meeting icon."
+            Set peItemType to ePGItype_String
+            Set pvInitialValue to (psIcon_Meeting(zzCal_Object))  
+
+            Procedure OnChange
+                String sValue
+            
+                Get pvValue to sValue
+                Set psIcon_Reminder of zzCal_Object to sValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_psIcon_Private is a cSigCJPropertyGridItem
+            Set psLabel to "Private Icon"
+            Set psHelpText to "Name of the Private icon."
+            Set peItemType to ePGItype_String
+            Set pvInitialValue to (psIcon_Private(zzCal_Object))  
+
+            Procedure OnChange
+                String sValue
+            
+                Get pvValue to sValue
+                Set psIcon_Private of zzCal_Object to sValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_psIcon_Recurrence is a cSigCJPropertyGridItem
+            Set psLabel to "Recurring Event Icon"
+            Set psHelpText to "Name of the Recurring Event icon."
+            Set peItemType to ePGItype_String
+            Set pvInitialValue to (psIcon_Recurrence(zzCal_Object))  
+
+            Procedure OnChange
+                String sValue
+            
+                Get pvValue to sValue
+                Set psIcon_Recurrence of zzCal_Object to sValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_psIcon_Reminder is a cSigCJPropertyGridItem
+            Set psLabel to "Reminder Icon"
+            Set psHelpText to "Name of the Reminders icon."
+            Set peItemType to ePGItype_String
+            Set pvInitialValue to (psIcon_Reminder(zzCal_Object))  
+
+            Procedure OnChange
+                String sValue
+            
+                Get pvValue to sValue
+                Set psIcon_Reminder of zzCal_Object to sValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbIconEnabled_DB_Link is a cSigCJPropertyGridItem
+            Set psLabel to "Enable DB Link"
+            Set psHelpText to "Enable the DB Link Icon."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbIconEnabled_DB_Link(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbIconEnabled_DB_Link of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbIconEnabled_Exception is a cSigCJPropertyGridItem
+            Set psLabel to "Enable Exception"
+            Set psHelpText to "Enable the Exception Icon."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbIconEnabled_Exception(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbIconEnabled_Exception of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbIconEnabled_Meeting is a cSigCJPropertyGridItem
+            Set psLabel to "Enable Meeting"
+            Set psHelpText to "Enable the Meeting Icon."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbIconEnabled_Meeting(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbIconEnabled_Meeting of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbIconEnabled_Private is a cSigCJPropertyGridItem
+            Set psLabel to "Enable Private"
+            Set psHelpText to "Enable the Private Icon."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbIconEnabled_Private(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbIconEnabled_Private of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbIconEnabled_Recurrence is a cSigCJPropertyGridItem
+            Set psLabel to "Enable Recurring"
+            Set psHelpText to "Enable the Recurring Event Icon."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbIconEnabled_Recurrence(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbIconEnabled_Recurrence of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbIconEnabled_Reminder is a cSigCJPropertyGridItem
+            Set psLabel to "Enable Reminder"
+            Set psHelpText to "Enable the Reminder Icon."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbIconEnabled_Reminder(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbIconEnabled_Reminder of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_piIconID_DB_Link is a cSigCJPropertyGridItem
+            Set psLabel to "DB Link ID"
+            Set psHelpText to "The ID to use for the DB Link Icon."
+            Set peItemType to ePGItype_Number
+            Set pvInitialValue to (piIconID_DB_Link(zzCal_Object))  
+
+            Procedure OnChange
+                Integer iValue
+            
+                Get pvValue to iValue
+                Set piIconID_DB_Link of zzCal_Object to iValue
+            End_Procedure        
+        End_Object
+
+    End_Object 
+
+    //-------------------------------------------------------------------------
+
+    Object oC_Shading is a cSigCJPropertyGridCategory
+        Set psLabel to "Shading"
+        Set psHelpText to "Properties to control background Shading"
+
+        //---------------------------------------------------------------------
+
+        Object o_piWorkingCellBackColor is a cSigCJPropertyGridItem
+            Set psLabel to "Working Cell Color"
+            Set psHelpText to "Background color of working time cells."
+            Set peItemType to ePGItype_Color    //ePGItype_Number
+            Set pvInitialValue to (piWorkingCellBackColor(zzCal_Object))  
+
+            Procedure OnChange
+                Integer iValue
+            
+                Get pvValue to iValue
+                Set piWorkingCellBackColor of zzCal_Object to iValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_piNonWorkingCellBackColor is a cSigCJPropertyGridItem
+            Set psLabel to "Non Working Cell Color"
+            Set psHelpText to "Background color of none working time cells."
+            Set peItemType to ePGItype_Color    //ePGItype_Number
+            Set pvInitialValue to (piNonWorkingCellBackColor(zzCal_Object))  
+
+            Procedure OnChange
+                Integer iValue
+            
+                Get pvValue to iValue
+                Set piNonWorkingCellBackColor of zzCal_Object to iValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_ptmWorkDayStartTime is a cSigCJPropertyGridItem
+            Set psLabel to "Working Day Start"
+            Set psHelpText to "Set the start time for the working day. (HH:MM)"
+            Set peItemType to ePGItype_String
+            Set pvInitialValue to (ptmWorkDayStartTime(zzCal_Object))  
+
+            Procedure OnChange
+                Time tmValue
+            
+                Get pvValue to tmValue
+                Set ptmWorkDayStartTime of zzCal_Object to tmValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_ptmWorkDayEndTime is a cSigCJPropertyGridItem
+            Set psLabel to "Working Day End"
+            Set psHelpText to "Set the end time for the working day. (HH:MM)"
+            Set peItemType to ePGItype_String
+            Set pvInitialValue to (ptmWorkDayEndTime(zzCal_Object))  
+
+            Procedure OnChange
+                Time tmValue
+            
+                Get pvValue to tmValue
+                Set ptmWorkDayEndTime of zzCal_Object to tmValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbShadeLunchTime is a cSigCJPropertyGridItem
+            Set psLabel to "Shade lunch time"
+            Set psHelpText to "Specifies if lunch time should be shaded as non working time."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbShadeLunchTime(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbShadeLunchTime of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_ptmLunchStartTime is a cSigCJPropertyGridItem
+            Set psLabel to "Lunch Start"
+            Set psHelpText to "Set the start time for lunch. (HH:MM)"
+            Set peItemType to ePGItype_String
+            Set pvInitialValue to (ptmLunchStartTime(zzCal_Object))  
+
+            Procedure OnChange
+                Time tmValue
+            
+                Get pvValue to tmValue
+                Set ptmLunchStartTime of zzCal_Object to tmValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_ptmLunchEndTime is a cSigCJPropertyGridItem
+            Set psLabel to "Lunch End"
+            Set psHelpText to "Set the end time for lunch. (HH:MM)"
+            Set peItemType to ePGItype_String
+            Set pvInitialValue to (ptmLunchEndTime(zzCal_Object))  
+
+            Procedure OnChange
+                Time tmValue
+            
+                Get pvValue to tmValue
+                Set ptmLunchEndTime of zzCal_Object to tmValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbShorterLastDay is a cSigCJPropertyGridItem
+            Set psLabel to "Enable shorter last day"
+            Set psHelpText to "Specifies if the last working day is shorter."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbShorterLastDay(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbShorterLastDay of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_ptmLastWorkDayEndTime is a cSigCJPropertyGridItem
+            Set psLabel to "End Time"
+            Set psHelpText to "Set the end time for the last working day. (HH:MM)"
+            Set peItemType to ePGItype_String
+            Set pvInitialValue to (ptmLastWorkDayEndTime(zzCal_Object))  
+
+            Procedure OnChange
+                Time tmValue
+            
+                Get pvValue to tmValue
+                Set ptmLastWorkDayEndTime of zzCal_Object to tmValue
+            End_Procedure        
+        End_Object
+
+    End_Object 
+
+    //-------------------------------------------------------------------------
+
+    Object oC_SpecialDates is a cSigCJPropertyGridCategory
+        Set psLabel to "Special Dates"
+        Set psHelpText to "Properties to control Special Dates"
+
+        //---------------------------------------------------------------------
+
+        Object o_pbEnableSpecialDates is a cSigCJPropertyGridItem
+            Set psLabel to "Enable Special Dates"
+            Set psHelpText to "Special Dates have a different colored cell background. You can also allow or disallow creation of Events oj these dates."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbEnableSpecialDates(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbEnableSpecialDates of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+//        //---------------------------------------------------------------------
+//
+//        Object o_psAllowEventTitle is a cSigCJPropertyGridItem
+//            Set psLabel to "Allow Create Title"
+//            Set psHelpText to "The Title for the allow create on specail date dialog."
+//            Set peItemType to ePGItype_String
+//            Set pvInitialValue to (psAllowEventTitle(zzCal_Object))  
+//
+//            Procedure OnChange
+//                String sValue
+//            
+//                Get pvValue to sValue
+//                Set psAllowEventTitle of zzCal_Object to sValue
+//            End_Procedure        
+//        End_Object
+//
+//        //---------------------------------------------------------------------
+//
+//        Object o_psAllowEventText is a cSigCJPropertyGridItem
+//            Set psLabel to "Allow Create Text"
+//            Set psHelpText to "The text for the allow create on specail date dialog."
+//            Set peItemType to ePGItype_String
+//            Set pvInitialValue to (psAllowEventText(zzCal_Object))  
+//
+//            Procedure OnChange
+//                String sValue
+//            
+//                Get pvValue to sValue
+//                Set psAllowEventText of zzCal_Object to sValue
+//            End_Procedure        
+//        End_Object
+//
+    End_Object 
+
+    //-------------------------------------------------------------------------
+
+    Object oC_StartEdit is a cSigCJPropertyGridCategory
+        Set psLabel to "Start Edit"
+        Set psHelpText to "Properties to control how Edits can start"
+
+        //---------------------------------------------------------------------
+
+        Object o_pbInPlaceCreateEvent is a cSigCJPropertyGridItem
+            Set psLabel to "In Place Create"
+            Set psHelpText to "Start Event creation when a character key is pressed when a cell has focus in the Calendar."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbEnableInPlaceCreateEvent(zzCal_Object),"True","False"))
+
+            Procedure OnChange
+                Boolean bValue
+
+                Get pvValue to bValue
+                Set pbEnableInPlaceCreateEvent of zzCal_Object to bValue
+            End_Procedure
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object oItem_IPE is a cSigCJPropertyGridItem
+            Set psLabel to "In Place Edit"
+            Set psHelpText to "Options to start an In Place Edit."
+            Set piValueBackgroundColor to (RGB(234,216,196))
+        
+            Procedure Private.Create Handle hoParent Boolean bRecursive
+                Handle hoCaptionMetrics 
+    
+                Forward Send Private.Create hoParent bRecursive
+                
+                Get Private.phoPropertyCaptionMetrics to hoCaptionMetrics
+                Set ComBackColor of hoCaptionMetrics to (RGB(234,216,196))
+            End_Procedure
+
+            Object oItem_IPE_Resize is a cSigCJPropertyGridItem
+                Set psLabel to "On Resize"
+                Set psHelpText to "In-place editing of the event subject after the event is resized."
+                Set peItemType to ePGItype_Boolean
+                Set pvInitialValue to (If(pbEnableInPlaceEditEventSubject_AfterEventResize(zzCal_Object),"True","False"))
+
+                Procedure OnChange
+                    Boolean bValue
+
+                    Get pvValue to bValue
+                    Set pbEnableInPlaceEditEventSubject_AfterEventResize of zzCal_Object to bValue
+                End_Procedure
+            End_Object
+
+            Object oItem_IPE_F2 is a cSigCJPropertyGridItem
+                Set psLabel to "On F2"
+                Set psHelpText to "In-place editing of the event subject when the F2 key is pressed"
+                Set peItemType to ePGItype_Boolean
+                Set pvInitialValue to (If(pbEnableInPlaceEditEventSubject_ByF2(zzCal_Object),"True","False"))
+
+                Procedure OnChange
+                    Boolean bValue
+
+                    Get pvValue to bValue
+                    Set pbEnableInPlaceEditEventSubject_ByF2 of zzCal_Object to bValue
+                End_Procedure
+            End_Object
+
+            Object oItem_IPE_Mouse is a cSigCJPropertyGridItem
+                Set psLabel to "On Mouse Click"
+                Set psHelpText to "In-place editing of the event subject when the event is clicked with the left mouse button."
+                Set peItemType to ePGItype_Boolean
+                Set pvInitialValue to (If(pbEnableInPlaceEditEventSubject_ByMouseClick(zzCal_Object),"True","False"))
+
+                Procedure OnChange
+                    Boolean bValue
+
+                    Get pvValue to bValue
+                    Set pbEnableInPlaceEditEventSubject_ByMouseClick of zzCal_Object to bValue
+                End_Procedure
+            End_Object
+
+            Object oItem_IPE_Tab is a cSigCJPropertyGridItem
+                Set psLabel to "On Tab"
+                Set psHelpText to "In-place editing of the event subject when the Tab key is used to navigate events in the current view."
+                Set peItemType to ePGItype_Boolean
+                Set pvInitialValue to (If(pbEnableInPlaceEditEventSubject_ByTab(zzCal_Object),"True","False"))
+
+                Procedure OnChange
+                    Boolean bValue
+
+                    Get pvValue to bValue
+                    Set pbEnableInPlaceEditEventSubject_ByTab of zzCal_Object to bValue
+                End_Procedure
+            End_Object
+        End_Object
+
+    End_Object
+
+    //-------------------------------------------------------------------------
+
+    Object oC_TimeScale is a cSigCJPropertyGridCategory
+        Set psLabel to "Time Scale"
+        Set psHelpText to "Properties to restrict the time displayed for each day"
+
+        //---------------------------------------------------------------------
+
+        Object o_pbDayViewTimeScaleShowMinutes is a cSigCJPropertyGridItem
+            Set psLabel to "Show Minutes"
+            Set psHelpText to "Specifies whether to display minute marks on the time scale."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbDayViewTimeScaleShowMinutes(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbDayViewTimeScaleShowMinutes of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object oItem_TimeScale is a cSigCJPropertyGridComboFormItem
+            Set psLabel to "Time Scale"
+            Set psHelpText to "Sets the time Scale interval."
+            Set peItemType to ePGItype_Enum
+            Set pvInitialValue to (peTimeScale(zzCal_Object))
+
+            Procedure OnAddLookupItems
+                Send AddLookupItem (String(eCal_TimeScale_5 ) + " Minutes") eCal_TimeScale_5   "" ""  
+                Send AddLookupItem (String(eCal_TimeScale_10) + " Minutes") eCal_TimeScale_10  "" ""  
+                Send AddLookupItem (String(eCal_TimeScale_15) + " Minutes") eCal_TimeScale_15  "" ""  
+                Send AddLookupItem (String(eCal_TimeScale_30) + " Minutes") eCal_TimeScale_30  "" ""  
+                Send AddLookupItem (String(eCal_TimeScale_60) + " Minutes") eCal_TimeScale_60  "" ""                      
+            End_Procedure
+
+            Procedure OnChange
+                String sValue
+            
+                Get pvValue to sValue
+                Set peTimeScale of zzCal_Object to sValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_peDayViewCurrentTimeMarkVisible is a cSigCJPropertyGridComboFormItem
+            Set psLabel to "Time Mark visible"
+            Set psHelpText to "Specifies when the Time Mark is displayed on the time scale."
+            Set peItemType to ePGItype_Enum
+            Set pvInitialValue to (peDayViewCurrentTimeMarkVisible(zzCal_Object))  
+
+            Procedure OnAddLookupItems
+                Send AddLookupItem "None"       eCal_TM_None            "" ""  
+                Send AddLookupItem "Today Only" eCal_TM_VisibleForToday "" ""  
+                Send AddLookupItem "Always"     eCal_TM_VisibleAlways   "" ""  
+                Send AddLookupItem "Printed"    eCal_TM_Printed         "" ""  
+            End_Procedure
+
+            Procedure OnChange
+                Integer eValue
+            
+                Get pvValue to eValue
+                Set peDayViewCurrentTimeMarkVisible of zzCal_Object to eValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbRestrictTimeScale is a cSigCJPropertyGridItem
+            Set psLabel to "Restrict scale time"
+            Set psHelpText to "Restrict the time displayed for each day."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbRestrictTimeScale(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbRestrictTimeScale of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_ptmTimeScaleMinTime is a cSigCJPropertyGridItem
+            Set psLabel to "Start Time"
+            Set psHelpText to "Set the start time. (HH:MM)"
+            Set peItemType to ePGItype_String
+            Set pvInitialValue to (ptmTimeScaleMinTime(zzCal_Object))  
+
+            Procedure OnChange
+                String sValue
+            
+                Get pvValue to sValue
+                Set ptmTimeScaleMinTime of zzCal_Object to sValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_ptmTimeScaleMaxTime is a cSigCJPropertyGridItem
+            Set psLabel to "End Time"
+            Set psHelpText to "Set the end time. (HH:MM)"
+            Set peItemType to ePGItype_String
+            Set pvInitialValue to (ptmTimeScaleMaxTime(zzCal_Object))  
+
+            Procedure OnChange
+                String sValue
+            
+                Get pvValue to sValue
+                Set ptmTimeScaleMaxTime of zzCal_Object to sValue
+            End_Procedure        
+        End_Object
+
+    End_Object 
+ 
+    //-------------------------------------------------------------------------
+    
+    Object oC_ToolTips is a cSigCJPropertyGridCategory
+        Set psLabel to "Tool Tips"
+        Set psHelpText to "Properties to control Tool Tips"
+
+        //---------------------------------------------------------------------
+
+        Object o_pbEnableToolTips is a cSigCJPropertyGridItem
+            Set psLabel to "Enable Tool Tips"
+            Set psHelpText to "Enable Standard Tool Tips."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbEnableToolTips(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbEnableToolTips of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_psCustomFormat4Tooltip is a cSigCJPropertyGridItem
+            Set psLabel to "Event Tool Tip Format"
+            Set psHelpText to "Format / Text for event Tool Tips."
+            Set peItemType to ePGItype_String
+            Set pvInitialValue to (psCustomFormat4Tooltip(zzCal_Object))  
+
+            Procedure OnChange
+                String sValue
+            
+                Get pvValue to sValue
+                Set psCustomFormat4Tooltip of zzCal_Object to sValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbShowTooltipForAllDayEvents is a cSigCJPropertyGridItem
+            Set psLabel to "Tool Tips for All Day"
+            Set psHelpText to "Enable Standard Tool Tips for All day events."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbShowTooltipForAllDayEvents(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbShowTooltipForAllDayEvents of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbShowTooltipForNotFocused is a cSigCJPropertyGridItem
+            Set psLabel to "Tool Tips for All Events"
+            Set psHelpText to "Enable Standard Tool Tips for All events, not just the event that has the focus."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbShowTooltipForNotFocused(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbShowTooltipForNotFocused of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbTooltipUnderMouse is a cSigCJPropertyGridItem
+            Set psLabel to "Tool Tips below mouse"
+            Set psHelpText to "Position the Tool Tip below the mouse pointer."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbTooltipUnderMouse(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbTooltipUnderMouse of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbEnableAddNewTooltip is a cSigCJPropertyGridItem
+            Set psLabel to "Tool Tips for empty cells"
+            Set psHelpText to "Enable Tool Tips for empty cells."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbEnableAddNewTooltip(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbEnableAddNewTooltip of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_psTooltipAddNewText is a cSigCJPropertyGridItem
+            Set psLabel to "Add New Tool Tip Text"
+            Set psHelpText to "Text for Add New Tool Tips."
+            Set peItemType to ePGItype_String
+            Set pvInitialValue to (psTooltipAddNewText(zzCal_Object))  
+
+            Procedure OnChange
+                String sValue
+            
+                Get pvValue to sValue
+                Set psTooltipAddNewText of zzCal_Object to sValue
+            End_Procedure        
+        End_Object
+
+        //---------------------------------------------------------------------
+
+        Object o_pbEnableCustomEventToolTips is a cSigCJPropertyGridItem
+            Set psLabel to "Custom event tool tips"
+            Set psHelpText to "Enable custom Tool Tips for events."
+            Set peItemType to ePGItype_Boolean
+            Set pvInitialValue to (If(pbEnableCustomEventToolTips(zzCal_Object),"True","False"))  
+
+            Procedure OnChange
+                Boolean bValue
+            
+                Get pvValue to bValue
+                Set pbEnableCustomEventToolTips of zzCal_Object to bValue
+            End_Procedure        
+        End_Object
+
+    End_Object 
+
+    //=========================================================================
+End_Object
+

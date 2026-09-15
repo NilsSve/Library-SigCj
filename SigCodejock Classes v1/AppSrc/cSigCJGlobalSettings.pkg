@@ -1,0 +1,86 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJGlobalSettings.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$ Martin Pincott
+// 
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//==============================================================================
+
+Use SigCjW_Controls.pkg
+Use cSigCJImage_Manager_Mixin.pkg
+
+Global_Variable Handle ghoSigCjGlobalSetting
+Global_Variable Handle ghoSigCjPropEx
+
+Class cSigCjGlobalSetting is a cSigCjComSuiteControlsGlobalSettings
+    Import_Class_Protocol cSigCJImage_Manager_Mixin 
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        Set peAutoCreate to acAutoCreate
+
+        Send Initialise_Image_Manager_Mixin        
+
+        Move (Self) to ghoSigCjGlobalSetting
+    End_Procedure  // Construct_Object
+    
+    { MethodType=Event }
+    Procedure OnCreate
+        Handle hoImageList 
+        Variant vPropEx
+
+        Forward Send OnCreate
+       
+        // Connect to Imagelist
+        Get phoImagelist to hoImageList
+        If (hoImageList <> 0) Begin
+            Send Create_Image_Manager // cSigCJImage_Manager_Mixin 
+        End
+        
+        Send Load_Images        
+
+        //Create the Property Exchange Object
+        Get Create U_cSigCjComPropExchange to ghoSigCjPropEx
+        Get ComCreatePropExchange to vPropEx
+        Set pvComObject of ghoSigCjPropEx to vPropEx
+    End_Procedure  // OnCreate
+
+    Procedure AddItem 
+    End_Procedure
+
+End_Class
+
+Object oSigCjGlobalSetting is a cSigCjGlobalSetting
+End_Object
+
+//==============================================================================
+//End of Package - cSigCJGlobalSettings.pkg
+//==============================================================================

@@ -1,0 +1,2170 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJTrackControl.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev: 769 $
+//                $Date: 2012-04-18 10:45:33 +0100 (Wed, 18 Apr 2012) $
+//                $Author: martin $ Martin Pincott
+//
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+// Contributions
+// =============
+//
+// When       Who           What
+// ========== ============= =====================================================
+// ==============================================================================
+
+Use SigCjW_ReportControl.pkg
+Use cSigCJMethods_Mixin.pkg
+Use cSigCJGlobalSettings.pkg
+Use cSigCJPropEx_Mixin.pkg
+Use cSigCJReportControlContextMenu.pkg
+Use cSigCJFieldChooser.pkg
+Use gFormatNumbers.pkg
+Use CSV_Export.dg
+Use StdFont.pkg
+
+Register_Function pbRefreshRequired Returns Boolean
+
+Class SigCJTrackIdleHandler is a cIdleHandler
+
+    Procedure OnIdle
+        If (pbRefreshRequired(Self)) Begin
+            Delegate Send Refresh_Report
+            Set pbRefreshRequired to False 
+        End
+    End_Procedure
+    
+End_Class 
+
+Class cSigCjTrackControl_Properties is a Mixin
+    
+    Procedure Initialise_Properties
+        
+    End_Procedure
+    
+    
+End_Class
+
+Class cSigCjTrackControl is cSigCjComTrackControl
+    
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        
+        { Visibility = Private }                         
+        Property Boolean Private_pbAllowColumnRemove           False
+        { Visibility = Private }                               
+        Property Boolean Private_pbAllowColumnReorder          False 
+        { Visibility = Private }                               
+        Property Boolean Private_pbAllowColumnResize           True
+        { Visibility = Private }                               
+        Property Boolean Private_pbAllowColumnSort             True
+        { Visibility = Private }                               
+        Property Boolean Private_pbAllowEdit                   False 
+        { Visibility = Private }
+        Property Boolean Private_pbAllowEditPreview            False 
+        { Visibility = Private }
+        Property Boolean Private_pbAllowSelectionCheck         False 
+        { Visibility = Private }                         
+        Property Boolean Private_pbAutoColumnSizing            False 
+        { Visibility = Private }
+        Property Boolean Private_pbDesktopTrackerMode          False 
+        { Visibility = Private }                         
+        Property Boolean Private_pbEditOnClick                 False 
+        { Visibility = Private }                               
+        Property Boolean Private_pbEnabled                     True
+        { Visibility = Private }
+        Property Boolean Private_pbEnableMarkup                False 
+        { Visibility = Private }
+        Property Boolean Private_pbFastDeselectMode            False 
+        { Visibility = Private }
+        Property Boolean Private_pbFilterHiddenColumns         False 
+        { Visibility = Private }                         
+        Property Boolean Private_pbFilterSeparatorStrict       False 
+        { Visibility = Private }                         
+        Property Boolean Private_pbFocusSubItems               True
+        { Visibility = Private }                               
+        Property Boolean Private_pbFooterRowsAllowAccess       False 
+        { Visibility = Private }                               
+        Property Boolean Private_pbFooterRowsAllowEdit         False 
+        { Visibility = Private }
+        Property Boolean Private_pbFooterRowsEnableSelection   False 
+        { Visibility = Private }
+        Property Boolean Private_pbForcePagination             False 
+        { Visibility = Private }
+        Property Boolean Private_pbFreeHeightMode              False 
+        { Visibility = Private }
+        Property Boolean Private_pbFreezeColumnsAbs            False 
+        { Visibility = Private }                         
+        Property Boolean Private_pbFullColumnScrolling         False 
+        { Visibility = Private }                               
+        Property Boolean Private_pbHeaderRowsAllowAccess       False 
+        { Visibility = Private }                               
+        Property Boolean Private_pbHeaderRowsAllowEdit         False 
+        { Visibility = Private }
+        Property Boolean Private_pbHeaderRowsEnableSelection   False 
+        { Visibility = Private }
+        Property Boolean Private_pbHideColumnAfterGroupBoxDrop False 
+        { Visibility = Private }
+        Property Boolean Private_pbIconView                    False 
+        { Visibility = Private }
+        Property Boolean Private_pbInitialSelectionEnable      True
+        { Visibility = Private }
+        Property Boolean Private_pbMovePivot                   False 
+        { Visibility = Private }                         
+        Property Boolean Private_pbMultipleSelection           True
+        { Visibility = Private }
+        Property Boolean Private_pbMultiSelectionMode          True
+        { Visibility = Private }                         
+        Property Boolean Private_pbPinFooterRows               False 
+        { Visibility = Private }                               
+        Property Boolean Private_pbPreviewMode                 False
+        { Visibility = Private }
+        Property Boolean Private_pbPrintGroupRowIcon           True
+        { Visibility = Private }                         
+        Property Boolean Private_pbReleaseOnDestroy            True
+        { Visibility = Private }                               
+        Property Boolean Private_pbRightToLeft                 False 
+        { Visibility = Private }                               
+        Property Boolean Private_pbRightToLeftReading          False 
+        { Visibility = Private }                               
+        Property Boolean Private_pbSelectionEnable             False 
+        { Visibility = Private }
+        Property Boolean Private_pbSelectionExcludeGroupRows   False 
+        { Visibility = Private }
+        Property Boolean Private_pbSendContextMenuForWholeHeaderArea False 
+        { Visibility = Private }                         
+        Property Boolean Private_pbShowItemsInGroups           False 
+        { Visibility = Private }                               
+        Property Boolean Private_pbShowFooter                  False 
+        { Visibility = Private }                               
+        Property Boolean Private_pbShowFooterRows              False 
+        { Visibility = Private }                               
+        Property Boolean Private_pbShowGroupBox                False
+        { Visibility = Private }                               
+        Property Boolean Private_pbShowHeader                  True
+        { Visibility = Private }                               
+        Property Boolean Private_pbShowHeaderRows              True
+        { Visibility = Private }                               
+        Property Boolean Private_pbShowRowFocus                False 
+        { Visibility = Private }                               
+        Property Boolean Private_pbSkipGroupsFocus             True
+        { Visibility = Private }
+        Property Boolean Private_pbSortedDragDrop              False 
+        { Visibility = Private }
+        Property Boolean Private_pbSortRecordChildren          True
+        { Visibility = Private }
+        Property Boolean Private_pbStrictBestFit               False 
+        { Visibility = Private }
+        Property Boolean Private_pbTrapTabKey                  False 
+        { Visibility = Private }
+        Property Boolean Private_pbUnrestrictedDragDrop        False 
+
+        
+    End_Procedure
+
+    Procedure End_Construct_Object
+        Forward Send End_Construct_Object
+    End_Procedure
+    
+    Procedure OnCreate
+        Forward Send OnCreate 
+        
+        // Set Boolean Properties
+        Set ComAllowColumnRemove           to (Private_pbAllowColumnRemove(Self))
+        Set ComAllowColumnReorder          to (Private_pbAllowColumnReorder(Self)) 
+        Set ComAllowColumnResize           to (Private_pbAllowColumnResize(Self)) 
+        Set ComAllowColumnSort             to (Private_pbAllowColumnSort(Self)) 
+        Set ComAllowEdit                   to (Private_pbAllowEdit(Self)) 
+        Set ComAllowEditPreview            to (Private_pbAllowEditPreview(Self)) 
+        Set ComAllowSelectionCheck         to (Private_pbAllowSelectionCheck(Self)) 
+        Set ComAutoColumnSizing            to (Private_pbAutoColumnSizing(Self)) 
+        Set ComDesktopTrackerMode          to (Private_pbDesktopTrackerMode(Self)) 
+        Set ComEditOnClick                 to (Private_pbEditOnClick(Self)) 
+        Set ComEnabled                     to (Private_pbEnabled(Self)) 
+        Set ComEnableMarkup                to (Private_pbEnableMarkup(Self)) 
+        Set ComFastDeselectMode            to (Private_pbFastDeselectMode(Self)) 
+        Set ComFilterHiddenColumns         to (Private_pbFilterHiddenColumns(Self)) 
+        Set ComFilterSeparatorStrict       to (Private_pbFilterSeparatorStrict(Self)) 
+        Set ComFocusSubItems               to (Private_pbFocusSubItems(Self)) 
+        Set ComFooterRowsAllowAccess       to (Private_pbFooterRowsAllowAccess(Self)) 
+        Set ComFooterRowsAllowEdit         to (Private_pbFooterRowsAllowEdit(Self)) 
+        Set ComFooterRowsEnableSelection   to (Private_pbFooterRowsEnableSelection(Self)) 
+        Set ComForcePagination             to (Private_pbForcePagination(Self)) 
+        Set ComFreeHeightMode              to (Private_pbFreeHeightMode(Self)) 
+        Set ComFreezeColumnsAbs            to (Private_pbFreezeColumnsAbs(Self)) 
+        Set ComFullColumnScrolling         to (Private_pbFullColumnScrolling(Self)) 
+        Set ComHeaderRowsAllowAccess       to (Private_pbHeaderRowsAllowAccess(Self)) 
+        Set ComHeaderRowsAllowEdit         to (Private_pbHeaderRowsAllowEdit(Self)) 
+        Set ComHeaderRowsEnableSelection   to (Private_pbHeaderRowsEnableSelection(Self)) 
+        Set ComHideColumnAfterGroupBoxDrop to (Private_pbHideColumnAfterGroupBoxDrop(Self)) 
+        Set ComIconView                    to (Private_pbIconView(Self)) 
+        Set ComInitialSelectionEnable      to (Private_pbInitialSelectionEnable(Self)) 
+        Set ComMovePivot                   to (Private_pbMovePivot(Self)) 
+        Set ComMultipleSelection           to (Private_pbMultipleSelection(Self)) 
+        Set ComMultiSelectionMode          to (Private_pbMultiSelectionMode(Self)) 
+        Set ComPinFooterRows               to (Private_pbPinFooterRows(Self)) 
+        Set ComPreviewMode                 to (Private_pbPreviewMode(Self)) 
+        Set ComPrintGroupRowIcon           to (Private_pbPrintGroupRowIcon(Self)) 
+        Set ComSelectionEnable             to (Private_pbSelectionEnable(Self)) 
+        Set ComSelectionExcludeGroupRows   to (Private_pbSelectionExcludeGroupRows(Self)) 
+        Set ComSendContextMenuForWholeHeaderArea to (Private_pbSendContextMenuForWholeHeaderArea(Self)) 
+        Set ComShowItemsInGroups           to (Private_pbShowItemsInGroups(Self)) 
+        Set ComShowFooter                  to (Private_pbShowFooter(Self)) 
+        Set ComShowFooterRows              to (Private_pbShowFooterRows(Self)) 
+        Set ComShowGroupBox                to (Private_pbShowGroupBox(Self)) 
+        Set ComSkipGroupsFocus             to (Private_pbSkipGroupsFocus(Self)) 
+        Set ComShowHeader                  to (Private_pbShowHeader(Self)) 
+        Set ComShowHeaderRows              to (Private_pbShowHeaderRows(Self)) 
+        Set ComShowRowFocus                to (Private_pbShowRowFocus(Self)) 
+        Set ComSortedDragDrop              to (Private_pbSortedDragDrop(Self)) 
+        Set ComSortRecordChildren          to (Private_pbSortRecordChildren(Self)) 
+        Set ComStrictBestFit               to (Private_pbStrictBestFit(Self)) 
+        Set ComReleaseOnDestroy            to (Private_pbReleaseOnDestroy(Self)) 
+        Set ComRightToLeft                 to (Private_pbRightToLeft(Self)) 
+        Set ComRightToLeftReading          to (Private_pbRightToLeftReading(Self)) 
+        Set ComTrapTabKey                  to (Private_pbTrapTabKey(Self)) 
+        Set ComUnrestrictedDragDrop        to (Private_pbUnrestrictedDragDrop(Self)) 
+
+        
+    End_Procedure
+    
+    
+    // Boolean Property methods
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbAllowColumnRemove Boolean bValue
+        Set SigCJProperty Set_Private_pbAllowColumnRemove Set_ComAllowColumnRemove to bValue 
+    End_Procedure
+
+    Function pbAllowColumnRemove Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbAllowColumnRemove, Get_ComAllowColumnRemove))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbAllowColumnReorder Boolean bValue
+        Set SigCJProperty Set_Private_pbAllowColumnReorder Set_ComAllowColumnReorder to bValue 
+    End_Procedure
+
+    Function pbAllowColumnReorder Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbAllowColumnReorder, Get_ComAllowColumnReorder))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=True }
+    Procedure Set pbAllowColumnResize Boolean bValue
+        Set SigCJProperty Set_Private_pbAllowColumnResize Set_ComAllowColumnResize to bValue 
+    End_Procedure
+
+    Function pbAllowColumnResize Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbAllowColumnResize, Get_ComAllowColumnResize))
+    End_Function
+
+	{Category="CodeJock" MethodType=Property InitialValue=True }
+    Procedure Set pbAllowColumnSort Boolean bValue
+        Set SigCJProperty Set_Private_pbAllowColumnSort Set_ComAllowColumnSort to bValue 
+    End_Procedure
+
+    Function pbAllowColumnSort Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbAllowColumnSort, Get_ComAllowColumnSort))
+    End_Function
+
+	{Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbAllowEdit Boolean bValue
+        Set SigCJProperty Set_Private_pbAllowEdit Set_ComAllowEdit to bValue 
+    End_Procedure
+
+    Function pbAllowEdit Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbAllowEdit, Get_ComAllowEdit))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbAllowEditPreview Boolean bValue
+        Set SigCJProperty Set_Private_pbAllowEditPreview Set_ComAllowEditPreview to bValue 
+    End_Procedure
+
+    Function pbAllowEditPreview Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbAllowEditPreview, Get_ComAllowEditPreview))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbAllowSelectionCheck Boolean bValue
+        Set SigCJProperty Set_Private_pbAllowSelectionCheck Set_ComAllowSelectionCheck to bValue 
+    End_Procedure
+
+    Function pbAllowSelectionCheck Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbAllowSelectionCheck, Get_ComAllowSelectionCheck))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbAutoColumnSizing Boolean bValue
+        Set SigCJProperty Set_Private_pbAutoColumnSizing Set_ComAutoColumnSizing to bValue 
+    End_Procedure
+
+    Function pbAutoColumnSizing Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbAutoColumnSizing, Get_ComAutoColumnSizing))
+    End_Function
+  
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbDesktopTrackerMode Boolean bValue
+        Set SigCJProperty Set_Private_pbDesktopTrackerMode Set_ComDesktopTrackerMode to bValue 
+    End_Procedure
+
+    Function pbDesktopTrackerMode Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbDesktopTrackerMode, Get_ComDesktopTrackerMode))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbEditOnClick Boolean bValue
+        Set SigCJProperty Set_Private_pbEditOnClick Set_ComEditOnClick to bValue 
+    End_Procedure
+
+    Function pbEditOnClick Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbEditOnClick, Get_ComEditOnClick))
+    End_Function
+    
+    {Category="CodeJock" MethodType=Property InitialValue=True }
+    Procedure Set pbEnabled Boolean bValue
+        Set SigCJProperty Set_Private_pbEnabled Set_ComEnabled to bValue 
+    End_Procedure
+
+    Function pbEnabled Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbEnabled, Get_ComEnabled))
+    End_Function
+
+    // use EnableMarkupFlags instead
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbEnableMarkup Boolean bValue
+        Set SigCJProperty Set_Private_pbEnableMarkup Set_ComEnableMarkup to bValue 
+    End_Procedure
+
+    Function pbEnableMarkup Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbEnableMarkup, Get_ComEnableMarkup))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbFastDeselectMode Boolean bValue
+        Set SigCJProperty Set_Private_pbFastDeselectMode Set_ComFastDeselectMode to bValue 
+    End_Procedure
+
+    Function pbFastDeselectMode Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbFastDeselectMode, Get_ComFastDeselectMode))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbFilterHiddenColumns Boolean bValue
+        Set SigCJProperty Set_Private_pbFilterHiddenColumns Set_ComFilterHiddenColumns to bValue 
+    End_Procedure
+
+    Function pbFilterHiddenColumns Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbFilterHiddenColumns, Get_ComFilterHiddenColumns))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbFilterSeparatorStrict Boolean bValue
+        Set SigCJProperty Set_Private_pbFilterSeparatorStrict Set_ComFilterSeparatorStrict to bValue 
+    End_Procedure
+
+    Function pbFilterSeparatorStrict Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbFilterSeparatorStrict, Get_ComFilterSeparatorStrict))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=True }
+    Procedure Set pbFocusSubItems Boolean bValue
+        Set SigCJProperty Set_Private_pbFocusSubItems Set_ComFocusSubItems to bValue 
+    End_Procedure
+
+    Function pbFocusSubItems Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbFocusSubItems, Get_ComFocusSubItems))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbFooterRowsAllowAccess Boolean bValue
+        Set SigCJProperty Set_Private_pbFooterRowsAllowAccess Set_ComFooterRowsAllowAccess to bValue 
+    End_Procedure
+
+    Function pbFooterRowsAllowAccess Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbFooterRowsAllowAccess, Get_ComFooterRowsAllowAccess))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbFooterRowsAllowEdit Boolean bValue
+        Set SigCJProperty Set_Private_pbFooterRowsAllowEdit Set_ComFooterRowsAllowEdit to bValue 
+    End_Procedure
+
+    Function pbFooterRowsAllowEdit Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbFooterRowsAllowEdit, Get_ComFooterRowsAllowEdit))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbFooterRowsEnableSelection Boolean bValue
+        Set SigCJProperty Set_Private_pbFooterRowsEnableSelection Set_ComFooterRowsEnableSelection to bValue 
+    End_Procedure
+
+    Function pbFooterRowsEnableSelection Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbFooterRowsEnableSelection, Get_ComFooterRowsEnableSelection))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbForcePagination Boolean bValue
+        Set SigCJProperty Set_Private_pbForcePagination Set_ComForcePagination to bValue 
+    End_Procedure
+
+    Function pbForcePagination Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbForcePagination, Get_ComForcePagination))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbFreeHeightMode Boolean bValue
+        Set SigCJProperty Set_Private_pbFreeHeightMode Set_ComFreeHeightMode to bValue 
+    End_Procedure
+
+    Function pbFreeHeightMode Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbFreeHeightMode, Get_ComFreeHeightMode))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbFreezeColumnsAbs Boolean bValue
+        Set SigCJProperty Set_Private_pbFreezeColumnsAbs Set_ComFreezeColumnsAbs to bValue 
+    End_Procedure
+
+    Function pbFreezeColumnsAbs Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbFreezeColumnsAbs, Get_ComFreezeColumnsAbs))
+    End_Function
+
+    // Horizontal scrolling by pixels or by whole columns.
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbFullColumnScrolling Boolean bValue
+        Set SigCJProperty Set_Private_pbFullColumnScrolling Set_ComFullColumnScrolling to bValue 
+    End_Procedure
+
+    Function pbFullColumnScrolling Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbFullColumnScrolling, Get_ComFullColumnScrolling))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbHeaderRowsAllowAccess Boolean bValue
+        Set SigCJProperty Set_Private_pbHeaderRowsAllowAccess Set_ComHeaderRowsAllowAccess to bValue 
+    End_Procedure
+
+    Function pbHeaderRowsAllowAccess Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbHeaderRowsAllowAccess, Get_ComHeaderRowsAllowAccess))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbHeaderRowsAllowEdit Boolean bValue
+        Set SigCJProperty Set_Private_pbHeaderRowsAllowEdit Set_ComHeaderRowsAllowEdit to bValue 
+    End_Procedure
+
+    Function pbHeaderRowsAllowEdit Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbHeaderRowsAllowEdit, Get_ComHeaderRowsAllowEdit))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbHeaderRowsEnableSelection Boolean bValue
+        Set SigCJProperty Set_Private_pbHeaderRowsEnableSelection Set_ComHeaderRowsEnableSelection to bValue 
+    End_Procedure
+
+    Function pbHeaderRowsEnableSelection Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbHeaderRowsEnableSelection, Get_ComHeaderRowsEnableSelection))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbHideColumnAfterGroupBoxDrop Boolean bValue
+        Set SigCJProperty Set_Private_pbHideColumnAfterGroupBoxDrop Set_ComHideColumnAfterGroupBoxDrop to bValue 
+    End_Procedure
+
+    Function pbHideColumnAfterGroupBoxDrop Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbHideColumnAfterGroupBoxDrop, Get_ComHideColumnAfterGroupBoxDrop))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbIconView Boolean bValue
+        Set SigCJProperty Set_Private_pbIconView Set_ComIconView to bValue 
+    End_Procedure
+
+    Function pbIconView Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbIconView, Get_ComIconView))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=True }
+    Procedure Set pbInitialSelectionEnable Boolean bValue
+        Set SigCJProperty Set_Private_pbInitialSelectionEnable Set_ComInitialSelectionEnable to bValue 
+    End_Procedure
+
+    Function pbInitialSelectionEnable Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbInitialSelectionEnable, Get_ComInitialSelectionEnable))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbMovePivot Boolean bValue
+        Set SigCJProperty Set_Private_pbMovePivot Set_ComMovePivot to bValue 
+    End_Procedure
+
+    Function pbMovePivot Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbMovePivot, Get_ComMovePivot))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=True }
+    Procedure Set pbMultipleSelection Boolean bValue
+        Set SigCJProperty Set_Private_pbMultipleSelection Set_ComMultipleSelection to bValue 
+    End_Procedure
+
+    Function pbMultipleSelection Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbMultipleSelection, Get_ComMultipleSelection))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=True }
+    Procedure Set pbMultiSelectionMode Boolean bValue
+        Set SigCJProperty Set_Private_pbMultiSelectionMode Set_ComMultiSelectionMode to bValue 
+    End_Procedure
+
+    Function pbMultiSelectionMode Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbMultiSelectionMode, Get_ComMultiSelectionMode))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbPinFooterRows Boolean bValue
+        Set SigCJProperty Set_Private_pbPinFooterRows Set_ComPinFooterRows to bValue 
+    End_Procedure
+
+    Function pbPinFooterRows Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbPinFooterRows, Get_ComPinFooterRows))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbPreviewMode Boolean bValue
+        Set SigCJProperty Set_Private_pbPreviewMode Set_ComPreviewMode to bValue 
+    End_Procedure
+
+    Function pbPreviewMode Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbPreviewMode, Get_ComPreviewMode))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=True }
+    Procedure Set pbPrintGroupRowIcon Boolean bValue
+        Set SigCJProperty Set_Private_pbPrintGroupRowIcon Set_ComPrintGroupRowIcon to bValue 
+    End_Procedure
+
+    Function pbPrintGroupRowIcon Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbPrintGroupRowIcon, Get_ComPrintGroupRowIcon))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbSelectionEnable Boolean bValue
+        Set SigCJProperty Set_Private_pbSelectionEnable Set_ComSelectionEnable to bValue 
+    End_Procedure
+
+    Function pbSelectionEnable Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbSelectionEnable, Get_ComSelectionEnable))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbSelectionExcludeGroupRows Boolean bValue
+        Set SigCJProperty Set_Private_pbSelectionExcludeGroupRows Set_ComSelectionExcludeGroupRows to bValue 
+    End_Procedure
+
+    Function pbSelectionExcludeGroupRows Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbSelectionExcludeGroupRows, Get_ComSelectionExcludeGroupRows))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbSendContextMenuForWholeHeaderArea Boolean bValue
+        Set SigCJProperty Set_Private_pbSendContextMenuForWholeHeaderArea Set_ComSendContextMenuForWholeHeaderArea to bValue 
+    End_Procedure
+
+    Function pbSendContextMenuForWholeHeaderArea Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbSendContextMenuForWholeHeaderArea, Get_ComSendContextMenuForWholeHeaderArea))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbShowItemsInGroups Boolean bValue
+        Set SigCJProperty Set_Private_pbShowItemsInGroups Set_ComShowItemsInGroups to bValue 
+    End_Procedure
+
+    Function pbShowItemsInGroups Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbShowItemsInGroups, Get_ComShowItemsInGroups))
+    End_Function
+    
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbShowFooter Boolean bValue
+        Set SigCJProperty Set_Private_pbShowFooter Set_ComShowFooter to bValue 
+    End_Procedure
+
+    Function pbShowFooter Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbShowFooter, Get_ComShowFooter))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbShowFooterRows Boolean bValue
+        Set SigCJProperty Set_Private_pbShowFooterRows Set_ComShowFooterRows to bValue 
+    End_Procedure
+
+    Function pbShowFooterRows Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbShowFooterRows, Get_ComShowFooterRows))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbShowGroupBox Boolean bValue
+        Set SigCJProperty Set_Private_pbShowGroupBox Set_ComShowGroupBox to bValue 
+    End_Procedure
+
+    Function pbShowGroupBox Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbShowGroupBox, Get_ComShowGroupBox))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=True }
+    Procedure Set pbSkipGroupsFocus Boolean bValue
+        Set SigCJProperty Set_Private_pbSkipGroupsFocus Set_ComSkipGroupsFocus to bValue 
+    End_Procedure
+
+    Function pbSkipGroupsFocus Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbSkipGroupsFocus, Get_ComSkipGroupsFocus))
+    End_Function
+    
+    {Category="CodeJock" MethodType=Property InitialValue=True }
+    Procedure Set pbShowHeader Boolean bValue
+        Set SigCJProperty Set_Private_pbShowHeader Set_ComShowHeader to bValue 
+    End_Procedure
+
+    Function pbShowHeader Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbShowHeader, Get_ComShowHeader))
+    End_Function
+    
+    {Category="CodeJock" MethodType=Property InitialValue=True }
+    Procedure Set pbShowHeaderRows Boolean bValue
+        Set SigCJProperty Set_Private_pbShowHeaderRows Set_ComShowHeaderRows to bValue 
+    End_Procedure
+
+    Function pbShowHeaderRows Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbShowHeaderRows, Get_ComShowHeaderRows))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbShowRowFocus Boolean bValue
+        Set SigCJProperty Set_Private_pbShowRowFocus Set_ComShowRowFocus to bValue 
+    End_Procedure
+
+    Function pbShowRowFocus Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbShowRowFocus, Get_ComShowRowFocus))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbSortedDragDrop Boolean bValue
+        Set SigCJProperty Set_Private_pbSortedDragDrop Set_ComSortedDragDrop to bValue 
+    End_Procedure
+
+    Function pbSortedDragDrop Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbSortedDragDrop, Get_ComSortedDragDrop))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=True }
+    Procedure Set pbSortRecordChildren Boolean bValue
+        Set SigCJProperty Set_Private_pbSortRecordChildren Set_ComSortRecordChildren to bValue 
+    End_Procedure
+
+    Function pbSortRecordChildren Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbSortRecordChildren, Get_ComSortRecordChildren))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbStrictBestFit Boolean bValue
+        Set SigCJProperty Set_Private_pbStrictBestFit Set_ComStrictBestFit to bValue 
+    End_Procedure
+
+    Function pbStrictBestFit Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbStrictBestFit, Get_ComStrictBestFit))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=True }
+    Procedure Set pbReleaseOnDestroy Boolean bValue
+        Set SigCJProperty Set_Private_pbReleaseOnDestroy Set_ComReleaseOnDestroy to bValue 
+    End_Procedure
+
+    Function pbReleaseOnDestroy Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbReleaseOnDestroy, Get_ComReleaseOnDestroy))
+    End_Function
+
+    // Indicates whether the control should draw right-to-left for RTL languages
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbRightToLeft Boolean bValue
+        Set SigCJProperty Set_Private_pbRightToLeft Set_ComRightToLeft to bValue 
+    End_Procedure
+
+    Function pbRightToLeft Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbRightToLeft, Get_ComRightToLeft))
+    End_Function
+
+    // For languages that support reading order alignment specifies right-to-left reading order
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbRightToLeftReading Boolean bValue
+        Set SigCJProperty Set_Private_pbRightToLeftReading Set_ComRightToLeftReading to bValue 
+    End_Procedure
+
+    Function pbRightToLeftReading Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbRightToLeftReading, Get_ComRightToLeftReading))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbTrapTabKey Boolean bValue
+        Set SigCJProperty Set_Private_pbTrapTabKey Set_ComTrapTabKey to bValue 
+    End_Procedure
+
+    Function pbTrapTabKey Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbTrapTabKey, Get_ComTrapTabKey))
+    End_Function
+
+    {Category="CodeJock" MethodType=Property InitialValue=False }
+    Procedure Set pbUnrestrictedDragDrop Boolean bValue
+        Set SigCJProperty Set_Private_pbUnrestrictedDragDrop Set_ComUnrestrictedDragDrop to bValue 
+    End_Procedure
+
+    Function pbUnrestrictedDragDrop Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbUnrestrictedDragDrop, Get_ComUnrestrictedDragDrop))
+    End_Function
+
+     
+End_Class // cSigCjTrackControl is cSigCjComTrackControl
+
+
+
+
+
+
+    { MethodType=Property DesignTime=False }
+    Function ComBorderStyle Returns OLEXTPReportBorderStyle
+        OLEXTPReportBorderStyle retVal
+        Get ComProperty of (phDispatchDriver(Self)) 8 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComBorderStyle OLEXTPReportBorderStyle value
+        Set ComProperty of (phDispatchDriver(Self)) 8 OLE_VT_I4 to value
+    End_Procedure
+
+
+    { MethodType=Property DesignTime=False }
+    Function ComFieldChooser Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) 10 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComFieldChooser Variant value
+        Set ComProperty of (phDispatchDriver(Self)) 10 OLE_VT_DISPATCH to value
+    End_Procedure
+
+
+    { MethodType=Property DesignTime=False }
+    Function ComIcons Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) 12 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComIcons Variant value
+        Set ComProperty of (phDispatchDriver(Self)) 12 OLE_VT_DISPATCH to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComFocusedRow Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) 20 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComFocusedRow Variant value
+        Set ComProperty of (phDispatchDriver(Self)) 20 OLE_VT_DISPATCH to value
+    End_Procedure
+
+
+    { MethodType=Property DesignTime=False }
+    Function ComFilterText Returns String
+        String retVal
+        Get ComProperty of (phDispatchDriver(Self)) 33 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComFilterText String value
+        Set ComProperty of (phDispatchDriver(Self)) 33 OLE_VT_BSTR to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComFocusedColumn Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) 35 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComFocusedColumn Variant value
+        Set ComProperty of (phDispatchDriver(Self)) 35 OLE_VT_DISPATCH to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTopRowIndex Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 37 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTopRowIndex Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 37 OLE_VT_I4 to value
+    End_Procedure
+
+
+    // Count of none-scrolled columns at the left side
+    { MethodType=Property DesignTime=False }
+    Function ComFreezeColumnsCount Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 45 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    // Count of none-scrolled columns at the left side
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComFreezeColumnsCount Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 45 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComSortLocale Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 47 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComSortLocale Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 47 OLE_VT_I4 to value
+    End_Procedure
+
+
+    // Returns/Sets whether this control can act as an OLE drop target.
+    { MethodType=Property DesignTime=False }
+    Function ComOLEDropMode Returns OLEOLEDropConstants
+        OLEOLEDropConstants retVal
+        Get ComProperty of (phDispatchDriver(Self)) 50 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    // Returns/Sets whether this control can act as an OLE drop target.
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComOLEDropMode OLEOLEDropConstants value
+        Set ComProperty of (phDispatchDriver(Self)) 50 OLE_VT_I4 to value
+    End_Procedure
+
+
+    { MethodType=Property DesignTime=False }
+    Function ComHScrollStep Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 100 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComHScrollStep Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 100 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComAutoVScrollTimerResolution Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 105 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComAutoVScrollTimerResolution Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 105 OLE_VT_I4 to value
+    End_Procedure
+
+
+    { MethodType=Property DesignTime=False }
+    Function ComWatermarkAlignment Returns OLEXTPReportWatermarkAlignment
+        OLEXTPReportWatermarkAlignment retVal
+        Get ComProperty of (phDispatchDriver(Self)) 80 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComWatermarkAlignment OLEXTPReportWatermarkAlignment value
+        Set ComProperty of (phDispatchDriver(Self)) 80 OLE_VT_I4 to value
+    End_Procedure
+
+
+    // Count of reorder-disabled columns at the left side
+    { MethodType=Property DesignTime=False }
+    Function ComDisableReorderColumnsCount Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 84 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    // Count of reorder-disabled columns at the left side
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComDisableReorderColumnsCount Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 84 OLE_VT_I4 to value
+    End_Procedure
+
+
+    { MethodType=Property DesignTime=False }
+    Function ComDataManager Returns Variant
+        Variant retVal
+        Get ComProperty of (phDispatchDriver(Self)) 88 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComDataManager Variant value
+        Set ComProperty of (phDispatchDriver(Self)) 88 OLE_VT_DISPATCH to value
+    End_Procedure
+
+
+    { MethodType=Property DesignTime=False }
+    Function ComRecordsTreeFilterMode Returns OLEXTPReportFilterMode
+        OLEXTPReportFilterMode retVal
+        Get ComProperty of (phDispatchDriver(Self)) 91 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComRecordsTreeFilterMode OLEXTPReportFilterMode value
+        Set ComProperty of (phDispatchDriver(Self)) 91 OLE_VT_I4 to value
+    End_Procedure
+
+
+    { MethodType=Property DesignTime=False }
+    Function ComCustomTitle Returns String
+        String retVal
+        Get ComProperty of (phDispatchDriver(Self)) 109 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComCustomTitle String value
+        Set ComProperty of (phDispatchDriver(Self)) 109 OLE_VT_BSTR to value
+    End_Procedure
+
+
+
+    { MethodType=Property DesignTime=False }
+    Function ComLeftOffset Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 119 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComLeftOffset Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 119 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComMaxColumnWidth Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 251 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComMaxColumnWidth Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 251 OLE_VT_I4 to value
+    End_Procedure
+
+
+    { MethodType=Property DesignTime=False }
+    Function ComTimeLinePosition Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1001 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTimeLinePosition Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 1001 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTimeLineMin Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1002 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTimeLineMin Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 1002 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComTimeLineMax Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1003 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComTimeLineMax Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 1003 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComWorkAreaMin Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1004 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComWorkAreaMin Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 1004 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComWorkAreaMax Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1005 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComWorkAreaMax Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 1005 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComViewPortMin Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1006 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComViewPortMin Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 1006 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComViewPortMax Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1007 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComViewPortMax Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 1007 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComAllowBlockRemove Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1008 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComAllowBlockRemove Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 1008 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComAllowBlockScale Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1009 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComAllowBlockScale Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 1009 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComFlexibleDrag Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1010 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComFlexibleDrag Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 1010 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComSnapMargin Returns Integer
+        Integer retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1011 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComSnapMargin Integer value
+        Set ComProperty of (phDispatchDriver(Self)) 1011 OLE_VT_I4 to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComSnapToBlocks Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1012 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComSnapToBlocks Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 1012 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComSnapToMarkers Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1013 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComSnapToMarkers Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 1013 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComAllowBlockMove Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1016 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComAllowBlockMove Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 1016 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComScaleOnResize Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1017 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComScaleOnResize Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 1017 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComShowWorkArea Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1018 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComShowWorkArea Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 1018 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComShowTimeLinePosition Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 1019 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Procedure Set ComShowTimeLinePosition Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 1019 OLE_VT_BOOL to value
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComColumns Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 13 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComRecords Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 14 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComPopulate
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 15 OLE_VT_VOID
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComPaintManager Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 16 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComRedraw
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 17 OLE_VT_VOID
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComRows Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 18 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComSelectedRows Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 19 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComSortOrder Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 21 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComGroupsOrder Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 22 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComSetImageList Variant llImageList
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llImageList
+        Send InvokeComMethod to hDispatchDriver 23 OLE_VT_VOID
+    End_Procedure
+
+    Function ComSaveSettings Returns String
+        Handle hDispatchDriver
+        String retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 24 OLE_VT_BSTR to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComLoadSettings String llProfile
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llProfile
+        Send InvokeComMethod to hDispatchDriver 25 OLE_VT_VOID
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComNavigator Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 46 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Function ComHitTest OLE_XPOS_PIXELS llx OLE_YPOS_PIXELS lly Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llx
+        Send DefineParam to hDispatchDriver OLE_VT_I4 lly
+        Get InvokeComMethod of hDispatchDriver 30 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    // Second (optional) param - FieldCount
+    Procedure ComSetVirtualMode Integer llRowCount Integer llFieldCount
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llRowCount
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llFieldCount
+        Send InvokeComMethod to hDispatchDriver 32 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComEnableToolTips Boolean llEnable
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_BOOL llEnable
+        Send InvokeComMethod to hDispatchDriver 34 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComEditItem Variant llRow Variant llColumn
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llRow
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llColumn
+        Send InvokeComMethod to hDispatchDriver 36 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComSetCustomDraw OLEXTPReportCustomDraw llFlags
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llFlags
+        Send InvokeComMethod to hDispatchDriver 38 OLE_VT_VOID
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComToolTipContext Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 39 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComPrintReport OLE_HANDLE lllHDC
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 lllHDC
+        Send InvokeComMethod to hDispatchDriver 40 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComPrintReport2 Boolean llShowPrintDialog
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_BOOL llShowPrintDialog
+        Send InvokeComMethod to hDispatchDriver 340 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComDoPropExchange Variant llpPX
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llpPX
+        Send InvokeComMethod to hDispatchDriver 41 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComPrintPreview Boolean llShowPrintDialog
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_BOOL llShowPrintDialog
+        Send InvokeComMethod to hDispatchDriver 49 OLE_VT_VOID
+    End_Procedure
+
+    Function ComShowPrintPageSetup Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 52 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComPrintOptions Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 51 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    // Adds a new record to the collection. Number of RecotdItems (as columns count) added to new record.
+    Function ComAddRecord Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 53 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    // Insets a new record to the collection. Number of RecotdItems (as columns count) added to new record.
+    Function ComInsertRecord Integer llIndex Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llIndex
+        Get InvokeComMethod of hDispatchDriver 54 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    // Print Preview Options.
+    { MethodType=Property DesignTime=False }
+    Function ComPrintPreviewOptions Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 56 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    // Remove record, it's row and children if such exists. This method does not change Collapsed/Expanded Groups state.
+    Function ComRemoveRecordEx Variant llRecord Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llRecord
+        Get InvokeComMethod of hDispatchDriver 58 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    // Remove row, record behaind it and children if such exists. This method does not change Collapsed/Expanded Groups state.
+    Function ComRemoveRowEx Variant llRow Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llRow
+        Get InvokeComMethod of hDispatchDriver 59 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComCanCut Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 120 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComCanCopy Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 121 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComCanPaste Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 122 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComCut
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 125 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComCopy
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 126 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComPaste
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 127 OLE_VT_VOID
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComPopulatedRecordsCount Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 130 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComEditMode Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 131 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    Function ComEnableDragDrop String llClipboardString OLEXTPReportDragDrop lldragDrop Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llClipboardString
+        Send DefineParam to hDispatchDriver OLE_VT_I4 lldragDrop
+        Get InvokeComMethod of hDispatchDriver 132 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    Function ComCreateRecordsFromDropArray Variant llByteArray Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_VARIANT llByteArray
+        Get InvokeComMethod of hDispatchDriver 133 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Function ComCreateRecords Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 134 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Function ComDragRecords Variant llRecords Returns Integer
+        Handle hDispatchDriver
+        Integer retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llRecords
+        Get InvokeComMethod of hDispatchDriver 135 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComSetFieldChooserHandle OLE_HANDLE llhWnd
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llhWnd
+        Send InvokeComMethod to hDispatchDriver 136 OLE_VT_VOID
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComInplaceEditHwnd Returns OLE_HANDLE
+        Handle hDispatchDriver
+        OLE_HANDLE retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 137 OLE_VT_I4 to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComSetScrollBars OLE_HANDLE llhScrollBar OLE_HANDLE llvScrollBar
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llhScrollBar
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llvScrollBar
+        Send InvokeComMethod to hDispatchDriver 140 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComExpandAll Boolean llbRecursive
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_BOOL llbRecursive
+        Send InvokeComMethod to hDispatchDriver 141 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComCollapseAll
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 339 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComAboutBox
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver -552 OLE_VT_VOID
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComHeaderRecords Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 60 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComFooterRecords Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 61 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComHeaderRows Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 65 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComFooterRows Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 66 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    Function ComSetWatermarkBitmap Integer llHandle Integer llTransparency Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llHandle
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llTransparency
+        Get InvokeComMethod of hDispatchDriver 72 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    Function ComSetWatermarkBitmapFromFile String llPath Integer llTransparency Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_BSTR llPath
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llTransparency
+        Get InvokeComMethod of hDispatchDriver 73 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComAddRecordEx Variant llRecord
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llRecord
+        Send InvokeComMethod to hDispatchDriver 74 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComAddRecordEx2 Variant llRecord Variant llpParentRecord
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llRecord
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llpParentRecord
+        Send InvokeComMethod to hDispatchDriver 75 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComAddRecordEx3 Variant llRecord Variant llpParentRecord Variant llChildIndex
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 3
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llRecord
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llpParentRecord
+        Send DefineParam to hDispatchDriver OLE_VT_VARIANT llChildIndex
+        Send InvokeComMethod to hDispatchDriver 76 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComUpdateRecord Variant llRecord Boolean llUpdateChildren
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_DISPATCH llRecord
+        Send DefineParam to hDispatchDriver OLE_VT_BOOL llUpdateChildren
+        Send InvokeComMethod to hDispatchDriver 77 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComGetElementRect OLEXTPReportElementRect llFlags Integer ByRef llleft Integer ByRef lltop Integer ByRef llright Integer ByRef llbottom
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 5
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llFlags
+        Send DefineParam to hDispatchDriver (OLE_VT_BYREF ior OLE_VT_I4) llleft
+        Send DefineParam to hDispatchDriver (OLE_VT_BYREF ior OLE_VT_I4) lltop
+        Send DefineParam to hDispatchDriver (OLE_VT_BYREF ior OLE_VT_I4) llright
+        Send DefineParam to hDispatchDriver (OLE_VT_BYREF ior OLE_VT_I4) llbottom
+        Send InvokeComMethod to hDispatchDriver 83 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComPopulateHeaderRows
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 86 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComPopulateFooterRows
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 87 OLE_VT_VOID
+    End_Procedure
+
+    Function ComCreatePrintView Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 150 OLE_VT_UNKNOWN to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComPrintPreviewExt Boolean llShowPrintDialog Integer llxLeft Integer llyTop Integer llxRight Integer llyBottom
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 5
+        Send DefineParam to hDispatchDriver OLE_VT_BOOL llShowPrintDialog
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llxLeft
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llyTop
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llxRight
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llyBottom
+        Send InvokeComMethod to hDispatchDriver 160 OLE_VT_VOID
+    End_Procedure
+
+    { MethodType=Property DesignTime=False }
+    Function ComMarkupContext Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 240 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    // (optional) param - bool to use or not (default) this column to show record number, 2nd (optional) param - int to set (default = 40) this column width
+    Procedure ComCreateIconViewAndRowNumberColumn Boolean llbUseForRecordNumbers Integer llnRecordNumbersWidth
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_BOOL llbUseForRecordNumbers
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llnRecordNumbersWidth
+        Send InvokeComMethod to hDispatchDriver 241 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComIconViewRowNumberSetup Integer llColumnIndex Integer llIconIndex Boolean llbUseForRowNumber Integer llnRecordNumbersWidth
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 4
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llColumnIndex
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llIconIndex
+        Send DefineParam to hDispatchDriver OLE_VT_BOOL llbUseForRowNumber
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llnRecordNumbersWidth
+        Send InvokeComMethod to hDispatchDriver 242 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComReCalc Boolean llbSet
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_BOOL llbSet
+        Send InvokeComMethod to hDispatchDriver 243 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComIconViewSetup Integer llColumnIndex Integer llIconIndex
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llColumnIndex
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llIconIndex
+        Send InvokeComMethod to hDispatchDriver 244 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComCreateIconViewColumn
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 245 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComCreateRowNumberColumn Integer llWidth
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llWidth
+        Send InvokeComMethod to hDispatchDriver 246 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComShowRowNumber Boolean llbSet
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_BOOL llbSet
+        Send InvokeComMethod to hDispatchDriver 247 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComClearContent
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 248 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComUnSort
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 249 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComReleaseSort
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 250 OLE_VT_VOID
+    End_Procedure
+
+    // Returns if the drop marker is above a row.
+    { MethodType=Property DesignTime=False }
+    Function ComOLEDropAbove Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 333 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure ComSetIconViewToDefaults
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 344 OLE_VT_VOID
+    End_Procedure
+
+    Procedure ComShowIconWhenEditing Boolean llbShow
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_BOOL llbShow
+        Send InvokeComMethod to hDispatchDriver 345 OLE_VT_VOID
+    End_Procedure
+
+    Function ComIsShowIconWhenEditing Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 346 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    Function ComCreateTrackItem Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 1000 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComMarkers Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 1014 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComUndoManager Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 1015 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+
+    { MethodType=Property DesignTime=False }
+    Function ComSelectedBlocks Returns Variant
+        Handle hDispatchDriver
+        Variant retVal
+        Get phDispatchDriver to hDispatchDriver
+        Get InvokeComMethod of hDispatchDriver 1020 OLE_VT_DISPATCH to retVal
+        Function_Return retVal
+    End_Function
+End_Class
+
+// Event interface for TrackControl Control
+Class cSigCjCom_DTrackControlEvents is a Mixin
+
+    { MethodType=Event }
+    Procedure OnComColumnClick Variant llColumn
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComRowRClick Variant llRow Variant llItem
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComRowDblClick Variant llRow Variant llItem
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComSelectionChanged
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComKeyDown Short ByRef llKeyCode Short llShift
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComKeyUp Short ByRef llKeyCode Short llShift
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComItemCheck Variant llRow Variant llItem
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComBeforeDrawRow Variant llRow Variant llItem Variant llMetrics
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComColumnOrderChangedEx Variant llColumn OLEXTPReportColumnOrderChangedReason llReason
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComSortOrderChanged
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComValueChanged Variant llRow Variant llColumn Variant llItem
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComInplaceButtonDown Variant llButton
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComMouseMove Short llButton Short llShift Integer llx Integer lly
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComMouseDown Short llButton Short llShift Integer llx Integer lly
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComMouseUp Short llButton Short llShift Integer llx Integer lly
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComDrawItem Variant llRow Variant llColumn Variant llItem OLE_HANDLE llhDC Integer llleft Integer lltop Integer llright Integer llbottom Boolean ByRef llDoDefault
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComMeasureRow Variant llRow OLE_HANDLE llhDC Integer llWidth Integer ByRef llHeight
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComRowExpanded Variant llRow
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComRequestEdit Variant llRow Variant llColumn Variant llItem Boolean ByRef llCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComBeforeCopyToText Variant llRecord String ByRef llstrText Variant llCancelOperation
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComBeforePasteFromText Variant llRecord String ByRef llstrText Variant llCancelOperation
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComBeforePaste Variant llRecord Variant llCancelOperation
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComValueChanging Variant llRow Variant llColumn Variant llItem Variant llNewValue Boolean ByRef llCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComPreviewKeyDown Short ByRef llKeyCode Short llShift Boolean ByRef llCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComBeginDrag Variant llRecords
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComEditCanceled Variant llRow Variant llColumn Variant llItem
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComHyperlinkClick Variant llRow Variant llItem Integer llHyperlinkIndex
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComDrawPreviewItem Variant llRow Variant llItem OLE_HANDLE llhDC Integer llleft Integer lltop Integer llright Integer llbottom Boolean ByRef llDoDefault
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComConstraintSelecting Variant llRow Variant llColumn Variant llItem Variant llConstraint
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComOLEDragOver Variant llData Integer ByRef llEffect Short llButton Short llShift OLE_XPOS_PIXELS llx OLE_YPOS_PIXELS lly Short llstate
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComOLEDragDrop Variant llData Integer ByRef llEffect Short llButton Short llShift OLE_XPOS_PIXELS llx OLE_YPOS_PIXELS lly
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComGetToolTipInfo Variant lltoolTipInfo
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComRecordsDropped Variant llTargetRecord Variant llRecords Boolean llAbove
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComDropRecordsEx Variant llTargetRecord Variant llRecords Boolean llAbove
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComFocusChanging Variant llNewRow Variant llNewColumn Variant llNewItem Boolean ByRef llCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComDragDropCompleted Variant llRecords Integer lldropEffect
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComBeginEdit Variant llRow Variant llColumn Variant llItem
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComInplaceEditChanging Variant llRow Variant llColumn Variant llItem String ByRef llNewValue Boolean ByRef llCancel
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComMeasurePreviewItem Variant llRow OLE_HANDLE llhDC Integer llWidth Integer ByRef llHeight
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComDragOverRecords Variant llTargetRecord Variant llRecords Boolean llAbove Integer llx Integer lly Integer llstate
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComColumnWidthChanged Variant llColumn Integer llPrevWidth Integer llNewWidth
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComGroupOrderChangedEx Variant llColumn OLEXTPReportColumnOrderChangedReason llReason
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComItemButtonClick Variant llRow Variant llItem Variant llButton
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComPlusMinusClick Variant llColumn
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComSliderChanged
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComTimeLinePositionChanged
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComMarkerChanged Variant llMarker
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComBlockChanged Variant llBlock
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnComSelectedBlocksChanged
+    End_Procedure
+
+    { Visibility=Private }
+    Procedure RegisterComEvents
+        Send RegisterComEvent 1 msg_OnComColumnClick
+        Send RegisterComEvent 2 msg_OnComRowRClick
+        Send RegisterComEvent 3 msg_OnComRowDblClick
+        Send RegisterComEvent 4 msg_OnComSelectionChanged
+        Send RegisterComEvent -602 msg_OnComKeyDown
+        Send RegisterComEvent -604 msg_OnComKeyUp
+        Send RegisterComEvent 5 msg_OnComItemCheck
+        Send RegisterComEvent 6 msg_OnComBeforeDrawRow
+        Send RegisterComEvent 107 msg_OnComColumnOrderChangedEx
+        Send RegisterComEvent 8 msg_OnComSortOrderChanged
+        Send RegisterComEvent 9 msg_OnComValueChanged
+        Send RegisterComEvent 10 msg_OnComInplaceButtonDown
+        Send RegisterComEvent -606 msg_OnComMouseMove
+        Send RegisterComEvent -605 msg_OnComMouseDown
+        Send RegisterComEvent -607 msg_OnComMouseUp
+        Send RegisterComEvent 11 msg_OnComDrawItem
+        Send RegisterComEvent 12 msg_OnComMeasureRow
+        Send RegisterComEvent 13 msg_OnComRowExpanded
+        Send RegisterComEvent 14 msg_OnComRequestEdit
+        Send RegisterComEvent 15 msg_OnComBeforeCopyToText
+        Send RegisterComEvent 16 msg_OnComBeforePasteFromText
+        Send RegisterComEvent 17 msg_OnComBeforePaste
+        Send RegisterComEvent 18 msg_OnComValueChanging
+        Send RegisterComEvent 19 msg_OnComPreviewKeyDown
+        Send RegisterComEvent 20 msg_OnComBeginDrag
+        Send RegisterComEvent 22 msg_OnComEditCanceled
+        Send RegisterComEvent 23 msg_OnComHyperlinkClick
+        Send RegisterComEvent 24 msg_OnComDrawPreviewItem
+        Send RegisterComEvent 25 msg_OnComConstraintSelecting
+        Send RegisterComEvent 300 msg_OnComOLEDragOver
+        Send RegisterComEvent 301 msg_OnComOLEDragDrop
+        Send RegisterComEvent 26 msg_OnComGetToolTipInfo
+        Send RegisterComEvent 27 msg_OnComRecordsDropped
+        Send RegisterComEvent 28 msg_OnComDropRecordsEx
+        Send RegisterComEvent 29 msg_OnComFocusChanging
+        Send RegisterComEvent 30 msg_OnComDragDropCompleted
+        Send RegisterComEvent 31 msg_OnComBeginEdit
+        Send RegisterComEvent 32 msg_OnComInplaceEditChanging
+        Send RegisterComEvent 33 msg_OnComMeasurePreviewItem
+        Send RegisterComEvent 34 msg_OnComDragOverRecords
+        Send RegisterComEvent 35 msg_OnComColumnWidthChanged
+        Send RegisterComEvent 136 msg_OnComGroupOrderChangedEx
+        Send RegisterComEvent 37 msg_OnComItemButtonClick
+        Send RegisterComEvent 38 msg_OnComPlusMinusClick
+        Send RegisterComEvent 1000 msg_OnComSliderChanged
+        Send RegisterComEvent 1001 msg_OnComTimeLinePositionChanged
+        Send RegisterComEvent 1002 msg_OnComMarkerChanged
+        Send RegisterComEvent 1003 msg_OnComBlockChanged
+        Send RegisterComEvent 1004 msg_OnComSelectedBlocksChanged
+    End_Procedure
+End_Class
+
+
+//==============================================================================
+//End of package - cSigCJTrackControl.pkg
+//==============================================================================

@@ -1,0 +1,91 @@
+//DDB-FileStart
+//DDB-HeaderStart
+
+// File Name : Cal_Cats.DD
+// Class Name: Cal_Cats_DataDictionary
+// Revision  : 14
+// Version   : 2
+
+Use  Windows           // Basic Definitions
+Use  DataDict.pkg          // DataDictionary Class Definition
+Use  DDvalTbl          // Validation Table Class Definitions
+
+Open Cal_Cats
+
+//DDB-HeaderEnd
+//DDB-ValidationStart
+
+Register_Object Cal_Cats_Category_Set_VT
+
+Object Cal_Cats_Category_Set_VT  is a CodeValidationTable
+    Set Type_Value        To "CATS_SET"
+    Set Table_Title       To "Calendar Caterory Sets"
+End_Object   // Cal_Cats_Category_Set_VT
+//DDB-ValidationEnd
+//DDB-SelectionStart
+//DDB/ ExternalSelectionList Calendar_Categories_sl  Calendar_Categories.sl
+Register_Object Calendar_Categories_sl
+//DDB-SelectionEnd
+
+Class Cal_Cats_DataDictionary  is a DataDictionary
+
+    // Define_Fields:
+    // This procedure is used to set up all data-dictionary rules.
+
+    Procedure Define_Fields
+        Forward Send Define_Fields
+        //DDB-Generated-Code-Location
+        //DDB-DefineFieldStart
+
+        Set Main_File            To Cal_Cats.File_Number
+
+
+        // Field-based properties.......................
+
+        // Cal_Cats.Id
+        Set Field_Options          Field Cal_Cats.Id To DD_AUTOFIND    DD_REQUIRED   
+        Set Field_Prompt_Object    Field Cal_Cats.Id To (Calendar_Categories_sl(Self))
+
+        // Cal_Cats.Short_Desc
+        Set Field_Options          Field Cal_Cats.Short_Desc To DD_REQUIRED   
+        Set Field_Prompt_Object    Field Cal_Cats.Short_Desc To (Calendar_Categories_sl(Self))
+
+        // Cal_Cats.Long_Desc
+
+        // Cal_Cats.BorderColor
+
+        // Cal_Cats.Colorlight
+
+        // Cal_Cats.Colordark
+
+        // Cal_Cats.Gradientfactor
+
+        // Cal_Cats.Category_Set
+        Set Field_Class_Name       Field Cal_Cats.Category_Set To "dbComboForm"
+        Set Field_Value_Table      Field Cal_Cats.Category_Set To (Cal_Cats_Category_Set_VT(Self))
+
+        //DDB-DefineFieldEnd
+
+    End_Procedure    // Define_Fields
+
+    // Field_Defaults:
+    // This procedure is used to establish default field values.
+
+    Procedure Field_Defaults
+        Forward Send Field_Defaults
+        //DDB-Generated-Code-Location
+        //DDB-FieldDefaultStart
+        Set Field_Changed_Value   Field Cal_Cats.Gradientfactor To 0.75
+        //DDB-FieldDefaultEnd
+    End_Procedure    // Field_Defaults
+
+End_Class    // Cal_Cats_DataDictionary
+//DDB-Selection-pkg-Start
+#IFDEF Is$WebApp
+#ELSE
+
+Use Calendar\Calendar_Categories.sl                 // Calendar_Categories_sl
+
+#ENDIF
+//DDB-Selection-pkg-End
+//DDB-FileEnd

@@ -1,0 +1,851 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJPushButton.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$ Martin Pincott
+//
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//==============================================================================
+//
+//Update Aug 2018
+//===============
+//  1. Removed support for Codejock versions less than 15.0.1
+//  2. Removed { Visibility=Private Obsolete=True } from DAW standard property
+//     redirects. If the redirects are in the class then they should not be
+//     Obsolete and should be Visible!
+//  3. Added redirect for DAW standard property Visible_State
+//  4. Focus / CLick bug fixed by changing Click handling to use Wil van
+//     Antwerpen's code
+//  5. Changed tooltip logic to only setup tooltips if a tooltip is set
+//
+// Contributions
+// =============
+//
+// When       Who             What
+// ========== ============    ==================================================
+// 2009-02-28 Tom Murphy      Default size same as VDF button, Hot tracking,
+//                            Pointer_Only and code for keyboard & mouse support.
+// 2010-08-13 Katrien Naert   Added Tooltip support
+// 2010-11-16 Nils G. Svedmyr Update Tooltip support to DAC Standard
+// 2018-03-09 Anders Ohrt     Added support for Shadow mixin
+//
+//==============================================================================
+
+Use SigCjW_Controls.pkg
+Use cSigCJMethods_Mixin.pkg
+Use cSigCJGlobalSettings.pkg
+Use StdFont.pkg
+Use cSigCJContextMenu.pkg
+
+{ OverrideProperty=Label_Col_Offset         DesignTime=False }
+{ OverrideProperty=Label_Justification_Mode DesignTime=False }
+{ OverrideProperty=Label_Row_Offset         DesignTime=False }
+{ OverrideProperty=piMinSize                DesignTime=False }
+{ OverrideProperty=Border_Style             DesignTime=False }
+{ OverrideProperty=Attach_Parent_State      DesignTime=False }
+{ OverrideProperty=Block_Mouse_State        DesignTime=False }
+{ OverrideProperty=Client_Area_State        DesignTime=False }
+{ OverrideProperty=Delegation_Mode          DesignTime=False }
+{ OverrideProperty=Focus_Mode               DesignTime=False }
+{ OverrideProperty=pbBindValue              DesignTime=False }
+{ OverrideProperty=peAutoCreate             DesignTime=False }
+{ OverrideProperty=peNeighborhood           DesignTime=False }
+{ OverrideProperty=Popup_State              DesignTime=False }
+{ OverrideProperty=Ring_State               DesignTime=False }
+{ OverrideProperty=Scope_State              DesignTime=False }
+{ OverrideProperty=Search_Case              DesignTime=False }
+{ OverrideProperty=Skip_State               DesignTime=False }
+{ OverrideProperty=Help_Id                  DesignTime=False }
+{ OverrideProperty=Help_Keyword             DesignTime=False }
+{ OverrideProperty=psHtmlHelpTopic          DesignTime=False }
+{ OverrideProperty=Status_Help              DesignTime=False }
+{ OverrideProperty=Use_Parent_Status_Help   DesignTime=False }
+{ OverrideProperty=psLicenseKey             DesignTime=False }
+{ OverrideProperty=psProgID                 DesignTime=False }
+{ OverrideProperty=Color                    DesignTime=False }
+{ OverrideProperty=TextColor                DesignTime=False }
+{ OverrideProperty=Size                     InitialValue=14,50 }
+{ DesignerClass=cDTButton }
+Class cSigCJPushButton is a cSigCjComPushButton
+    Import_Class_Protocol cSigCJMethods_Mixin
+
+    //-------------------------------------------------------------------------
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+
+        //The default COM size is 100 100, make it same as DAW button
+        Set Size to 14 50
+
+        { DesignTime=False }
+        Property Integer Private_peAppearance OLExtpAppearanceStandard
+
+        { DesignTime=False }
+        Property OLE_Color Private_piBackColor clBtnFace
+
+        { DesignTime=False }
+        Property Integer Private_piBorderGap 4
+
+        { DesignTime=False }
+        Property String  Private_psCaption ""
+
+        { DesignTime=False }
+        Property Boolean Private_pbChecked False
+
+        { DesignTime=False }
+        Property Boolean Private_pbDefault False
+
+        { DesignTime=False }
+        Property Boolean Private_pbDrawFocusRect False // True
+
+        { DesignTime=False }
+        Property Boolean Private_pbEnabled True
+
+        { DesignTime=False }
+        Property Boolean Private_pbEnableMarkup False
+
+        { DesignTime=False }
+        Property Boolean Private_pbFlatStyle False
+
+        { DesignTime=False }
+        Property OLE_Color Private_piForeColor clWindowText
+
+        { DesignTime=False }
+        Property String  Private_psImage ""
+
+        { DesignTime=False }
+        Property Integer Private_peImageAlignment OLExtpAlignCenter
+
+        { DesignTime=False }
+        Property Integer Private_piImageGap 3
+
+        { DesignTime=False }
+        Property Boolean Private_pbMultiLine True
+
+        { DesignTime=False }
+        Property Boolean Private_pbRightToLeft False
+
+        { DesignTime=False }
+        Property Integer Private_peStyle OLExtpButtonNormal
+
+        { DesignTime=False }
+        Property Integer Private_peTextAlignment OLExtpAlignCenter
+
+        { DesignTime=False }
+        Property Integer Private_peTextImageRelation OLExtpImageBeforeText
+
+        { DesignTime=False }
+        Property Boolean Private_pbUseVisualStyle True
+
+        { DesignTime=False }
+        Property Boolean Private_pbClicked False
+
+        { DesignTime=False }
+        Property Boolean Private_pbValue
+
+        //Property Private_pihWnd                         Gets the window handle that the control is bound to.
+        //Property Private_p OLEDropMode                  Returns or sets how a target component handles drop operations.
+        //Property Private_p Picture                      Gets or sets a graphic to be displayed in a push button.
+        //Property Private_p Transparent                  Determines if the background of a TabControlPage is visible in WinXP mode.
+
+        { DesignTime=False }
+        Property boolean Private_pbBold False
+
+        { DesignTime=False }
+        Property Boolean Private_pbItalic False
+
+        { DesignTime=False }
+        Property Boolean Private_pbStrikethrough False
+
+        { DesignTime=False }
+        Property Boolean Private_pbUnderline False
+
+        { DesignTime=False }
+        Property String Private_psFontName //"MS Sans Serif"
+
+        { DesignTime=False }
+        Property Number Private_pnFontSize //8.25
+
+        { DesignTime=False }
+        Property Handle Private_hoFont  (Create(Self, U_cComStdFont))
+
+        { DesignTime=False }
+        Property String Private_psTooltip ""
+
+        { DesignTime=False }
+        Property Boolean Private_pbInDropDown False
+
+        { DesignTime=False }
+        Property Boolean Private_pbVisible True
+
+        { DesignTime=False }
+        Property Boolean Private_pbClick_Valid True
+
+        //---------------------------------------------------------------------
+
+        //Hot tracking
+        { Category=CodeJock }
+        Property Boolean pbEnableHotTrack   True
+
+        { Category=CodeJock PropertyType=Color InitialValue=clBlue }
+        { EnumList= "cl3DDkShadow, cl3DLight, clActiveBorder, clActiveCaption, clAppWorkSpace, clBackground"    }
+        { EnumList+="clBtnFace, clBtnHighlight, clBtnShadow, clBtnText, clCaptionText, clGrayText, clHighlight" }
+        { EnumList+="clHighlightText, clInactiveBorder, clInactiveCaption, clInactiveCaptionText, clInfoBk"     }
+        { EnumList+="clInfoText, clMenu, clMenuText, clScrollBar, clWindow, clWindowFrame, clWindowText"        }
+        { EnumList+="clDefault, clNone, clAqua, clBlack, clBlue, clDkGray, clFuchsia, clGray, clGreen, clLime"  }
+        { EnumList+="clLtGray, clMaroon, clNavy, clOlive, clPurple, clRed, clSilver, clTeal, clWhite, clYellow" }
+        Property Integer piHotTrackColor    clBlue
+
+        { Category=CodeJock }
+        Property Boolean pbPointer_Only         False   //Prevents the button from taking the focus
+
+        { Category=CodeJock }
+        Property Handle  phoReturn_Focus        0       //Store the invoking object so focus can be returned if pointer only
+
+        { Category=CodeJock }
+        Property Handle phoToolTipController    ghoToolTipController    //Allow for different tooltip controllers
+
+        { Category=CodeJock }
+        Property Handle phoDropDownMenu //object for drop down button support
+
+        On_Key kEnter Send KeyAction    //Allow the Enter key to perform the button action
+    End_Procedure
+
+    { MethodType=Event }
+    Procedure OnCreate
+        Handle hoFont
+
+        Forward Send OnCreate
+
+        Set peAppearance        to (Private_peAppearance(Self))
+        Set piBackColor         to (Private_piBackColor(Self))
+        Set piBorderGap         to (Private_piBorderGap(Self))
+        Set pbChecked           to (Private_pbChecked(Self))
+        Set pbDefault           to (Private_pbDefault(Self))
+        Set pbDrawFocusRect     to (Private_pbDrawFocusRect(Self))
+        Set pbEnabled           to (Private_pbEnabled(Self))
+        Set pbEnableMarkup      to (Private_pbEnableMarkup(Self))
+        Set pbFlatStyle         to (Private_pbFlatStyle(Self))
+        Set piForeColor         to (Private_piForeColor(Self))
+        Set psImage             to (Private_psImage(Self))
+        Set peImageAlignment    to (Private_peImageAlignment(Self))
+        Set piImageGap          to (Private_piImageGap(Self))
+        Set pbMultiLine         to (Private_pbMultiLine(Self))
+        Set pbRightToLeft       to (Private_pbRightToLeft(Self))
+        Set peStyle             to (Private_peStyle(Self))
+        Set peTextAlignment     to (Private_peTextAlignment(Self))
+        Set peTextImageRelation to (Private_peTextImageRelation(Self))
+        Set pbUseVisualStyle    to (Private_pbUseVisualStyle(Self))
+
+        //Connect the OCX and dataflex FONT objects and set defaults
+        Get Private_hoFont   to hoFont
+        Set pvComObject      of hoFont to (ComFont(Self))
+        Set ComBold          of hoFont to (Private_pbBold(Self))
+        Set ComItalic        of hoFont to (Private_pbItalic(Self))
+        Set ComStrikethrough of hoFont to (Private_pbStrikethrough(Self))
+        Set ComUnderline     of hoFont to (Private_pbUnderline(Self))
+        // We want to use the standrad windows or df font here
+        // Set ComName          of hoFont to (Private_psFontName(Self))
+        // Set ComSize          of hoFont to (Private_pnFontSize(Self))
+
+        If (pbPointer_Only(Self)) Begin
+            //Disable focus rectangle and set Skip_State
+            Set pbDrawFocusRect to False
+            Set Skip_State to True
+        End
+
+        If (Private_psTooltip(Self) <> "") Begin
+        //If (phoToolTipController(Self) > 0) Begin
+            //Set up tool tips
+            Send DoChangeTooltipStyle
+            Set ComControlToolTip to (Private_psTooltip(Self))
+        End
+
+        //This needs to be done after Multiline, so do it at the end in case
+        //some of the other properties effect it as well.
+        Set ComCaption to (Private_psCaption(Self))
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+
+    //Set the button's tool tip to match the Tool Tip Controller specified
+    { MethodType=Method }
+    Procedure DoChangeTooltipStyle
+        Boolean bBaloon
+        Integer iIcon iStyle iWidth
+        String  sTitle
+        Handle  hoToolTipContext hoToolTipController
+        Variant vToolTipContext
+
+        //---------------------------------------------------------------------
+        //Define how the tool tip will look
+
+        Get phoToolTipController to hoToolTipController
+        If (hoToolTipController > 0) Begin  //grab values from specified controller
+            Get piIcon         of hoToolTipController  to iIcon
+            Get psTitle        of hoToolTipController  to sTitle
+            Get piMaxWidth     of hoToolTipController  to iWidth
+            Get pbBalloonStyle of hoToolTipController  to bBaloon
+            If (bBaloon = True) Move xtpToolTipBalloon  to iStyle
+            Else                Move xtpToolTipStandard to iStyle
+        End
+        Else Begin  //set some default values
+            Move xtpToolTipIconInfo to iIcon
+            Move xtpToolTipStandard to iStyle
+            Move "Information"      to sTitle
+        End
+
+        //---------------------------------------------------------------------
+        //Setup the tool tip
+
+        Get Create (RefClass(cCJToolTipContext)) to hoToolTipContext
+            Get ComToolTipContext to vToolTipContext
+            Set pvComObject of hoToolTipContext to vToolTipContext
+
+           Send ComShowTitleAndDescription of hoToolTipContext (If((iIcon > 0 or sTitle <> ""),True,False)) iIcon sTitle
+            If (iWidth > 0) Set ComMaxTipWidth of hoToolTipContext to iWidth
+            Set ComStyle of hoToolTipContext to iStyle
+        Send Destroy of hoToolTipContext
+    End_Procedure
+
+    //=========================================================================
+    //Augment Add_Focus to update the visible state. This has to be done after
+    //the control has been painted to the screen
+
+    Procedure Add_Focus Handle ohParent Returns Integer
+        Integer iVoid iRetval
+
+        Forward Get Msg_Add_Focus ohParent to iRetval
+
+        Move (ShowWindow(ComHWnd(Self), Private_pbVisible(Self))) to iVoid
+        If (pbEnableHotTrack(Self)) Set ComForeColor to (Private_piForeColor(Self))
+
+        Procedure_Return iRetval
+    End_Procedure // Add_Focus
+
+    //-------------------------------------------------------------------------
+
+    //Keep track of where the focus came from - needed for Pointer Only mode
+
+    Procedure Entering Returns Integer
+        Handle hoFoc
+
+        Get Focus to hoFoc
+        Set phoReturn_Focus to hoFoc
+    End_Procedure
+
+    //=========================================================================
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbBold Boolean bState
+        Set SigCJProperty Set_Private_pbBold Set_ComBold (Private_hoFont(Self)) to bState
+    End_Procedure
+
+    Function pbBold Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbBold, Get_ComBold, Private_hoFont(Self)))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbItalic Boolean bState
+        Set SigCJProperty Set_Private_pbItalic Set_ComItalic (Private_hoFont(Self)) to bState
+    End_Procedure
+
+    Function pbItalic Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbItalic, Get_ComItalic, Private_hoFont(Self)))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbStrikethrough Boolean bState
+        Set SigCJProperty Set_Private_pbStrikethrough Set_ComStrikethrough (Private_hoFont(Self)) to bState
+    End_Procedure
+
+    Function pbStrikethrough Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbStrikethrough, Get_ComStrikethrough, Private_hoFont(Self)))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbUnderline Boolean bState
+        Set SigCJProperty Set_Private_pbUnderline Set_ComUnderline (Private_hoFont(Self)) to bState
+    End_Procedure
+
+    Function pbUnderline Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbUnderline, Get_ComUnderline, Private_hoFont(Self)))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue="MS Sans Serif" }
+    Procedure Set psFontName String sName
+        Set SigCJProperty Set_Private_psFontName Set_ComName (Private_hoFont(Self)) to sName
+    End_Procedure
+
+    Function psFontName Returns String
+        Function_Return (SigCJProperty(Self, Get_Private_psFontName, Get_ComName, Private_hoFont(Self)))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=8.25 }
+    Procedure Set pnFontSize Number nSize
+        Set SigCJProperty Set_Private_pnFontSize Set_ComSize (Private_hoFont(Self)) to nSize
+    End_Procedure
+
+    Function pnFontSize Returns Number
+        Function_Return (SigCJProperty(Self, Get_Private_pnFontSize, Get_ComSize, Private_hoFont(Self)))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=OLExtpAppearanceStandard }
+    { EnumList="OLExtpAppearanceStandard, OLExtpAppearanceFlat, OLExtpAppearanceUltraFlat, OLExtpAppearanceOffice2000, OLExtpAppearanceOffice2000, OLExtpAppearanceOffice2003, OLExtpAppearanceResource" }
+    Procedure Set peAppearance Integer eAppearance
+        Set SigCJProperty Set_Private_peAppearance Set_ComAppearance to eAppearance
+    End_Procedure
+
+    Function peAppearance Returns Integer
+        Function_Return (SigCJProperty(Self, Get_Private_peAppearance, Get_ComAppearance ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" PropertyType=Color InitialValue=clBtnFace }
+    { EnumList= "cl3DDkShadow, cl3DLight, clActiveBorder, clActiveCaption, clAppWorkSpace, clBackground"    }
+    { EnumList+="clBtnFace, clBtnHighlight, clBtnShadow, clBtnText, clCaptionText, clGrayText, clHighlight" }
+    { EnumList+="clHighlightText, clInactiveBorder, clInactiveCaption, clInactiveCaptionText, clInfoBk"     }
+    { EnumList+="clInfoText, clMenu, clMenuText, clScrollBar, clWindow, clWindowFrame, clWindowText"        }
+    { EnumList+="clDefault, clNone, clAqua, clBlack, clBlue, clDkGray, clFuchsia, clGray, clGreen, clLime"  }
+    { EnumList+="clLtGray, clMaroon, clNavy, clOlive, clPurple, clRed, clSilver, clTeal, clWhite, clYellow" }
+    Procedure Set piBackColor OLE_Color iColor
+        Set SigCJProperty Set_Private_piBackColor Set_ComBackColor to iColor
+    End_Procedure
+
+    Function piBackColor Returns OLE_Color
+        Function_Return (SigCJProperty(Self, Get_Private_piBackColor, Get_ComBackColor ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=4 }
+    Procedure Set piBorderGap Integer iGap
+        Set SigCJProperty Set_Private_piBorderGap Set_ComBorderGap to iGap
+    End_Procedure
+
+    Function piBorderGap Returns Integer
+        Function_Return (SigCJProperty(Self, Get_Private_piBorderGap, Get_ComBorderGap ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=" " }
+    Procedure Set psCaption String sCaption
+        Set SigCJProperty Set_Private_psCaption Set_ComCaption to sCaption
+    End_Procedure
+
+    Function psCaption Returns String
+        Function_Return (SigCJProperty(Self, Get_Private_psCaption, Get_ComCaption ))
+    End_Function
+
+    //Support DAW standard property name - Label
+    { MethodType=Property Category="Label" InitialValue=" " }
+    Procedure Set Label String sCaption
+        Set psCaption To sCaption
+    End_Procedure
+
+    Function Label Returns String
+        Function_Return (psCaption(Self))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbChecked Boolean bState
+        Set SigCJProperty Set_Private_pbChecked Set_ComChecked to bState
+    End_Procedure
+
+    Function pbChecked Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbChecked, Get_ComChecked ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbDefault Boolean bState
+        Set SigCJProperty Set_Private_pbDefault Set_ComDefault to bState
+    End_Procedure
+
+    Function pbDefault Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbDefault, Get_ComDefault ))
+    End_Function
+
+    //Support DAW standard property name - Default_State
+    { MethodType=Property Category="Behavior" InitialValue=False }
+    Procedure Set Default_State Boolean bState
+        Set pbDefault to bState
+    End_Procedure
+
+    Function Default_State Returns Boolean
+        Function_Return (pbDefault(Self))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=True }
+    Procedure Set pbDrawFocusRect Boolean bState
+        Set SigCJProperty Set_Private_pbDrawFocusRect Set_ComDrawFocusRect to bState
+    End_Procedure
+
+    Function pbDrawFocusRect Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbDrawFocusRect, Get_ComDrawFocusRect ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=True }
+    Procedure Set pbEnabled Boolean bState
+        Set SigCJProperty Set_Private_pbEnabled Set_ComEnabled to bState
+    End_Procedure
+
+    Function pbEnabled Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbEnabled, Get_ComEnabled ))
+    End_Function
+
+    //Support DAW standard property name - Enabled_State
+    { MethodType=Property Category="Appearance" InitialValue=False }
+    Procedure Set Enabled_State Integer bState
+        Set pbEnabled to bState
+    End_Procedure
+
+    Function Enabled_State Returns Integer
+        Function_Return (pbEnabled(Self))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbEnableMarkup Boolean bState
+        Set SigCJProperty Set_Private_pbEnableMarkup Set_ComEnableMarkup to bState
+    End_Procedure
+
+    Function pbEnableMarkup Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbEnableMarkup, Get_ComEnableMarkup ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbFlatStyle Boolean bState
+        Set SigCJProperty Set_Private_pbFlatStyle Set_ComFlatStyle to bState
+    End_Procedure
+
+    Function pbFlatStyle Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbFlatStyle, Get_ComFlatStyle ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" PropertyType=Color InitialValue=clWindowText }
+    { EnumList= "cl3DDkShadow, cl3DLight, clActiveBorder, clActiveCaption, clAppWorkSpace, clBackground"    }
+    { EnumList+="clBtnFace, clBtnHighlight, clBtnShadow, clBtnText, clCaptionText, clGrayText, clHighlight" }
+    { EnumList+="clHighlightText, clInactiveBorder, clInactiveCaption, clInactiveCaptionText, clInfoBk"     }
+    { EnumList+="clInfoText, clMenu, clMenuText, clScrollBar, clWindow, clWindowFrame, clWindowText"        }
+    { EnumList+="clDefault, clNone, clAqua, clBlack, clBlue, clDkGray, clFuchsia, clGray, clGreen, clLime"  }
+    { EnumList+="clLtGray, clMaroon, clNavy, clOlive, clPurple, clRed, clSilver, clTeal, clWhite, clYellow" }
+    Procedure Set piForeColor Integer iColor
+        Set SigCJProperty Set_Private_piForeColor Set_ComForeColor to iColor
+    End_Procedure
+
+    Function piForeColor Returns Integer
+        Function_Return (SigCJProperty(Self, Get_Private_piForeColor, Get_ComForeColor ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=OLExtpAlignCenter }
+    { EnumList="OLExtpAlignLeft, OLExtpAlignRight, OLExtpAlignCenter, OLExtpAlignMiddle, OLExtpAlignTop, OLExtpAlignBottom" }
+    Procedure Set peImageAlignment Integer eAlign
+        Set SigCJProperty Set_Private_peImageAlignment Set_ComImageAlignment to eAlign
+    End_Procedure
+
+    Function peImageAlignment Returns Integer
+        Function_Return (SigCJProperty(Self, Get_Private_peImageAlignment, Get_ComImageAlignment ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=3 }
+    Procedure Set piImageGap Integer iGap
+        Set SigCJProperty Set_Private_piImageGap Set_ComImageGap to iGap
+    End_Procedure
+
+    Function piImageGap Returns Integer
+        Function_Return (SigCJProperty(Self, Get_Private_piImageGap, Get_ComImageGap ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbMultiLine Boolean bState
+        Set SigCJProperty Set_Private_pbMultiLine Set_ComMultiLine to bState
+    End_Procedure
+
+    Function pbMultiLine Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbMultiLine, Get_ComMultiLine ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=False }
+    Procedure Set pbRightToLeft Boolean bState
+        Set SigCJProperty Set_Private_pbRightToLeft Set_ComRightToLeft to bState
+    End_Procedure
+
+    Function pbRightToLeft Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbRightToLeft, Get_ComRightToLeft ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=OLExtpButtonNormal }
+    { EnumList="OLExtpButtonNormal, OLExtpButtonDropDown, OLExtpButtonDropDownRight, OLExtpButtonSplitDropDown" }
+    Procedure Set peStyle Integer eStyle
+        Set SigCJProperty Set_Private_peStyle Set_ComStyle to eStyle
+    End_Procedure
+
+    Function peStyle Returns Integer
+        Function_Return (SigCJProperty(Self, Get_Private_peStyle, Get_ComStyle ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=OLExtpAlignCenter }
+    { EnumList="OLExtpAlignLeft, OLExtpAlignRight, OLExtpAlignCenter, OLExtpAlignMiddle, OLExtpAlignTop, OLExtpAlignBottom" }
+    Procedure Set peTextAlignment Integer eAlign
+        Set SigCJProperty Set_Private_peTextAlignment Set_ComTextAlignment to eAlign
+    End_Procedure
+
+    Function peTextAlignment Returns Integer
+        Function_Return (SigCJProperty(Self, Get_Private_peTextAlignment, Get_ComTextAlignment ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=OLExtpImageBeforeText }
+    { EnumList="OLExtpOverlay, OLExtpImageAboveText, OLExtpTextAboveImage, OLExtpImageBeforeText, OLExtpTextBeforeImage" }
+    Procedure Set peTextImageRelation Integer ePosition
+        Set SigCJProperty Set_Private_peTextImageRelation Set_ComTextImageRelation to ePosition
+    End_Procedure
+
+    Function peTextImageRelation Returns Integer
+        Function_Return (SigCJProperty(Self, Get_Private_peTextImageRelation, Get_ComTextImageRelation ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue=True }
+    Procedure Set pbUseVisualStyle Boolean bState
+        Set SigCJProperty Set_Private_pbUseVisualStyle Set_ComUseVisualStyle to bState
+    End_Procedure
+
+    Function pbUseVisualStyle Returns Boolean
+        Function_Return (SigCJProperty(Self, Get_Private_pbUseVisualStyle, Get_ComUseVisualStyle ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue="" }
+    Procedure Set psToolTip String sTooltip
+        Set SigCJProperty Set_Private_psTooltip Set_ComControlToolTip to sTooltip
+    End_Procedure
+
+    Function psTooltip Returns String
+        Function_Return (SigCJProperty(Self, Get_Private_psTooltip, Get_ComControlToolTip ))
+    End_Function
+
+    //-------------------------------------------------------------------------
+
+    { MethodType=Property Category="CodeJock" InitialValue="" }
+    Procedure Set psImage String sImage
+        Integer iImageId
+        Variant vImage
+
+        Set Private_psImage to sImage
+
+        If (IsComObjectCreated(Self)) Begin
+            Get AddImage    of ghoSigCjGlobalSetting sImage 0 OLExtpImageNormal to iImageId
+            Get ImageFromId of ghoSigCjGlobalSetting iImageId to vImage
+
+            Set ComIcon to vImage
+        End
+    End_Procedure
+
+    Function psImage Returns String
+        Function_Return (Private_psImage(Self))
+    End_Function
+
+    //=========================================================================
+
+    //Some ActiveX controls do not honour the Visible_State message event though
+    //they're in the parent class (this is one). So we need to use the low
+    //level windows message ShowWindow to hide/Show the button.  We also need
+    //to change the focus mode so the button can't take the focus via keyboard
+    //navigation when invisible.
+
+    { MethodType=Property Category=Codejock InitialValue=True }
+    Procedure Set pbVisible Boolean bVisible
+        Integer iVoid
+
+        If (bVisible) Set Focus_Mode to Focusable
+        Else          Set Focus_Mode to NonFocusable
+
+        If (IsComObjectCreated(Self)) Move (ShowWindow(ComHWnd(Self),bVisible)) to iVoid
+        Set Private_pbVisible to bVisible
+    End_Procedure
+
+    Function pbVisible Returns Boolean
+        Function_Return (Private_pbVisible(Self))
+    End_Function
+
+    //Support DAW standard property name - Enabled_State
+    { MethodType=Property Category="Appearance" InitialValue=True }
+    Procedure Set Visible_State Integer bState
+        Set pbVisible to bState
+    End_Procedure
+
+    Function Visible_State Returns Integer
+        Function_Return (pbVisible(Self))
+    End_Function
+
+    //=========================================================================
+    //Shadow Mixin support
+
+    Procedure Set Item_Shadow_State Integer iItem Integer iState
+        Set pbEnabled to (not(iState))
+    End_Procedure
+
+    Function Item_Shadow_State Integer iItem Returns Integer
+        Function_Return (not(pbEnabled(Self)))
+    End_Function
+
+    Procedure Set Enabled_State Integer bState
+        Set Object_Shadow_State to (not(bState))
+    End_Procedure
+
+    Function Enabled_State Returns Integer
+        Function_Return (not(Object_Shadow_State(Self)))
+    End_Function
+
+    //=========================================================================
+    //Keyboard methods / events
+
+    //Handle Enter Key (OnKey message in Construct_Object)
+    Procedure KeyAction
+        If (pbVisible(Self) and pbEnabled(Self)) Send OnClick
+    End_Procedure
+
+    //Disable KeyPress as the only key the button should respond to is Enter and
+    //this is handled by the OnKey message
+
+    //Procedure OnComKeyPress Short ByRef llKeyAscii
+    //    Send OnKeyPress llKeyAscii
+    //End_Procedure
+
+    //=========================================================================
+    //Mouse methods / events
+
+    //-------------------------------------------------------------------------
+    //Mouse click - OnComClick is unreliable so we handle the mouse click via
+    //              Mouse Down
+
+    Procedure OnClick
+        //Hook
+    End_Procedure
+
+    Procedure MouseDown Integer iButton Integer iShift Integer iX Integer iY
+        //Hook
+    End_Procedure
+
+    Procedure MouseUp Integer iButton Integer iShift Integer iX Integer iY
+        Handle hoFoc
+
+        Get phoReturn_Focus to hoFoc
+        If (Focus(Self) = Self and pbPointer_Only(Self) and hoFoc <> Self) Begin
+            //Return focus to previous control
+            Send Activate of hoFoc
+        End
+    End_Procedure
+
+    Procedure OnComMouseDown Short iButton Short iShift OLE_XPOS_PIXELS iX OLE_YPOS_PIXELS iY
+        Send MouseDown iButton iShift iX iY
+    End_Procedure
+
+    Procedure OnComMouseUp Short iButton Short iShift OLE_XPOS_PIXELS iX OLE_YPOS_PIXELS iY
+        Send OnClick
+        Send MouseUp iButton iShift iX iY
+    End_Procedure
+
+    //-------------------------------------------------------------------------
+    //Mouse move - Not tracking
+
+    Procedure MouseMove Integer iButton Integer iShift Integer iX Integer iY
+        If (pbEnableHotTrack(Self) and pbEnabled(Self)) Begin
+            If (iX = -1 and iY = -1) Set ComForeColor to (Private_piForeColor(Self))
+            Else Set ComForeColor to (piHotTrackColor(Self))
+        End
+    End_Procedure
+
+    Procedure OnComMouseMove Short iButton Short iShift OLE_XPOS_PIXELS iX OLE_YPOS_PIXELS iY
+        Send MouseMove iButton iShift iX iY
+    End_Procedure
+
+    //=========================================================================
+
+    Procedure OnComDropDown
+        Integer iLoc iSize
+
+        If (not(Private_pbInDropDown(Self)) and (phoDropDownMenu(Self) <> 0)) Begin
+            Set Private_pbInDropDown to True
+            Get Absolute_GuiOrigin to iLoc
+            Get GuiSize to iSize
+
+            Send DropDown of (phoDropDownMenu(Self)) (((Hi(iLoc) + Hi(iSize)) * 65536) + Low(iLoc)) (Low(iSize))
+            Set Private_pbInDropDown to False
+        End
+    End_Procedure
+
+End_Class
+
+//==============================================================================
+//End of package - cSigCJPushButton.pkg
+//==============================================================================

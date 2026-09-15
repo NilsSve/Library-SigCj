@@ -1,0 +1,116 @@
+//DDB-FileStart
+//DDB-HeaderStart
+
+// File Name : Sysfile1.DD
+// Class Name: Sysfile1_DataDictionary
+// Revision  : 5
+// Version   : 2
+
+Use  Windows           // Basic Definitions
+Use  DataDict.pkg          // DataDictionary Class Definition
+Use  DDvalTbl          // Validation Table Class Definitions
+
+Open Sysfile1
+
+//DDB-HeaderEnd
+//DDB-ValidationStart
+
+Register_Object Sysfile1_Country_VT
+
+Object Sysfile1_Country_VT  is a DescriptionValidationTable
+
+    Procedure Fill_List
+        Forward Send Fill_List
+        Send Add_Table_Value  "DK"  "Denmark"
+        Send Add_Table_Value  "NL"  "Netherlands"
+        Send Add_Table_Value  "GB"  "United Kingdom"
+        Send Add_Table_Value  "US"  "U.S.A."
+        Send Add_Table_Value  "HR"  "Croatia"
+    End_Procedure    // Fill_List
+    //DDB-ValidationCustomStart
+    //DDB-ValidationCustomEnd
+End_Object   // Sysfile1_Country_VT
+//DDB-ValidationEnd
+
+Class Sysfile1_DataDictionary  is a DataDictionary
+
+    // Define_Fields:
+    // This procedure is used to set up all data-dictionary rules.
+
+    Procedure Define_Fields
+        Forward Send Define_Fields
+        //DDB-Generated-Code-Location
+        //DDB-DefineFieldStart
+
+        Set Main_File            To Sysfile1.File_Number
+
+        Set Foreign_Field_Options  DD_KEYFIELD   To DD_AUTOFIND    DD_NOPUT       DD_FINDREQ    
+        Set Foreign_Field_Options  DD_INDEXFIELD To DD_NOPUT       DD_FINDREQ    
+        Set Foreign_Field_Options  DD_DEFAULT    To DD_DISPLAYONLY
+        Set Validate_Delete_Structure_Mode       To DD_VALIDATE_STRUCTURE_ALWAYS
+        Set Validate_Save_Structure_Mode         To DD_VALIDATE_STRUCTURE_ALWAYS
+
+        // Field-based properties.......................
+
+        // Sysfile1.Organisation
+        Set Field_Label_Long       Field Sysfile1.Organisation to "Name"
+        Set Status_Help            Field Sysfile1.Organisation to "Company Name"
+
+        // Sysfile1.Address1
+        Set Field_Label_Long       Field Sysfile1.Address1 to "Address Line 1"
+        Set Status_Help            Field Sysfile1.Address1 to "Address details"
+        
+        // Sysfile1.Address2
+        Set Field_Label_Long       Field Sysfile1.Address2 to "Address Line 2"
+        Set Status_Help            Field Sysfile1.Address2 to "Address details"
+        
+        // Sysfile1.Address3
+        Set Field_Label_Long       Field Sysfile1.Address3 to "Address Line 3"
+        Set Status_Help            Field Sysfile1.Address3 to "Address details"
+        
+        // Sysfile1.Address4
+        Set Field_Label_Long       Field Sysfile1.Address4 to "Address Line 4"
+        Set Status_Help            Field Sysfile1.Address4 to "Address details"
+        
+        // Sysfile1.Postcode
+        Set Field_Label_Long       Field Sysfile1.Postcode To "Postcode"
+        Set Field_Options          Field Sysfile1.Postcode To DD_CAPSLOCK   
+
+        // Sysfile1.Telephone_No
+        Set Field_Label_Long       Field Sysfile1.Telephone_No to "Main Telephone"
+        Set Status_Help            Field Sysfile1.Telephone_No to "Main telephone number"
+
+        // Sysfile1.System_Date
+        Set Field_Label_Long       Field Sysfile1.System_Date To "System Date"
+
+        // Sysfile1.Country
+        Set Field_Label_Long       Field Sysfile1.Country To "Country"
+        Set Field_Options          Field Sysfile1.Country To DD_CAPSLOCK   
+        Set Field_Value_Table      Field Sysfile1.Country To (Sysfile1_Country_VT(Self))
+
+        // Sysfile1.Amend_Date
+        Set Field_Checkbox_Values  Field Sysfile1.Amend_Date To "Y"  "N"
+        Set Field_Options          Field Sysfile1.Amend_Date To DD_CAPSLOCK   
+
+        // Sysfile1.Counter1
+
+        // Sysfile1.Counter2
+
+        // Sysfile1.Default_Price
+
+        //DDB-DefineFieldEnd
+    End_Procedure    // Define_Fields
+
+    // Field_Defaults:
+    // This procedure is used to establish default field values.
+
+    Procedure Field_Defaults
+        Forward Send Field_Defaults
+        //DDB-Generated-Code-Location
+        //DDB-FieldDefaultStart
+        Set Field_Changed_Value   Field Sysfile1.Amend_Date To "N"
+        //DDB-FieldDefaultEnd
+    End_Procedure    // Field_Defaults
+
+End_Class    // Sysfile1_DataDictionary
+//DDB-FileEnd

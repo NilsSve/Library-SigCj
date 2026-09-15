@@ -1,0 +1,8 @@
+#REPLACE FILE56 c_spDate
+#REPLACE c_spDate.Recnum |FN56,0
+#REPLACE c_spDate.Date_From |FD56,1
+#REPLACE c_spDate.Date_To |FD56,2
+#REPLACE c_spDate.Description |FS56,3
+#REPLACE c_spDate.BackColor |FN56,4
+#REPLACE c_spDate.ShadeStyle |FN56,5
+#REPLACE c_spDate.AllowEvents |FN56,6

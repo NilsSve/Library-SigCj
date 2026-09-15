@@ -1,0 +1,378 @@
+//==============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCJMonthCalendar.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev$
+//                $Date$
+//                $Author$ Martin Pincott
+// 
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//                dev@vdfsig.co.uk
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License 
+//                as published by the Free Software Foundation, either version 
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but 
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the  
+//                GNU Lesser General Public License is in the Docs folder. If  
+//                not, see <http://www.gnu.org/licenses/>.
+//    
+//==============================================================================
+
+Use SigCjW_Controls.pkg
+Use cSigCJMethods_Mixin.pkg
+
+Enum_List
+    Define eMC_Tuesday      for 1
+    Define eMC_Wednesday
+    Define eMC_Thursday 
+    Define eMC_Friday
+    Define eMC_Saturday
+    Define eMC_Sunday
+    Define eMC_Monday
+End_Enum_List
+
+{DocStart = Class}
+//---------------------------------------------------
+//
+// Class        : cSigCJMonthCalendar
+//
+// Superclass   : cSigCjComMonthCalendar 
+//
+// Package      : cSigCJMonthCalendar.pkg
+//
+// Mixins       : None
+//
+// Description  : The MonthCalendar control enables you to create applications that let users 
+//                view and Set Date information via a calendar-like interface. 
+//
+// Properties   : pbAutoSize        (Boolean)        
+//                piDay             (Integer)
+//                pbEnabled         (Boolean)
+//                pdMaxDate         (Date)
+//                piMaxSelCount     (Integer)
+//                pdMinDate         (Date)
+//                piMonth           (Integer)
+//                piMonthColumns    (Integer)
+//                piMonthRows       (Integer)
+//                pbMultiSelect     (Boolean)
+//                pdSelEnd          (Date)
+//                pdSelStart        (Date)
+//                pbShowToday       (Boolean)
+//                pbShowWeekNumbers (Boolean)
+//                piStartOfWeek     (Integer)
+//                piYear            (Integer)
+//                pdValue           (Date)                     
+//
+// Events       : OnComSelChange    (DateTime llStartDate DateTime llEndDate Boolean ByRef llCancel)
+//                OnComMouseDown    (Short llButton Short llShift OLE_XPOS_PIXELS llx OLE_YPOS_PIXELS lly)
+//                OnComMouseMove    (Short llButton Short llShift OLE_XPOS_PIXELS llx OLE_YPOS_PIXELS lly)
+//                OnComMouseUp      (Short llButton Short llShift OLE_XPOS_PIXELS llx OLE_YPOS_PIXELS lly)
+//                OnComDblClick
+//                OnComClick 
+//                OnSetSize
+//
+// Methods      : 
+//                
+// Notes        :
+//
+// To Do        :         
+//               
+//---------------------------------------------------
+{DocEnd} 
+
+Register_Object oSkin 
+Class cSigCJMonthCalendar is a cSigCjComMonthCalendar
+    Import_Class_Protocol cSigCJMethods_Mixin
+    
+    Procedure Construct_Object
+        Handle hoWnd
+        Forward Send Construct_Object
+
+        // Define new Properties:
+        { DesignTime = False }
+        Property Boolean Private.pbAutoSize         True   
+        { DesignTime = False }
+        Property Integer Private.piDay
+        { DesignTime = False }
+        Property Boolean Private.pbEnabled          True
+        { DesignTime = False }
+        Property Date    Private.pdMaxDate          "01/01/2050"
+        { DesignTime = False }
+        Property Integer Private.piMaxSelCount      7
+        { DesignTime = False }
+        Property Date    Private.pdMinDate          "01/01/1899"
+        { DesignTime = False }
+        Property Integer Private.piMonth
+        { DesignTime = False }
+        Property Integer Private.piMonthColumns     1
+        { DesignTime = False }  
+        Property Integer Private.piMonthRows        1
+        { DesignTime = False }
+        Property Boolean Private.pbMultiSelect      False
+        { DesignTime = False }
+        Property Date    Private.pdSelEnd
+        { DesignTime = False }
+        Property Date    Private.pdSelStart
+        { DesignTime = False }
+        Property Boolean Private.pbShowToday        True
+        { DesignTime = False }
+        Property Boolean Private.pbShowWeekNumbers  True
+        { DesignTime = False }
+        Property Integer Private.piStartOfWeek      eMC_Monday
+        { DesignTime = False }
+        Property Date    Private.pdValue
+        { DesignTime = False }
+        Property Integer Private.piYear
+        
+//        Get Window_Handle to hoWnd
+//        
+//        Send ComRemoveWindow of oSkin hoWnd
+        
+    End_Procedure
+
+    // Create and augment procedures and functions
+
+    { Category="CodeJock" MethodType=Property }
+    { PropertyType=Boolean InitialValue=True }
+    Procedure Set pbAutoSize Boolean bState
+        Set SigCJProperty Set_Private.pbAutoSize Set_ComAutoSize to bState
+    End_Procedure
+    
+    { Category="CodeJock" MethodType=Property }
+    Function pbAutoSize Returns Boolean
+        Function_Return (Private.pbAutoSize(Self))
+    End_Function
+
+    { Category="CodeJock" MethodType=Property }
+    Procedure Set piDay Integer iDay
+        Set SigCJProperty Set_Private.piDay Set_ComDay to iDay
+    End_Procedure
+
+    { Category="CodeJock" MethodType=Property }
+    Function piDay Returns Integer
+        Function_Return (Private.piDay(Self))
+    End_Function
+
+    { Category="CodeJock" MethodType=Property }
+    { PropertyType=Boolean InitialValue=True }
+    Procedure Set pbEnabled Boolean bState
+        Set SigCJProperty Set_Private.pbEnabled Set_ComEnabled to bState 
+    End_Procedure
+    
+    { Category="CodeJock" MethodType=Property }
+    Function pbEnabled Returns Boolean
+        Function_Return (Private.pbEnabled(Self))
+    End_Function    
+
+    { Category="CodeJock" MethodType=Property }
+    { InitialValue = "01/01/2050" }
+    Procedure Set pdMaxDate Date dDate
+        Set SigCJProperty Set_Private.pdMaxDate Set_ComMaxDate to dDate 
+    End_Procedure
+
+    { Category="CodeJock" MethodType=Property }
+    Function pdMaxDate Returns Date
+        Function_Return (Private.pdMaxDate(Self))
+    End_Function
+
+    { Category="CodeJock" MethodType=Property }
+    { InitialValue = 7 }
+    Procedure Set piMaxSelCount Integer iMaxSelCount
+        Set SigCJProperty Set_Private.piMaxSelCount Set_ComMaxSelCount to iMaxSelCount 
+    End_Procedure
+    
+    { Category="CodeJock" MethodType=Property }
+    Function piMaxSelCount Returns Integer
+        Function_Return (Private.piMaxSelCount(Self))
+    End_Function
+
+    { Category="CodeJock" MethodType=Property }
+    { InitialValue = "01/01/1899" }
+    Procedure Set pdMinDate Date dDate
+        Set SigCJProperty Set_Private.pdMinDate Set_ComMinDate to dDate
+    End_Procedure
+
+    { Category="CodeJock" MethodType=Property }
+    Function pdMinDate Returns Date
+        Function_Return (Private.pdMinDate(Self))
+    End_Function    
+
+    { Category="CodeJock" MethodType=Property }
+    Procedure Set piMonth Integer iMonth
+        Set SigCJProperty Set_Private.piMonth Set_ComMonth to iMonth
+    End_Procedure
+
+    { Category="CodeJock" MethodType=Property }
+    Function piMonth Returns Integer
+        Function_Return (Private.piMonth(Self))
+    End_Function
+
+    { Category="CodeJock" MethodType=Property }
+    Procedure Set piMonthColumns Integer iMonthCols
+        Set SigCJProperty Set_Private.piMonthColumns Set_ComMonthColumns to iMonthCols
+    End_Procedure
+
+    { Category="CodeJock" MethodType=Property }
+    Function piMonthColumns Returns Integer
+        Function_Return (Private.piMonthColumns(Self))
+    End_Function
+    
+    { Category="CodeJock" MethodType=Property }
+    Procedure Set piMonthRows Integer iMonthRows
+        Set SigCJProperty Set_Private.piMonthRows Set_ComMonthRows to iMonthRows
+    End_Procedure
+
+    { Category="CodeJock" MethodType=Property }
+    Function piMonthRows Returns Integer
+        Function_Return (Private.piMonthRows(Self))
+    End_Function    
+
+    { Category="CodeJock" MethodType=Property }
+    { PropertyType=Boolean InitialValue=False }
+    Procedure Set pbMultiSelect Boolean bState
+        Set SigCJProperty Set_Private.pbMultiSelect Set_ComMultiSelect to bState
+    End_Procedure
+    
+    { Category="CodeJock" MethodType=Property }
+    Function pbMultiSelect Returns Boolean
+        Function_Return (Private.pbMultiSelect(Self))
+    End_Function
+
+    { Category="CodeJock" MethodType=Property }
+    Procedure Set pdSelEnd Date dDate
+        Set SigCJProperty Set_Private.pdSelEnd Set_ComSelEnd to dDate
+    End_Procedure
+
+    { Category="CodeJock" MethodType=Property }
+    Function pdSelEnd Returns Date
+        Function_Return (Private.pdSelEnd(Self))
+    End_Function
+    
+    { Category="CodeJock" MethodType=Property }
+    Procedure Set pdSelStart Date dDate
+        Set SigCJProperty Set_Private.pdSelStart Set_ComSelStart to dDate
+    End_Procedure
+
+    { Category="CodeJock" MethodType=Property }
+    Function pdSelStart Returns Date
+        Function_Return (Private.pdSelStart(Self))
+    End_Function
+    
+    { Category="CodeJock" MethodType=Property }
+    { PropertyType=Boolean InitialValue=True }
+    Procedure Set pbShowToday Boolean bState
+        Set SigCJProperty Set_Private.pbShowToday Set_ComShowToday to bState 
+    End_Procedure
+    
+    { Category="CodeJock" MethodType=Property }
+    Function pbShowToday Returns Boolean
+        Function_Return (Private.pbShowToday(Self))
+    End_Function
+    
+    { Category="CodeJock" MethodType=Property }
+    { PropertyType=Boolean InitialValue=True }
+    Procedure Set pbShowWeekNumbers Boolean bState
+        Set SigCJProperty Set_Private.pbShowWeekNumbers Set_ComShowWeekNumbers to bState 
+    End_Procedure
+    
+    { Category="CodeJock" MethodType=Property }
+    Function pbShowWeekNumbers Returns Boolean
+        Function_Return (Private.pbShowWeekNumbers(Self))
+    End_Function    
+
+    { Category="CodeJock" MethodType=Property }
+    { EnumList = "eMC_Sunday, eMC_Monday, eMC_Tuesday, eMC_Wednesday, eMC_Thursday, eMC_Friday, eMC_Saturday" }
+    { InitialValue = eMC_Monday }
+    Procedure Set piStartOfWeek Integer iStart
+        Set SigCJProperty Set_Private.piStartOfWeek Set_ComStartOfWeek to iStart
+    End_Procedure
+
+    { Category="CodeJock" MethodType=Property }
+    Function piStartOfWeek Returns Integer
+        Function_Return (Private.piStartOfWeek(Self))
+    End_Function        
+    
+    { Category="CodeJock" MethodType=Property }
+    Procedure Set pdValue Date dDate
+        Set SigCJProperty Set_Private.pdValue Set_ComValue to dDate
+    End_Procedure
+
+    { Category="CodeJock" MethodType=Property }
+    Function pdValue Returns Date
+        Function_Return (Private.pdValue(Self))
+    End_Function
+
+    { Category="CodeJock" MethodType=Property }
+    Procedure Set piYear Integer iYear
+        Set SigCJProperty Set_Private.piYear Set_ComYear to iYear
+    End_Procedure
+
+    { Category="CodeJock" MethodType=Property }
+    Function piYear Returns Integer
+        Function_Return (Private.piYear(Self))
+    End_Function       
+
+    {DocStart = Method}
+    //---------------------------------------------------
+    //
+    // Procedure    : OnSetSize
+    //
+    // Scope        : Public Event
+    //
+    // Paramaters   : None
+    //
+    // Returns      : None
+    //
+    // Purpose      : Calendar Control may be being used in a dialog and you may wish to resize the dialog to match the 
+    //                size of the calendar
+    //                
+    // Notes        :  
+    //                          
+    //---------------------------------------------------
+    {DocEnd}
+        
+    { MethodType=Event }
+    Procedure OnSetSize Integer iHeight Integer iWidth
+    End_Procedure
+
+    Procedure OnCreate
+        Set pbAutoSize        to (Private.pbAutoSize(Self))
+        Set piDay             to (Private.piDay(Self))
+        Set pbEnabled         to (Private.pbEnabled(Self))
+        Set pdMaxDate         to (Private.pdMaxDate(Self))
+        Set piMaxSelCount     to (Private.piMaxSelCount(Self))
+        Set pdMinDate         to (Private.pdMinDate(Self))
+        Set piMonth           to (Private.piMonth(Self))
+        Set piMonthColumns    to (Private.piMonthColumns(Self))
+        Set piMonthRows       to (Private.piMonthRows(Self))
+        Set pbMultiSelect     to (Private.pbMultiSelect(Self))
+        Set pdSelEnd          to (Private.pdSelEnd(Self))
+        Set pdSelStart        to (Private.pdSelStart(Self))
+        Set pbShowToday       to (Private.pbShowToday(Self))
+        Set pbShowWeekNumbers to (Private.pbShowWeekNumbers(Self))
+        Set piStartOfWeek     to (Private.piStartOfWeek(Self))
+        Set piYear            to (Private.piYear(Self))
+        Set pdValue           to (Private.pdValue(Self))
+        
+        Send OnSetSize (Hi(GuiSize(Self))) (Low(GuiSize(Self)))
+    End_Procedure
+End_Class
+
+//==============================================================================
+//End of Package - cSigCJMonthCalendar.pkg
+//==============================================================================

@@ -1,0 +1,167 @@
+//=============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : SigCjCalendar_DB_Link.dg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev: $
+//                $Date: $
+//                $Author: $
+//
+// Requirements : Visual DataFlex 14.1+
+//                Codejock SuitePro - Version 13.4.0+
+//
+// Copyright    : Copyright © 2009-2012 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//=============================================================================
+Use Windows.pkg
+Use cSigCjCalendar_Public.pkg
+
+Object oSigCjCalendar_DB_Link_Panel is a ModalPanel
+    Set Size to 77 177
+    Set Label to "DB Link"
+    Set piMinSize to 77 177
+    Set Location to 2 2
+    Set Border_Style To Border_Thick
+
+    Property tdSigCjCal_Dialog_DB_Link ptDialog_DB_Link
+
+    Object oCheckBox1 is a CheckBox
+        Set Auto_Size_State to False
+        Set Size to 10 64
+        Set Location to 7 11
+        Set Label to 'Enable DB_Link'
+        Set AlignmentMode to taLeftJustify
+
+        Procedure OnChange
+            tdSigCjCal_Dialog_DB_Link tDialog_DB_Link
+            
+            Get ptDialog_DB_Link to tDialog_DB_Link
+                Get Checked_State to tDialog_DB_Link.tDB_Link.bDB_Link
+            Set ptDialog_DB_Link to tDialog_DB_Link
+        End_Procedure
+
+        Procedure Activating
+            tdSigCjCal_Dialog_DB_Link tDialog_DB_Link
+            
+            Forward Send Activating
+            
+            Get ptDialog_DB_Link to tDialog_DB_Link
+            Set Checked_State to tDialog_DB_Link.tDB_Link.bDB_Link
+        End_Procedure
+    End_Object
+
+    Object oForm1 is a Form
+        Set Size to 13 100
+        Set Location to 20 66
+        Set Label to "Table"
+        Set Label_Col_Offset to 2
+        Set Label_Justification_Mode to JMode_Right
+    
+        Procedure OnChange
+            tdSigCjCal_Dialog_DB_Link tDialog_DB_Link
+            
+            Get ptDialog_DB_Link to tDialog_DB_Link
+                Get Value to tDialog_DB_Link.tDB_Link.sTable
+            Set ptDialog_DB_Link to tDialog_DB_Link
+        End_Procedure
+
+        Procedure Activating
+            tdSigCjCal_Dialog_DB_Link tDialog_DB_Link
+            
+            Forward Send Activating
+            
+            Get ptDialog_DB_Link to tDialog_DB_Link
+            Set Value to tDialog_DB_Link.tDB_Link.sTable
+        End_Procedure
+    End_Object
+
+    Object oForm2 is a Form
+        Set Size to 13 100
+        Set Location to 35 66
+        Set Label to "Key"
+        Set Label_Col_Offset to 2
+        Set Label_Justification_Mode to JMode_Right
+    
+        Procedure OnChange
+            tdSigCjCal_Dialog_DB_Link tDialog_DB_Link
+            
+            Get ptDialog_DB_Link to tDialog_DB_Link
+                Get Value to tDialog_DB_Link.tDB_Link.sKey
+            Set ptDialog_DB_Link to tDialog_DB_Link
+        End_Procedure
+
+        Procedure Activating
+            tdSigCjCal_Dialog_DB_Link tDialog_DB_Link
+            
+            Forward Send Activating
+            
+            Get ptDialog_DB_Link to tDialog_DB_Link
+            Set Value to tDialog_DB_Link.tDB_Link.sKey
+        End_Procedure
+    End_Object
+
+    Object oOK_Btn is a Button
+        Set Label    to "&OK"
+        Set Location to 59 68
+        Set peAnchors To anBottomRight
+
+        Procedure OnClick
+            tdSigCjCal_Dialog_DB_Link tDialog_DB_Link
+            
+            Get ptDialog_DB_Link to tDialog_DB_Link
+                Move eCal_Dialog_Action_Edit to tDialog_DB_Link.eAction
+            Set ptDialog_DB_Link to tDialog_DB_Link
+
+            Send Close_Panel
+        End_Procedure
+
+    End_Object
+
+    Object oCancel_Btn is a Button
+        Set Label    to "&Cancel"
+        Set Location to 59 123
+        Set peAnchors to anBottomRight
+
+        Procedure OnClick
+            tdSigCjCal_Dialog_DB_Link tDialog_DB_Link
+            
+            Get ptDialog_DB_Link to tDialog_DB_Link
+                Move eCal_Dialog_Action_None to tDialog_DB_Link.eAction
+            Set ptDialog_DB_Link to tDialog_DB_Link
+
+            Send Close_Panel
+        End_Procedure
+
+    End_Object
+
+    On_Key Key_Alt+Key_O Send KeyAction of oOK_Btn
+    On_Key Key_Alt+Key_C Send KeyAction of oCancel_Btn
+
+    Function Show_Dialog tdSigCjCal_Dialog_DB_Link tDialog_DB_Link Returns tdSigCjCal_Dialog_DB_Link
+        Set ptDialog_DB_Link of oSigCjCalendar_DB_Link_Panel to tDialog_DB_Link
+        Send Popup           of oSigCjCalendar_DB_Link_Panel
+        Get ptDialog_DB_Link of oSigCjCalendar_DB_Link_Panel to tDialog_DB_Link
+         
+        Function_Return tDialog_DB_Link   
+    End_Function
+
+End_Object
+

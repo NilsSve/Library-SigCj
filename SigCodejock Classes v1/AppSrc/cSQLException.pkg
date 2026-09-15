@@ -1,0 +1,153 @@
+//*************************************************************************
+//*                                                                       *
+//*  Confidential Trade Secret.                                           *
+//*  Copyright (c) 1997-2001 Mertech Data System, Miami Florida,          *
+//*  All rights reserved.                                                 *
+//*  DataFlex is a registered trademark of Data Access Corporation.       *
+//*                                                                       *
+//************************************************************************/
+
+#REM -----------------------------------------------
+#REM Mertech Data Systems Inc. - www.mertechdata.com
+#REM cSQLException.pkg Version 1.0.2
+#REM -----------------------------------------------
+
+Use VdfBase.pkg
+
+//================================================================================================
+//
+// 08-27-2001 WvA Object instantion is moved to be local to the cSQLResultSet class.
+//------------------------------------------------------------------------------------------------
+//
+Enum_List
+    Define SQLX_COLUMN_NOT_FOUND                For 25100
+    Define SQLX_QUERY_NOT_SUCCESFULL
+    Define SQLX_FETCHING_COLUMN
+    Define SQLX_COLUMN_UNKNOWN
+    Define SQLX_INSUFFICIENT_MEMORY_FOR_NEW_ROW
+    Define SQLX_CANNOT_PARSE_EMPTY_COLUMNNAME
+    Define SQLX_NO_METADATA_OBJ
+    Define SQLX_COLUMN_NOT_IN_TABLE
+    Define SQLX_COLUMN_MISSING
+    Define SQLX_TABLENAME_MISSING
+    Define SQLX_NO_TABLES_OBJ
+    Define SQLX_CANNOT_PARSE_NO_TABLE
+    Define SQLX_CANNOT_PARSE_NO_FROM
+    Define SQLX_CANNOT_PARSE_EMPTY_QUERY
+    Define SQLX_ENTRY_NOT_IN_FILELIST
+    Define SQLX_HINT_ENDMARK_MISSING
+    Define SQLX_NO_STATEMENT_OBJ
+    Define SQLX_NOT_A_VALID_INTFILE
+End_Enum_List
+
+
+// Base class to support errorhandling in the SQL class.
+Class cSQLException Is A BaseClass
+  Procedure Construct_Object
+    Forward Send Construct_Object
+    Property Integer piSQLException       Public 0
+    Property String  psSQLException       Public ""
+    Property Integer pbReportErrorState   Public True
+    Property Integer pbReportErrorMode    Public False  // true = error is fatal
+    Property Integer piErrorCount         Public 0
+    Property Integer piLastException      Public 0
+
+  End_Procedure // Construct_Object
+
+  // Hook procedure
+  Procedure OnError String sErrorMsg
+  End_Procedure // OnError
+
+
+
+  Procedure SQLException
+    Local Integer iError iCount
+    Local String  sMsg sMsgData
+    //SQL_ERROR_MESSAGE sErrorMsg
+    If (pbReportErrorState(Self) Eq True) Begin
+      Get piSQLException To iError
+      Get psSQLException To sMsgData
+      Case Begin
+        Case (iError = SQLX_COLUMN_NOT_FOUND)
+          Move "Referenced column not found." To sMsg
+          Case Break
+        Case (iError = SQLX_QUERY_NOT_SUCCESFULL)
+          Move "Query not succesfull, transaction rolled back." To sMsg
+          Case Break
+        Case (iError = SQLX_FETCHING_COLUMN)
+          Move "Fetching column not succesfull." To sMsg
+          Case Break
+        Case (iError = SQLX_COLUMN_UNKNOWN)
+          Move "Referenced column is unknown to this Resultset." To sMsg
+          Case Break
+        Case (iError = SQLX_INSUFFICIENT_MEMORY_FOR_NEW_ROW)
+          Move "Not enough free memory to add a new row to the Resultset." To sMsg
+          Case Break
+        Case (iError = SQLX_CANNOT_PARSE_EMPTY_COLUMNNAME)
+          Move "Unable to add an empty columnname to the parser." To sMsg
+          Case Break
+        Case (iError = SQLX_NO_METADATA_OBJ)
+          Move "The metadata object does not exist" To sMsg
+          Case Break
+        Case (iError = SQLX_COLUMN_NOT_IN_TABLE)
+          Move "Attempt to add a columnname not referenced to a table" To sMsg
+          Case Break
+        Case (iError = SQLX_COLUMN_MISSING)
+          Move "Attempt to add a columnname without referencing a specific column" To sMsg
+          Case Break
+        Case (iError = SQLX_TABLENAME_MISSING)
+          Move "Attempt to add a table that has no name" To sMsg
+          Case Break
+        Case (iError = SQLX_NO_TABLES_OBJ)
+          Move "Tables object does not exist" To sMsg
+          Case Break
+        Case (iError = SQLX_CANNOT_PARSE_NO_TABLE)
+          Move "No tables specified in the select statement, unable to parse" To sMsg
+          Case Break
+        Case (iError = SQLX_CANNOT_PARSE_NO_FROM)
+          Move "No 'FROM' part found in the select statement, unable to parse" To sMsg
+          Case Break
+        Case (iError = SQLX_CANNOT_PARSE_EMPTY_QUERY)
+          Move "Cannot parse an empty query." To sMsg
+          Case Break
+        Case (iError = SQLX_ENTRY_NOT_IN_FILELIST)
+          Move "Entry not in filelist." To sMsg
+          Case Break
+        Case (iError = SQLX_HINT_ENDMARK_MISSING)
+          Move "The endmark is missing in the hints." To sMsg
+          Case Break
+        Case (iError = SQLX_NO_STATEMENT_OBJ)
+          Move "The statement object does not exist." To sMsg
+          Case Break
+        Case (iError = SQLX_NOT_A_VALID_INTFILE)
+          Move "Cannot bind a DataFlex file to a non mertech driver, not a valid intfile." To sMsg
+          Case Break
+
+        Case Else Move "An unknown error occured." To sMsg
+      Case End
+      If (sMsgData <> "") Begin
+        Move (sMsg+"\n"+sMsgData) To sMsg
+      End
+      Send Stop_Box sMsg ("SQL Exception Error"*trim(iError))
+      Set piLastException To iError
+      Set piSQLException  To 0
+      Set psSQLException  To ""
+    End
+    Get piErrorCount To iCount
+    Increment iCount
+    Set piErrorCount To iCount
+    Send OnError sMsg
+    If (pbReportErrorMode(Self) = True) Abort
+  End_Procedure // SQLException
+
+
+
+  Procedure Initialize
+    Set piErrorCount    To 0
+    Set piSQLException  To 0
+    Set psSQLException  To ""
+    Set piLastException To 0
+  End_Procedure // Initialize
+End_Class // oSQLException
+
+

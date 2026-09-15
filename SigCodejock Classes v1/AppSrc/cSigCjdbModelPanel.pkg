@@ -1,0 +1,118 @@
+//=============================================================================
+// Project      : SigCj - VDF Classes for Codejock
+// File         : cSigCjdbModalPanel.pkg
+// Description  : VDF Class for Codejock control
+//
+// Revision     : $Rev: $
+//                $Date: $
+//                $Author: $
+//
+// Requirements : Visual DataFlex 17.0+
+//                Codejock SuitePro - Version 13.4.2, 15.3.1 and 16.3.1
+//
+// Copyright    : Copyright © 2008-2013 VDF SIG UK, All rights reserved.
+//                Visual DataFlex Special Interest Group UK.
+//                http://www.vdfsig.co.uk/
+//
+//                This file is part of SigCj.
+//
+//                SigCj is free software: you can redistribute it and/or modify
+//                it under the terms of the GNU Lesser General Public License
+//                as published by the Free Software Foundation, either version
+//                2.1 of the License, or (at your option) any later version.
+//
+//                SigCj is distributed in the hope that it will be useful, but
+//                WITHOUT ANY WARRANTY; without even the implied warranty of
+//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//                GNU Lesser General Public License for more details.
+//
+//                If you have the complete SigCj workspace then a copy of the
+//                GNU Lesser General Public License is in the Docs folder. If
+//                not, see <http://www.gnu.org/licenses/>.
+//
+//=============================================================================
+Use DFClient.pkg
+Use DFSelLst.pkg
+Use Windows.pkg
+
+
+Class cSigCjdbModalPanel is a dbModalPanel
+
+    Procedure Construct_Object
+        Forward Send Construct_Object
+        
+        { DesignTime = False }         
+        Property Handle  phoPromptList 
+
+        Set Border_Style to Border_Thick
+        Set Minimize_Icon to False
+        Set Destroy_Object_State   to True 
+    End_Procedure // Construct_Object
+
+    Procedure End_Construct_Object
+        Forward Send End_Construct_Object
+        Send Add_Prompt_Buttons
+        Send mResize_Modal    
+    End_Procedure // End_Construct_Object
+
+    Procedure Add_Prompt_Buttons
+        Send Add_Button "&Ok"     Msg_Ok
+        Send Add_Button "&Cancel" Msg_Cancel
+        Send Add_Button "&Search" Msg_Search
+        
+        On_Key Key_Alt+Key_O Send Ok
+        On_Key Key_Alt+Key_C Send Cancel
+        On_Key Key_Alt+Key_S Send Search
+    End_Procedure // Add_Prompt_Buttons
+
+    Procedure Position_Child_Objects
+        Integer iNo_Bn iSpace iHt iWd iCol
+        Integer iPanel_Sz iPanel_Wd iPanel_Ht
+        Integer iBn_Obj iObj 
+        
+        Get Size to iPanel_Sz
+        Move (low(iPanel_Sz)) to iPanel_Wd
+        Move ( hi(iPanel_Sz)) to iPanel_Ht
+        
+        Get Button_count to iNo_Bn
+        If (iNo_Bn > 0) Begin 
+            Move (Button_ids(Self)) to iObj
+            Get Integer_Value of iObj item 0  to iBn_Obj
+            Get size        of iBn_Obj      to iHt
+            Move (low(iHt)) to iWd
+            Move ( hi(iHt)) to iHt
+            
+            Move 5 to iSpace
+            If ((iPanel_Wd -((iWd+iSpace)*iNo_Bn-iSpace)) < 0 ) Move 2 to iSpace
+            Move ( iPanel_Ht - iHt - 3) to iHt
+
+            Move ((iPanel_Wd-iWd)-iSpace) to iCol
+            Decrement iNo_Bn
+            While (iNo_Bn >= 0)
+                Get Integer_value of iObj item iNo_Bn to iBn_Obj
+                Set Location   of iBn_Obj          to iHt iCol
+                Send Adjust_Logicals       to iBn_Obj
+                Move (iCol - iSpace - iWd) to iCol
+                Decrement iNo_Bn
+            Loop
+        End
+    End_Procedure // Position_Child_Objects
+
+    Procedure mResize_Modal
+        Send Position_Child_Objects
+    End_Procedure // mResize_Modal
+    
+    Procedure Ok
+        Send Ok of (phoPromptList(Self)) 
+    End_Procedure // Ok
+    
+    Procedure Cancel
+        Send Cancel of (phoPromptList(Self)) 
+    End_Procedure // Cancel
+
+    Procedure Search
+        Send Search of (phoPromptList(Self)) 
+    End_Procedure // Search
+      
+End_Class // cSigCjdbModelPanel
+
