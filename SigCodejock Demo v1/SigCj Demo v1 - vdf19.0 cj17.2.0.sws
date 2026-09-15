@@ -1,9 +1,0 @@
-[Properties]
-Version=19.0
-HideSystemClasses=false
-[WorkspacePaths]
-ConfigFile=.\Programs\Config.ws
-[Projects]
-Project0=Codejock Order Sample.src
-[Libraries]
-Lib1=..\SigCodejock Classes v1\SigCj Classes v1 - vdf19.0 cj17.2.0.sws

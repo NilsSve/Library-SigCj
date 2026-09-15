@@ -1,9 +1,0 @@
-[Properties]
-Version=18.2
-HideSystemClasses=true
-[WorkspacePaths]
-ConfigFile=.\Programs\Config.ws
-[Projects]
-Project0=NotNeeded.src
-[Libraries]
-Lib1=..\SigCodejock Wrapper 16.4.0\SigCj Wrapper 16.4.0 - vdf18.2.sws
