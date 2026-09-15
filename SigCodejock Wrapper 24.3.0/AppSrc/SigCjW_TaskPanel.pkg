@@ -1,7 +1,7 @@
 //==============================================================================
 // Project      : SigCj - VDF Classes for Codejock
 // File         : SigCjW_TaskPanel.pkg
-// From         : Codejock.TaskPanel.v24.0.0.ocx
+// From         : Codejock.TaskPanel.v24.3.0.ocx
 // Description  : DF COM Wrapper Class for Codejock controls
 //
 // Created by   : Ian Smith
@@ -9,8 +9,8 @@
 //                $Date$
 //                $Author$
 //
-// Requirements : Visual DataFlex 24.0
-//                Codejock SuitePro - Version 24.0.0
+// Requirements : DataFlex 26.0
+//                Codejock SuitePro - Version 24.3.0
 //
 // Copyright    : Copyright c 2008-2025 VDF SIG UK, All rights reserved.
 //                Visual DataFlex Special Interest Group UK.

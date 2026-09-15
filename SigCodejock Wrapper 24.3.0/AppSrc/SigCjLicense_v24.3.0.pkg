@@ -206,9 +206,9 @@ Function SigCj_CodejockLicenseInstalled Returns Boolean
 
     Get Create U_cRegistry to hoReqistry
         Set phRootKey of hoReqistry to HKEY_CURRENT_USER    //Win7 +
-        Get KeyExists of hoReqistry "SOFTWARE\Codejock Software\Xtreme SuitePro ActiveX v24.0.0" to bInstalled
+        Get KeyExists of hoReqistry "SOFTWARE\Codejock Software\Xtreme SuitePro ActiveX v24.3.0" to bInstalled
         If (not(bInstalled)) Begin
-            Get KeyExists of hoReqistry "SOFTWARE\Codejock Software\Xtreme SuitePro ActiveX v24.0.0 (30 Day Trial)" to bInstalled
+            Get KeyExists of hoReqistry "SOFTWARE\Codejock Software\Xtreme SuitePro ActiveX v24.3.0 (30 Day Trial)" to bInstalled
         End
     Send Destroy of hoReqistry
 
