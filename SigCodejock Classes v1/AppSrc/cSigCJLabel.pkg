@@ -155,10 +155,12 @@ Class cSigCJLabel is a cSigCjComLabel
         //remove the expression syntax.
         //        
         OLE_Color iColor 
+        OLE_Color iForeColor
 
         Forward Send OnCreate
 
         Get Private_piBackColor to iColor
+        Get Private_piForeColor to iForeColor
 
         Set peAlignment     to (Private_peAlignment   (Self))
         Set pbAutoEllipsis  to (Private_pbAutoEllipsis(Self))
@@ -166,7 +168,7 @@ Class cSigCJLabel is a cSigCjComLabel
         Set piBackColor     to iColor   //See above (Private_piBackColor(Self))
         Set pbEnabled       to (Private_pbEnabled     (Self))
         Set pbEnableMarkup  to (Private_pbEnableMarkup(Self))
-        Set piForeColor     to (Private_piForeColor   (Self))
+        Set piForeColor     to iForeColor   //See above (Private_piForeColor(Self))
         Set psImage         to (Private_psImage       (Self))
         Set pbRightToLeft   to (Private_pbRightToLeft (Self))
         Set pbUseMnemonic   to (Private_pbUseMnemonic (Self))

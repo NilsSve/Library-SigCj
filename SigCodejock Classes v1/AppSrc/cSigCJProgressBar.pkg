@@ -165,6 +165,7 @@ Class cSigCJProgressBar is a cSigCjComProgressBar
         Handle hoFont
         Integer iColor
         OLE_Color iBackColor   //See cSigCJLabel.pkg
+        OLE_Color iForeColor
 
         Forward Send OnCreate
 
@@ -175,13 +176,14 @@ Class cSigCJProgressBar is a cSigCjComProgressBar
         End
 
         Get Private_piBackColor to iBackColor
+        Get Private_piForeColor to iForeColor
 
         Set peAppearance        to (Private_peAppearance(Self))
         Set piBackColor         to iBackColor   //See above (Private_piBackColor(Self))
         Set piBarColor          to (Private_piBarColor(Self))
         Set pbEnabled           to (Private_pbEnabled(Self))
         Set pbFlatStyle         to (Private_pbFlatStyle(Self))
-        Set piForeColor         to (Private_piForeColor(Self))
+        Set piForeColor         to iForeColor   //See above (Private_piForeColor(Self))
         Set piMarqueeDelay      to (Private_piMarqueeDelay(Self))
         Set piMax               to (Private_piMax(Self))
         Set piMin               to (Private_piMin(Self))

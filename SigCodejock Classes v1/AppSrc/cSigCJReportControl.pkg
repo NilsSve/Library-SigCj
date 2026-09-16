@@ -66,7 +66,13 @@ Use SigCjLicense.pkg
     #Replace phoReportRow                           phoGridRow                
     #Replace phoReportGroupRow                      phoGridGroupRow           
     #Replace phoReportSelectedRows                  phoGridSelectedRows       
-    #Replace phoReportPaintManager                  phoGridPaintManager       
+    // REMOVED (SigCj for DF26): #Replace phoReportPaintManager phoGridPaintManager
+    // DataFlex's OWN cCJGrid/cDbCJGrid declare phoReportPaintManager (DF26
+    // Pkg\cCJGrid.pkg line 123), so this global rename rewrote a DataFlex-owned
+    // token in every file compiled after this one. cSigGrid.pkg and
+    // cSigdbGrid.pkg subclass the DataFlex grid and were silently retargeted to
+    // a property their base class does not have - Error 98 at run time, clean at
+    // compile time. Code using a cSigCJGridControl should say phoGridPaintManager.
     #Replace phoReportPrintOptions                  phoGridPrintOptions       
     #Replace phoReportNavigator                     phoGridNavigator
     #Replace phoContextMenu_ReportArea              phoContextMenu_GridArea

@@ -530,13 +530,15 @@ Class cSigCjTreeViewNode is a cSigCjComTreeViewNode
         //same private property name with a different type, and their classes
         //compile first. A local variable removes the expression syntax.
         OLE_Color iColor
+        OLE_Color iForeColor
 
         Forward Send OnCreate
 
         Get Private_piBackColor to iColor
+        Get Private_piForeColor to iForeColor
 
         Set ComBackColor           to iColor
-        Set ComForeColor           to (Private_piForeColor(Self))
+        Set ComForeColor           to iForeColor
         Set ComBold                to (Private_pbBold(Self))
         Set ComExpanded            to (Private_pbExpanded(Self))
     End_Procedure
@@ -720,14 +722,16 @@ Class cSigCJTreeView is a cSigCjComTreeView
         Handle   hoContextMenu_TreeView
         String[] asImage_FolderItem
         OLE_Color iColor   //See the other OnCreate
+        OLE_Color iForeColor
 
         Forward Send OnCreate
 
         Get Private_piBackColor to iColor
+        Get Private_piForeColor to iForeColor
 
         Set ComAppearance          to (Private_peAppearance        (Self))
         Set ComBackColor           to iColor
-        Set ComForeColor           to (Private_piForeColor         (Self))
+        Set ComForeColor           to iForeColor
         Set ComCheckboxes          to (Private_pbCheckboxes        (Self))
         Set ComEnabled             to (Private_pbEnabled           (Self))
         Set ComEnableMarkup        to (Private_pbEnableMarkup      (Self))
