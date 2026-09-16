@@ -33,7 +33,10 @@
 //    
 //==============================================================================
 
-Use SigCjC_ToolTipContext.pkg
+// SigCjC_ToolTipContext.pkg was renamed SigCjC_ToolTip.pkg at wrapper 18.3.0;
+// it declares the same cSigCjComToolTipContext. This Use was never updated.
+Use SigCjC_ToolTip.pkg
+Use SigCjLicense.pkg   // defines SigCj_Codejock_Version, tested in a #IF below
 Use cSigCJMethods_Mixin.pkg
 
 Class cSigCJToolTipContextr is a cSigCjComToolTipContext

@@ -43,17 +43,25 @@
 //Comment out the next line to remove all references to the standard files. If 
 //you do not want to use the standard files you have to do this to stop the 
 //compiler complaining.
+//SigCj for DF26: you no longer have to edit this file - Define SigCj_Skip_Std*
+//before Using this package to get the same effect. The default is unchanged.
+#IFNDEF SigCj_Skip_StdFiles
 Define SigCj_Use_StdFiles
+#ENDIF
 
 //Comment out the next line to remove all references to the standard special 
 //date files. If you do not want to use the standard special date files you 
 //have to do this to stop the compiler complaining.
+#IFNDEF SigCj_Skip_StdDates
 Define SigCj_Use_StdDates
+#ENDIF
 
 //Comment out the next line to remove all references to the standard resource 
 //and schedule files. If you do not want to use the standard resource and 
 //schedule files you have to do this to stop the compiler complaining.
+#IFNDEF SigCj_Skip_StdResources
 Define SigCj_Use_StdResources
+#ENDIF
 
 //==============================================================================
 //Use Codejock
@@ -2159,13 +2167,16 @@ Class cSigCJCalendarControl is a cSigCjComCalendarControl
             Send ComMakeAsRException of hoEvent
 
             //These are Hidden !!!!!!!!!!!!
+            //SigCj for DF26: hidden members are not in the type library, so the
+            //generated wrapper never declared them. Bound by name instead, the
+            //same way this file already reads CRM_Link and process_* below.
             Get Date_and_Time_to_DateTime tEvent.dRE_StartDateOrg tEvent.tmRE_StartTimeOrg to dtWork
-            Set ComRExceptionStartTimeOrig of hoEvent to dtWork
+            Set ComProperty of hoEvent "RExceptionStartTimeOrig" to dtWork
 
             Get Date_and_Time_to_DateTime tEvent.dRE_EndDateOrg   tEvent.tmRE_EndTimeOrg   to dtWork
-            Set ComRExceptionEndTimeOrig of hoEvent to dtWork
+            Set ComProperty of hoEvent "RExceptionEndTimeOrig" to dtWork
 
-            Set ComRExceptionDeleted       of hoEvent to tEvent.bRE_Deleted
+            Set ComProperty of hoEvent "RExceptionDeleted" to tEvent.bRE_Deleted
         End
         Else Begin
             Set ComProperty of hoCustomProps "process_RecurrenceState"     to tEvent.eRecurr_State
@@ -2334,7 +2345,7 @@ Class cSigCJCalendarControl is a cSigCjComCalendarControl
         Get ComReminderSoundFile            of hoEvent to tEvent.sRem_SoundFile
         Get ComScheduleID                   of hoEvent to tEvent.iScheduleID
         Get ComSubject                      of hoEvent to tEvent.sSubject
-        Get ComRExceptionDeleted            of hoEvent to tEvent.bRE_Deleted
+        Get ComProperty of hoEvent "RExceptionDeleted" to tEvent.bRE_Deleted
 
         If ((tEvent.eRecurr_State = OLExtpCalendarRecurrenceMaster) or ;
             (tEvent.eRecurr_State = OLExtpCalendarRecurrenceException)) Begin
@@ -2366,11 +2377,11 @@ Class cSigCJCalendarControl is a cSigCjComCalendarControl
         Move dtWork to tEvent.dLastMod_Date
         Get DateTime_to_Time dtWork to tEvent.tmLastMod_Time
 
-        Get ComRExceptionStartTimeOrig of hoEvent to dtWork
+        Get ComProperty of hoEvent "RExceptionStartTimeOrig" to dtWork
         Move dtWork to tEvent.dRE_StartDateOrg
         Get DateTime_to_Time dtWork to tEvent.tmRE_StartTimeOrg
 
-        Get ComRExceptionEndTimeOrig of hoEvent to dtWork
+        Get ComProperty of hoEvent "RExceptionEndTimeOrig" to dtWork
         Move dtWork to tEvent.dRE_EndDateOrg
         Get DateTime_to_Time dtWork to tEvent.tmRE_EndTimeOrg
 

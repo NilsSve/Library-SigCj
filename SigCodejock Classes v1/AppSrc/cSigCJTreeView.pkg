@@ -35,6 +35,7 @@
 
 Use SigCjW_Controls.pkg
 Use cSigCJMethods_Mixin.pkg
+Use cSigCJGlobalSettings.pkg   // declares ghoSigCjGlobalSetting, used below
 Use cSigCJImage_Manager_Mixin.pkg
 Use cSigCJTreeViewContextMenu.pkg
 //-----------------------------------------------------------------------------
@@ -525,9 +526,16 @@ Class cSigCjTreeViewNode is a cSigCjComTreeViewNode
     //-------------------------------------------------------------------------
 
     Procedure OnCreate
+        //Ambiguous Function in expression - see cSigCJLabel.pkg: DAW declare the
+        //same private property name with a different type, and their classes
+        //compile first. A local variable removes the expression syntax.
+        OLE_Color iColor
+
         Forward Send OnCreate
 
-        Set ComBackColor           to (Private_piBackColor(Self))
+        Get Private_piBackColor to iColor
+
+        Set ComBackColor           to iColor
         Set ComForeColor           to (Private_piForeColor(Self))
         Set ComBold                to (Private_pbBold(Self))
         Set ComExpanded            to (Private_pbExpanded(Self))
@@ -711,11 +719,14 @@ Class cSigCJTreeView is a cSigCjComTreeView
         Variant vNodes vIcons
         Handle   hoContextMenu_TreeView
         String[] asImage_FolderItem
+        OLE_Color iColor   //See the other OnCreate
 
         Forward Send OnCreate
 
+        Get Private_piBackColor to iColor
+
         Set ComAppearance          to (Private_peAppearance        (Self))
-        Set ComBackColor           to (Private_piBackColor         (Self))
+        Set ComBackColor           to iColor
         Set ComForeColor           to (Private_piForeColor         (Self))
         Set ComCheckboxes          to (Private_pbCheckboxes        (Self))
         Set ComEnabled             to (Private_pbEnabled           (Self))
