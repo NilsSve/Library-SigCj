@@ -1,0 +1,8 @@
+# DataFlex Studio per-user desktop state - one file per developer per machine.
+*.dsk
+
+# Build output
+*.exe
+*.obj
+*.prn
+*.dbg

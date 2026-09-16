@@ -1,0 +1,24 @@
+{
+    "dependencies": [
+        "./SigCodejock Wrapper 24.3.0/SigCj Wrapper - df26.0 cj24.3.0.sws"
+    ],
+    "description": "SigCj - DataFlex wrapper classes for Codejock ActiveX controls, for DataFlex 26 and CodeJock 24.3.0. Fork of VDF SIG UK's SigCj.",
+    "df": 26.0,
+    "package": {
+        "df-min": 26.0,
+        "license": "LGPL-2.1-or-later",
+        "licenseFile": "LICENSE",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "appHtml": "SigCodejock Classes v1/AppHtml",
+        "appSrc": "SigCodejock Classes v1/AppSrc",
+        "bitmap": "SigCodejock Classes v1/Bitmaps",
+        "configFile": "SigCodejock Classes v1/Programs/Config.ws",
+        "data": "SigCodejock Classes v1/Data",
+        "ddSrc": "SigCodejock Classes v1/DDSrc",
+        "help": "SigCodejock Classes v1/Help",
+        "programs": "SigCodejock Classes v1/Programs"
+    },
+    "workspaceName": "SigCj"
+}
