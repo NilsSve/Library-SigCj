@@ -35,8 +35,9 @@ or reference it directly in a JSON `.sws`:
 }
 ```
 
-`SigCj-Library-DF26.0.sws` is the entry point. It chains to the wrapper workspace, so both the
-classes and the COM wrappers land on your include path.
+`SigCj-Library-DF26.0.sws` is the entry point, and it is the only thing you add. It carries both
+source trees - the classes and the COM wrappers - on its own `appSrc`, so it installs as a single
+package rather than pulling a second library in behind it.
 
 Then `Use SigCJLibraries.pkg`, or the individual `cSigCJ*.pkg` classes you need. Most classes in
 `SigCJLibraries.pkg` are commented out by design — uncomment the ones you want.
