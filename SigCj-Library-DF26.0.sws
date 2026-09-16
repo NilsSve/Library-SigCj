@@ -15,7 +15,7 @@
             "SigCodejock Wrapper 24.3.0/AppSrc"
         ],
         "bitmap": "SigCodejock Classes v1/Bitmaps",
-        "configFile": "SigCodejock Classes v1/Programs/Config.ws",
+        "configFile": "Config.ws",
         "data": "SigCodejock Classes v1/Data",
         "ddSrc": "SigCodejock Classes v1/DDSrc",
         "help": "SigCodejock Classes v1/Help",
