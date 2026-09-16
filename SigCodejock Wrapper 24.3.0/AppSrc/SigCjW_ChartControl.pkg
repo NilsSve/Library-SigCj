@@ -5569,18 +5569,21 @@ Class cSigCjCom_DChartControl is a Mixin
         Function_Return retVal
     End_Function
 
-    Procedure ComSaveAsImage String llFileName Integer llWidth Integer llHeight
+    Function ComSaveAsImage String llFileName Integer llWidth Integer llHeight Returns Boolean
         Handle hDispatchDriver
+        Boolean retVal
         Get phDispatchDriver to hDispatchDriver
         Send PrepareParams to hDispatchDriver 3
         Send DefineParam to hDispatchDriver OLE_VT_BSTR llFileName
         Send DefineParam to hDispatchDriver OLE_VT_I4 llWidth
         Send DefineParam to hDispatchDriver OLE_VT_I4 llHeight
-        Send InvokeComMethod to hDispatchDriver 5 OLE_VT_VOID
-    End_Procedure
+        Get InvokeComMethod of hDispatchDriver 5 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
 
-    Procedure ComPrintToDC OLE_HANDLE llhDC Integer llleft Integer lltop Integer llWidth Integer llHeight
+    Function ComPrintToDC OLE_HANDLE llhDC Integer llleft Integer lltop Integer llWidth Integer llHeight Returns Boolean
         Handle hDispatchDriver
+        Boolean retVal
         Get phDispatchDriver to hDispatchDriver
         Send PrepareParams to hDispatchDriver 5
         Send DefineParam to hDispatchDriver OLE_VT_I4 llhDC
@@ -5588,8 +5591,9 @@ Class cSigCjCom_DChartControl is a Mixin
         Send DefineParam to hDispatchDriver OLE_VT_I4 lltop
         Send DefineParam to hDispatchDriver OLE_VT_I4 llWidth
         Send DefineParam to hDispatchDriver OLE_VT_I4 llHeight
-        Send InvokeComMethod to hDispatchDriver 6 OLE_VT_VOID
-    End_Procedure
+        Get InvokeComMethod of hDispatchDriver 6 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
 
     Function ComCreatePrintView Returns Variant
         Handle hDispatchDriver
@@ -5647,6 +5651,17 @@ Class cSigCjCom_DChartControl is a Mixin
         Get InvokeComMethod of hDispatchDriver 341 OLE_VT_I4 to retVal
         Function_Return retVal
     End_Function
+    Function ComCopyToClipboard Integer llWidth Integer llHeight Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 2
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llWidth
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llHeight
+        Get InvokeComMethod of hDispatchDriver 7 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
 End_Class
 
 // Event interface for ChartControl Control

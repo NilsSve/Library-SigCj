@@ -4964,6 +4964,16 @@ Class cSigCjCom_DPropertyGrid is a Mixin
         Get phDispatchDriver to hDispatchDriver
         Send InvokeComMethod to hDispatchDriver 54 OLE_VT_VOID
     End_Procedure
+    Function ComInplaceListTrackSelection Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 55 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure Set ComInplaceListTrackSelection Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 55 OLE_VT_BOOL to value
+    End_Procedure
+
 End_Class
 
 // Event interface for PropertyGrid Control

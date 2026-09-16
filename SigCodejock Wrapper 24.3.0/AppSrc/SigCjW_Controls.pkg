@@ -7083,6 +7083,16 @@ Class cSigCjCom_DListView is a Mixin
         Send DefineParam to hDispatchDriver OLE_VT_BOOL llEnable
         Send InvokeComMethod to hDispatchDriver 72 OLE_VT_VOID
     End_Procedure
+    Function ComEnableMarkup Returns Boolean
+        Boolean retVal
+        Get ComProperty of (phDispatchDriver(Self)) 112 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
+    Procedure Set ComEnableMarkup Boolean value
+        Set ComProperty of (phDispatchDriver(Self)) 112 OLE_VT_BOOL to value
+    End_Procedure
+
 End_Class
 
 // Event interface for ListView Control
@@ -10088,8 +10098,9 @@ Class cSigCjCom_DWebBrowser is a Mixin
         Function_Return retVal
     End_Function
 
-    Procedure ComNavigate String llURL Variant llFlags Variant llTargetFrameName Variant llPostData Variant llHeaders
+    Function ComNavigate String llURL Variant llFlags Variant llTargetFrameName Variant llPostData Variant llHeaders Returns Boolean
         Handle hDispatchDriver
+        Boolean retVal
         Get phDispatchDriver to hDispatchDriver
         Send PrepareParams to hDispatchDriver 5
         Send DefineParam to hDispatchDriver OLE_VT_BSTR llURL
@@ -10097,8 +10108,9 @@ Class cSigCjCom_DWebBrowser is a Mixin
         Send DefineParam to hDispatchDriver OLE_VT_VARIANT llTargetFrameName
         Send DefineParam to hDispatchDriver OLE_VT_VARIANT llPostData
         Send DefineParam to hDispatchDriver OLE_VT_VARIANT llHeaders
-        Send InvokeComMethod to hDispatchDriver 17 OLE_VT_VOID
-    End_Procedure
+        Get InvokeComMethod of hDispatchDriver 17 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
 
     Procedure ComExecWB Integer llCmdID Integer llCmdExecOpt Variant llpvaIn Variant llpvaOut
         Handle hDispatchDriver
@@ -10182,31 +10194,47 @@ Class cSigCjCom_DWebBrowser is a Mixin
         Send InvokeComMethod to hDispatchDriver 28 OLE_VT_VOID
     End_Procedure
 
-    Procedure ComReCreateProvider
+    Function ComReCreateProvider Returns Boolean
         Handle hDispatchDriver
+        Boolean retVal
         Get phDispatchDriver to hDispatchDriver
-        Send InvokeComMethod to hDispatchDriver 29 OLE_VT_VOID
-    End_Procedure
+        Get InvokeComMethod of hDispatchDriver 29 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
 
-    Procedure ComLoadHtml String llHtml
+    Function ComLoadHtml String llHtml Returns Boolean
         Handle hDispatchDriver
+        Boolean retVal
         Get phDispatchDriver to hDispatchDriver
         Send PrepareParams to hDispatchDriver 1
         Send DefineParam to hDispatchDriver OLE_VT_BSTR llHtml
-        Send InvokeComMethod to hDispatchDriver 30 OLE_VT_VOID
-    End_Procedure
+        Get InvokeComMethod of hDispatchDriver 30 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
 
-    Procedure ComWaitUntilReady
+    Function ComWaitUntilReady Returns Boolean
         Handle hDispatchDriver
+        Boolean retVal
         Get phDispatchDriver to hDispatchDriver
-        Send InvokeComMethod to hDispatchDriver 31 OLE_VT_VOID
-    End_Procedure
+        Get InvokeComMethod of hDispatchDriver 31 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
 
     Procedure ComAboutBox
         Handle hDispatchDriver
         Get phDispatchDriver to hDispatchDriver
         Send InvokeComMethod to hDispatchDriver -552 OLE_VT_VOID
     End_Procedure
+    Function ComSelectProvider OLEWebBrowserProvider llProvider Returns Boolean
+        Handle hDispatchDriver
+        Boolean retVal
+        Get phDispatchDriver to hDispatchDriver
+        Send PrepareParams to hDispatchDriver 1
+        Send DefineParam to hDispatchDriver OLE_VT_I4 llProvider
+        Get InvokeComMethod of hDispatchDriver 32 OLE_VT_BOOL to retVal
+        Function_Return retVal
+    End_Function
+
 End_Class
 
 // Event interface for WebBrowser Control
@@ -11706,6 +11734,12 @@ Class cSigCjCom_DPreview is a Mixin
         Send DefineParam to hDispatchDriver OLE_VT_BSTR llImpliedFileName
         Send InvokeComMethod to hDispatchDriver 4 OLE_VT_VOID
     End_Procedure
+    Procedure ComReset
+        Handle hDispatchDriver
+        Get phDispatchDriver to hDispatchDriver
+        Send InvokeComMethod to hDispatchDriver 6 OLE_VT_VOID
+    End_Procedure
+
 End_Class
 
 // Event interface for Preview Control
