@@ -111,11 +111,18 @@ Class cSigCJMonthCalendar is a cSigCjComMonthCalendar
         { DesignTime = False }
         Property Boolean Private.pbEnabled          True
         { DesignTime = False }
-        Property Date    Private.pdMaxDate          "01/01/2050"
+        //SigCj for DF26: these were the string literals "01/01/2050" and
+        //"01/01/1899". DataFlex parses a date literal using the RUNTIME locale's
+        //field order, so on a year-month-day locale they became 2001-01-20 and
+        //2001-01-18 - the 4-digit year was read as the day and truncated. That
+        //left the calendar clamped to a three-day window in January 2001: stuck
+        //month, dead navigation arrows, while the value and Today stayed right.
+        //DateSet() takes components, so it means the same thing in every locale.
+        Property Date    Private.pdMaxDate          (DateSet(2050,1,1))
         { DesignTime = False }
         Property Integer Private.piMaxSelCount      7
         { DesignTime = False }
-        Property Date    Private.pdMinDate          "01/01/1899"
+        Property Date    Private.pdMinDate          (DateSet(1899,1,1))
         { DesignTime = False }
         Property Integer Private.piMonth
         { DesignTime = False }
@@ -352,12 +359,13 @@ Class cSigCJMonthCalendar is a cSigCjComMonthCalendar
 
     Procedure OnCreate
         Set pbAutoSize        to (Private.pbAutoSize(Self))
-        Set piDay             to (Private.piDay(Self))
+        //Only apply these when actually set - otherwise they push 0 into the control.
+        If (Private.piDay(Self)   <> 0) Set piDay   to (Private.piDay(Self))
         Set pbEnabled         to (Private.pbEnabled(Self))
         Set pdMaxDate         to (Private.pdMaxDate(Self))
         Set piMaxSelCount     to (Private.piMaxSelCount(Self))
         Set pdMinDate         to (Private.pdMinDate(Self))
-        Set piMonth           to (Private.piMonth(Self))
+        If (Private.piMonth(Self) <> 0) Set piMonth to (Private.piMonth(Self))
         Set piMonthColumns    to (Private.piMonthColumns(Self))
         Set piMonthRows       to (Private.piMonthRows(Self))
         Set pbMultiSelect     to (Private.pbMultiSelect(Self))
@@ -366,7 +374,7 @@ Class cSigCJMonthCalendar is a cSigCjComMonthCalendar
         Set pbShowToday       to (Private.pbShowToday(Self))
         Set pbShowWeekNumbers to (Private.pbShowWeekNumbers(Self))
         Set piStartOfWeek     to (Private.piStartOfWeek(Self))
-        Set piYear            to (Private.piYear(Self))
+        If (Private.piYear(Self)  <> 0) Set piYear  to (Private.piYear(Self))
         Set pdValue           to (Private.pdValue(Self))
         
         Send OnSetSize (Hi(GuiSize(Self))) (Low(GuiSize(Self)))
