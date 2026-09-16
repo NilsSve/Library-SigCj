@@ -240,7 +240,7 @@ Class cSigCjComSkinFramework is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComSkinFramework
-        Set psEventId to "{C0DE2400-4463-4030-B324-AC6A8075FEC8}"
+        Set psEventId to "{C0DE2430-4463-4030-B324-AC6A8075FEC8}"
         Set psLicenseKey to L_cSigCjKeySkinFramework
         Set peAutoCreate to acAutoCreate
     End_Procedure

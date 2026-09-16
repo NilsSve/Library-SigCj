@@ -5083,7 +5083,7 @@ Class cSigCjComPropertyGrid is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComPropertyGrid
-        Set psEventId to "{C0DE2400-9C8A-488B-8D2D-3B445A8FEA60}"
+        Set psEventId to "{C0DE2430-9C8A-488B-8D2D-3B445A8FEA60}"
         Set psLicenseKey to L_cSigCjKeyPropertyGrid
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure

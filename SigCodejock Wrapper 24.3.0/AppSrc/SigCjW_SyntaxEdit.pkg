@@ -1039,7 +1039,7 @@ Class cSigCjComSyntaxEdit is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComSyntaxEdit
-        Set psEventId to "{C0DE2400-13B2-4EEB-B4B8-DB0D5E3F7B24}"
+        Set psEventId to "{C0DE2430-13B2-4EEB-B4B8-DB0D5E3F7B24}"
         Set psLicenseKey to L_cSigCjKeySyntaxEdit
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -1969,7 +1969,7 @@ Class cSigCjComSyntaxEditFrame is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComSyntaxEditFrame
-        Set psEventId to "{C0DE2400-AE1F-4ECC-811C-E23FD6C4A5BA}"
+        Set psEventId to "{C0DE2430-AE1F-4ECC-811C-E23FD6C4A5BA}"
         Set psLicenseKey to L_cSigCjKeySyntaxEdit
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure

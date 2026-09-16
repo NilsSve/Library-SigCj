@@ -2270,10 +2270,10 @@ Class cSigCJGridControl is a cSigCjComGridControl
                     // replace currency symbol and thousand seperators so we can convert to a number
                     Get_Attribute DF_THOUSANDS_SEPARATOR to iThousandSep
                     Move (Replaces(Character(iThousandSep),sTotal,"")) to sTotal
-                    Move (Replaces(ToOEM(Default_Currency_Symbol()),sTotal, "")) to sTotal
+                    Move (Replaces(Utf8ToOem(Default_Currency_Symbol()),sTotal, "")) to sTotal
 
                     //Add the old and new values together and convert to a currency string
-                    Move (ToOEM(FormatCurrency((Number(sTotal) + nValue),2))) to sTotal
+                    Move (Utf8ToOem(FormatCurrency((Number(sTotal) + nValue),2))) to sTotal
                     Set ComFooterText of hoCol to sTotal
                 End
 
@@ -2281,7 +2281,7 @@ Class cSigCJGridControl is a cSigCjComGridControl
                     Set ComCaption  of hoItem to " "
                 End
                 Else Begin
-                    Move (ToOEM(FormatCurrency(nValue,2))) to sValue
+                    Move (Utf8ToOem(FormatCurrency(nValue,2))) to sValue
                     Set ComCaption  of hoItem to sValue
                 End
                 Move True to bAdded
@@ -2822,7 +2822,7 @@ Class cSigCJGridControl is a cSigCjComGridControl
                     #ENDIF
 
                     If (bSQL_AutoTranslateToOEM) ;
-                        Move (ToOEM(sValue)) to sValue
+                        Move (Utf8ToOem(sValue)) to sValue
 
                     Move (Trim(sValue)) to sValue
 

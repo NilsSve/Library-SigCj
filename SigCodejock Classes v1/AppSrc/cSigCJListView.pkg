@@ -177,7 +177,9 @@ Class cSigCJListView is a cSigCjComListView
 
     { MethodType=Property Category="CodeJock" }
     Function piBackColor Returns OLE_Color
-        Function_Return (Private_piBackColor(Self))
+        OLE_Color iColor   //See OnCreate
+        Get Private_piBackColor to iColor
+        Function_Return iColor
     End_Function
 
     { MethodType=Property Category="CodeJock" }
@@ -402,13 +404,21 @@ Class cSigCJListView is a cSigCjComListView
 
     { MethodType=Event }
     Procedure OnCreate
+        //Ambiguous Function in expression: DAW also define PRIVATE_PIBACKCOLOR,
+        //and theirs is an Integer; the system classes compile first. Same
+        //workaround as cSigCJLabel.pkg / cSigCJColorPicker.pkg - a local
+        //variable removes the expression syntax.
+        OLE_Color iColor
+
+        Get Private_piBackColor to iColor
+
         Set pvComObject of (Private_phoListViewItems(Self)) to (ComListItems(Self))
         Set pvComObject of (Private_phoListViewColumnHeaders(Self)) to (ComColumnHeaders(Self))
 
         Set pbAllowColumnReorder to (Private_pbAllowColumnReorder(Self))
         Set peAppearance to (Private_peAppearance(Self))
         Set peArrange to (Private_peArrange(Self))
-        Set piBackColor to (Private_piBackColor(Self))
+        Set piBackColor to iColor   //See above (Private_piBackColor(Self))
         Set pbShowCheckboxes to (Private_pbShowCheckboxes(Self))
         Set peListViewStyle to (Private_peListViewStyle(Self))
         Set pbEnabled to (Private_pbEnabled(Self))

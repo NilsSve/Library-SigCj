@@ -110,10 +110,17 @@ Class cSigCJCheckBox_Mixin is a Mixin
     End_Procedure
 
     Procedure OnCreate
+        //Ambiguous Function in expression - see cSigCJLabel.pkg: DAW declare the
+        //same private property name with a different type, and their classes
+        //compile first. A local variable removes the expression syntax.
+        OLE_Color iColor
+
         Forward Send OnCreate
 
+        Get Private_piBackColor to iColor
+
         Set peAppearance        to (Private_peAppearance(Self))
-        Set piBackColor         to (Private_piBackColor(Self))
+        Set piBackColor         to iColor   //See above (Private_piBackColor(Self))
         Set pbDrawFocusRect     to (Private_pbDrawFocusRect(Self))
         Set pbEnabled           to (Private_pbEnabled(Self))
         Set pbEnableMarkup      to (Private_pbEnableMarkup(Self))

@@ -1840,7 +1840,7 @@ Class cSigCjComCalendarControl is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComCalendarControl
-        Set psEventId to "{C0DE2400-C1C3-4645-B640-65121CD9DA4C}"
+        Set psEventId to "{C0DE2430-C1C3-4645-B640-65121CD9DA4C}"
         Set psLicenseKey to L_cSigCjKeyCalendar
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -2133,7 +2133,7 @@ Class cSigCjComCalendarCaptionBar is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComCalendarCaptionBar
-        Set psEventId to "{C0DE2400-1617-41DB-BFFF-2F842AAF02DA}"
+        Set psEventId to "{C0DE2430-1617-41DB-BFFF-2F842AAF02DA}"
         Set psLicenseKey to L_cSigCjKeyCalendar
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -3174,7 +3174,7 @@ Class cSigCjComDatePicker is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComDatePicker
-        Set psEventId to "{C0DE2400-896D-4B48-AB33-0DDE41815A1B}"
+        Set psEventId to "{C0DE2430-896D-4B48-AB33-0DDE41815A1B}"
         Set psLicenseKey to L_cSigCjKeyCalendar
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure

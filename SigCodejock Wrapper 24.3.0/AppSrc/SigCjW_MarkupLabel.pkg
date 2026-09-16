@@ -313,7 +313,7 @@ Class cSigCjComMarkupLabel is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComMarkupLabel
-        Set psEventId to "{C0DE2400-6B68-4E54-BC24-2F891C6C2167}"
+        Set psEventId to "{C0DE2430-6B68-4E54-BC24-2F891C6C2167}"
         Set psLicenseKey to L_cSigCjKeyMarkupLabel
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure

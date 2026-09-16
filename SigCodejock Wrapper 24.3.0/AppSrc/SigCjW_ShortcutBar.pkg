@@ -952,7 +952,7 @@ Class cSigCjComShortcutBar is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComShortcutBar
-        Set psEventId to "{C0DE2400-C48C-4F2D-9556-81968DE6CB8F}"
+        Set psEventId to "{C0DE2430-C48C-4F2D-9556-81968DE6CB8F}"
         Set psLicenseKey to L_cSigCjKeyShortcutBar
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -1175,7 +1175,7 @@ Class cSigCjComShortcutCaption is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComShortcutCaption
-        Set psEventId to "{C0DE2400-CFAE-4354-8551-B8DC4938E543}"
+        Set psEventId to "{C0DE2430-CFAE-4354-8551-B8DC4938E543}"
         Set psLicenseKey to L_cSigCjKeyShortcutBar
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure

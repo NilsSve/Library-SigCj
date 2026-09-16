@@ -1788,7 +1788,7 @@ Class cSigCjComDockingPane is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComDockingPane
-        Set psEventId to "{C0DE2400-D406-4B24-8B76-A048A231F2B1}"
+        Set psEventId to "{C0DE2430-D406-4B24-8B76-A048A231F2B1}"
         Set psLicenseKey to L_cSigCjKeyDockingPane
         Set peAutoCreate to acAutoCreate
     End_Procedure
@@ -2252,7 +2252,7 @@ Class cSigCjComDockingPaneFrame is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComDockingPaneFrame
-        Set psEventId to "{C0DE2400-B0A3-4DB3-A951-8E52DDE888A7}"
+        Set psEventId to "{C0DE2430-B0A3-4DB3-A951-8E52DDE888A7}"
         Set psLicenseKey to L_cSigCjKeyDockingPane
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure

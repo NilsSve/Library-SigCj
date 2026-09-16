@@ -273,7 +273,7 @@ Class cSigCjComGauge is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComGauge
-        Set psEventId to "{C0DE2400-446A-4925-94B6-F938563E4E9E}"
+        Set psEventId to "{C0DE2430-446A-4925-94B6-F938563E4E9E}"
         Set psLicenseKey to L_cSigCjKeyGauge
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure

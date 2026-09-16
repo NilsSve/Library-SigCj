@@ -7354,7 +7354,7 @@ Class cSigCjComGridControl is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComGridControl
-        Set psEventId to "{C0DE2400-F631-4608-A4E7-EF00A9648B53}"
+        Set psEventId to "{C0DE2430-F631-4608-A4E7-EF00A9648B53}"
         Set psLicenseKey to L_cSigCjKeyGridControl
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -9538,7 +9538,7 @@ Class cSigCjComTrackControl is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComTrackControl
-        Set psEventId to "{C0DE2400-B010-4B1F-9713-B426EEDD55E0}"
+        Set psEventId to "{C0DE2430-B010-4B1F-9713-B426EEDD55E0}"
         Set psLicenseKey to L_cSigCjKeyGridControl
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -11082,7 +11082,7 @@ Class cSigCjComFieldChooser is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComFieldChooser
-        Set psEventId to "{C0DE2400-2BD3-4361-8F99-F105C289E03A}"
+        Set psEventId to "{C0DE2430-2BD3-4361-8F99-F105C289E03A}"
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
 End_Class

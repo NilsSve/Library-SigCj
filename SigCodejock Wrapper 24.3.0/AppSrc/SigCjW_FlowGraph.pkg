@@ -514,7 +514,7 @@ Class cSigCjComFlowGraph is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComFlowGraph
-        Set psEventId to "{C0DE2400-2BFB-472D-838F-319731206C8F}"
+        Set psEventId to "{C0DE2430-2BFB-472D-838F-319731206C8F}"
         Set psLicenseKey to L_cSigCjKeyFlowGraph
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure

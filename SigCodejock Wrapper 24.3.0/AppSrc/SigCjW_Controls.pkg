@@ -1106,7 +1106,7 @@ Class cSigCjComPushButton is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComPushButton
-        Set psEventId to "{C0DE2400-F943-48EE-AE76-B8A124D9B701}"
+        Set psEventId to "{C0DE2430-F943-48EE-AE76-B8A124D9B701}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -1457,7 +1457,7 @@ Class cSigCjComRadioButton is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComRadioButton
-        Set psEventId to "{C0DE2400-7963-418D-9F13-13D0862DF647}"
+        Set psEventId to "{C0DE2430-7963-418D-9F13-13D0862DF647}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -1792,7 +1792,7 @@ Class cSigCjComCheckBox is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComCheckBox
-        Set psEventId to "{C0DE2400-08CC-4B3D-82EA-3B7BE0CF1117}"
+        Set psEventId to "{C0DE2430-08CC-4B3D-82EA-3B7BE0CF1117}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acDeferredAutoCreate
         //Connect the default bindable property
@@ -2018,7 +2018,7 @@ Class cSigCjComGroupBox is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComGroupBox
-        Set psEventId to "{C0DE2400-DF35-44EC-BDBD-94CD0B3BF4D8}"
+        Set psEventId to "{C0DE2430-DF35-44EC-BDBD-94CD0B3BF4D8}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -2294,7 +2294,7 @@ Class cSigCjComColorPicker is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComColorPicker
-        Set psEventId to "{C0DE2400-D2C0-4C36-A3C5-9739EA1B7831}"
+        Set psEventId to "{C0DE2430-D2C0-4C36-A3C5-9739EA1B7831}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -2811,7 +2811,7 @@ Class cSigCjComFlatEdit is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComFlatEdit
-        Set psEventId to "{C0DE2400-B654-4763-A103-A3830E7E3B2D}"
+        Set psEventId to "{C0DE2430-B654-4763-A103-A3830E7E3B2D}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acDeferredAutoCreate
         //Connect the default bindable property
@@ -3098,7 +3098,7 @@ Class cSigCjComLabel is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComLabel
-        Set psEventId to "{C0DE2400-FC32-47BE-AC0C-B5F7E9D9FFCF}"
+        Set psEventId to "{C0DE2430-FC32-47BE-AC0C-B5F7E9D9FFCF}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -3711,7 +3711,7 @@ Class cSigCjComListBox is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComListBox
-        Set psEventId to "{C0DE2400-4B44-4BEE-A7A8-8F5954390D95}"
+        Set psEventId to "{C0DE2430-4B44-4BEE-A7A8-8F5954390D95}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -4259,7 +4259,7 @@ Class cSigCjComComboBox is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComComboBox
-        Set psEventId to "{C0DE2400-63FA-4657-95D5-F8C2B25BBD4B}"
+        Set psEventId to "{C0DE2430-63FA-4657-95D5-F8C2B25BBD4B}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acDeferredAutoCreate
         //Connect the default bindable property
@@ -4586,7 +4586,7 @@ Class cSigCjComResizer is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComResizer
-        Set psEventId to "{C0DE2400-9731-436F-8D92-C949D200ADA1}"
+        Set psEventId to "{C0DE2430-9731-436F-8D92-C949D200ADA1}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -5044,7 +5044,7 @@ Class cSigCjComTabControl is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComTabControl
-        Set psEventId to "{C0DE2400-C2DC-4C83-8840-879B3C33E6BD}"
+        Set psEventId to "{C0DE2430-C2DC-4C83-8840-879B3C33E6BD}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -5188,7 +5188,7 @@ Class cSigCjComTabControlPage is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComTabControlPage
-        Set psEventId to "{C0DE2400-4866-4C45-AF97-E4F95E2BA55A}"
+        Set psEventId to "{C0DE2430-4866-4C45-AF97-E4F95E2BA55A}"
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
 End_Class
@@ -5819,7 +5819,7 @@ Class cSigCjComPopupControl is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComPopupControl
-        Set psEventId to "{C0DE2400-7787-44CF-AD0F-59D3D2737E5E}"
+        Set psEventId to "{C0DE2430-7787-44CF-AD0F-59D3D2737E5E}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acAutoCreate
     End_Procedure
@@ -6480,7 +6480,7 @@ Class cSigCjComTreeView is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComTreeView
-        Set psEventId to "{C0DE2400-AB5E-4C8E-97A7-E02F99ACDA71}"
+        Set psEventId to "{C0DE2430-AB5E-4C8E-97A7-E02F99ACDA71}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -7207,7 +7207,7 @@ Class cSigCjComListView is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComListView
-        Set psEventId to "{C0DE2400-945A-473F-8534-1F3781DEEE7D}"
+        Set psEventId to "{C0DE2430-945A-473F-8534-1F3781DEEE7D}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -7503,7 +7503,7 @@ Class cSigCjComProgressBar is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComProgressBar
-        Set psEventId to "{C0DE2400-D6F7-4A60-BC80-6B4D58112A97}"
+        Set psEventId to "{C0DE2430-D6F7-4A60-BC80-6B4D58112A97}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -7728,7 +7728,7 @@ Class cSigCjComScrollBar is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComScrollBar
-        Set psEventId to "{C0DE2400-FBBC-40DB-846D-05B2CE330888}"
+        Set psEventId to "{C0DE2430-FBBC-40DB-846D-05B2CE330888}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -7970,7 +7970,7 @@ Class cSigCjComUpDown is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComUpDown
-        Set psEventId to "{C0DE2400-2981-4FB2-A62C-AC1422205590}"
+        Set psEventId to "{C0DE2430-2981-4FB2-A62C-AC1422205590}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -8239,7 +8239,7 @@ Class cSigCjComSlider is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComSlider
-        Set psEventId to "{C0DE2400-2797-45D9-B88D-A14E501CDB71}"
+        Set psEventId to "{C0DE2430-2797-45D9-B88D-A14E501CDB71}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -8819,7 +8819,7 @@ Class cSigCjComTaskDialog is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComTaskDialog
-        Set psEventId to "{C0DE2400-A70B-4266-91CE-4475E8A455B9}"
+        Set psEventId to "{C0DE2430-A70B-4266-91CE-4475E8A455B9}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acAutoCreate
     End_Procedure
@@ -9245,7 +9245,7 @@ Class cSigCjComCommonDialog is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComCommonDialog
-        Set psEventId to "{C0DE2400-DF8B-492C-8223-1516F05931A2}"
+        Set psEventId to "{C0DE2430-DF8B-492C-8223-1516F05931A2}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acAutoCreate
     End_Procedure
@@ -9533,7 +9533,7 @@ Class cSigCjComDateTimePicker is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComDateTimePicker
-        Set psEventId to "{C0DE2400-7A7E-43B6-8468-0B74ADBA1168}"
+        Set psEventId to "{C0DE2430-7A7E-43B6-8468-0B74ADBA1168}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -9846,7 +9846,7 @@ Class cSigCjComMonthCalendar is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComMonthCalendar
-        Set psEventId to "{C0DE2400-5C4B-40AD-916B-5F7D03A172FC}"
+        Set psEventId to "{C0DE2430-5C4B-40AD-916B-5F7D03A172FC}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -10449,7 +10449,7 @@ Class cSigCjComWebBrowser is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComWebBrowser
-        Set psEventId to "{C0DE2400-D91C-4911-ADA7-3A1EB6EB003B}"
+        Set psEventId to "{C0DE2430-D91C-4911-ADA7-3A1EB6EB003B}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -10568,7 +10568,7 @@ Class cSigCjComTrayIcon is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComTrayIcon
-        Set psEventId to "{C0DE2400-077E-414F-BDB7-C07CC582AAA4}"
+        Set psEventId to "{C0DE2430-077E-414F-BDB7-C07CC582AAA4}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acAutoCreate
     End_Procedure
@@ -10835,7 +10835,7 @@ Class cSigCjComHexEdit is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComHexEdit
-        Set psEventId to "{C0DE2400-EF36-4585-941C-9FCC90A153B1}"
+        Set psEventId to "{C0DE2430-EF36-4585-941C-9FCC90A153B1}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -11025,7 +11025,7 @@ Class cSigCjComFormExtender is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComFormExtender
-        Set psEventId to "{C0DE2400-B768-43F0-B9AF-C31CD2103724}"
+        Set psEventId to "{C0DE2430-B768-43F0-B9AF-C31CD2103724}"
         Set peAutoCreate to acAutoCreate
     End_Procedure
 End_Class
@@ -11102,7 +11102,7 @@ Class cSigCjComTaskbarManager is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComTaskbarManager
-        Set psEventId to "{C0DE2400-8925-425D-863D-986636C7F33A}"
+        Set psEventId to "{C0DE2430-8925-425D-863D-986636C7F33A}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acAutoCreate
     End_Procedure
@@ -11434,7 +11434,7 @@ Class cSigCjComTagCloud is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComTagCloud
-        Set psEventId to "{C0DE2400-26A3-4D06-98B0-43E652E8511B}"
+        Set psEventId to "{C0DE2430-26A3-4D06-98B0-43E652E8511B}"
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
 End_Class
@@ -11764,7 +11764,7 @@ Class cSigCjComPreview is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComPreview
-        Set psEventId to "{C0DE2400-4F28-4D0D-8CC4-9A352AF47B2C}"
+        Set psEventId to "{C0DE2430-4F28-4D0D-8CC4-9A352AF47B2C}"
         Set psLicenseKey to L_cSigCjKeyControls
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure
@@ -12089,7 +12089,7 @@ Class cSigCjComPasswordPeek is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComPasswordPeek
-        Set psEventId to "{C0DE2400-CCA2-45A9-A805-171A478C2260}"
+        Set psEventId to "{C0DE2430-CCA2-45A9-A805-171A478C2260}"
         Set peAutoCreate to acDeferredAutoCreate
         //Connect the default bindable property
         Send RegisterPropertyChangeEvent 0 msg_OnControlValueChanged

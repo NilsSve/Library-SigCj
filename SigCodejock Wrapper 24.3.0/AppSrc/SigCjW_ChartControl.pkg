@@ -5711,7 +5711,7 @@ Class cSigCjComChartControl is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComChartControl
-        Set psEventId to "{C0DE2400-9F75-41A0-9AAE-A3331026CD43}"
+        Set psEventId to "{C0DE2430-9F75-41A0-9AAE-A3331026CD43}"
         Set psLicenseKey to L_cSigCjKeyChartControl
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure

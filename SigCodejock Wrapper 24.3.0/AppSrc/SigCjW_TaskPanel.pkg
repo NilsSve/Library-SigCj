@@ -2204,7 +2204,7 @@ Class cSigCjComTaskPanel is a cComActiveXControl
     Procedure Construct_Object
         Forward Send Construct_Object
         Set psProgID to L_cSigCjComTaskPanel
-        Set psEventId to "{C0DE2400-DC51-46E1-8484-90143C199441}"
+        Set psEventId to "{C0DE2430-DC51-46E1-8484-90143C199441}"
         Set psLicenseKey to L_cSigCjKeyTaskPanel
         Set peAutoCreate to acDeferredAutoCreate
     End_Procedure

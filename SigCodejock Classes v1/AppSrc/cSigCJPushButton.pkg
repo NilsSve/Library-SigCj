@@ -240,11 +240,20 @@ Class cSigCJPushButton is a cSigCjComPushButton
     { MethodType=Event }
     Procedure OnCreate
         Handle hoFont
+        //Ambiguous Function in expression: DAW also define PRIVATE_PIBACKCOLOR,
+        //and theirs is an Integer; the system classes compile first. Same
+        //workaround as cSigCJLabel.pkg / cSigCJColorPicker.pkg - a local
+        //variable removes the expression syntax.
+        OLE_Color iColor
+        OLE_Color iForeColor
 
         Forward Send OnCreate
 
+        Get Private_piBackColor to iColor
+        Get Private_piForeColor to iForeColor
+
         Set peAppearance        to (Private_peAppearance(Self))
-        Set piBackColor         to (Private_piBackColor(Self))
+        Set piBackColor         to iColor   //See above (Private_piBackColor(Self))
         Set piBorderGap         to (Private_piBorderGap(Self))
         Set pbChecked           to (Private_pbChecked(Self))
         Set pbDefault           to (Private_pbDefault(Self))
@@ -252,7 +261,7 @@ Class cSigCJPushButton is a cSigCjComPushButton
         Set pbEnabled           to (Private_pbEnabled(Self))
         Set pbEnableMarkup      to (Private_pbEnableMarkup(Self))
         Set pbFlatStyle         to (Private_pbFlatStyle(Self))
-        Set piForeColor         to (Private_piForeColor(Self))
+        Set piForeColor         to iForeColor   //See above (Private_piForeColor(Self))
         Set psImage             to (Private_psImage(Self))
         Set peImageAlignment    to (Private_peImageAlignment(Self))
         Set piImageGap          to (Private_piImageGap(Self))
@@ -340,11 +349,13 @@ Class cSigCJPushButton is a cSigCjComPushButton
 
     Procedure Add_Focus Handle ohParent Returns Integer
         Integer iVoid iRetval
+        OLE_Color iForeColor   //See OnCreate
 
         Forward Get Msg_Add_Focus ohParent to iRetval
 
+        Get Private_piForeColor to iForeColor
         Move (ShowWindow(ComHWnd(Self), Private_pbVisible(Self))) to iVoid
-        If (pbEnableHotTrack(Self)) Set ComForeColor to (Private_piForeColor(Self))
+        If (pbEnableHotTrack(Self)) Set ComForeColor to iForeColor
 
         Procedure_Return iRetval
     End_Procedure // Add_Focus
@@ -819,8 +830,12 @@ Class cSigCJPushButton is a cSigCjComPushButton
     //Mouse move - Not tracking
 
     Procedure MouseMove Integer iButton Integer iShift Integer iX Integer iY
+        OLE_Color iForeColor   //See OnCreate
+
+        Get Private_piForeColor to iForeColor
+
         If (pbEnableHotTrack(Self) and pbEnabled(Self)) Begin
-            If (iX = -1 and iY = -1) Set ComForeColor to (Private_piForeColor(Self))
+            If (iX = -1 and iY = -1) Set ComForeColor to iForeColor
             Else Set ComForeColor to (piHotTrackColor(Self))
         End
     End_Procedure
